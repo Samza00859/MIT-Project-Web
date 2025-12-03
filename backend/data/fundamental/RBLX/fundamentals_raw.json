@@ -1,0 +1,87 @@
+{
+  "symbol": "RBLX",
+  "timestamp": "2025-12-03T06:34:51.269434+00:00",
+  "raw": {
+    "yfinance": {
+      "overview": {
+        "marketCap": 65770417957.49335,
+        "sharesOutstanding": null,
+        "peRatio": null,
+        "currency": "USD",
+        "exchange": "NYQ",
+        "name": "Roblox Corporation",
+        "sector": "Communication Services",
+        "industry": "Electronic Gaming & Multimedia"
+      },
+      "balancesheet": {
+        "totalAssets": 7175003000.0,
+        "totalLiabilities": 6966349000.0,
+        "shareholderEquity": 208654000.0
+      },
+      "cashflow": {
+        "operatingCashFlow": 822316000.0,
+        "freeCashFlow": 641300000.0,
+        "capitalExpenditures": null
+      },
+      "incomestatement": {
+        "totalRevenue": 3601979000.0,
+        "netIncome": -935384000.0,
+        "eps": null
+      }
+    },
+    "finnhub": {
+      "overview": {
+        "name": "Roblox Corp",
+        "currency": "USD",
+        "exchange": "NEW YORK STOCK EXCHANGE, INC.",
+        "sector": "Media",
+        "industry": "Media",
+        "marketCap": 65770377030648.266,
+        "sharesOutstanding": 701.93,
+        "peRatio": null
+      },
+      "balancesheet": {
+        "totalAssets": null,
+        "totalLiabilities": null,
+        "shareholderEquity": null
+      },
+      "cashflow": {
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "capitalExpenditures": null
+      },
+      "incomestatement": {
+        "totalRevenue": null,
+        "netIncome": null,
+        "eps": null
+      }
+    },
+    "alphavantage": {
+      "overview": {
+        "name": "Roblox Corp",
+        "currency": "USD",
+        "exchange": "NYSE",
+        "sector": "COMMUNICATION SERVICES",
+        "industry": "ELECTRONIC GAMING & MULTIMEDIA",
+        "marketCap": 65833595000.0,
+        "sharesOutstanding": 654855000.0,
+        "peRatio": null
+      },
+      "balancesheet": {
+        "totalAssets": 7175003000.0,
+        "totalLiabilities": 6966349000.0,
+        "shareholderEquity": 221446000.0
+      },
+      "cashflow": {
+        "operatingCashFlow": 822316000.0,
+        "freeCashFlow": 642670000.0,
+        "capitalExpenditures": 179646000.0
+      },
+      "incomestatement": {
+        "totalRevenue": 3601979000.0,
+        "netIncome": -935384000.0,
+        "eps": null
+      }
+    }
+  }
+}

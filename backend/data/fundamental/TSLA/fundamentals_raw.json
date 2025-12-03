@@ -1,0 +1,78 @@
+{
+  "symbol": "TSLA",
+  "timestamp": "2025-12-03T02:12:04.822326+00:00",
+  "raw": {
+    "yfinance": {
+      "overview": {
+        "marketCap": 1427574586764.3772,
+        "sharesOutstanding": null,
+        "peRatio": null,
+        "currency": "USD",
+        "exchange": "NMS",
+        "name": "Tesla, Inc.",
+        "sector": "Consumer Cyclical",
+        "industry": "Auto Manufacturers"
+      },
+      "balancesheet": {
+        "totalAssets": 122070000000.0,
+        "totalLiabilities": 48390000000.0,
+        "shareholderEquity": 73680000000.0
+      },
+      "cashflow": {
+        "operatingCashFlow": 14923000000.0,
+        "freeCashFlow": 3581000000.0,
+        "capitalExpenditures": null
+      },
+      "incomestatement": {
+        "totalRevenue": 97690000000.0,
+        "netIncome": 7130000000.0,
+        "eps": null
+      }
+    },
+    "finnhub": {
+      "overview": {
+        "name": "Tesla Inc",
+        "currency": "USD",
+        "exchange": "NASDAQ NMS - GLOBAL MARKET",
+        "sector": "Automobiles",
+        "industry": "Automobiles",
+        "marketCap": 1427574740373721.5,
+        "sharesOutstanding": 3325.82,
+        "peRatio": 270.9899
+      },
+      "balancesheet": {
+        "totalAssets": null,
+        "totalLiabilities": null,
+        "shareholderEquity": null
+      },
+      "cashflow": {
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "capitalExpenditures": null
+      },
+      "incomestatement": {
+        "totalRevenue": null,
+        "netIncome": null,
+        "eps": null
+      }
+    },
+    "alphavantage": {
+      "overview": {},
+      "balancesheet": {
+        "totalAssets": null,
+        "totalLiabilities": null,
+        "shareholderEquity": null
+      },
+      "cashflow": {
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "capitalExpenditures": null
+      },
+      "incomestatement": {
+        "totalRevenue": null,
+        "netIncome": null,
+        "eps": null
+      }
+    }
+  }
+}

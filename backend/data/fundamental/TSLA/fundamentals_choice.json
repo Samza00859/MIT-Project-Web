@@ -1,0 +1,92 @@
+{
+  "symbol": "TSLA",
+  "chosen_source": "yfinance",
+  "scores": {
+    "yfinance": 2,
+    "finnhub": 2,
+    "alphavantage": 0
+  },
+  "completeness": {
+    "yfinance": 13,
+    "finnhub": 8,
+    "alphavantage": 0
+  },
+  "sections": {
+    "overview": {
+      "scores": {
+        "yfinance": 2,
+        "finnhub": 2,
+        "alphavantage": 0
+      },
+      "completeness": {
+        "yfinance": 6,
+        "finnhub": 8,
+        "alphavantage": 0
+      }
+    },
+    "balancesheet": {
+      "scores": {
+        "yfinance": 0,
+        "finnhub": 0,
+        "alphavantage": 0
+      },
+      "completeness": {
+        "yfinance": 3,
+        "finnhub": 0,
+        "alphavantage": 0
+      }
+    },
+    "cashflow": {
+      "scores": {
+        "yfinance": 0,
+        "finnhub": 0,
+        "alphavantage": 0
+      },
+      "completeness": {
+        "yfinance": 2,
+        "finnhub": 0,
+        "alphavantage": 0
+      }
+    },
+    "incomestatement": {
+      "scores": {
+        "yfinance": 0,
+        "finnhub": 0,
+        "alphavantage": 0
+      },
+      "completeness": {
+        "yfinance": 2,
+        "finnhub": 0,
+        "alphavantage": 0
+      }
+    }
+  },
+  "final_payload": {
+    "overview": {
+      "marketCap": 1427574586764.3772,
+      "sharesOutstanding": null,
+      "peRatio": null,
+      "currency": "USD",
+      "exchange": "NMS",
+      "name": "Tesla, Inc.",
+      "sector": "Consumer Cyclical",
+      "industry": "Auto Manufacturers"
+    },
+    "balancesheet": {
+      "totalAssets": 122070000000.0,
+      "totalLiabilities": 48390000000.0,
+      "shareholderEquity": 73680000000.0
+    },
+    "cashflow": {
+      "operatingCashFlow": 14923000000.0,
+      "freeCashFlow": 3581000000.0,
+      "capitalExpenditures": null
+    },
+    "incomestatement": {
+      "totalRevenue": 97690000000.0,
+      "netIncome": 7130000000.0,
+      "eps": null
+    }
+  },
+  "timestamp": "2025-12-03T02:12:04.822326+00:00"
+}

@@ -1,0 +1,136 @@
+{
+  "timestamp": "2025-11-26T08:34:50.617360+00:00",
+  "symbol": "AAPL",
+  "chosen_source": "yfinance",
+  "compare_keys": [
+    "close_50_sma",
+    "close_200_sma",
+    "close_10_ema",
+    "macd",
+    "macds",
+    "macdh",
+    "rsi",
+    "boll",
+    "boll_ub",
+    "boll_lb",
+    "atr",
+    "vwma"
+  ],
+  "tolerance": {
+    "rsi": {
+      "abs": 0.25,
+      "rel": 0.0
+    },
+    "macd": {
+      "abs": 0.005,
+      "rel": 0.0
+    },
+    "macds": {
+      "abs": 0.005,
+      "rel": 0.0
+    },
+    "macdh": {
+      "abs": 0.005,
+      "rel": 0.0
+    },
+    "close_10_ema": {
+      "abs": 0.03,
+      "rel": 0.0006
+    },
+    "close_50_sma": {
+      "abs": 0.04,
+      "rel": 0.0006
+    },
+    "close_200_sma": {
+      "abs": 0.06,
+      "rel": 0.0006
+    },
+    "boll": {
+      "abs": 0.05,
+      "rel": 0.0007
+    },
+    "boll_ub": {
+      "abs": 0.06,
+      "rel": 0.0007
+    },
+    "boll_lb": {
+      "abs": 0.06,
+      "rel": 0.0007
+    },
+    "atr": {
+      "abs": 0.05,
+      "rel": 0.0007
+    },
+    "vwma": {
+      "abs": 0.05,
+      "rel": 0.0007
+    }
+  },
+  "scores": {
+    "tradingview": {
+      "hits": 9,
+      "comps": 9,
+      "score": 1.0,
+      "completeness": 0.75,
+      "numeric_count": 9
+    },
+    "yfinance": {
+      "hits": 9,
+      "comps": 9,
+      "score": 1.0,
+      "completeness": 1.0,
+      "numeric_count": 12
+    },
+    "twelvedata": {
+      "hits": 0,
+      "comps": 0,
+      "score": 0.0
+    }
+  },
+  "final_payload": {
+    "close_50_sma": 261.0487994384766,
+    "close_200_sma": 226.7573500061035,
+    "close_10_ema": 271.77994025212234,
+    "macd": 3.6865268459607705,
+    "macds": 3.9541219484615584,
+    "macdh": -0.2675951025007879,
+    "rsi": 66.18520664411265,
+    "boll": 270.8270004272461,
+    "boll_ub": 276.50597389911206,
+    "boll_lb": 265.14802695538015,
+    "atr": 5.841288609679928,
+    "vwma": 270.9490268445799
+  },
+  "raw": {
+    "tradingview": {
+      "close_50_sma": 261.0488,
+      "close_200_sma": 226.75734999999997,
+      "close_10_ema": 271.77993923994177,
+      "macd": 3.686526206147505,
+      "macds": 3.9541216075893266,
+      "macdh": null,
+      "rsi": 66.18520243069256,
+      "boll": null,
+      "boll_ub": 276.505968568463,
+      "boll_lb": 265.1480314315355,
+      "atr": null,
+      "vwma": 270.94917223109053
+    },
+    "yfinance": {
+      "close_50_sma": 261.0487994384766,
+      "close_200_sma": 226.7573500061035,
+      "close_10_ema": 271.77994025212234,
+      "macd": 3.6865268459607705,
+      "macds": 3.9541219484615584,
+      "macdh": -0.2675951025007879,
+      "rsi": 66.18520664411265,
+      "boll": 270.8270004272461,
+      "boll_ub": 276.50597389911206,
+      "boll_lb": 265.14802695538015,
+      "atr": 5.841288609679928,
+      "vwma": 270.9490268445799,
+      "_last_bar_time_utc": "2025-11-25 00:00:00"
+    },
+    "twelvedata": {}
+  }
+}

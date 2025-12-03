@@ -1,0 +1,62 @@
+## AAPL Fundamental Analysis Report
+
+**Date:** 2025-11-30
+
+**Company:** Apple Inc. (AAPL)
+
+This report provides a fundamental analysis of Apple Inc. based on the data retrieved. The analysis includes key financial metrics and a summary of the company's performance.
+
+**Key Financial Highlights:**
+
+*   **Market Capitalization:** Approximately \$4.2 trillion, indicating a large and established company.
+*   **Total Revenue:** \$416.161 billion, demonstrating substantial sales volume.
+*   **Net Income:** \$112.01 billion, reflecting strong profitability.
+*   **Operating Cash Flow:** \$111.482 billion, highlighting the company's ability to generate cash from its operations.
+*   **Free Cash Flow:** \$98.767 billion, showing the cash flow available after capital expenditures.
+*   **Total Assets:** \$359.241 billion
+*   **Total Liabilities:** \$285.508 billion
+*   **Shareholder Equity:** \$73.733 billion
+
+**Income Statement Analysis:**
+
+*   Apple's revenue is substantial, indicating a strong market presence and consumer demand for its products and services.
+*   The company's net income is also very high, demonstrating its ability to translate revenue into profit.
+
+**Cash Flow Analysis:**
+
+*   The company generates significant cash from its operations, which is a positive sign of financial health.
+*   The free cash flow is also robust, indicating the company's ability to invest in growth, pay dividends, or reduce debt.
+
+**Balance Sheet Analysis:**
+
+*   The data reveals the company's financial position, including assets, liabilities, and shareholder equity.
+
+**Industry and Sector:**
+
+*   Apple operates in the Consumer Electronics industry within the Technology sector.
+
+**Summary and Outlook:**
+
+Apple Inc. demonstrates strong financial performance across revenue, profitability, and cash flow metrics. The company's large market capitalization reflects its significant market presence. The company's ability to generate substantial cash flow provides flexibility for future investments and shareholder returns.
+
+**Data Source:** yfinance, finnhub
+
+**Limitations:**
+
+*   The report is based on a snapshot of data.
+*   More detailed analysis may require additional financial statements and metrics.
+
+**Key Points in a Table:**
+
+| Metric                | Value (USD)          |
+| --------------------- | -------------------- |
+| Market Cap            | \$4.2 Trillion       |
+| Total Revenue         | \$416.161 Billion    |
+| Net Income            | \$112.01 Billion     |
+| Operating Cash Flow   | \$111.482 Billion    |
+| Free Cash Flow        | \$98.767 Billion     |
+| Total Assets          | \$359.241 Billion    |
+| Total Liabilities     | \$285.508 Billion    |
+| Shareholder Equity    | \$73.733 Billion     |
+| Industry              | Consumer Electronics |
+| Sector                | Technology           |

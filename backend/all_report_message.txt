@@ -1,0 +1,80 @@
+🏷️ Stock Data Source Comparison Result:
+
+===== TOTAL RECORDS CHECK =====
+YFinance:      270
+TwelveData:    0
+TradingView:   0
+
+
+===== SIMILARITY SCORE =====
+YFinance Score: 0
+TwelveData Score: 0
+TradingView Score: 0
+
+🏆 Best Source: YFINANCE
+
+📊 Indicator 'rsi' Source Comparison for RBLX:
+Yahoo Finance Score: 186
+Alpha Vantage Score: 186
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
+
+📊 Indicator 'macdh' Source Comparison for RBLX:
+Yahoo Finance Score: 0
+Alpha Vantage Score: 0
+TradingView Score: 0
+🏆 Best Source: YAHOO
+
+📊 Indicator 'macd' Source Comparison for RBLX:
+Yahoo Finance Score: 0
+Alpha Vantage Score: 0
+TradingView Score: 0
+🏆 Best Source: YAHOO
+
+📊 Indicator 'macds' Source Comparison for RBLX:
+Yahoo Finance Score: 0
+Alpha Vantage Score: 0
+TradingView Score: 0
+🏆 Best Source: YAHOO
+
+📊 Indicator 'atr' Source Comparison for RBLX:
+Yahoo Finance Score: 186
+Alpha Vantage Score: 186
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
+
+📊 Indicator 'close_50_sma' Source Comparison for RBLX:
+Yahoo Finance Score: 186
+Alpha Vantage Score: 186
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
+
+📊 Indicator 'close_200_sma' Source Comparison for RBLX:
+Yahoo Finance Score: 186
+Alpha Vantage Score: 186
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
+
+📊 Indicator 'close_10_ema' Source Comparison for RBLX:
+Yahoo Finance Score: 186
+Alpha Vantage Score: 186
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
+
+
+🌐 Social Media News: 
+Bluesky news fetched for RBLX: 108 posts found.
+Mastodon news fetched for RBLX: 13 posts found.
+Subreddit news fetched for RBLX: 1 posts found.
+
+📰 News :
+Fetched 21 news items for RBLX from Finnhub.
+Fetched 0 news items for RBLX from Reddit.
+Fetched 10 news items for RBLX from YFinance.
+Fetched 0 news items for RBLX from Alpha Vantage.
+
+Fetched fundamentals for RBLX:
+- YFinance: 4 fields fetched
+- Finnhub: 1 fields fetched
+- AlphaVantage: 4 fields fetched
+📜 Fundamental data for RBLX. Chosen source: alphavantage
