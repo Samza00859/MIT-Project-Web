@@ -1,10 +1,10 @@
 {
   "symbol": "RBLX",
-  "timestamp": "2025-12-03T06:34:51.269434+00:00",
+  "timestamp": "2025-12-04T05:17:17.011357+00:00",
   "raw": {
     "yfinance": {
       "overview": {
-        "marketCap": 65770417957.49335,
+        "marketCap": 64647338215.74667,
         "sharesOutstanding": null,
         "peRatio": null,
         "currency": "USD",
@@ -36,7 +36,7 @@
         "exchange": "NEW YORK STOCK EXCHANGE, INC.",
         "sector": "Media",
         "industry": "Media",
-        "marketCap": 65770377030648.266,
+        "marketCap": 64647294217168.62,
         "sharesOutstanding": 701.93,
         "peRatio": null
       },
@@ -63,7 +63,7 @@
         "exchange": "NYSE",
         "sector": "COMMUNICATION SERVICES",
         "industry": "ELECTRONIC GAMING & MULTIMEDIA",
-        "marketCap": 65833595000.0,
+        "marketCap": 65770418000.0,
         "sharesOutstanding": 654855000.0,
         "peRatio": null
       },

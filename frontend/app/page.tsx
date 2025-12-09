@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { jsPDF } from "jspdf";
+import Sidebar from "../components/Sidebar";
 
 // --- Constants & Types ---
 
@@ -32,15 +33,13 @@ const RESEARCH_DEPTH_OPTIONS = [
 
 const SHALLOW_AGENTS = {
   google: [
-    ["Gemini 2.0 Flash-Lite • low latency", "gemini-2.0-flash-lite"],
-    ["Gemini 2.0 Flash • next-gen speed", "gemini-2.0-flash"],
+    ["Gemini 2.5 Flash • adaptive", "gemini-2.5-flash"],
   ],
 };
 
 const DEEP_AGENTS = {
   google: [
-    ["Gemini 2.0 Flash-Lite", "gemini-2.0-flash-lite"],
-    ["Gemini 2.0 Flash", "gemini-2.0-flash"],
+    ["Gemini 2.5 Flash", "gemini-2.5-flash"],
   ],
 };
 
@@ -156,9 +155,11 @@ function extractKeyPoints(text: string) {
   return keyPoints;
 }
 
-function summarizeReport(reportText: string, decision: string) {
+function summarizeReport(reportText: string | any, decision: string) {
   if (!reportText) return "";
-  const lines = reportText.split("\n");
+  // Ensure reportText is a string
+  const text = typeof reportText === 'string' ? reportText : String(reportText);
+  const lines = text.split("\n");
   const summary: string[] = [];
   let currentSection: string | null = null;
   let currentContent: string[] = [];
@@ -228,7 +229,14 @@ export default function Home() {
   >([]);
   const [decision, setDecision] = useState("Awaiting run");
   const [copyFeedback, setCopyFeedback] = useState("Copy report");
-
+  const [progress, setProgress] = useState(0);
+  const [teamProgress, setTeamProgress] = useState({
+    analyst: 0,
+    research: 0,
+    trader: 0,
+    risk: 0,
+  });
+  const [isDarkMode, setIsDarkMode] = useState(true);
   // Debug State
   const [isDebugCollapsed, setIsDebugCollapsed] = useState(false);
   const [debugLogs, setDebugLogs] = useState<
@@ -600,179 +608,145 @@ export default function Home() {
 
   const recVariant = getRecommendationVariant(decision);
 
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
   return (
-    <div className="grid min-h-screen grid-cols-[250px_1fr] bg-[#070a13] text-[#f8fbff] font-sans">
+    <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? "bg-[#070a13] text-[#f8fbff]" : "bg-[#f0f2f5] text-[#1a202c]"}`}>
       {/* Sidebar */}
-      <aside className="flex flex-col gap-8 border-r border-white/5 bg-[#0c111f] px-6 py-8">
-        <div className="flex items-center gap-3">
-          <div className="relative grid h-12 w-12 place-items-center rounded-full border-2 border-[#2df4c6]/40">
-            <span className="absolute h-1.5 w-1.5 animate-[pulse_2s_linear_infinite] rounded-full bg-[#2df4c6]"></span>
-            <span className="absolute h-1.5 w-1.5 animate-[pulse_2s_linear_infinite_0.35s] rounded-full bg-[#2df4c6]"></span>
-            <span className="absolute h-1.5 w-1.5 animate-[pulse_2s_linear_infinite_0.7s] rounded-full bg-[#2df4c6]"></span>
-          </div>
-          <div>
-            <p className="font-semibold tracking-wide">TradingAgents</p>
-            <p className="text-sm text-[#8b94ad]">LLM Trading Lab</p>
-          </div>
+      <Sidebar
+        activeId="generate"
+        isDarkMode={isDarkMode}
+        toggleTheme={toggleTheme}
+      >
+        <div
+          className="mb-3 flex cursor-pointer select-none items-center gap-2 font-medium text-[#8b94ad] hover:text-[#f8fbff]"
+          onClick={() => setIsDebugCollapsed(!isDebugCollapsed)}
+        >
+          <span>🐛</span>
+          <span>Debug Panel</span>
+          <button className="ml-auto p-1 text-xs transition-transform">
+            {isDebugCollapsed ? "▶" : "▼"}
+          </button>
         </div>
 
-        <nav className="flex flex-col gap-2.5">
-          {[
-            { id: "home", icon: "🏠", label: "Home" },
-            { id: "generate", icon: "🌐", label: "Generate", active: true },
-            { id: "contact", icon: "📬", label: "Contact" },
-            { id: "docs", icon: "📄", label: "View Docs" },
-          ].map((item) => (
-            <button
-              key={item.id}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-[0.95rem] transition-colors ${item.active
-                ? "bg-[#2df4c6]/10 text-[#f8fbff]"
-                : "text-[#8b94ad] hover:bg-[#2df4c6]/10 hover:text-[#f8fbff]"
-                }`}
-            >
-              <span className="text-lg">{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </nav>
-
-        <div className="mt-auto flex items-center justify-between text-sm text-[#8b94ad]">
-          <span>Dark mode</span>
-          <label className="relative inline-block h-5 w-10 cursor-pointer">
-            <input type="checkbox" checked readOnly className="peer sr-only" />
-            <span className="absolute inset-0 rounded-full bg-[#394054] transition-all before:absolute before:bottom-[2px] before:left-[2px] before:h-4 before:w-4 before:rounded-full before:bg-white before:transition-all peer-checked:bg-[#00d18f] peer-checked:before:translate-x-5"></span>
-          </label>
-        </div>
-
-        <div className="mt-6 border-t border-white/5 pt-4 text-[0.85rem]">
-          <div
-            className="mb-3 flex cursor-pointer select-none items-center gap-2 font-medium text-[#8b94ad] hover:text-[#f8fbff]"
-            onClick={() => setIsDebugCollapsed(!isDebugCollapsed)}
-          >
-            <span>🐛</span>
-            <span>Debug Panel</span>
-            <button className="ml-auto p-1 text-xs transition-transform">
-              {isDebugCollapsed ? "▶" : "▼"}
-            </button>
-          </div>
-
-          {!isDebugCollapsed && (
-            <div className="flex max-h-[600px] flex-col gap-2.5 overflow-y-auto pr-1 scrollbar-thin scrollbar-track-white/5 scrollbar-thumb-white/20">
-              <div className="flex flex-col gap-1">
-                <div className="text-xs uppercase tracking-wider text-[#8b94ad]">
-                  WebSocket Status
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-[#f8fbff]">
-                  <span
-                    className={`inline-block h-2 w-2 flex-shrink-0 rounded-full ${wsStatus === "connected"
-                      ? "bg-[#2df4c6] shadow-[0_0_6px_#2df4c6]"
-                      : wsStatus === "connecting"
-                        ? "animate-pulse bg-[#f9a826]"
-                        : "bg-[#ff4d6d]"
-                      }`}
-                  ></span>
-                  <span className="capitalize">{wsStatus}</span>
-                </div>
+        {!isDebugCollapsed && (
+          <div className="flex max-h-[600px] flex-col gap-2.5 overflow-y-auto pr-1 scrollbar-thin scrollbar-track-white/5 scrollbar-thumb-white/20">
+            <div className="flex flex-col gap-1">
+              <div className="text-xs uppercase tracking-wider text-[#8b94ad]">
+                WebSocket Status
               </div>
-
-              <div className="flex flex-col gap-1">
-                <div className="text-xs uppercase tracking-wider text-[#8b94ad]">
-                  Connection URL
-                </div>
-                <div className="break-all text-xs text-[#f8fbff]">
-                  {wsUrl || "—"}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <div className="text-xs uppercase tracking-wider text-[#8b94ad]">
-                  Messages Received
-                </div>
-                <div className="text-xs text-[#f8fbff]">{msgCount}</div>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <div className="text-xs uppercase tracking-wider text-[#8b94ad]">
-                  Errors
-                </div>
-                <div className="text-xs text-[#f8fbff]">{errorCount}</div>
-              </div>
-
-              <div className="mt-2 flex flex-col gap-1">
-                <div className="text-xs uppercase tracking-wider text-[#8b94ad]">
-                  Recent Messages
-                </div>
-                <div
-                  ref={debugLogRef}
-                  className="max-h-[400px] overflow-y-auto rounded-lg border border-white/10 bg-black/30 p-3 font-mono text-[0.85rem] leading-relaxed"
-                >
-                  {debugLogs.length === 0 ? (
-                    <div className="p-2 text-center italic text-[#8b94ad]">
-                      No messages yet
-                    </div>
-                  ) : (
-                    debugLogs.map((entry, i) => (
-                      <div
-                        key={i}
-                        className={`border-b border-white/5 py-1.5 last:border-0 ${entry.type === "error"
-                          ? "text-[#ff4d6d]"
-                          : entry.type === "warning"
-                            ? "text-[#f9a826]"
-                            : ""
-                          }`}
-                      >
-                        <span className="mr-2 text-[#8b94ad]">
-                          {entry.time}
-                        </span>
-                        <span className="mr-2 font-medium text-[#2df4c6]">
-                          [{entry.type}]
-                        </span>
-                        <span className="break-words text-[#f8fbff]">
-                          {entry.content.substring(0, 100)}
-                          {entry.content.length > 100 ? "..." : ""}
-                        </span>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-2 flex gap-2">
-                <button
-                  onClick={() => {
-                    setDebugLogs([]);
-                    setMsgCount(0);
-                    setErrorCount(0);
-                  }}
-                  className="flex-1 rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-[#8b94ad] transition-all hover:border-white/20 hover:bg-white/10 hover:text-[#f8fbff]"
-                >
-                  Clear Log
-                </button>
-                <button
-                  onClick={async () => {
-                    const logText = debugLogs
-                      .map(
-                        (e) => `[${e.time}] [${e.type}] ${e.content}`
-                      )
-                      .join("\n");
-                    try {
-                      await navigator.clipboard.writeText(logText);
-                    } catch (e) {
-                      console.error(e);
-                    }
-                  }}
-                  className="flex-1 rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-[#8b94ad] transition-all hover:border-white/20 hover:bg-white/10 hover:text-[#f8fbff]"
-                >
-                  Copy Log
-                </button>
+              <div className="flex items-center gap-1.5 text-xs text-[#f8fbff]">
+                <span
+                  className={`inline-block h-2 w-2 flex-shrink-0 rounded-full ${wsStatus === "connected"
+                    ? "bg-[#2df4c6] shadow-[0_0_6px_#2df4c6]"
+                    : wsStatus === "connecting"
+                      ? "animate-pulse bg-[#f9a826]"
+                      : "bg-[#ff4d6d]"
+                    }`}
+                ></span>
+                <span className="capitalize">{wsStatus}</span>
               </div>
             </div>
-          )}
-        </div>
-      </aside>
+
+            <div className="flex flex-col gap-1">
+              <div className="text-xs uppercase tracking-wider text-[#8b94ad]">
+                Connection URL
+              </div>
+              <div className="break-all text-xs text-[#f8fbff]">
+                {wsUrl || "—"}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <div className="text-xs uppercase tracking-wider text-[#8b94ad]">
+                Messages Received
+              </div>
+              <div className="text-xs text-[#f8fbff]">{msgCount}</div>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <div className="text-xs uppercase tracking-wider text-[#8b94ad]">
+                Errors
+              </div>
+              <div className="text-xs text-[#f8fbff]">{errorCount}</div>
+            </div>
+
+            <div className="mt-2 flex flex-col gap-1">
+              <div className="text-xs uppercase tracking-wider text-[#8b94ad]">
+                Recent Messages
+              </div>
+              <div
+                ref={debugLogRef}
+                className="max-h-[400px] overflow-y-auto rounded-lg border border-white/10 bg-black/30 p-3 font-mono text-[0.85rem] leading-relaxed"
+              >
+                {debugLogs.length === 0 ? (
+                  <div className="p-2 text-center italic text-[#8b94ad]">
+                    No messages yet
+                  </div>
+                ) : (
+                  debugLogs.map((entry, i) => (
+                    <div
+                      key={i}
+                      className={`border-b border-white/5 py-1.5 last:border-0 ${entry.type === "error"
+                        ? "text-[#ff4d6d]"
+                        : entry.type === "warning"
+                          ? "text-[#f9a826]"
+                          : ""
+                        }`}
+                    >
+                      <span className="mr-2 text-[#8b94ad]">
+                        {entry.time}
+                      </span>
+                      <span className="mr-2 font-medium text-[#2df4c6]">
+                        [{entry.type}]
+                      </span>
+                      <span className="break-words text-[#f8fbff]">
+                        {entry.content.substring(0, 100)}
+                        {entry.content.length > 100 ? "..." : ""}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="mt-2 flex gap-2">
+              <button
+                onClick={() => {
+                  setDebugLogs([]);
+                  setMsgCount(0);
+                  setErrorCount(0);
+                }}
+                className="flex-1 rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-[#8b94ad] transition-all hover:border-white/20 hover:bg-white/10 hover:text-[#f8fbff]"
+              >
+                Clear Log
+              </button>
+              <button
+                onClick={async () => {
+                  const logText = debugLogs
+                    .map(
+                      (e) => `[${e.time}] [${e.type}] ${e.content}`
+                    )
+                    .join("\n");
+                  try {
+                    await navigator.clipboard.writeText(logText);
+                  } catch (e) {
+                    console.error(e);
+                  }
+                }}
+                className="flex-1 rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-[#8b94ad] transition-all hover:border-white/20 hover:bg-white/10 hover:text-[#f8fbff]"
+              >
+                Copy Log
+              </button>
+            </div>
+          </div>
+        )}
+      </Sidebar>
 
       {/* Main Content */}
-      <main className="flex flex-col gap-8 px-9 py-8 pb-12">
+      <main className="flex-1 flex flex-col gap-8 px-9 py-8 pb-12">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-[0.85rem] uppercase tracking-widest text-[#8b94ad]">
@@ -793,7 +767,7 @@ export default function Home() {
 
         {/* Step Grid */}
         <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
-          <article className="flex flex-col gap-3.5 rounded-[20px] border border-white/5 bg-[#111726] p-5">
+          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
             <header>
               <p className="text-[0.7rem] uppercase tracking-widest text-[#8b94ad]">
                 Step 1
@@ -809,7 +783,7 @@ export default function Home() {
                 placeholder="SPY"
                 value={ticker}
                 onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                className="min-w-[160px] rounded-xl border border-white/10 bg-[#1a2133] px-3 py-2.5 text-[#f8fbff]"
+                className={`min-w-[160px] rounded-xl border px-3 py-2.5 ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff]" : "border-gray-200 bg-gray-50 text-gray-900"}`}
               />
               <datalist id="ticker-suggestions">
                 <option value="SPY"></option>
@@ -821,7 +795,7 @@ export default function Home() {
             </label>
           </article>
 
-          <article className="flex flex-col gap-3.5 rounded-[20px] border border-white/5 bg-[#111726] p-5">
+          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
             <header>
               <p className="text-[0.7rem] uppercase tracking-widest text-[#8b94ad]">
                 Step 2
@@ -829,12 +803,12 @@ export default function Home() {
               <h2 className="text-lg font-semibold">Analysis Date</h2>
             </header>
             <label className="flex flex-col gap-1.5 text-[0.85rem] text-[#8b94ad]">
-              <span>YYYY-MM-DD</span>
+              <span>DD-MM-YYYY</span>
               <input
                 type="date"
                 value={analysisDate}
                 onChange={(e) => setAnalysisDate(e.target.value)}
-                className="min-w-[160px] rounded-xl border border-white/10 bg-[#1a2133] px-3 py-2.5 text-[#f8fbff]"
+                className={`min-w-[160px] rounded-xl border px-3 py-2.5 ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff]" : "border-gray-200 bg-gray-50 text-gray-900"}`}
               />
             </label>
           </article>
@@ -869,7 +843,7 @@ export default function Home() {
             return (
               <article
                 key={teamKey}
-                className="flex flex-col gap-4 rounded-[20px] border border-white/5 bg-[#111726] p-5"
+                className={`flex flex-col gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}
               >
                 <header className="flex items-center justify-between gap-4">
                   <div>
@@ -886,7 +860,7 @@ export default function Home() {
                       background: `conic-gradient(#2df4c6 ${(progress / 100) * 360}deg, rgba(255,255,255,0.05) 0deg)`,
                     }}
                   >
-                    <div className="absolute inset-[10px] rounded-full bg-[#111726]"></div>
+                    <div className={`absolute inset-[10px] rounded-full ${isDarkMode ? "bg-[#111726]" : "bg-white"}`}></div>
                     <span className="relative font-semibold">{progress}%</span>
                   </div>
                 </header>
@@ -918,7 +892,7 @@ export default function Home() {
         </section>
 
         {/* Report Panel */}
-        <section className="flex flex-col gap-4 rounded-[20px] border border-white/5 bg-[#111726] p-5">
+        <section className={`flex flex-col gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
           <header className="flex items-center justify-between gap-4">
             <div>
               <p>Current Report</p>
@@ -929,20 +903,20 @@ export default function Home() {
             <div className="flex gap-3">
               <button
                 onClick={handleCopyReport}
-                className="cursor-pointer rounded-full border border-white/10 bg-transparent px-4 py-2.5 text-[#f8fbff]"
+                className={`cursor-pointer rounded-full border px-4 py-2.5 ${isDarkMode ? "border-white/10 bg-transparent text-[#f8fbff]" : "border-gray-200 bg-gray-50 text-gray-900"}`}
               >
                 {copyFeedback}
               </button>
               <button
                 onClick={handleDownloadPdf}
-                className="cursor-pointer rounded-full border border-white/20 bg-transparent px-4 py-2.5 text-[#2df4c6]"
+                className={`cursor-pointer rounded-full border px-4 py-2.5 text-[#2df4c6] ${isDarkMode ? "border-white/20 bg-transparent" : "border-gray-200 bg-gray-50"}`}
               >
                 Download PDF
               </button>
             </div>
           </header>
           <article
-            className="min-h-[200px] max-h-[360px] overflow-auto rounded-2xl bg-[#090d17] p-5 text-[0.95rem] leading-relaxed text-[#8b94ad]"
+            className={`min-h-[200px] max-h-[360px] overflow-auto rounded-2xl p-5 text-[0.95rem] leading-relaxed text-[#8b94ad] ${isDarkMode ? "bg-[#090d17]" : "bg-gray-50"}`}
           >
             {reportSections.length === 0 ? (
               <p>Run the pipeline to load the latest markdown report.</p>
@@ -952,7 +926,7 @@ export default function Home() {
                   key={idx}
                   className="mt-4 border-t border-white/5 pt-4 first:mt-0 first:border-0 first:pt-0"
                 >
-                  <h3 className="mb-2 text-base text-[#f8fbff]">
+                  <h3 className={`mb-2 text-base ${isDarkMode ? "text-[#f8fbff]" : "text-gray-900"}`}>
                     {section.label}
                   </h3>
                   <div className="space-y-2">
@@ -989,7 +963,7 @@ export default function Home() {
         </section>
 
         {/* Summary Panel */}
-        <section className="flex flex-row items-center justify-between gap-4 rounded-[20px] border border-white/5 bg-[#111726] p-5">
+        <section className={`flex flex-row items-center justify-between gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
           <div>
             <p className="mb-2">Summary</p>
             <div className="flex gap-6">

@@ -194,6 +194,11 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
         # Stream the analysis
         trace = []
         for chunk in graph.graph.stream(init_agent_state, **args):
+            # Rate limit mitigation delay
+            delay = config.get("step_delay", 0)
+            if delay > 0:
+                await asyncio.sleep(delay)
+
             if len(chunk.get("messages", [])) > 0:
                 # Get the last message from the chunk
                 last_message = chunk["messages"][-1]
@@ -234,12 +239,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                     agent_status["Market Analyst"] = "completed"
                     # Save report
                     with open(report_dir / "market_report.md", "w", encoding="utf-8") as f:
-                        f.write(chunk["market_report"])
+                        f.write(extract_content_string(chunk["market_report"]))
                     
                     await send_update(websocket, "report", {
                         "section": "market_report",
                         "label": "Market Analysis",
-                        "content": chunk["market_report"]
+                        "content": extract_content_string(chunk["market_report"])
                     })
                     
                     if request.analysts and "social" in request.analysts:
@@ -251,12 +256,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                     agent_status["Social Analyst"] = "completed"
                     # Save report
                     with open(report_dir / "sentiment_report.md", "w", encoding="utf-8") as f:
-                        f.write(chunk["sentiment_report"])
+                        f.write(extract_content_string(chunk["sentiment_report"]))
                     
                     await send_update(websocket, "report", {
                         "section": "sentiment_report",
                         "label": "Social Sentiment",
-                        "content": chunk["sentiment_report"]
+                        "content": extract_content_string(chunk["sentiment_report"])
                     })
                     
                     if request.analysts and "news" in request.analysts:
@@ -268,12 +273,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                     agent_status["News Analyst"] = "completed"
                     # Save report
                     with open(report_dir / "news_report.md", "w", encoding="utf-8") as f:
-                        f.write(chunk["news_report"])
+                        f.write(extract_content_string(chunk["news_report"]))
                     
                     await send_update(websocket, "report", {
                         "section": "news_report",
                         "label": "News Analysis",
-                        "content": chunk["news_report"]
+                        "content": extract_content_string(chunk["news_report"])
                     })
                     
                     if request.analysts and "fundamentals" in request.analysts:
@@ -285,12 +290,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                     agent_status["Fundamentals Analyst"] = "completed"
                     # Save report
                     with open(report_dir / "fundamentals_report.md", "w", encoding="utf-8") as f:
-                        f.write(chunk["fundamentals_report"])
+                        f.write(extract_content_string(chunk["fundamentals_report"]))
                     
                     await send_update(websocket, "report", {
                         "section": "fundamentals_report",
                         "label": "Fundamentals Review",
-                        "content": chunk["fundamentals_report"]
+                        "content": extract_content_string(chunk["fundamentals_report"])
                     })
                     
                     # Start research team
@@ -335,7 +340,7 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                             await send_update(websocket, "report", {
                                 "section": "investment_plan",
                                 "label": "Research Team Decision",
-                                "content": report_sections["investment_plan"]
+                                "content": extract_content_string(report_sections["investment_plan"])
                             })
 
                     # Update Bear Researcher status and report
@@ -366,7 +371,7 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                             await send_update(websocket, "report", {
                                 "section": "investment_plan",
                                 "label": "Research Team Decision",
-                                "content": report_sections["investment_plan"]
+                                "content": extract_content_string(report_sections["investment_plan"])
                             })
 
                     # Update Research Manager status and final decision
@@ -381,12 +386,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                         
                         # Save report
                         with open(report_dir / "investment_plan.md", "w", encoding="utf-8") as f:
-                            f.write(report_sections["investment_plan"])
+                            f.write(extract_content_string(report_sections["investment_plan"]))
                         
                         await send_update(websocket, "report", {
                             "section": "investment_plan",
                             "label": "Research Team Decision",
-                            "content": report_sections["investment_plan"]
+                            "content": extract_content_string(report_sections["investment_plan"])
                         })
                         
                         await send_update(websocket, "message", {
@@ -403,12 +408,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                     agent_status["Trader"] = "completed"
                     # Save report
                     with open(report_dir / "trader_investment_plan.md", "w", encoding="utf-8") as f:
-                        f.write(chunk["trader_investment_plan"])
+                        f.write(extract_content_string(chunk["trader_investment_plan"]))
                     
                     await send_update(websocket, "report", {
                         "section": "trader_investment_plan",
                         "label": "Trader Investment Plan",
-                        "content": chunk["trader_investment_plan"]
+                        "content": extract_content_string(chunk["trader_investment_plan"])
                     })
                     
                     agent_status["Risky Analyst"] = "in_progress"
@@ -463,12 +468,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                         
                         # Save report
                         with open(report_dir / "final_trade_decision.md", "w", encoding="utf-8") as f:
-                            f.write(report_sections["final_trade_decision"])
+                            f.write(extract_content_string(report_sections["final_trade_decision"]))
                         
                         await send_update(websocket, "report", {
                             "section": "final_trade_decision",
                             "label": "Portfolio Management Decision",
-                            "content": report_sections["final_trade_decision"]
+                            "content": extract_content_string(report_sections["final_trade_decision"])
                         })
                         
                         await send_update(websocket, "message", {

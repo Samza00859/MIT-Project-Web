@@ -16,12 +16,13 @@ DEFAULT_CONFIG = {
     # "backend_url": "https://api.openai.com/v1",
     # LLM settings
     "llm_provider": "google",
-    "deep_think_llm": "gemini-2.0-flash",
-    "quick_think_llm": "gemini-2.0-flash-lite",
+    "deep_think_llm": "gemini-2.5-flash",
+    "quick_think_llm": "gemini-2.5-flash",
     # Debate and discussion settings
     "max_debate_rounds": 1,
     "max_risk_discuss_rounds": 1,
     "max_recur_limit": 100,
+    "step_delay": 10, # Delay in seconds to avoid rate limits
     # Data vendor configuration
     # Category-level configuration (default for all tools in category)
     "data_vendors": {

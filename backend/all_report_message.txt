@@ -1,9 +1,9 @@
 🏷️ Stock Data Source Comparison Result:
 
 ===== TOTAL RECORDS CHECK =====
-YFinance:      270
+YFinance:      250
 TwelveData:    0
-TradingView:   0
+TradingView:   250
 
 
 ===== SIMILARITY SCORE =====
@@ -13,68 +13,74 @@ TradingView Score: 0
 
 🏆 Best Source: YFINANCE
 
-📊 Indicator 'rsi' Source Comparison for RBLX:
-Yahoo Finance Score: 186
-Alpha Vantage Score: 186
-TradingView Score: 0
-🏆 Best Source: YAHOO, ALPHA
-
-📊 Indicator 'macdh' Source Comparison for RBLX:
-Yahoo Finance Score: 0
+📊 Indicator 'macd' Source Comparison for MSFT:
+Yahoo Finance Score: 88
 Alpha Vantage Score: 0
-TradingView Score: 0
-🏆 Best Source: YAHOO
+TradingView Score: 88
+🏆 Best Source: YAHOO, TV
 
-📊 Indicator 'macd' Source Comparison for RBLX:
-Yahoo Finance Score: 0
+📊 Indicator 'macdh' Source Comparison for MSFT:
+Yahoo Finance Score: 55
 Alpha Vantage Score: 0
-TradingView Score: 0
-🏆 Best Source: YAHOO
+TradingView Score: 55
+🏆 Best Source: YAHOO, TV
 
-📊 Indicator 'macds' Source Comparison for RBLX:
-Yahoo Finance Score: 0
+📊 Indicator 'macds' Source Comparison for MSFT:
+Yahoo Finance Score: 89
 Alpha Vantage Score: 0
-TradingView Score: 0
-🏆 Best Source: YAHOO
+TradingView Score: 89
+🏆 Best Source: YAHOO, TV
 
-📊 Indicator 'atr' Source Comparison for RBLX:
-Yahoo Finance Score: 186
-Alpha Vantage Score: 186
-TradingView Score: 0
+📊 Indicator 'close_200_sma' Source Comparison for MSFT:
+Yahoo Finance Score: 344
+Alpha Vantage Score: 344
+TradingView Score: 344
+🏆 Best Source: YAHOO, ALPHA, TV
+
+📊 Indicator 'rsi' Source Comparison for MSFT:
+Yahoo Finance Score: 334
+Alpha Vantage Score: 334
+TradingView Score: 324
 🏆 Best Source: YAHOO, ALPHA
 
-📊 Indicator 'close_50_sma' Source Comparison for RBLX:
-Yahoo Finance Score: 186
-Alpha Vantage Score: 186
-TradingView Score: 0
-🏆 Best Source: YAHOO, ALPHA
+📊 Indicator 'boll_ub' Source Comparison for MSFT:
+Yahoo Finance Score: 344
+Alpha Vantage Score: 344
+TradingView Score: 344
+🏆 Best Source: YAHOO, ALPHA, TV
 
-📊 Indicator 'close_200_sma' Source Comparison for RBLX:
-Yahoo Finance Score: 186
-Alpha Vantage Score: 186
-TradingView Score: 0
-🏆 Best Source: YAHOO, ALPHA
+📊 Indicator 'close_50_sma' Source Comparison for MSFT:
+Yahoo Finance Score: 344
+Alpha Vantage Score: 344
+TradingView Score: 344
+🏆 Best Source: YAHOO, ALPHA, TV
 
-📊 Indicator 'close_10_ema' Source Comparison for RBLX:
-Yahoo Finance Score: 186
-Alpha Vantage Score: 186
-TradingView Score: 0
-🏆 Best Source: YAHOO, ALPHA
+📊 Indicator 'boll_lb' Source Comparison for MSFT:
+Yahoo Finance Score: 344
+Alpha Vantage Score: 344
+TradingView Score: 344
+🏆 Best Source: YAHOO, ALPHA, TV
 
 
 🌐 Social Media News: 
-Bluesky news fetched for RBLX: 108 posts found.
-Mastodon news fetched for RBLX: 13 posts found.
-Subreddit news fetched for RBLX: 1 posts found.
+Bluesky news fetched for MSFT: 114 posts found.
+Mastodon news fetched for MSFT: 120 posts found.
+Subreddit news fetched for MSFT: 11 posts found.
 
 📰 News :
-Fetched 21 news items for RBLX from Finnhub.
-Fetched 0 news items for RBLX from Reddit.
-Fetched 10 news items for RBLX from YFinance.
-Fetched 0 news items for RBLX from Alpha Vantage.
+Fetched 50 news items for MSFT from Finnhub.
+Fetched 3 news items for MSFT from Reddit.
+Fetched 10 news items for MSFT from YFinance.
+Fetched 50 news items for MSFT from Alpha Vantage.
 
-Fetched fundamentals for RBLX:
+🌏 Global News: 
+Reddit global news have : 40 posts.
+Yfinance global news have : 50 posts.
+Finnhub global news have : 269 posts.
+
+
+Fetched fundamentals for MSFT:
 - YFinance: 4 fields fetched
 - Finnhub: 1 fields fetched
 - AlphaVantage: 4 fields fetched
-📜 Fundamental data for RBLX. Chosen source: alphavantage
+📜 Fundamental data for MSFT. Chosen source: alphavantage
