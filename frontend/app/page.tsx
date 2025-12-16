@@ -361,6 +361,51 @@ export default function Home() {
     }
   };
 
+  // Helper to create sparkline path
+  const createSparklinePath = (data: number[]) => {
+    if (!data || data.length === 0) return "";
+    // Filter out invalid numbers
+    const validData = data.filter(n => Number.isFinite(n));
+    if (validData.length < 2) return "";
+
+    const width = 100;
+    const height = 50;
+    const min = Math.min(...validData);
+    const max = Math.max(...validData);
+    const range = max - min || 1;
+
+    // Create points
+    const points = validData.map((val, i) => {
+      const x = (i / (validData.length - 1)) * width;
+      const y = height - ((val - min) / range) * height * 0.8 - height * 0.1; // Add padding
+      return `${x},${y}`;
+    });
+
+    // Create area path
+    return `M 0,${height} L ${points[0]} L ${points.join(" L ")} L ${width},${height} Z`;
+  };
+
+  // Create line only path
+  const createLinePath = (data: number[]) => {
+    if (!data || data.length === 0) return "";
+    const validData = data.filter(n => Number.isFinite(n));
+    if (validData.length < 2) return "";
+
+    const width = 100;
+    const height = 50;
+    const min = Math.min(...validData);
+    const max = Math.max(...validData);
+    const range = max - min || 1;
+
+    const points = validData.map((val, i) => {
+      const x = (i / (validData.length - 1)) * width;
+      const y = height - ((val - min) / range) * height * 0.8 - height * 0.1;
+      return `${x} ${y}`;
+    });
+    return `M ${points.join(" L ")}`;
+  };
+
+
   const wsRef = useRef<WebSocket | null>(null);
   const debugLogRef = useRef<HTMLDivElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
@@ -1070,7 +1115,7 @@ export default function Home() {
             </div>
 
             {/* Mini Chart SVG (Absolute Background) */}
-            <div className="absolute bottom-0 right-0 h-24 w-40 translate-x-4 translate-y-2 opacity-30 pointer-events-none">
+            <div className="absolute bottom-0 right-0 h-24 w-40 translate-x-4 translate-y-2 pointer-events-none">
               <svg viewBox="0 0 100 50" className="h-full w-full overflow-visible" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
@@ -1078,8 +1123,20 @@ export default function Home() {
                     <stop offset="100%" stopColor={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} stopOpacity="0" />
                   </linearGradient>
                 </defs>
-                <path d="M0 40 Q 20 35, 40 38 T 70 20 T 100 5 L 100 50 L 0 50 Z" fill="url(#chartGradient)" />
-                <path d="M0 40 Q 20 35, 40 38 T 70 20 T 100 5" fill="none" stroke={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} strokeWidth="2" />
+                {marketData?.sparkline && (
+                  <>
+                    {/* Area */}
+                    <path d={createSparklinePath(marketData.sparkline)} fill="url(#chartGradient)" />
+                    {/* Line */}
+                    <path d={createLinePath(marketData.sparkline)} fill="none" stroke={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} strokeWidth="2" />
+                  </>
+                )}
+                {!marketData?.sparkline && (
+                  <>
+                    <path d="M0 40 Q 20 35, 40 38 T 70 20 T 100 5 L 100 50 L 0 50 Z" fill="url(#chartGradient)" />
+                    <path d="M0 40 Q 20 35, 40 38 T 70 20 T 100 5" fill="none" stroke={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} strokeWidth="2" />
+                  </>
+                )}
               </svg>
             </div>
           </article>
@@ -1088,10 +1145,10 @@ export default function Home() {
           {isRunning ? (
             <button
               onClick={stopPipeline}
-              className="flex min-h-[140px] w-full flex-col items-center justify-center gap-3 rounded-[20px] border-2 border-white/20 bg-[#ff4d6d] p-4 text-xl font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#ff3355] hover:shadow-[0_10px_25px_rgba(255,77,109,0.35)]"
+              className="flex w-full flex-row items-center justify-center gap-3 rounded-[16px] border-2 border-white/20 bg-[#ff4d6d] py-4 text-xl font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#ff3355] hover:shadow-[0_10px_25px_rgba(255,77,109,0.35)]"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-transparent">
-                <div className="h-3 w-3 rounded-[2px] bg-white" />
+              <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-transparent">
+                <div className="h-2.5 w-2.5 rounded-[1px] bg-white" />
               </div>
               <span>Stop Generating</span>
             </button>
@@ -1099,9 +1156,9 @@ export default function Home() {
             <button
               onClick={runPipeline}
               disabled={wsStatus !== "connected"}
-              className="flex min-h-[140px] w-full flex-col items-center justify-center gap-3 rounded-[20px] border-2 border-white/20 bg-[#00c05e] p-4 text-xl font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)] disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale"
+              className="flex w-full flex-row items-center justify-center gap-3 rounded-[16px] border-2 border-white/20 bg-[#00c05e] py-4 text-xl font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)] disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
               </svg>

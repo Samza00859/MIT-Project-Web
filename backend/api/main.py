@@ -745,10 +745,12 @@ async def get_quote(ticker: str):
         t = yf.Ticker(ticker)
         
         # Get fast price data
-        hist = t.history(period="1d")
-        if hist.empty:
-            # Try 5d if 1d is empty (market closed/holiday/pre-market issues)
-            hist = t.history(period="5d")
+        # Try intraday 5m data first for "Live" feel
+        hist = t.history(period="1d", interval="5m")
+        
+        if hist.empty or len(hist) < 2:
+            # Fallback to 5d hourly if 1d is empty or too short (e.g. pre-market or just opened)
+            hist = t.history(period="5d", interval="60m")
         
         if hist.empty:
              raise HTTPException(status_code=404, detail="Ticker not found or no data available")
@@ -785,6 +787,15 @@ async def get_quote(ticker: str):
             except:
                 pass
         
+        # Prepare Sparkline Data (last 30 points or available duration)
+        # Drop NaNs to prevent frontend rendering issues
+        clean_hist = hist["Close"].dropna()
+        sparkline = clean_hist.tolist()
+        
+        # Downsample if too many points to keep payload small, e.g. take last 50
+        if len(sparkline) > 50:
+            sparkline = sparkline[-50:]
+        
         return {
             "symbol": ticker.upper(),
             "shortName": info.get("shortName", ticker.upper()),
@@ -794,7 +805,8 @@ async def get_quote(ticker: str):
             "volume": info.get("volume", hist["Volume"].iloc[-1]),
             "sector": info.get("sector", "Unknown"),
             "logo_url": logo_url,
-            "website": info.get("website", "")
+            "website": info.get("website", ""),
+            "sparkline": sparkline
         }
     except Exception as e:
         logger.error(f"Error fetching quote for {ticker}: {e}")
