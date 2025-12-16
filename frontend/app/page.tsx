@@ -269,7 +269,7 @@ export default function Home() {
   const [ticker, setTicker] = useState("SPY");
   const [analysisDate, setAnalysisDate] = useState("");
   const [researchDepth, setResearchDepth] = useState(3);
-  const [reportLength, setReportLength] = useState<"summary" | "full">("summary");
+  const [reportLength, setReportLength] = useState<"summary report" | "full report">("summary report");
   const [isRunning, setIsRunning] = useState(false);
   const [teamState, setTeamState] = useState(deepClone(TEAM_TEMPLATE));
   const [reportSections, setReportSections] = useState<
@@ -334,7 +334,7 @@ export default function Home() {
 
         // Filtering Logic
         let shouldInclude = false;
-        if (reportLength === "summary") {
+        if (reportLength === "summary report") {
           shouldInclude = isSummary;
         } else {
           shouldInclude = !isSummary;
@@ -942,45 +942,7 @@ export default function Home() {
             </div>
           </article>
 
-          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
-            <header>
-              <p className="text-[0.7rem] uppercase tracking-widest text-[#8b94ad]">
-                Step 3
-              </p>
-              <h2 className="text-lg font-semibold">Report Length</h2>
-            </header>
-            <div className={`flex w-full overflow-hidden rounded-xl border ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-gray-200 bg-gray-50"}`}>
-              <button
-                onClick={() => setReportLength("summary")}
-                className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-3 transition-colors ${reportLength === "summary"
-                  ? "bg-[#2df4c6]/20 text-[#2df4c6]"
-                  : "text-[#8b94ad] hover:bg-white/5"
-                  }`}
-              >
-                <span className={`text-sm font-semibold ${reportLength === "summary" ? "text-[#2df4c6]" : "text-gray-400"}`}>
-                  Summary
-                </span>
-                <span className="text-[0.65rem] opacity-70">
-                  Concise summary with key point
-                </span>
-              </button>
-              <div className={`w-px ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`} />
-              <button
-                onClick={() => setReportLength("full")}
-                className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-3 transition-colors ${reportLength === "full"
-                  ? "bg-[#2df4c6]/20 text-[#2df4c6]"
-                  : "text-[#8b94ad] hover:bg-white/5"
-                  }`}
-              >
-                <span className={`text-sm font-semibold ${reportLength === "full" ? "text-[#2df4c6]" : "text-gray-400"}`}>
-                  Full Report
-                </span>
-                <span className="text-[0.65rem] opacity-70">
-                  Comprehensive detailed analysis
-                </span>
-              </button>
-            </div>
-          </article>
+
 
           {/* Generate / Stop Button */}
           {isRunning ? (
@@ -1100,6 +1062,8 @@ export default function Home() {
           setCopyFeedback={setCopyFeedback}
           handleCopyReport={handleCopyReport}
           handleDownloadPdf={handleDownloadPdf}
+          reportLength={reportLength}
+          setReportLength={setReportLength}
         />
 
         {/* Summary Panel */}

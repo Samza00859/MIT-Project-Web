@@ -47,6 +47,8 @@ function formatInlineMarkdown(text: string) {
 interface ReportSectionsDisplayProps extends ReportSectionsProps {
     handleCopyReport: () => void;
     handleDownloadPdf: () => void;
+    reportLength: "summary report" | "full report";
+    setReportLength: (length: "summary report" | "full report") => void;
 }
 
 // Helper to render Markdown text (with bold/list support)
@@ -287,25 +289,54 @@ function RenderJsonData({ data, isDarkMode }: { data: any; isDarkMode: boolean }
 export default function ReportSections({
     reportSections,
     isDarkMode,
+    ticker,
+    analysisDate,
+    decision,
     copyFeedback,
+    setCopyFeedback,
     handleCopyReport,
     handleDownloadPdf,
+    reportLength,
+    setReportLength,
 }: ReportSectionsDisplayProps) {
     return (
         <section
-            className={`flex flex-col gap-4 rounded-[20px] border p-4 md:p-6 lg:gap-6 ${isDarkMode
-                ? "border-white/5 bg-[#111726]"
-                : "border-gray-200 bg-white shadow-sm"
+            className={`flex-1 rounded-[20px] border p-6 md:p-8 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"
                 }`}
         >
-            <header className="flex items-center justify-between gap-4">
+            <header className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div>
                     <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Current Report</h3>
                     <p className="text-[0.85rem] text-[#8b94ad]">
                         Live updates from TradingAgents graph
                     </p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                    {/* Toggle Report Length Button */}
+                    <div className={`flex overflow-hidden rounded-full border ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-gray-200 bg-gray-50"}`}>
+                        <button
+                            onClick={() => setReportLength("summary report")}
+                            className={`px-4 py-2.5 text-xs font-semibold transition-colors ${reportLength === "summary report"
+                                ? "bg-[#2df4c6]/20 text-[#2df4c6]"
+                                : "text-[#8b94ad] hover:bg-white/5"
+                                }`}
+                        >
+                            Summary report
+                        </button>
+                        <div className={`w-px ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`} />
+                        <button
+                            onClick={() => setReportLength("full report")}
+                            className={`px-4 py-2.5 text-xs font-semibold transition-colors ${reportLength === "full report"
+                                ? "bg-[#2df4c6]/20 text-[#2df4c6]"
+                                : "text-[#8b94ad] hover:bg-white/5"
+                                }`}
+                        >
+                            Full report
+                        </button>
+                    </div>
+
+                    <div className={`h-6 w-px ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`} />
+
                     <button
                         onClick={handleCopyReport}
                         className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium transition-all hover:opacity-80 ${isDarkMode
