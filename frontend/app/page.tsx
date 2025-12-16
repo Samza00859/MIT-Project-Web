@@ -300,6 +300,67 @@ export default function Home() {
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   const [lastType, setLastType] = useState<string | null>(null);
 
+  const [marketData, setMarketData] = useState<any>(null);
+  const [logoError, setLogoError] = useState(false);
+  const [logoSrc, setLogoSrc] = useState("");
+
+  // Fetch Market Data Effect
+  useEffect(() => {
+    const fetchMarketData = async () => {
+      try {
+        // Determine API Base URL (similar to WS logic but http)
+        let apiUrl = "http://localhost:8000";
+        if (typeof window !== "undefined" && window.location.hostname !== "" && window.location.protocol !== "file:") {
+          const protocol = window.location.protocol;
+          const host = window.location.hostname;
+          apiUrl = `${protocol}//${host}:8000`;
+        }
+
+        setMarketData(null); // Reset while loading
+        setLogoError(false); // Reset logo error
+        setLogoSrc(""); // Reset logo source
+        const res = await fetch(`${apiUrl}/quote/${ticker}`);
+        if (res.ok) {
+          const data = await res.json();
+          setMarketData(data);
+          setLogoSrc(data.logo_url);
+        }
+      } catch (e) {
+        console.error("Failed to fetch market data", e);
+      }
+    };
+
+    if (ticker) {
+      // Debounce slightly to avoid rapid calls if typing
+      const timeout = setTimeout(fetchMarketData, 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [ticker]);
+
+  // Helper to format large numbers
+  const formatVolume = (num: number) => {
+    if (num >= 1.0e+9) return (num / 1.0e+9).toFixed(1) + "B";
+    if (num >= 1.0e+6) return (num / 1.0e+6).toFixed(1) + "M";
+    if (num >= 1.0e+3) return (num / 1.0e+3).toFixed(1) + "K";
+    return num.toString();
+  };
+
+  // Handle Logo Error with Fallback
+  const handleLogoError = () => {
+    if (marketData?.website && !logoSrc.includes("google.com")) {
+      // Try Google Favicon as fallback
+      try {
+        let domain = new URL(marketData.website).hostname;
+        if (domain.startsWith("www.")) domain = domain.substring(4);
+        setLogoSrc(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`);
+      } catch (e) {
+        setLogoError(true);
+      }
+    } else {
+      setLogoError(true);
+    }
+  };
+
   const wsRef = useRef<WebSocket | null>(null);
   const debugLogRef = useRef<HTMLDivElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
@@ -943,6 +1004,85 @@ export default function Home() {
           </article>
 
 
+
+          {/* Live Market Data Card */}
+          <article className={`relative flex flex-col justify-between overflow-hidden rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
+            {/* Header */}
+            <div className="relative z-10 flex items-start justify-between">
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2df4c6] opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#2df4c6]"></span>
+                </span>
+                <span className="text-[0.7rem] font-bold uppercase tracking-widest text-[#2df4c6]">
+                  Live Market Data
+                </span>
+              </div>
+              <span className={`rounded-lg border px-2 py-1 text-[0.65rem] font-semibold uppercase ${isDarkMode ? "border-white/10 text-[#8b94ad]" : "border-gray-200 text-gray-500"}`}>
+                {marketData?.sector || "Loading..."}
+              </span>
+            </div>
+
+            {/* Main Info */}
+            <div className="relative z-10 mt-4 flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <div className={`flex h-6 w-6 items-center justify-center rounded-full overflow-hidden ${isDarkMode ? "bg-white text-black" : "bg-black text-white"}`}>
+                  {logoSrc && !logoError ? (
+                    <img
+                      src={logoSrc}
+                      alt="logo"
+                      className="h-full w-full object-cover"
+                      onError={handleLogoError}
+                    />
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
+                      <path d="M12 2a10 10 0 0 1 10 10H12V2z" fill="currentColor"></path>
+                      <path d="M21.18 10.98a10.05 10.05 0 0 0-9.16-8.96"></path>
+                    </svg>
+                  )}
+                </div>
+                <h3 className="text-lg font-bold truncate">
+                  {marketData?.shortName || ticker}
+                </h3>
+              </div>
+              <div className="mt-2 min-h-[40px]">
+                {marketData ? (
+                  <span className="text-4xl font-bold tracking-tight text-[#2df4c6]">${marketData.price?.toFixed(2)}</span>
+                ) : (
+                  <span className="animate-pulse text-2xl font-bold opacity-50">Loading...</span>
+                )}
+              </div>
+            </div>
+
+            {/* Footer / Stats */}
+            <div className="relative z-10 mt-4 flex items-center justify-between">
+              {marketData && (
+                <div className="flex items-center gap-3">
+                  <span className={`flex items-center rounded-md px-2 py-1 text-xs font-bold ${marketData.change >= 0 ? "bg-[#2df4c6]/10 text-[#2df4c6]" : "bg-[#ff4d6d]/10 text-[#ff4d6d]"}`}>
+                    {marketData.change >= 0 ? "↑" : "↓"} {marketData.change > 0 ? "+" : ""}{marketData.percentChange}%
+                  </span>
+                  <span className="text-xs text-[#8b94ad]">
+                    Vol: {formatVolume(marketData.volume)}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Mini Chart SVG (Absolute Background) */}
+            <div className="absolute bottom-0 right-0 h-24 w-40 translate-x-4 translate-y-2 opacity-30 pointer-events-none">
+              <svg viewBox="0 0 100 50" className="h-full w-full overflow-visible" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} stopOpacity="0.5" />
+                    <stop offset="100%" stopColor={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <path d="M0 40 Q 20 35, 40 38 T 70 20 T 100 5 L 100 50 L 0 50 Z" fill="url(#chartGradient)" />
+                <path d="M0 40 Q 20 35, 40 38 T 70 20 T 100 5" fill="none" stroke={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} strokeWidth="2" />
+              </svg>
+            </div>
+          </article>
 
           {/* Generate / Stop Button */}
           {isRunning ? (

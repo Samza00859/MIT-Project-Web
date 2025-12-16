@@ -25,12 +25,13 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 try:
+    import yfinance as yf
     from tradingagents.graph.trading_graph import TradingAgentsGraph
     from tradingagents.default_config import DEFAULT_CONFIG
     from cli.models import AnalystType
-    logger.info("Successfully imported TradingAgents modules")
+    logger.info("Successfully imported TradingAgents modules and yfinance")
 except ImportError as e:
-    logger.error(f"Failed to import TradingAgents modules: {e}")
+    logger.error(f"Failed to import required modules: {e}")
     raise
 
 # Get the project root directory (parent of api directory)
@@ -42,6 +43,9 @@ logger.info(f"Web directory: {WEB_DIR} (exists: {WEB_DIR.exists()})")
 
 # Active WebSocket connections
 active_connections: List[WebSocket] = []
+
+
+
 
 
 class AnalysisRequest(BaseModel):
@@ -732,6 +736,69 @@ async def test_endpoint():
             "message": str(e),
             "error_type": type(e).__name__
         }
+
+
+@app.get("/quote/{ticker}")
+async def get_quote(ticker: str):
+    """Fetch real-time quote data for a ticker."""
+    try:
+        t = yf.Ticker(ticker)
+        
+        # Get fast price data
+        hist = t.history(period="1d")
+        if hist.empty:
+            # Try 5d if 1d is empty (market closed/holiday/pre-market issues)
+            hist = t.history(period="5d")
+        
+        if hist.empty:
+             raise HTTPException(status_code=404, detail="Ticker not found or no data available")
+
+        current_price = hist["Close"].iloc[-1]
+        
+        # Get metadata (slower, but useful)
+        try:
+            info = t.info
+        except:
+            info = {}
+        
+        # Calculate change if possible
+        previous_close = info.get("previousClose")
+        if not previous_close and len(hist) > 1:
+             previous_close = hist["Close"].iloc[-2]
+        
+        if not previous_close:
+             previous_close = current_price # Fallback
+             
+        change = current_price - previous_close
+        percent_change = (change / previous_close) * 100
+
+        # Attempt to get logo
+        logo_url = info.get("logo_url", "")
+        if not logo_url and info.get("website"):
+            try:
+                from urllib.parse import urlparse
+                domain = urlparse(info.get("website")).netloc
+                if domain.startswith("www."):
+                    domain = domain[4:]
+                if domain:
+                     logo_url = f"https://logo.clearbit.com/{domain}"
+            except:
+                pass
+        
+        return {
+            "symbol": ticker.upper(),
+            "shortName": info.get("shortName", ticker.upper()),
+            "price": round(current_price, 2),
+            "change": round(change, 2),
+            "percentChange": round(percent_change, 2),
+            "volume": info.get("volume", hist["Volume"].iloc[-1]),
+            "sector": info.get("sector", "Unknown"),
+            "logo_url": logo_url,
+            "website": info.get("website", "")
+        }
+    except Exception as e:
+        logger.error(f"Error fetching quote for {ticker}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":
