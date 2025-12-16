@@ -1,76 +1,76 @@
 {
   "symbol": "MSFT",
-  "chosen_source": "alphavantage",
+  "chosen_source": "yfinance",
   "scores": {
-    "yfinance": 14,
-    "finnhub": 6,
-    "alphavantage": 14
+    "yfinance": 3,
+    "finnhub": 3,
+    "alphavantage": 0
   },
   "completeness": {
     "yfinance": 13,
     "finnhub": 8,
-    "alphavantage": 16
+    "alphavantage": 0
   },
   "sections": {
     "overview": {
       "scores": {
-        "yfinance": 7,
-        "finnhub": 6,
-        "alphavantage": 7
+        "yfinance": 3,
+        "finnhub": 3,
+        "alphavantage": 0
       },
       "completeness": {
         "yfinance": 6,
         "finnhub": 8,
-        "alphavantage": 8
+        "alphavantage": 0
       }
     },
     "balancesheet": {
       "scores": {
-        "yfinance": 3,
+        "yfinance": 0,
         "finnhub": 0,
-        "alphavantage": 3
+        "alphavantage": 0
       },
       "completeness": {
         "yfinance": 3,
         "finnhub": 0,
-        "alphavantage": 3
+        "alphavantage": 0
       }
     },
     "cashflow": {
       "scores": {
-        "yfinance": 2,
+        "yfinance": 0,
         "finnhub": 0,
-        "alphavantage": 2
+        "alphavantage": 0
       },
       "completeness": {
         "yfinance": 2,
         "finnhub": 0,
-        "alphavantage": 3
+        "alphavantage": 0
       }
     },
     "incomestatement": {
       "scores": {
-        "yfinance": 2,
+        "yfinance": 0,
         "finnhub": 0,
-        "alphavantage": 2
+        "alphavantage": 0
       },
       "completeness": {
         "yfinance": 2,
         "finnhub": 0,
-        "alphavantage": 2
+        "alphavantage": 0
       }
     }
   },
   "final_payload": {
     "overview": {
-      "name": "Microsoft Corporation",
+      "marketCap": 3608802277004.5,
+      "sharesOutstanding": null,
+      "peRatio": null,
       "currency": "USD",
-      "exchange": "NASDAQ",
-      "sector": "TECHNOLOGY",
-      "industry": "SOFTWARE - INFRASTRUCTURE",
-      "marketCap": 3591408714000.0,
-      "sharesOutstanding": 7432378000.0,
-      "peRatio": 34.36
+      "exchange": "NMS",
+      "name": "Microsoft Corporation",
+      "sector": "Technology",
+      "industry": "Software - Infrastructure"
     },
     "balancesheet": {
       "totalAssets": 619003000000.0,
@@ -80,7 +80,7 @@
     "cashflow": {
       "operatingCashFlow": 136162000000.0,
       "freeCashFlow": 71611000000.0,
-      "capitalExpenditures": 64551000000.0
+      "capitalExpenditures": null
     },
     "incomestatement": {
       "totalRevenue": 281724000000.0,
@@ -88,5 +88,5 @@
       "eps": null
     }
   },
-  "timestamp": "2025-12-09T03:39:53.447902+00:00"
+  "timestamp": "2025-11-27T03:49:40.774572+00:00"
 }

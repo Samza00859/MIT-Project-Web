@@ -1,0 +1,33 @@
+{
+    "sentiment_verdict": "Neutral",
+    "social_volume": "Elevated due to China export policy developments and technical analysis discussions",
+    "dominant_narrative": "Investors are cautiously optimistic about NVIDIA's technological leadership and China market access, but concerned about stretched valuations and potential market rotation away from AI stocks. The company maintains strong competitive positioning with H200 chips and Nemotron 3 developments, though technical indicators show overbought conditions.",
+    "top_topics": [
+        {
+            "topic": "China Export Policy for H200 Chips",
+            "sentiment": "Mixed",
+            "analysis_snippet": "Mixed reactions to Trump administration allowing H200 exports to China while China considers limiting access despite approval."
+        },
+        {
+            "topic": "Technical Analysis and Valuation Concerns",
+            "sentiment": "Negative",
+            "analysis_snippet": "Discussions highlight overbought conditions with RSI around 88 and concerns about NVDA being priced for perfection at current levels."
+        },
+        {
+            "topic": "Competitive Positioning and Market Share",
+            "sentiment": "Positive",
+            "analysis_snippet": "Analysts note NVDA maintains full generation lead over rivals and is expected to defend 80% market share through 2027."
+        },
+        {
+            "topic": "Institutional Options Activity",
+            "sentiment": "Mixed",
+            "analysis_snippet": "Heavy institutional options trading shows both hedging and speculative interest amid market uncertainty."
+        },
+        {
+            "topic": "Product Development and Demand",
+            "sentiment": "Positive",
+            "analysis_snippet": "Positive sentiment around Nemotron 3 launch and H200 chip production expansion due to strong demand exceeding supply."
+        }
+    ],
+    "psychology": "Cautious optimism mixed with valuation concerns and Fear Of Missing Out on AI growth potential"
+}

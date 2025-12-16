@@ -1,14 +1,19 @@
 # TradingAgents/graph/trading_graph.py
 
-import os
+import os, requests
 from pathlib import Path
 import json
 from datetime import date
 from typing import Dict, Any, Tuple, List, Optional
+from rich.console import Console
+
+console = Console()
+
 
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from langchain_google_genai import ChatGoogleGenerativeAI
+from openai import OpenAI
 
 from langgraph.prebuilt import ToolNode
 
@@ -42,6 +47,27 @@ from .setup import GraphSetup
 from .propagation import Propagator
 from .reflection import Reflector
 from .signal_processing import SignalProcessor
+
+def sent_to_telegram(message: str):
+    """Send a message to Telegram if configured."""
+    TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+    TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+
+    if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
+        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": TELEGRAM_CHAT_ID,
+            "text": message,
+            "parse_mode": "Markdown",
+        }
+        try:
+            response = requests.post(url, data=payload, timeout=10)
+            response.raise_for_status()
+            console.print("[green]Report sent to Telegram successfully![/green]")
+        except requests.RequestException as e:
+            console.print(f"[red]Failed to send report to Telegram: {e}[/red]")
+    else:
+        console.print("[yellow]Telegram not configured. Skipping sending report.[/yellow]")
 
 
 class TradingAgentsGraph:
@@ -83,8 +109,11 @@ class TradingAgentsGraph:
             self.deep_thinking_llm = ChatGoogleGenerativeAI(model=self.config["deep_think_llm"])
             self.quick_thinking_llm = ChatGoogleGenerativeAI(model=self.config["quick_think_llm"])
         elif self.config["llm_provider"].lower() == "typhoon":
-            self.deep_thinking_llm = ChatOpenAI(model=self.config["deep_think_llm"], base_url=self.config["backend_url"])
-            self.quick_thinking_llm = ChatOpenAI(model=self.config["quick_think_llm"], base_url=self.config["backend_url"])
+            self.deep_thinking_llm = ChatOpenAI(model=self.config["deep_think_llm"], base_url=self.config["backend_url"], api_key=self.config["TYPHOON_API_KEY"])
+            self.quick_thinking_llm = ChatOpenAI(model=self.config["quick_think_llm"], base_url=self.config["backend_url"], api_key=self.config["TYPHOON_API_KEY"])
+        elif self.config["llm_provider"].lower() == "deepseek":
+            self.deep_thinking_llm = ChatOpenAI(model=self.config["deep_think_llm"], base_url=self.config["backend_url"],  api_key=os.getenv("DEEPSEEK_API_KEY"))
+            self.quick_thinking_llm = ChatOpenAI(model=self.config["quick_think_llm"], base_url=self.config["backend_url"],  api_key=os.getenv("DEEPSEEK_API_KEY"))
         else:
             raise ValueError(f"Unsupported LLM provider: {self.config['llm_provider']}")
         
@@ -315,6 +344,139 @@ class TradingAgentsGraph:
                 print("✅ trader Summary Updated!")
             else:
                 print("⚠️ trader Summary returned empty.")
+                
+                
+            sum_market = final_state.get("Summarize_market_report")
+            market = final_state.get("market_report")
+
+            sum_cial = final_state.get("Summarize_social_report")
+            social = final_state.get("sentiment_report")
+
+            sum_news = final_state.get("Summarize_news_report")
+            news = final_state.get("news_report")
+
+            sum_finda = final_state.get("Summarize_fundamentals_report")
+            funda = final_state.get("fundamentals_report")
+
+            
+            with open("output/sum/sum_funda.txt", 'w', encoding='utf-8') as f:
+                f.write(str(sum_finda))
+                
+            funda = json.loads(funda)
+            with open("output/full/full_funda.json", 'w', encoding='utf-8') as f:
+                json.dump(funda, f, ensure_ascii=False, indent=4)
+                
+            with open("output/sum/sum_market.txt", 'w', encoding='utf-8') as f:
+                f.write(str(sum_market))
+                
+            market = json.loads(market)
+            with open("output/full/full_market.json", 'w', encoding='utf-8') as f:
+                json.dump(market, f, ensure_ascii=False, indent=4)
+
+            with open("output/sum/sum_social.txt", 'w', encoding='utf-8') as f:
+                f.write(str(sum_cial))
+
+            social = json.loads(social)
+            with open("output/full/full_social.json", 'w', encoding='utf-8') as f:
+                json.dump(social, f, ensure_ascii=False, indent=4)
+
+            with open("output/sum/sum_news.txt", 'w', encoding='utf-8') as f:
+                f.write(str(sum_news))
+            
+            news = json.loads(news)
+            with open("output/full/full_news.json", 'w', encoding='utf-8') as f:
+                json.dump(news, f, ensure_ascii=False, indent=4)
+            
+            sum_bull = final_state.get("bull_researcher_summarizer")
+            bull = final_state.get("investment_debate_state")
+            
+            sum_bear = final_state.get("bear_researcher_summarizer")
+            bear = final_state.get("investment_debate_state")
+
+            with open("output/sum/sum_bull.txt", 'w', encoding='utf-8') as f:
+                f.write(str(sum_bull))
+                
+            # bull = json.loads(bull)
+            with open("output/full/full_bull.json", 'w', encoding='utf-8') as f:
+                json.dump(bull, f, ensure_ascii=False, indent=4)
+                
+            with open("output/sum/sum_bear.txt", 'w', encoding='utf-8') as f:
+                f.write(str(sum_bear))
+            
+            # bear = json.loads(bear)
+            with open("output/full/full_bear.json", 'w', encoding='utf-8') as f:
+                json.dump(bear, f, ensure_ascii=False, indent=4)
+
+            
+            sum_cons = final_state.get("Summarize_conservative_report")
+            cons = final_state.get("risk_debate_state")
+
+            sum_aggr = final_state.get("Summarize_aggressive_report")
+            aggr = final_state.get("risk_debate_state")
+
+            sum_neut = final_state.get("Summarize_neutral_report")
+            neut = final_state.get("risk_debate_state")
+
+            with open("output/sum/sum_conservative.txt", 'w', encoding='utf-8') as f:
+                f.write(str(sum_cons))
+            
+            # cons = json.loads(cons)
+            with open("output/full/full_conservative.json", 'w', encoding='utf-8') as f:
+                json.dump(cons, f, ensure_ascii=False, indent=4)
+
+            with open("output/sum/sum_aggressive.txt", 'w', encoding='utf-8') as f:
+                f.write(str(sum_aggr))
+
+            # aggr = json.loads(aggr)
+            with open("output/full/full_aggressive.json", 'w', encoding='utf-8') as f:
+                json.dump(aggr, f, ensure_ascii=False, indent=4)
+
+            with open("output/sum/sum_neutral.txt", 'w', encoding='utf-8') as f:
+                f.write(str(sum_neut))
+            
+            # neut = json.loads(neut)
+            with open("output/full/full_neutral.json", 'w', encoding='utf-8') as f:
+                json.dump(neut, f, ensure_ascii=False, indent=4)
+        
+            trader = final_state.get("trader_investment_plan")
+            sum_trader = final_state.get("trader_summarizer")
+
+            with open("output/sum/sum_trader.txt", 'w', encoding='utf-8') as f:
+                f.write(str(sum_trader))
+            
+            trader = json.loads(trader)
+            with open("output/full/full_trader.json", 'w', encoding='utf-8') as f:
+                json.dump(trader, f, ensure_ascii=False, indent=4)
+
+            investment_plan = final_state.get("investment_plan")
+            sum_investment_plan = final_state.get("Summarize_investment_plan_report")
+
+            final_decision = final_state.get("final_trade_decision")
+            sum_final_decision = final_state.get("Summarize_final_trade_decision_report")
+
+            with open("output/full/investment_plan.txt", "w", encoding="utf-8") as f:
+                f.write(str(investment_plan))
+
+            with open("output/sum/sum_investment_plan.txt", "w", encoding="utf-8") as f:
+                f.write(str(sum_investment_plan))
+
+            final_decision = json.loads(final_decision)
+            with open("output/full/final_decision.json", "w", encoding="utf-8") as f:
+                json.dump(final_decision, f, ensure_ascii=False, indent=4)
+
+            with open("output/sum/sum_final_decision.txt", "w", encoding="utf-8") as f:
+                f.write(str(sum_final_decision))
+                
+            print("📝 Sent telegram...")    
+            with open("all_report_message.txt", "r", encoding="utf-8") as f:
+                report_messages = f.read()
+                sent_to_telegram(report_messages)
+                
+            tele_text = f"""
+            Recommendation : {final_decision["recommendation"]}\nReasoning : {final_decision["reasoning"]}\n
+            """ 
+                
+            sent_to_telegram(tele_text)
                 
         except Exception as e:
             print(f"❌ Failed to summarize: {e}")

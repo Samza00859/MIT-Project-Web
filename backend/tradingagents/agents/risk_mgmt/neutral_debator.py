@@ -3,7 +3,7 @@ import json
 
 
 def create_neutral_debator(llm):
-    def neutral_node(state) -> dict:
+    async def neutral_node(state) -> dict:
         risk_debate_state = state["risk_debate_state"]
         history = risk_debate_state.get("history", "")
         neutral_history = risk_debate_state.get("neutral_history", "")
@@ -17,22 +17,44 @@ def create_neutral_debator(llm):
         fundamentals_report = state["fundamentals_report"]
 
         trader_decision = state["trader_investment_plan"]
+        
+        system_prompt = (
+            "You are a Senior Neutral Risk Analyst. "
+            "Your goal is to find the balanced 'Golden Mean' between risk and safety. "
+            "You must critique the Risky analyst for recklessness and the Conservative analyst for paralysis. "
+            "INSTRUCTIONS: "
+            "1. Write a **single, cohesive argument**. Do NOT use section headers, bullet points, or lists. "
+            "2. Write using ONLY plain text. Do NOT use abbreviations. "
+            "3. Focus on Risk-Adjusted Returns. Propose a sensible middle ground."
+        )
 
-        prompt = f"""As the Neutral Risk Analyst, your role is to provide a balanced perspective, weighing both the potential benefits and risks of the trader's decision or plan. You prioritize a well-rounded approach, evaluating the upsides and downsides while factoring in broader market trends, potential economic shifts, and diversification strategies.Here is the trader's decision:
+        user_prompt = f"""
+        Review the Trader Plan and the Debate to formulate your Balanced argument (max 150 words).
 
-{trader_decision}
+        TRADER PLAN
+        {trader_decision}
 
-Your task is to challenge both the Risky and Safe Analysts, pointing out where each perspective may be overly optimistic or overly cautious. Use insights from the following data sources to support a moderate, sustainable strategy to adjust the trader's decision:
+        RAW INTELLIGENCE
+        Market Technicals: {market_research_report}
+        Sentiment: {sentiment_report}
+        News: {news_report}
+        Fundamentals: {fundamentals_report}
 
-Market Research Report: {market_research_report}
-Social Media Sentiment Report: {sentiment_report}
-Latest World Affairs Report: {news_report}
-Company Fundamentals Report: {fundamentals_report}
-Here is the current conversation history: {history} Here is the last response from the risky analyst: {current_risky_response} Here is the last response from the safe analyst: {current_safe_response}. If there are no responses from the other viewpoints, do not halluncinate and just present your point.
+        DEBATE CONTEXT
+        History: {history}
+        Risky Argument: {current_risky_response}
+        Safe Argument: {current_safe_response}
 
-Engage actively by analyzing both sides critically, addressing weaknesses in the risky and conservative arguments to advocate for a more balanced approach. Challenge each of their points to illustrate why a moderate risk strategy might offer the best of both worlds, providing growth potential while safeguarding against extreme volatility. Focus on debating rather than simply presenting data, aiming to show that a balanced view can lead to the most reliable outcomes. Output conversationally as if you are speaking without any special formatting."""
-
-        response = llm.invoke(prompt)
+        **INSTRUCTIONS:**
+        1. Start by **Critiquing both extremes** (explain why the Risky approach is gambling and the Safe approach is opportunity cost).
+        2. Pivot to the **Risk-Adjusted Reality**, identifying where the actionable value lies in the data.
+        3. Conclude with a **Strategic Compromise**, proposing specific modifications (e.g., "Enter, but with half the position size" or "Wait for confirmation").
+        """
+        
+        response = await llm.ainvoke([
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ])
 
         argument = f"Neutral Analyst: {response.content}"
 

@@ -81,16 +81,12 @@ export default function IntroductionPage() {
 
                         {/* Action Buttons */}
                         <div className="mt-12 flex flex-col gap-4 sm:w-64">
-                            <button className="rounded-full bg-[#2df4c6] px-8 py-3 text-sm font-bold text-black shadow-[0_0_20px_rgba(45,244,198,0.3)] transition-all hover:bg-[#26dcb2] hover:shadow-[0_0_30px_rgba(45,244,198,0.5)]">
+                            <Link href="/Auth/register" className="flex items-center justify-center rounded-full bg-[#2df4c6] px-8 py-3 text-sm font-bold text-black shadow-[0_0_20px_rgba(45,244,198,0.3)] transition-all hover:bg-[#26dcb2] hover:shadow-[0_0_30px_rgba(45,244,198,0.5)]">
                                 Register
-                            </button>
-                            {/* <Link href="/" className={`rounded-full border px-8 py-3 text-center text-sm font-bold transition-all hover:bg-opacity-10 ${isDarkMode ? "border-white bg-white text-black hover:bg-white hover:text-white" : "border-black bg-black text-white hover:bg-black-800"
-                                }`}>
+                            </Link>
+                            <Link href="/Auth/login" className="flex items-center justify-center rounded-full bg-[white] px-8 py-3 text-sm font-bold text-black shadow-[0_0_20px_rgba(45,244,198,0.3)] transition-all hover:bg-[white] hover:shadow-[0_0_30px_rgba(45,244,198,0.5)]">
                                 Login
-                            </Link> */}
-                            <button className="rounded-full bg-[white] px-8 py-3 text-sm font-bold text-black shadow-[0_0_20px_rgba(45,244,198,0.3)] transition-all hover:bg-[white] hover:shadow-[0_0_30px_rgba(45,244,198,0.5)]">
-                                Login
-                            </button>
+                            </Link>
                         </div>
                     </div>
 

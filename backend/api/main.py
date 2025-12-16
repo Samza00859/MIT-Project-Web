@@ -21,33 +21,6 @@ from dotenv import load_dotenv
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Force UTF-8 encoding for stdout and stderr to handle emojis on Windows
-import sys
-import io
-# Force UTF-8 encoding for stdout and stderr to handle emojis on Windows
-import sys
-import io
-
-if sys.platform == "win32":
-    # Try to reconfigure stdout/stderr to utf-8
-    try:
-        if hasattr(sys.stdout, 'reconfigure'):
-            sys.stdout.reconfigure(encoding='utf-8')
-        elif isinstance(sys.stdout, io.TextIOWrapper):
-            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-    except Exception as e:
-        # If reconfiguration fails (e.g. invalid argument), just log it and continue
-        # This can happen in some environments where stdout is redirected
-        print(f"Warning: Failed to configure stdout encoding: {e}")
-
-    try:
-        if hasattr(sys.stderr, 'reconfigure'):
-            sys.stderr.reconfigure(encoding='utf-8')
-        elif isinstance(sys.stderr, io.TextIOWrapper):
-            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
-    except Exception as e:
-        print(f"Warning: Failed to configure stderr encoding: {e}")
-
 # Load environment variables
 load_dotenv()
 
@@ -81,6 +54,7 @@ class AnalysisRequest(BaseModel):
     backend_url: str
     shallow_thinker: str
     deep_thinker: str
+    report_length: Optional[str] = "summary"
 
 
 def extract_content_string(content):
@@ -193,12 +167,9 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
 
         # Stream the analysis
         trace = []
-        for chunk in graph.graph.stream(init_agent_state, **args):
-            # Rate limit mitigation delay
-            delay = config.get("step_delay", 0)
-            if delay > 0:
-                await asyncio.sleep(delay)
+        buffered_reports = []  # Buffer for reports
 
+        async for chunk in graph.graph.astream(init_agent_state, **args):
             if len(chunk.get("messages", [])) > 0:
                 # Get the last message from the chunk
                 last_message = chunk["messages"][-1]
@@ -239,12 +210,13 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                     agent_status["Market Analyst"] = "completed"
                     # Save report
                     with open(report_dir / "market_report.md", "w", encoding="utf-8") as f:
-                        f.write(extract_content_string(chunk["market_report"]))
+                        f.write(chunk["market_report"])
                     
-                    await send_update(websocket, "report", {
+                    # Buffer report instead of sending
+                    buffered_reports.append({
                         "section": "market_report",
                         "label": "Market Analysis",
-                        "content": extract_content_string(chunk["market_report"])
+                        "content": chunk["market_report"]
                     })
                     
                     if request.analysts and "social" in request.analysts:
@@ -256,12 +228,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                     agent_status["Social Analyst"] = "completed"
                     # Save report
                     with open(report_dir / "sentiment_report.md", "w", encoding="utf-8") as f:
-                        f.write(extract_content_string(chunk["sentiment_report"]))
+                        f.write(chunk["sentiment_report"])
                     
-                    await send_update(websocket, "report", {
+                    buffered_reports.append({
                         "section": "sentiment_report",
                         "label": "Social Sentiment",
-                        "content": extract_content_string(chunk["sentiment_report"])
+                        "content": chunk["sentiment_report"]
                     })
                     
                     if request.analysts and "news" in request.analysts:
@@ -273,12 +245,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                     agent_status["News Analyst"] = "completed"
                     # Save report
                     with open(report_dir / "news_report.md", "w", encoding="utf-8") as f:
-                        f.write(extract_content_string(chunk["news_report"]))
+                        f.write(chunk["news_report"])
                     
-                    await send_update(websocket, "report", {
+                    buffered_reports.append({
                         "section": "news_report",
                         "label": "News Analysis",
-                        "content": extract_content_string(chunk["news_report"])
+                        "content": chunk["news_report"]
                     })
                     
                     if request.analysts and "fundamentals" in request.analysts:
@@ -290,12 +262,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                     agent_status["Fundamentals Analyst"] = "completed"
                     # Save report
                     with open(report_dir / "fundamentals_report.md", "w", encoding="utf-8") as f:
-                        f.write(extract_content_string(chunk["fundamentals_report"]))
+                        f.write(chunk["fundamentals_report"])
                     
-                    await send_update(websocket, "report", {
+                    buffered_reports.append({
                         "section": "fundamentals_report",
                         "label": "Fundamentals Review",
-                        "content": extract_content_string(chunk["fundamentals_report"])
+                        "content": chunk["fundamentals_report"]
                     })
                     
                     # Start research team
@@ -337,11 +309,14 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                                 parts = current_plan.split("### Bear Researcher Analysis")
                                 report_sections["investment_plan"] = f"{parts[0].split('### Bull Researcher Analysis')[0]}### Bull Researcher Analysis\n{latest_bull}" + (f"\n\n### Bear Researcher Analysis{parts[1]}" if len(parts) > 1 else "")
                             
-                            await send_update(websocket, "report", {
-                                "section": "investment_plan",
-                                "label": "Research Team Decision",
-                                "content": extract_content_string(report_sections["investment_plan"])
-                            })
+                            # We don't buffer intermediate partial updates for investment plan, 
+                            # we wait for the final decision or just update internally.
+                            # BUT the frontend might expect updates to see "what's happening".
+                            # However, "Report" sections usually are static text. 
+                            # Let's buffer the LATEST version of investment plan only when it's final?
+                            # The original code sent 'report' updates here.
+                            # If we want "show only when finished", we should probably suppress these interim report updates
+                            # and only send the final consolidated one.
 
                     # Update Bear Researcher status and report
                     if debate_state and "bear_history" in debate_state and debate_state.get("bear_history"):
@@ -368,11 +343,7 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                                 parts = current_plan.split("### Bear Researcher Analysis")
                                 report_sections["investment_plan"] = parts[0] + f"\n\n### Bear Researcher Analysis\n{latest_bear}"
                             
-                            await send_update(websocket, "report", {
-                                "section": "investment_plan",
-                                "label": "Research Team Decision",
-                                "content": extract_content_string(report_sections["investment_plan"])
-                            })
+                            # Suppress interim report update
 
                     # Update Research Manager status and final decision
                     if debate_state and "judge_decision" in debate_state and debate_state.get("judge_decision"):
@@ -386,12 +357,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                         
                         # Save report
                         with open(report_dir / "investment_plan.md", "w", encoding="utf-8") as f:
-                            f.write(extract_content_string(report_sections["investment_plan"]))
+                            f.write(report_sections["investment_plan"])
                         
-                        await send_update(websocket, "report", {
+                        buffered_reports.append({
                             "section": "investment_plan",
                             "label": "Research Team Decision",
-                            "content": extract_content_string(report_sections["investment_plan"])
+                            "content": report_sections["investment_plan"]
                         })
                         
                         await send_update(websocket, "message", {
@@ -408,12 +379,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                     agent_status["Trader"] = "completed"
                     # Save report
                     with open(report_dir / "trader_investment_plan.md", "w", encoding="utf-8") as f:
-                        f.write(extract_content_string(chunk["trader_investment_plan"]))
+                        f.write(chunk["trader_investment_plan"])
                     
-                    await send_update(websocket, "report", {
+                    buffered_reports.append({
                         "section": "trader_investment_plan",
                         "label": "Trader Investment Plan",
-                        "content": extract_content_string(chunk["trader_investment_plan"])
+                        "content": chunk["trader_investment_plan"]
                     })
                     
                     agent_status["Risky Analyst"] = "in_progress"
@@ -468,12 +439,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                         
                         # Save report
                         with open(report_dir / "final_trade_decision.md", "w", encoding="utf-8") as f:
-                            f.write(extract_content_string(report_sections["final_trade_decision"]))
+                            f.write(report_sections["final_trade_decision"])
                         
-                        await send_update(websocket, "report", {
+                        buffered_reports.append({
                             "section": "final_trade_decision",
                             "label": "Portfolio Management Decision",
-                            "content": extract_content_string(report_sections["final_trade_decision"])
+                            "content": report_sections["final_trade_decision"]
                         })
                         
                         await send_update(websocket, "message", {
@@ -485,23 +456,152 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
 
             trace.append(chunk)
 
-        # Get final state and decision
-        final_state = trace[-1]
-        decision = graph.process_signal(final_state.get("final_trade_decision", ""))
+        # Send all buffered reports now
+        for report in buffered_reports:
+            await send_update(websocket, "report", report)
+            import asyncio
+            await asyncio.sleep(0.05)
+
+        # Get final state from trace
+        final_state_graph = trace[-1]
+
+        # --- Summarization & Output Logic (Replicating propagate) ---
+        try:
+            # Import agents here to avoid potential top-level circular dependencies
+            from tradingagents.agents import (
+                create_summarizer_fundamental,
+                create_summarizer_market,
+                create_summarizer_social,
+                create_summarizer_news,
+                create_summarizer_conservative,
+                create_summarizer_aggressive,
+                create_summarizer_neutral,
+                create_summarizer_research_manager,
+                create_summarizer_risk_manager,
+                create_summarizer_bull_researcher,
+                create_summarizer_bear_researcher,
+                create_summarizer_trader
+            )
+
+            # Create summarizers
+            summarizers = {
+                "Summarize_fundamentals_report": create_summarizer_fundamental(),
+                "Summarize_market_report": create_summarizer_market(),
+                "Summarize_social_report": create_summarizer_social(),
+                "Summarize_news_report": create_summarizer_news(),
+                "Summarize_conservative_report": create_summarizer_conservative(),
+                "Summarize_aggressive_report": create_summarizer_aggressive(),
+                "Summarize_neutral_report": create_summarizer_neutral(),
+                "Summarize_investment_plan_report": create_summarizer_research_manager(),
+                "Summarize_final_trade_decision_report": create_summarizer_risk_manager(),
+                "bull_researcher_summarizer": create_summarizer_bull_researcher(),
+                "bear_researcher_summarizer": create_summarizer_bear_researcher(),
+                "trader_summarizer": create_summarizer_trader()
+            }
+
+            # Prepare directories
+            output_dir = PROJECT_ROOT / "output"
+            sum_dir = output_dir / "sum"
+            full_dir = output_dir / "full"
+            sum_dir.mkdir(parents=True, exist_ok=True)
+            full_dir.mkdir(parents=True, exist_ok=True)
+
+            # Run summarizers and update state
+            logger.info("📝 Running Summarizers...")
+            for key, summarizer_func in summarizers.items():
+                try:
+                    update_dict = summarizer_func(final_state_graph)
+                    if update_dict:
+                        final_state_graph.update(update_dict)
+                except Exception as e:
+                     logger.error(f"Error running summarizer {key}: {e}")
+
+            # Define file mappings (Key in State -> (Sum Filename, Full Filename, Full Key in State))
+            file_mappings = [
+                ("Summarize_fundamentals_report", "sum_funda.txt", "full_funda.json", "fundamentals_report"),
+                ("Summarize_market_report", "sum_market.txt", "full_market.json", "market_report"),
+                ("Summarize_social_report", "sum_social.txt", "full_social.json", "sentiment_report"),
+                ("Summarize_news_report", "sum_news.txt", "full_news.json", "news_report"),
+                ("bull_researcher_summarizer", "sum_bull.txt", "full_bull.json", "investment_debate_state"),
+                ("bear_researcher_summarizer", "sum_bear.txt", "full_bear.json", "investment_debate_state"),
+                ("Summarize_conservative_report", "sum_conservative.txt", "full_conservative.json", "risk_debate_state"),
+                ("Summarize_aggressive_report", "sum_aggressive.txt", "full_aggressive.json", "risk_debate_state"),
+                ("Summarize_neutral_report", "sum_neutral.txt", "full_neutral.json", "risk_debate_state"),
+                ("trader_summarizer", "sum_trader.txt", "full_trader.json", "trader_investment_plan"),
+                ("Summarize_investment_plan_report", "sum_investment_plan.txt", "investment_plan.txt", "investment_plan"),
+                ("Summarize_final_trade_decision_report", "sum_final_decision.txt", "final_decision.json", "final_trade_decision"),
+            ]
+
+            for sum_key, sum_file, full_file, full_key in file_mappings:
+                # Write Summary
+                sum_content = final_state_graph.get(sum_key)
+                if sum_content:
+                    with open(sum_dir / sum_file, 'w', encoding='utf-8') as f:
+                        f.write(str(sum_content))
+                
+                # Write Full
+                full_content = final_state_graph.get(full_key)
+                if full_content:
+                    with open(full_dir / full_file, 'w', encoding='utf-8') as f:
+                        # If the content is a dict or list, dump as JSON. If string, write as is (or check ext)
+                        if full_file.endswith(".json") and not isinstance(full_content, str):
+                             json.dump(full_content, f, ensure_ascii=False, indent=4)
+                        elif full_file.endswith(".json") and isinstance(full_content, str):
+                            # Try to pretty print json string if possible
+                            try:
+                                json_obj = json.loads(full_content)
+                                json.dump(json_obj, f, ensure_ascii=False, indent=4)
+                            except:
+                                f.write(full_content)
+                        else:
+                             f.write(str(full_content))
+
+            logger.info("✅ Summaries generated and saved directly to backend/output")
+
+        except Exception as e:
+            logger.error(f"❌ Failed to run summarization logic: {e}")
+            import traceback
+            traceback.print_exc()
+
+        
+        decision = graph.process_signal(final_state_graph.get("final_trade_decision", ""))
+
+        # Prepare final state to send to frontend (include summaries)
+        frontend_final_state = {
+            # Original Keys (Now using raw state for Full Reports where applicable)
+            "market_report": final_state_graph.get("market_report"),
+            "sentiment_report": final_state_graph.get("sentiment_report"),
+            "news_report": final_state_graph.get("news_report"),
+            "fundamentals_report": final_state_graph.get("fundamentals_report"),
+            "investment_plan": final_state_graph.get("investment_debate_state"), # Send Dict for JSON printing
+            "trader_investment_plan": final_state_graph.get("trader_investment_plan"),
+            "final_trade_decision": final_state_graph.get("risk_debate_state"), # Send Dict for JSON printing
+
+            # Summary Keys
+            "Summarize_market_report": final_state_graph.get("Summarize_market_report"),
+            "Summarize_social_report": final_state_graph.get("Summarize_social_report"),
+            "Summarize_news_report": final_state_graph.get("Summarize_news_report"),
+            "Summarize_fundamentals_report": final_state_graph.get("Summarize_fundamentals_report"),
+            "Summarize_investment_plan_report": final_state_graph.get("Summarize_investment_plan_report"),
+            "Summarize_final_trade_decision_report": final_state_graph.get("Summarize_final_trade_decision_report"),
+            "Summarize_conservative_report": final_state_graph.get("Summarize_conservative_report"),
+            "Summarize_aggressive_report": final_state_graph.get("Summarize_aggressive_report"),
+            "Summarize_neutral_report": final_state_graph.get("Summarize_neutral_report"),
+            "bull_researcher_summarizer": final_state_graph.get("bull_researcher_summarizer"),
+            "bear_researcher_summarizer": final_state_graph.get("bear_researcher_summarizer"),
+            "trader_summarizer": final_state_graph.get("trader_summarizer"),
+        }
 
         # Send completion
         await send_update(websocket, "complete", {
             "decision": decision,
-            "final_state": {
-                "market_report": report_sections.get("market_report"),
-                "sentiment_report": report_sections.get("sentiment_report"),
-                "news_report": report_sections.get("news_report"),
-                "fundamentals_report": report_sections.get("fundamentals_report"),
-                "investment_plan": report_sections.get("investment_plan"),
-                "trader_investment_plan": report_sections.get("trader_investment_plan"),
-                "final_trade_decision": report_sections.get("final_trade_decision"),
-            }
+            "final_state": frontend_final_state
         })
+
+    except asyncio.CancelledError:
+        logger.info(f"🛑 Analysis for {request.ticker} was cancelled.")
+        await send_update(websocket, "error", {"message": "Analysis cancelled."})
+        raise
 
     except Exception as e:
         await send_update(websocket, "error", {
@@ -540,12 +640,24 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     active_connections.append(websocket)
     
+    analysis_task: Optional[asyncio.Task] = None
+
     try:
         while True:
-            # Wait for analysis request
+            # Wait for any message
             data = await websocket.receive_json()
             
-            if data.get("action") == "start_analysis":
+            action = data.get("action")
+            
+            if action == "start_analysis":
+                # Cancel existing task if running
+                if analysis_task and not analysis_task.done():
+                    analysis_task.cancel()
+                    try:
+                        await analysis_task
+                    except asyncio.CancelledError:
+                        pass
+                
                 request_data = data.get("request")
                 if not request_data:
                     await send_update(websocket, "error", {"message": "Missing request data"})
@@ -558,16 +670,33 @@ async def websocket_endpoint(websocket: WebSocket):
                     await send_update(websocket, "error", {"message": f"Invalid request: {str(e)}"})
                     continue
                 
-                # Run analysis in background
-                await run_analysis_stream(websocket, request)
+                # Run analysis in background task
+                analysis_task = asyncio.create_task(run_analysis_stream(websocket, request))
                 
-            elif data.get("action") == "ping":
+            elif action == "stop":
+                if analysis_task and not analysis_task.done():
+                    analysis_task.cancel()
+                    try:
+                        await analysis_task
+                    except asyncio.CancelledError:
+                        pass
+                    analysis_task = None
+                    await send_update(websocket, "error", {"message": "Analysis stopped. System ready."})
+                    logger.info("🛑 Analysis stopped by user. System reset and ready.")
+                
+            elif action == "ping":
                 await send_update(websocket, "pong", {})
                 
     except WebSocketDisconnect:
-        active_connections.remove(websocket)
+        logger.info("WebSocket disconnected")
+        if analysis_task and not analysis_task.done():
+            analysis_task.cancel()
+        if websocket in active_connections:
+            active_connections.remove(websocket)
     except Exception as e:
-        print(f"WebSocket error: {e}")
+        logger.error(f"WebSocket error: {e}")
+        if analysis_task and not analysis_task.done():
+            analysis_task.cancel()
         if websocket in active_connections:
             active_connections.remove(websocket)
 

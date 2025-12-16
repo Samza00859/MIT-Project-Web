@@ -4,7 +4,7 @@ import json
 
 
 def create_safe_debator(llm):
-    def safe_node(state) -> dict:
+    async def safe_node(state) -> dict:
         risk_debate_state = state["risk_debate_state"]
         history = risk_debate_state.get("history", "")
         safe_history = risk_debate_state.get("safe_history", "")
@@ -18,22 +18,44 @@ def create_safe_debator(llm):
         fundamentals_report = state["fundamentals_report"]
 
         trader_decision = state["trader_investment_plan"]
+        
+        system_prompt = (
+            "You are a Senior Conservative Risk Analyst. "
+            "Your number one priority is Capital Preservation. "
+            "You are skeptical of hype and high volatility. "
+            "INSTRUCTIONS: "
+            "1. Write a **single, cohesive argument**. Do NOT use section headers, bullet points, or lists. "
+            "2. Write using ONLY plain text. Do NOT use abbreviations. "
+            "3. Focus on the Downside. Ask: What if this goes wrong?"
+        )
 
-        prompt = f"""As the Safe/Conservative Risk Analyst, your primary objective is to protect assets, minimize volatility, and ensure steady, reliable growth. You prioritize stability, security, and risk mitigation, carefully assessing potential losses, economic downturns, and market volatility. When evaluating the trader's decision or plan, critically examine high-risk elements, pointing out where the decision may expose the firm to undue risk and where more cautious alternatives could secure long-term gains. Here is the trader's decision:
+        user_prompt = f"""
+        Review the Trader Plan and the Debate to formulate your Conservative argument (max 150 words).
 
-{trader_decision}
+        TRADER PLAN
+        {trader_decision}
 
-Your task is to actively counter the arguments of the Risky and Neutral Analysts, highlighting where their views may overlook potential threats or fail to prioritize sustainability. Respond directly to their points, drawing from the following data sources to build a convincing case for a low-risk approach adjustment to the trader's decision:
+        RAW INTELLIGENCE
+        Market Technicals: {market_research_report}
+        Sentiment: {sentiment_report}
+        News: {news_report}
+        Fundamentals: {fundamentals_report}
 
-Market Research Report: {market_research_report}
-Social Media Sentiment Report: {sentiment_report}
-Latest World Affairs Report: {news_report}
-Company Fundamentals Report: {fundamentals_report}
-Here is the current conversation history: {history} Here is the last response from the risky analyst: {current_risky_response} Here is the last response from the neutral analyst: {current_neutral_response}. If there are no responses from the other viewpoints, do not halluncinate and just present your point.
+        DEBATE CONTEXT
+        History: {history}
+        Risky Argument: {current_risky_response}
+        Neutral Argument: {current_neutral_response}
 
-Engage by questioning their optimism and emphasizing the potential downsides they may have overlooked. Address each of their counterpoints to showcase why a conservative stance is ultimately the safest path for the firm's assets. Focus on debating and critiquing their arguments to demonstrate the strength of a low-risk strategy over their approaches. Output conversationally as if you are speaking without any special formatting."""
+        **INSTRUCTIONS:**
+        1. Start by **Directly Rebutting** the Risky/Neutral analysts (explain why their optimism is dangerous).
+        2. Pivot immediately to the **Worst Case Scenario**, citing specific data (e.g., Resistance levels, Economic downturns) that could crash the trade.
+        3. Conclude with **Protective Measures**, demanding a reduced Position Size or a tighter Stop Loss to ensure survival.
+        """
 
-        response = llm.invoke(prompt)
+        response = await llm.ainvoke([
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ])
 
         argument = f"Safe Analyst: {response.content}"
 

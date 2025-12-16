@@ -11,18 +11,40 @@ DEFAULT_CONFIG = {
     ),
     # LLM settings
     # "llm_provider": "openai",
-    # "deep_think_llm": "o4-mini",
+    # "deep_think_llm": "gpt-o4-mini",
     # "quick_think_llm": "gpt-4o-mini",
     # "backend_url": "https://api.openai.com/v1",
     # LLM settings
-    "llm_provider": "google",
-    "deep_think_llm": "gemini-2.5-flash",
-    "quick_think_llm": "gemini-2.5-flash",
+    # "llm_provider": "google",
+    # "deep_think_llm": "gemini-2.5-flash",
+    # "quick_think_llm": "gemini-2.5-flash",
+    
+    "llm_provider": "deepseek",
+    "deep_think_llm": "deepseek-reasoner",
+    "quick_think_llm": "deepseek-chat",
+    "backend_url": "https://api.deepseek.com",
+
+    # LLM settings second option
+    # "llm_provider": "typhoon",              # หรือ "typhoon"
+    # "deep_think_llm": "typhoon-v2.5-30b-a3b-instruct",
+    # "quick_think_llm": "typhoon-v2.5-30b-a3b-instruct",
+    # "backend_url": "https://api.opentyphoon.ai/v1",
+
+    # "llm_provider": "typhoon",              # หรือ "typhoon"
+    # "deep_think_llm": "typhoon-v2.1-12b-instruct",
+    # "quick_think_llm": "typhoon-v2.1-12b-instruct",
+    # "backend_url": "https://api.opentyphoon.ai/v1",
+
+    # ollama settings
+    # "llm_provider": "ollama",
+    # "deep_think_llm": "llama3.2-vision",
+    # "quick_think_llm": "llama3.2-vision",
+    # "backend_url": "http://localhost:11434/v1",
+
     # Debate and discussion settings
     "max_debate_rounds": 1,
     "max_risk_discuss_rounds": 1,
     "max_recur_limit": 100,
-    "step_delay": 10, # Delay in seconds to avoid rate limits
     # Data vendor configuration
     # Category-level configuration (default for all tools in category)
     "data_vendors": {

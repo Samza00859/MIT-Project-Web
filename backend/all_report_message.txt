@@ -2,85 +2,109 @@
 
 ===== TOTAL RECORDS CHECK =====
 YFinance:      250
-TwelveData:    0
+TwelveData:    250
 TradingView:   250
 
 
 ===== SIMILARITY SCORE =====
-YFinance Score: 0
-TwelveData Score: 0
-TradingView Score: 0
+YFinance Score: 37
+TwelveData Score: 497
+TradingView Score: 502
 
-🏆 Best Source: YFINANCE
+🏆 Best Source: TRADINGVIEW
 
-📊 Indicator 'macd' Source Comparison for MSFT:
-Yahoo Finance Score: 88
-Alpha Vantage Score: 0
-TradingView Score: 88
-🏆 Best Source: YAHOO, TV
-
-📊 Indicator 'macdh' Source Comparison for MSFT:
-Yahoo Finance Score: 55
-Alpha Vantage Score: 0
-TradingView Score: 55
-🏆 Best Source: YAHOO, TV
-
-📊 Indicator 'macds' Source Comparison for MSFT:
-Yahoo Finance Score: 89
-Alpha Vantage Score: 0
-TradingView Score: 89
-🏆 Best Source: YAHOO, TV
-
-📊 Indicator 'close_200_sma' Source Comparison for MSFT:
-Yahoo Finance Score: 344
-Alpha Vantage Score: 344
-TradingView Score: 344
+📊 Indicator 'close_50_sma' Source Comparison for NVDA:
+Yahoo Finance Score: 40
+Alpha Vantage Score: 40
+TradingView Score: 40
 🏆 Best Source: YAHOO, ALPHA, TV
 
-📊 Indicator 'rsi' Source Comparison for MSFT:
-Yahoo Finance Score: 334
-Alpha Vantage Score: 334
-TradingView Score: 324
+📊 Indicator 'close_200_sma' Source Comparison for NVDA:
+Yahoo Finance Score: 20
+Alpha Vantage Score: 20
+TradingView Score: 0
 🏆 Best Source: YAHOO, ALPHA
 
-📊 Indicator 'boll_ub' Source Comparison for MSFT:
-Yahoo Finance Score: 344
-Alpha Vantage Score: 344
-TradingView Score: 344
+📊 Indicator 'close_10_ema' Source Comparison for NVDA:
+Yahoo Finance Score: 40
+Alpha Vantage Score: 40
+TradingView Score: 40
 🏆 Best Source: YAHOO, ALPHA, TV
 
-📊 Indicator 'close_50_sma' Source Comparison for MSFT:
-Yahoo Finance Score: 344
-Alpha Vantage Score: 344
-TradingView Score: 344
+📊 Indicator 'macd' Source Comparison for NVDA:
+Yahoo Finance Score: 16
+Alpha Vantage Score: 0
+TradingView Score: 16
+🏆 Best Source: YAHOO, TV
+
+📊 Indicator 'macds' Source Comparison for NVDA:
+Yahoo Finance Score: 15
+Alpha Vantage Score: 0
+TradingView Score: 15
+🏆 Best Source: YAHOO, TV
+
+📊 Indicator 'macdh' Source Comparison for NVDA:
+Yahoo Finance Score: 20
+Alpha Vantage Score: 0
+TradingView Score: 20
+🏆 Best Source: YAHOO, TV
+
+📊 Indicator 'rsi' Source Comparison for NVDA:
+Yahoo Finance Score: 40
+Alpha Vantage Score: 40
+TradingView Score: 40
 🏆 Best Source: YAHOO, ALPHA, TV
 
-📊 Indicator 'boll_lb' Source Comparison for MSFT:
-Yahoo Finance Score: 344
-Alpha Vantage Score: 344
-TradingView Score: 344
+📊 Indicator 'boll' Source Comparison for NVDA:
+Yahoo Finance Score: 40
+Alpha Vantage Score: 40
+TradingView Score: 40
 🏆 Best Source: YAHOO, ALPHA, TV
+
+📊 Indicator 'boll_ub' Source Comparison for NVDA:
+Yahoo Finance Score: 40
+Alpha Vantage Score: 40
+TradingView Score: 40
+🏆 Best Source: YAHOO, ALPHA, TV
+
+📊 Indicator 'boll_lb' Source Comparison for NVDA:
+Yahoo Finance Score: 40
+Alpha Vantage Score: 40
+TradingView Score: 40
+🏆 Best Source: YAHOO, ALPHA, TV
+
+📊 Indicator 'atr' Source Comparison for NVDA:
+Yahoo Finance Score: 40
+Alpha Vantage Score: 40
+TradingView Score: 40
+🏆 Best Source: YAHOO, ALPHA, TV
+
+📊 Indicator 'vwma' Source Comparison for NVDA:
+Yahoo Finance Score: 20
+Alpha Vantage Score: 0
+TradingView Score: 20
+🏆 Best Source: YAHOO, TV
 
 
 🌐 Social Media News: 
-Bluesky news fetched for MSFT: 114 posts found.
-Mastodon news fetched for MSFT: 120 posts found.
-Subreddit news fetched for MSFT: 11 posts found.
+Bluesky news fetched for NVDA: 30 posts found.
+Mastodon news fetched for NVDA: 120 posts found.
+Subreddit news fetched for NVDA: 19 posts found.
 
 📰 News :
-Fetched 50 news items for MSFT from Finnhub.
-Fetched 3 news items for MSFT from Reddit.
-Fetched 10 news items for MSFT from YFinance.
-Fetched 50 news items for MSFT from Alpha Vantage.
+Fetched 50 news items for NVDA from Finnhub.
+Fetched 0 news items for NVDA from Reddit.
+Fetched 10 news items for NVDA from YFinance.
+Fetched 50 news items for NVDA from Alpha Vantage.
 
 🌏 Global News: 
 Reddit global news have : 40 posts.
-Yfinance global news have : 50 posts.
-Finnhub global news have : 269 posts.
+Yfinance global news have : 49 posts.
+Finnhub global news have : 50 posts.
 
 
-Fetched fundamentals for MSFT:
+Fetched fundamentals for NVDA:
 - YFinance: 4 fields fetched
 - Finnhub: 1 fields fetched
-- AlphaVantage: 4 fields fetched
-📜 Fundamental data for MSFT. Chosen source: alphavantage
+- AlphaVantage: 3 fields fetched
+📜 Fundamental data for NVDA. Chosen source: alphavantage

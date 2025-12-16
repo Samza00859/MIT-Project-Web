@@ -3,7 +3,7 @@ import json
 
 
 def create_research_manager(llm, memory):
-    def research_manager_node(state) -> dict:
+    async def research_manager_node(state) -> dict:
         history = state["investment_debate_state"].get("history", "")
         market_research_report = state["market_report"]
         sentiment_report = state["sentiment_report"]
@@ -18,25 +18,35 @@ def create_research_manager(llm, memory):
         past_memory_str = ""
         for i, rec in enumerate(past_memories, 1):
             past_memory_str += rec["recommendation"] + "\n\n"
+            
+        system_prompt = (
+            "You are the Chief Investment Officer. Your role is to adjudicate the debate between the Bullish and Bearish researchers and make a final investment decision. "
+            "INSTRUCTIONS: "
+            "1. Write using ONLY plain text. Do not use asterisks, hashes, or dashes. "
+            "2. Do NOT use abbreviations. Use full terms (e.g., Price to Earnings Ratio, Simple Moving Average). "
+            "3. Be decisive. Do not hedge. Choose Buy, Sell, or Hold based on the strongest evidence."
+        )
 
-        prompt = f"""As the portfolio manager and debate facilitator, your role is to critically evaluate this round of debate and make a definitive decision: align with the bear analyst, the bull analyst, or choose Hold only if it is strongly justified based on the arguments presented.
+        prompt = f"""
+        Review the following Debate and Past Lessons to form an Investment Plan:
 
-Summarize the key points from both sides concisely, focusing on the most compelling evidence or reasoning. Your recommendation—Buy, Sell, or Hold—must be clear and actionable. Avoid defaulting to Hold simply because both sides have valid points; commit to a stance grounded in the debate's strongest arguments.
+        DEBATE HISTORY
+        {history}
 
-Additionally, develop a detailed investment plan for the trader. This should include:
+        PAST REFLECTIONS
+        {past_memory_str}
 
-Your Recommendation: A decisive stance supported by the most convincing arguments.
-Rationale: An explanation of why these arguments lead to your conclusion.
-Strategic Actions: Concrete steps for implementing the recommendation.
-Take into account your past mistakes on similar situations. Use these insights to refine your decision-making and ensure you are learning and improving. Present your analysis conversationally, as if speaking naturally, without special formatting. 
-
-Here are your past reflections on mistakes:
-\"{past_memory_str}\"
-
-Here is the debate:
-Debate History:
-{history}"""
-        response = llm.invoke(prompt)
+        REQUIRED OUTPUT FORMAT
+        Provide a comprehensive executive summary (1-2 paragraphs). 
+        Start by stating the verdict (BUY, SELL, or HOLD) clearly. 
+        Then, immediately explain the logic by highlighting the most compelling evidence from the debate, the specific execution strategy (entry/exit urgency), and the critical risk to monitor. 
+        Focus only on the core insights and the decision logic. No fluff, no formatting structure.
+        """
+        
+        response = await llm.ainvoke([
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt}
+        ])
 
         new_investment_debate_state = {
             "judge_decision": response.content,
