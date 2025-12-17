@@ -37,10 +37,11 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
                 const res = await fetch(`${getApiUrl()}/api/telegram/status`);
                 if (res.ok) {
                     const data = await res.json();
-                    if (data.connected && data.chat_id) {
-                        setStatus("connected");
-                        setCurrentChatId(data.chat_id);
-                    }
+                    // We intentionally do NOT auto-connect on load, forcing a fresh connection if requested.
+                    // if (data.connected && data.chat_id) {
+                    //     setStatus("connected");
+                    //     setCurrentChatId(data.chat_id);
+                    // }
                     if (data.bot_name) {
                         setBotName(data.bot_name);
                     } else {
@@ -166,10 +167,10 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
     const startPolling = () => {
         setIsDetecting(true);
         setDetectMessage("Waiting for you to press 'Start' on Telegram...");
-        setCountdown(60);
+        setCountdown(30);
 
         let attempts = 0;
-        const maxAttempts = 30; // 30 * 2s = 60s
+        const maxAttempts = 15; // 15 * 2s = 30s
 
         const startTime = Date.now() / 1000; // Capture start time in seconds
 
