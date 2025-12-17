@@ -5,6 +5,7 @@ import { jsPDF } from "jspdf";
 import Sidebar from "../components/Sidebar";
 import DebugPanel from "../components/DebugPanel";
 import ReportSections from "../components/ReportSections";
+import TelegramConnect from "../components/TelegramConnect";
 
 // --- Constants & Types ---
 
@@ -1140,6 +1141,7 @@ export default function Home() {
               </svg>
             </div>
           </article>
+
 
           {/* Generate / Stop Button */}
           {isRunning ? (

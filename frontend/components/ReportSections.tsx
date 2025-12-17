@@ -1,5 +1,6 @@
 import React from "react";
 import { jsPDF } from "jspdf";
+import TelegramConnect from "./TelegramConnect";
 
 interface ReportSectionsProps {
     reportSections: { key: string; label: string; text: string }[];
@@ -355,6 +356,9 @@ export default function ReportSections({
                     >
                         Download PDF
                     </button>
+
+                    {/* Compact Telegram Button */}
+                    <TelegramConnect variant="header-button" />
                 </div>
             </header>
             <article
