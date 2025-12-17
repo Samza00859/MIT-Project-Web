@@ -68,9 +68,9 @@
       "exchange": "NASDAQ",
       "sector": "TECHNOLOGY",
       "industry": "SEMICONDUCTORS",
-      "marketCap": 4261212062000.0,
+      "marketCap": 4292132733000.0,
       "sharesOutstanding": 24305000000.0,
-      "peRatio": 43.32
+      "peRatio": 43.31
     },
     "balancesheet": {
       "totalAssets": null,
@@ -88,5 +88,5 @@
       "eps": null
     }
   },
-  "timestamp": "2025-12-16T08:16:09.377157+00:00"
+  "timestamp": "2025-12-17T04:26:07.112773+00:00"
 }
