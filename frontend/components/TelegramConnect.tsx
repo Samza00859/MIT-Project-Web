@@ -171,13 +171,17 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
         let attempts = 0;
         const maxAttempts = 30; // 30 * 2s = 60s
 
+        const startTime = Date.now() / 1000; // Capture start time in seconds
+
         const pollInterval = setInterval(async () => {
             attempts++;
             setCountdown(prev => prev - 1);
 
             try {
                 const res = await fetch(`${getApiUrl()}/api/telegram/detect`, {
-                    method: 'POST'
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ start_time: startTime })
                 });
                 const data = await res.json();
 

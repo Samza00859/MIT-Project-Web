@@ -464,7 +464,6 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
         # Send all buffered reports now
         for report in buffered_reports:
             await send_update(websocket, "report", report)
-            import asyncio
             await asyncio.sleep(0.05)
 
         # Get final state from trace
@@ -745,6 +744,9 @@ async def test_endpoint():
 class TelegramConnectRequest(BaseModel):
     chat_id: str
 
+class TelegramDetectRequest(BaseModel):
+     start_time: Optional[float] = None
+
 @app.post("/api/telegram/connect")
 async def connect_telegram(request: TelegramConnectRequest):
     """
@@ -794,10 +796,10 @@ async def connect_telegram(request: TelegramConnectRequest):
 
 
 @app.post("/api/telegram/detect")
-async def detect_telegram_chat():
+async def detect_latest_chat_id(request: Optional[TelegramDetectRequest] = None):
     """
-    Attempt to fetch the latest message from Telegram to get the Chat ID.
-    User should have just sent a message to the bot.
+    Check the latest update from the Telegram bot.
+    If a user has interacted recently, capture their Chat ID.
     """
     token = os.getenv("TELEGRAM_TOKEN")
     if not token:
@@ -806,7 +808,7 @@ async def detect_telegram_chat():
     try:
         import requests
         # Get updates (allowed to be empty)
-        url = f"https://api.telegram.org/bot{token}/getUpdates?limit=1&offset=-1" # Get only the very last update
+        url = f"https://api.telegram.org/bot{token}/getUpdates?limit=5&offset=-5" # Get last 5 updates to find the right one
         resp = requests.get(url, timeout=10)
         
         if resp.status_code != 200:
@@ -820,14 +822,29 @@ async def detect_telegram_chat():
         if not results:
              return {"found": False, "message": "No messages found. Please send a message to the bot first."}
         
-        # Extract chat_id from the last message
-        last_update = results[0]
-        message = last_update.get("message") or last_update.get("my_chat_member") or last_update.get("channel_post")
+        # Iterate backwards to find the most recent valid message
+        valid_message = None
         
-        if not message:
-             # Try other types
-             return {"found": False, "message": "Could not extract chat info from the last update."}
+        # Determine strict time filter (default 120s if not provided by frontend)
+        import time
+        current_time = time.time()
+        start_time_limit = request.start_time if request and request.start_time else (current_time - 120)
+        
+        for update in reversed(results):
+            message = update.get("message") or update.get("my_chat_member") or update.get("channel_post")
+            if not message: continue
+            
+            msg_date = message.get("date")
+            if msg_date:
+                # Check if message is newer than the start_time (when user clicked connect)
+                if msg_date >= start_time_limit:
+                    valid_message = message
+                    break # Found the most recent valid one
+        
+        if not valid_message:
+             return {"found": False, "message": "No new messages found since you clicked connect."}
              
+        message = valid_message
         chat = message.get("chat") or message.get("from") # my_chat_member has 'chat'
         
         if not chat:
@@ -836,8 +853,9 @@ async def detect_telegram_chat():
         chat_id = str(chat["id"])
         first_name = chat.get("first_name", "User")
         username = chat.get("username", "")
-        
-        # Save it!
+
+
+
         request = TelegramConnectRequest(chat_id=chat_id)
         os.environ["TELEGRAM_CHAT_ID"] = chat_id
         env_path = PROJECT_ROOT / ".env"

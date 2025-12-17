@@ -1263,6 +1263,7 @@ export default function Home() {
           handleDownloadPdf={handleDownloadPdf}
           reportLength={reportLength}
           setReportLength={setReportLength}
+          isRunning={isRunning}
         />
 
         {/* Summary Panel */}
