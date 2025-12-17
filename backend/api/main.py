@@ -4,9 +4,9 @@ Provides WebSocket support for real-time updates.
 """
 import asyncio
 import json
+import os
 import datetime
 import logging
-import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from contextlib import asynccontextmanager
@@ -24,9 +24,6 @@ logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
-
-# Create FastAPI app
-app = FastAPI(title="TradingAgents API", version="1.0.0")
 
 try:
     import yfinance as yf
@@ -65,142 +62,7 @@ class AnalysisRequest(BaseModel):
     report_length: Optional[str] = "summary"
 
 
-    report_length: Optional[str] = "summary"
-    
-import requests
-
-# Hardcoded Token from User Request (or load from env if preferred, but user gave it explicitly)
-# Ideally we load this from env, but we'll set it as default if missing
-DEFAULT_TELEGRAM_TOKEN = "8350009727:AAF6rxfs5T8EOmG6czYAHLVmsT9CQe2eLQE"
-
-class TelegramSettings(BaseModel):
-    chat_id: str
-
-
-@app.post("/api/settings/telegram/pair")
-async def pair_telegram():
-    """Attempt to pair with Telegram Bot by checking recent updates."""
-    try:
-        token = os.getenv("TELEGRAM_TOKEN", DEFAULT_TELEGRAM_TOKEN)
-        
-        # 1. Allow user to overwrite token if they want, but use default for now
-        # We need to ensure the token is saved to env if it's not there
-        
-        url = f"https://api.telegram.org/bot{token}/getUpdates"
-        resp = requests.get(url, timeout=10)
-        data = resp.json()
-        
-        if not data.get("ok"):
-             raise HTTPException(status_code=400, detail=f"Telegram API Error: {data.get('description')}")
-             
-        results = data.get("result", [])
-        if not results:
-             return {"status": "waiting", "message": "No messages found. Please click Start on the bot."}
-             
-        # Get latest message
-        latest = results[-1]
-        chat_id = None
-        
-        if "message" in latest:
-             chat_id = latest["message"]["chat"]["id"]
-        elif "my_chat_member" in latest:
-             chat_id = latest["my_chat_member"]["chat"]["id"]
-             
-        if not chat_id:
-             return {"status": "waiting", "message": "Could not identify Chat ID from updates."}
-             
-        # Found Chat ID! Save it.
-        str_chat_id = str(chat_id)
-        os.environ["TELEGRAM_CHAT_ID"] = str_chat_id
-        os.environ["TELEGRAM_TOKEN"] = token # Ensure token is set in current env
-        
-        # Save to .env
-        env_path = PROJECT_ROOT / ".env"
-        lines = []
-        if env_path.exists():
-             with open(env_path, "r", encoding="utf-8") as f:
-                  lines = f.readlines()
-                  
-        new_lines = []
-        token_found = False
-        chat_id_found = False
-        
-        for line in lines:
-             stripped = line.strip()
-             if stripped.startswith("TELEGRAM_TOKEN="):
-                  new_lines.append(f"TELEGRAM_TOKEN={token}\n")
-                  token_found = True
-             elif stripped.startswith("TELEGRAM_CHAT_ID="):
-                  new_lines.append(f"TELEGRAM_CHAT_ID={str_chat_id}\n")
-                  chat_id_found = True
-             else:
-                  new_lines.append(line)
-                  
-        if not token_found:
-             if new_lines and not new_lines[-1].endswith("\n"): new_lines.append("\n")
-             new_lines.append(f"TELEGRAM_TOKEN={token}\n")
-             
-        if not chat_id_found:
-             if new_lines and not new_lines[-1].endswith("\n"): new_lines.append("\n")
-             new_lines.append(f"TELEGRAM_CHAT_ID={str_chat_id}\n")
-             
-        with open(env_path, "w", encoding="utf-8") as f:
-             f.writelines(new_lines)
-             
-        return {
-             "status": "success", 
-             "message": "Successfully paired!", 
-             "chat_id": str_chat_id,
-             "bot_name": "TradingAgentsBot" # Placeholder or fetch from getMe
-        }
-
-    except Exception as e:
-        logger.error(f"Pairing failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/api/settings/telegram")
-async def update_telegram_settings(settings: TelegramSettings):
-    """Update Telegram Chat ID in .env file."""
-    try:
-        # 1. Update os.environ
-        os.environ["TELEGRAM_CHAT_ID"] = settings.chat_id
-        
-        # 2. Update .env file
-        env_path = PROJECT_ROOT / ".env"
-        
-        # Read existing lines
-        lines = []
-        if env_path.exists():
-            with open(env_path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-        
-        # Check if key exists
-        key_found = False
-        new_lines = []
-        for line in lines:
-            if line.strip().startswith("TELEGRAM_CHAT_ID="):
-                new_lines.append(f"TELEGRAM_CHAT_ID={settings.chat_id}\n")
-                key_found = True
-            else:
-                new_lines.append(line)
-        
-        # If not found, append
-        if not key_found:
-            if new_lines and not new_lines[-1].endswith("\n"):
-                new_lines.append("\n")
-            new_lines.append(f"TELEGRAM_CHAT_ID={settings.chat_id}\n")
-            
-        # Write back
-        with open(env_path, "w", encoding="utf-8") as f:
-            f.writelines(new_lines)
-            
-        return {"status": "success", "message": "Telegram Chat ID updated"}
-        
-    except Exception as e:
-        logger.error(f"Failed to update Telegram settings: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
+def extract_content_string(content):
     """Extract string content from various message formats."""
     if isinstance(content, str):
         return content
@@ -602,7 +464,6 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
         # Send all buffered reports now
         for report in buffered_reports:
             await send_update(websocket, "report", report)
-            import asyncio
             await asyncio.sleep(0.05)
 
         # Get final state from trace
@@ -754,6 +615,8 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
 
 
 
+# Create FastAPI app
+app = FastAPI(title="TradingAgents API", version="1.0.0")
 
 # Configure CORS
 app.add_middleware(
@@ -876,6 +739,205 @@ async def test_endpoint():
         }
 
 
+
+
+class TelegramConnectRequest(BaseModel):
+    chat_id: str
+
+class TelegramDetectRequest(BaseModel):
+     start_time: Optional[float] = None
+
+@app.post("/api/telegram/connect")
+async def connect_telegram(request: TelegramConnectRequest):
+    """
+    Connect Telegram account by setting the chat_id in environment.
+    """
+    try:
+        # Update current process environment
+        os.environ["TELEGRAM_CHAT_ID"] = request.chat_id
+        
+        # Update .env file for persistence
+        # PROJECT_ROOT is defined as Path(__file__).parent.parent which is 'backend'
+        env_path = PROJECT_ROOT / ".env"
+        
+        # Simple .env writer to avoid extra dependencies if possible, 
+        # but using python-dotenv feature if available is better.
+        # Check if dotenv.set_key is available or just append/replace string.
+        
+        # We will try to read the file and replace the line or append if not found.
+        if env_path.exists():
+            with open(env_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+            
+            new_lines = []
+            found = False
+            for line in lines:
+                if line.strip().startswith("TELEGRAM_CHAT_ID="):
+                    new_lines.append(f"TELEGRAM_CHAT_ID={request.chat_id}\n")
+                    found = True
+                else:
+                    new_lines.append(line)
+            
+            if not found:
+                if new_lines and not new_lines[-1].endswith("\n"):
+                    new_lines[-1] += "\n"
+                new_lines.append(f"TELEGRAM_CHAT_ID={request.chat_id}\n")
+                
+            with open(env_path, "w", encoding="utf-8") as f:
+                f.writelines(new_lines)
+        else:
+            # Create new .env
+            with open(env_path, "w", encoding="utf-8") as f:
+                f.write(f"TELEGRAM_CHAT_ID={request.chat_id}\n")
+        
+        return {"status": "success", "message": "Telegram connected successfully"}
+    except Exception as e:
+        logger.error(f"Failed to connect telegram: {e}")
+
+
+@app.post("/api/telegram/detect")
+async def detect_latest_chat_id(request: Optional[TelegramDetectRequest] = None):
+    """
+    Check the latest update from the Telegram bot.
+    If a user has interacted recently, capture their Chat ID.
+    """
+    token = os.getenv("TELEGRAM_TOKEN")
+    if not token:
+        raise HTTPException(status_code=400, detail="Telegram token not configured")
+    
+    try:
+        import requests
+        # Get updates (allowed to be empty)
+        url = f"https://api.telegram.org/bot{token}/getUpdates?limit=5&offset=-5" # Get last 5 updates to find the right one
+        resp = requests.get(url, timeout=10)
+        
+        if resp.status_code != 200:
+             raise HTTPException(status_code=502, detail="Failed to reach Telegram API")
+             
+        data = resp.json()
+        if not data.get("ok"):
+             raise HTTPException(status_code=502, detail=f"Telegram Error: {data.get('description')}")
+             
+        results = data.get("result", [])
+        if not results:
+             return {"found": False, "message": "No messages found. Please send a message to the bot first."}
+        
+        # Iterate backwards to find the most recent valid message
+        valid_message = None
+        
+        # Determine strict time filter (default 120s if not provided by frontend)
+        import time
+        current_time = time.time()
+        start_time_limit = request.start_time if request and request.start_time else (current_time - 120)
+        
+        for update in reversed(results):
+            message = update.get("message") or update.get("my_chat_member") or update.get("channel_post")
+            if not message: continue
+            
+            msg_date = message.get("date")
+            if msg_date:
+                # Check if message is newer than the start_time (when user clicked connect)
+                if msg_date >= start_time_limit:
+                    valid_message = message
+                    break # Found the most recent valid one
+        
+        if not valid_message:
+             return {"found": False, "message": "No new messages found since you clicked connect."}
+             
+        message = valid_message
+        chat = message.get("chat") or message.get("from") # my_chat_member has 'chat'
+        
+        if not chat:
+             return {"found": False, "message": "Could not identify chat details."}
+             
+        chat_id = str(chat["id"])
+        first_name = chat.get("first_name", "User")
+        username = chat.get("username", "")
+
+
+
+        request = TelegramConnectRequest(chat_id=chat_id)
+        os.environ["TELEGRAM_CHAT_ID"] = chat_id
+        env_path = PROJECT_ROOT / ".env"
+        
+        if env_path.exists():
+            with open(env_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+            new_lines = []
+            found = False
+            for line in lines:
+                if line.strip().startswith("TELEGRAM_CHAT_ID="):
+                    new_lines.append(f"TELEGRAM_CHAT_ID={chat_id}\n")
+                    found = True
+                else:
+                    new_lines.append(line)
+            if not found:
+                if new_lines and not new_lines[-1].endswith("\n"):
+                    new_lines[-1] += "\n"
+                new_lines.append(f"TELEGRAM_CHAT_ID={chat_id}\n")
+            with open(env_path, "w", encoding="utf-8") as f:
+                f.writelines(new_lines)
+        else:
+            with open(env_path, "w", encoding="utf-8") as f:
+                f.write(f"TELEGRAM_CHAT_ID={chat_id}\n")
+        
+        # Send Welcome Message
+        try:
+            requests.post(
+                f"https://api.telegram.org/bot{token}/sendMessage",
+                json={
+                    "chat_id": chat_id, 
+                    "text": "✅ *Connection Successful!*\n\nYou have successfully connected your Telegram account to the Trading Agent.\nYou will now receive real-time trading notifications here.",
+                    "parse_mode": "Markdown"
+                },
+                timeout=5
+            )
+        except Exception as e:
+            logger.error(f"Failed to send welcome message: {e}")
+
+        return {
+            "found": True, 
+            "chat_id": chat_id, 
+            "username": username or first_name,
+            "message": "Successfully detected and connected!"
+        }
+        
+    except Exception as e:
+        logger.error(f"Detection failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/telegram/status")
+async def get_telegram_status():
+    """
+    Get current Telegram connection status and bot info.
+    """
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    token = os.getenv("TELEGRAM_TOKEN")
+    
+    bot_name = None
+    if token:
+        try:
+            # Simple synchronous call to avoid adding async http client for now, or use httpx if available.
+            # Since requests is used elsewhere, we can use it, but preferably async.
+            # using requests (synch) inside async fastAPI could block, but for low traffic ok.
+            import requests
+            url = f"https://api.telegram.org/bot{token}/getMe"
+            resp = requests.get(url, timeout=5)
+            if resp.status_code == 200:
+                data = resp.json()
+                if data.get("ok"):
+                    bot_name = data["result"]["username"]
+        except Exception as e:
+            logger.error(f"Failed to fetch bot info: {e}")
+
+    return {
+        "connected": bool(chat_id),
+        "chat_id": chat_id,
+        "bot_name": bot_name 
+    }
+
+
+
 @app.get("/quote/{ticker}")
 async def get_quote(ticker: str):
     """Fetch real-time quote data for a ticker."""
@@ -954,4 +1016,3 @@ async def get_quote(ticker: str):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-

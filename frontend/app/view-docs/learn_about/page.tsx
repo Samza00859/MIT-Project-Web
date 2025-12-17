@@ -3,16 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import {
     Home, Aperture, Users, FileText, Menu, LineChart,
-    Search, TrendingUp, Globe, BarChart, BookOpen, BrainCircuit, Activity, ChevronLeft
+    Search, TrendingUp, Globe, BarChart, BookOpen, BrainCircuit, Activity, ChevronLeft, Newspaper, Zap, Shield, Scale, MinusCircle, TrendingDown, Gavel, ArrowLeftRight, Flame
 } from 'lucide-react';
 import Link from 'next/link';
 
 // --- 1. ข้อมูลเนื้อหา (Teams & Agents) ---
 const TEAMS = [
     {
-        id: 'aggregation-team',
-        title: 'Aggregation Team',
-        description: 'The sensory system of our trading organism. These agents are responsible for gathering, cleaning, and normalizing vast amounts of unstructured data from the financial world.',
+        id: 'analyst-team',
+        title: 'Analyst Team',
+        description: 'The foundation. specialized agents collect and process raw data from multiple sources—quantitative, fundamental, technical, and sentiment—to create a unified view of the market.',
         agents: [
             {
                 id: 'market-data',
@@ -31,14 +31,14 @@ const TEAMS = [
             {
                 id: 'news',
                 title: 'News Agent',
-                icon: <Globe size={32} className="text-green-400" />,
+                icon: <Newspaper size={32} className="text-green-400" />,
                 role: 'News Aggregator',
                 content: 'Monitors global newswires/RSS feeds. It filters noise to find high-impact economic events and corporate announcements that could move markets.'
             },
             {
                 id: 'social',
                 title: 'Social Agent',
-                icon: <Globe size={32} className="text-green-400" />,
+                icon: <Globe size={32} className="text-purple-400" />,
                 role: 'Social Media Aggregator',
                 content: 'Quantifies market psychology by scanning social platforms. It detects accumulating fear or greed trends that often precede price reversals.'
             }
@@ -47,35 +47,77 @@ const TEAMS = [
     {
         id: 'research-team',
         title: 'Research Team',
-        description: 'The strategic brain. These agents take the aggregated data and form conflicting hypotheses to stress-test potential trade ideas.',
+        description: 'The war room. Here, the Research Manager (CIO) moderates a fierce debate between the Bull and Bear to form a balanced initial thesis.',
         agents: [
             {
                 id: 'bull',
                 title: 'Bull Researcher',
                 icon: <TrendingUp size={32} className="text-green-500" />,
-                role: 'Optimistic Strategist',
-                content: 'Constructs the "Bull Case" by focusing on growth catalysts, competitive advantages, and positive momentum signals.'
+                role: 'Growth Strategist',
+                content: 'The Optimist. Focuses purely on upside catalysts, growth potential, and reasons why the asset could outperform.'
             },
             {
                 id: 'bear',
                 title: 'Bear Researcher',
-                icon: <Activity size={32} className="text-red-500" />,
-                role: 'Skeptical Strategist',
-                content: 'Constructs the "Bear Case" by identifying risks, valuation concerns, and potential headwinds that could derail the trade.'
+                icon: <TrendingDown size={32} className="text-red-500" />,
+                role: 'Risk Strategist',
+                content: 'The Skeptic. Focuses on valuation gaps, macro headwinds, and flaws in the bullish thesis to expose downside risks.'
+            }
+        ]
+    },
+    {
+        id: 'trader-team',
+        title: 'Trader',
+        description: 'The execution arm. This agent takes the final plan and executes the trade with precision.',
+        agents: [
+            {
+                id: 'trader',
+                title: 'Trader',
+                icon: <ArrowLeftRight size={32} className="text-yellow-500" />,
+                role: 'Executor',
+                content: 'The Trader. It listens to the Bull and Bear arguments, synthesizing the conflicting data into a coherent "Investment Plan" (Buy/Sell/Hold).'
             }
         ]
     },
     {
         id: 'risk-team',
         title: 'Risk Team',
-        description: 'The guardian of capital. This team operates with a "safety-first" mandate to ensure longevity and consistent performance.',
+        description: 'The stress test. Before execution, the trade must survive the "Council of Risks" where the Risk Manager adjudicates between conflicting risk perspectives.',
         agents: [
             {
-                id: 'risk-manager',
-                title: 'Risk Manager',
-                icon: <Search size={32} className="text-orange-400" />,
-                role: 'Portfolio Guardian',
-                content: 'Evaluates downside risk, sets dynamic stop-losses, and sizes positions according to volatility. It has veto power over any trade suggestion.'
+                id: 'risky-agent',
+                title: 'Aggressive Risk Agent',
+                icon: <Flame size={32} className="text-red-400" />,
+                role: 'Risk Taker',
+                content: 'Advocates for maximizing exposure when conviction is high. It argues for wider stops and larger sizing to capture full trend potential.'
+            },
+            {
+                id: 'safe-agent',
+                title: 'Conservative Risk Agent',
+                icon: <Shield size={32} className="text-green-400" />,
+                role: 'Capital Preserver',
+                content: 'Prioritizes capital preservation above all. It argues for tight stops, small position sizes, and hedging against volatility.'
+            },
+            {
+                id: 'neutral-agent',
+                title: 'Neutral Risk Agent',
+                icon: <Scale size={32} className="text-gray-400" />,
+                role: 'Balancer',
+                content: 'Provides the middle ground, balancing the aggressive profit-seeking against conservative fears to find optimal risk-adjusted entries.'
+            }
+        ]
+    },
+    {
+        id: 'manager-team',
+        title: 'Manager',
+        description: 'The manager. Once the plan is approved and risk-adjusted, the Trader Agent executes the order with surgical precision.',
+        agents: [
+            {
+                id: 'manager',
+                title: 'Manager',
+                icon: <Gavel size={32} className="text-blue-500" />,
+                role: 'Decision Maker',
+                content: 'The Manager. Takes the final "Risk-Adjusted Plan" and executes the trade, managing entry timing and order types to minimize slippage.'
             }
         ]
     }
@@ -115,9 +157,10 @@ export default function LearnAboutPage() {
     const scrollToSection = (id: string) => {
         const element = document.getElementById(id);
         if (element) {
-            const headerOffset = 100;
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            const elementRect = element.getBoundingClientRect();
+            const absoluteElementTop = elementRect.top + window.pageYOffset;
+            // Calculate position to center the element
+            const offsetPosition = absoluteElementTop - (window.innerHeight / 2) + (elementRect.height / 2);
 
             window.scrollTo({
                 top: offsetPosition,
