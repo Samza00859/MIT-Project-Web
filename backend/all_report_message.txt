@@ -3,91 +3,91 @@
 ===== TOTAL RECORDS CHECK =====
 YFinance:      250
 TwelveData:    250
-TradingView:   250
+TradingView:   0
 
 
 ===== SIMILARITY SCORE =====
-YFinance Score: 37
-TwelveData Score: 497
-TradingView Score: 502
+YFinance Score: 18
+TwelveData Score: 18
+TradingView Score: 0
 
-🏆 Best Source: TRADINGVIEW
+🏆 Best Source: YFINANCE
 
 📊 Indicator 'close_50_sma' Source Comparison for NVDA:
-Yahoo Finance Score: 40
-Alpha Vantage Score: 40
-TradingView Score: 40
-🏆 Best Source: YAHOO, ALPHA, TV
+Yahoo Finance Score: 21
+Alpha Vantage Score: 21
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
 
 📊 Indicator 'close_200_sma' Source Comparison for NVDA:
-Yahoo Finance Score: 20
-Alpha Vantage Score: 20
+Yahoo Finance Score: 21
+Alpha Vantage Score: 21
 TradingView Score: 0
 🏆 Best Source: YAHOO, ALPHA
 
 📊 Indicator 'close_10_ema' Source Comparison for NVDA:
-Yahoo Finance Score: 40
-Alpha Vantage Score: 40
-TradingView Score: 40
-🏆 Best Source: YAHOO, ALPHA, TV
+Yahoo Finance Score: 21
+Alpha Vantage Score: 21
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
 
 📊 Indicator 'macd' Source Comparison for NVDA:
+Yahoo Finance Score: 0
+Alpha Vantage Score: 0
+TradingView Score: 0
+🏆 Best Source: YAHOO
+
+📊 Indicator 'macds' Source Comparison for NVDA:
 Yahoo Finance Score: 16
 Alpha Vantage Score: 0
 TradingView Score: 16
 🏆 Best Source: YAHOO, TV
 
-📊 Indicator 'macds' Source Comparison for NVDA:
-Yahoo Finance Score: 15
-Alpha Vantage Score: 0
-TradingView Score: 15
-🏆 Best Source: YAHOO, TV
-
 📊 Indicator 'macdh' Source Comparison for NVDA:
-Yahoo Finance Score: 20
+Yahoo Finance Score: 21
 Alpha Vantage Score: 0
-TradingView Score: 20
+TradingView Score: 21
 🏆 Best Source: YAHOO, TV
 
 📊 Indicator 'rsi' Source Comparison for NVDA:
-Yahoo Finance Score: 40
-Alpha Vantage Score: 40
-TradingView Score: 40
+Yahoo Finance Score: 42
+Alpha Vantage Score: 42
+TradingView Score: 42
 🏆 Best Source: YAHOO, ALPHA, TV
 
 📊 Indicator 'boll' Source Comparison for NVDA:
-Yahoo Finance Score: 40
-Alpha Vantage Score: 40
-TradingView Score: 40
-🏆 Best Source: YAHOO, ALPHA, TV
+Yahoo Finance Score: 21
+Alpha Vantage Score: 21
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
 
 📊 Indicator 'boll_ub' Source Comparison for NVDA:
-Yahoo Finance Score: 40
-Alpha Vantage Score: 40
-TradingView Score: 40
+Yahoo Finance Score: 42
+Alpha Vantage Score: 42
+TradingView Score: 42
 🏆 Best Source: YAHOO, ALPHA, TV
 
 📊 Indicator 'boll_lb' Source Comparison for NVDA:
-Yahoo Finance Score: 40
-Alpha Vantage Score: 40
-TradingView Score: 40
+Yahoo Finance Score: 42
+Alpha Vantage Score: 42
+TradingView Score: 42
 🏆 Best Source: YAHOO, ALPHA, TV
 
 📊 Indicator 'atr' Source Comparison for NVDA:
-Yahoo Finance Score: 40
-Alpha Vantage Score: 40
-TradingView Score: 40
+Yahoo Finance Score: 42
+Alpha Vantage Score: 42
+TradingView Score: 42
 🏆 Best Source: YAHOO, ALPHA, TV
 
 📊 Indicator 'vwma' Source Comparison for NVDA:
-Yahoo Finance Score: 20
+Yahoo Finance Score: 21
 Alpha Vantage Score: 0
-TradingView Score: 20
+TradingView Score: 21
 🏆 Best Source: YAHOO, TV
 
 
 🌐 Social Media News: 
-Bluesky news fetched for NVDA: 30 posts found.
+Bluesky news fetched for NVDA: 25 posts found.
 Mastodon news fetched for NVDA: 120 posts found.
 Subreddit news fetched for NVDA: 19 posts found.
 

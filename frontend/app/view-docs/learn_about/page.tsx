@@ -3,53 +3,88 @@
 import React, { useState, useEffect } from 'react';
 import {
     Home, Aperture, Users, FileText, Menu, LineChart,
-    Search, TrendingUp, Globe, BarChart, BookOpen, BrainCircuit, ChevronLeft
+    Search, TrendingUp, Globe, BarChart, BookOpen, BrainCircuit, Activity, ChevronLeft
 } from 'lucide-react';
 import Link from 'next/link';
 
-// --- 1. ข้อมูลเนื้อหา (Sections) ของหน้า Learn About ---
-const SECTIONS = [
+// --- 1. ข้อมูลเนื้อหา (Teams & Agents) ---
+const TEAMS = [
     {
-        id: 'fundamentals',
-        title: 'Fundamentals Analysis',
-        icon: <BarChart size={32} className="text-cyan-400" />,
-        role: 'Financial Statement Processor',
-        content: 'The Fundamentals Analyst Agent parses quarterly earnings reports (10-K, 10-Q) and balance sheets. It calculates key ratios like P/E, PEG, and Debt-to-Equity to determine the intrinsic value of an asset compared to its current market price.'
+        id: 'aggregation-team',
+        title: 'Aggregation Team',
+        description: 'The sensory system of our trading organism. These agents are responsible for gathering, cleaning, and normalizing vast amounts of unstructured data from the financial world.',
+        agents: [
+            {
+                id: 'market-data',
+                title: 'Market Data Agent',
+                icon: <BarChart size={32} className="text-cyan-400" />,
+                role: 'Market Aggregator',
+                content: 'Fetches raw financial data including historical prices, trading volumes, and key financial ratios. Ensures all analysis is based on the most accurate numbers.'
+            },
+            {
+                id: 'fundamental',
+                title: 'Fundamental Agent',
+                icon: <BookOpen size={32} className="text-blue-400" />,
+                role: 'Fundamental Aggregator',
+                content: 'Parses 10-K/10-Q reports and balance sheets. It calculates intrinsic value metrics to determine if an asset is mispriced relative to its financial health.'
+            },
+            {
+                id: 'news',
+                title: 'News Agent',
+                icon: <Globe size={32} className="text-green-400" />,
+                role: 'News Aggregator',
+                content: 'Monitors global newswires/RSS feeds. It filters noise to find high-impact economic events and corporate announcements that could move markets.'
+            },
+            {
+                id: 'social',
+                title: 'Social Agent',
+                icon: <Globe size={32} className="text-green-400" />,
+                role: 'Social Media Aggregator',
+                content: 'Quantifies market psychology by scanning social platforms. It detects accumulating fear or greed trends that often precede price reversals.'
+            }
+        ]
     },
     {
-        id: 'sentiment',
-        title: 'Sentiment Analyst',
-        icon: <BrainCircuit size={32} className="text-purple-400" />,
-        role: 'Social & Market Mood Scraper',
-        content: 'This agent monitors social media platforms (X, Reddit) and financial forums in real-time. Using NLP models (BERT/RoBERTa), it quantifies the "fear and greed" index of the market, detecting viral trends before they impact price action.'
+        id: 'research-team',
+        title: 'Research Team',
+        description: 'The strategic brain. These agents take the aggregated data and form conflicting hypotheses to stress-test potential trade ideas.',
+        agents: [
+            {
+                id: 'bull',
+                title: 'Bull Researcher',
+                icon: <TrendingUp size={32} className="text-green-500" />,
+                role: 'Optimistic Strategist',
+                content: 'Constructs the "Bull Case" by focusing on growth catalysts, competitive advantages, and positive momentum signals.'
+            },
+            {
+                id: 'bear',
+                title: 'Bear Researcher',
+                icon: <Activity size={32} className="text-red-500" />,
+                role: 'Skeptical Strategist',
+                content: 'Constructs the "Bear Case" by identifying risks, valuation concerns, and potential headwinds that could derail the trade.'
+            }
+        ]
     },
     {
-        id: 'news',
-        title: 'News Analyst',
-        icon: <Globe size={32} className="text-green-400" />,
-        role: 'Macro Event Interpreter',
-        content: 'Connected to global newswires (Bloomberg, Reuters), the News Analyst filters noise to find high-impact events. It distinguishes between scheduled economic calendar releases and unexpected "Black Swan" events, adjusting risk parameters instantly.'
-    },
-    {
-        id: 'technical',
-        title: 'Technical Analyst',
-        icon: <TrendingUp size={32} className="text-yellow-400" />,
-        role: 'Chart Pattern Recognition',
-        content: 'Specializing in price action, this agent utilizes indicators like RSI, MACD, and Bollinger Bands. It identifies support/resistance zones and executes trades based on probability setups like Breakouts, Reversals, and Trend Following.'
-    },
-    {
-        id: 'researcher',
-        title: 'Researcher',
-        icon: <Search size={32} className="text-pink-400" />,
-        role: 'Long-term Strategy Optimizer',
-        content: 'The Researcher operates on a slower timeframe, backtesting new strategies against decades of historical data. It constantly evolves the meta-strategy, suggesting weight adjustments for the other agents based on changing market regimes.'
-    },
+        id: 'risk-team',
+        title: 'Risk Team',
+        description: 'The guardian of capital. This team operates with a "safety-first" mandate to ensure longevity and consistent performance.',
+        agents: [
+            {
+                id: 'risk-manager',
+                title: 'Risk Manager',
+                icon: <Search size={32} className="text-orange-400" />,
+                role: 'Portfolio Guardian',
+                content: 'Evaluates downside risk, sets dynamic stop-losses, and sizes positions according to volatility. It has veto power over any trade suggestion.'
+            }
+        ]
+    }
 ];
 
 import Sidebar from '../../../components/Sidebar';
 
 export default function LearnAboutPage() {
-    const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
+    const [activeTeamId, setActiveTeamId] = useState(TEAMS[0].id);
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [isDebugCollapsed, setIsDebugCollapsed] = useState(false);
 
@@ -60,14 +95,14 @@ export default function LearnAboutPage() {
     // --- Scroll Spy Logic ---
     useEffect(() => {
         const handleScroll = () => {
-            const scrollPosition = window.scrollY + 250;
+            const scrollPosition = window.scrollY + 200;
 
-            for (const section of SECTIONS) {
-                const element = document.getElementById(section.id);
+            for (const team of TEAMS) {
+                const element = document.getElementById(team.id);
                 if (element) {
                     const { offsetTop, offsetHeight } = element;
                     if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-                        setActiveSection(section.id);
+                        setActiveTeamId(team.id);
                     }
                 }
             }
@@ -80,7 +115,7 @@ export default function LearnAboutPage() {
     const scrollToSection = (id: string) => {
         const element = document.getElementById(id);
         if (element) {
-            const headerOffset = 120;
+            const headerOffset = 100;
             const elementPosition = element.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
@@ -88,7 +123,7 @@ export default function LearnAboutPage() {
                 top: offsetPosition,
                 behavior: 'smooth'
             });
-            setActiveSection(id);
+            setActiveTeamId(id);
         }
     };
 
@@ -111,19 +146,19 @@ export default function LearnAboutPage() {
             {/* ================= MIDDLE SIDEBAR (Menu) ================= */}
             <aside className="sticky top-0 h-screen w-[280px] shrink-0 bg-[#161616] flex flex-col pt-24 px-8 border-r border-zinc-800/50 hidden md:flex z-40 overflow-y-auto custom-scrollbar">
                 <h2 className="text-sm font-bold text-gray-100 mb-6 tracking-wide uppercase text-zinc-400">
-                    TradingAgent Multi Agent
+                    Agent Teams
                 </h2>
 
                 <div className="relative flex flex-col gap-1 pl-2 pb-20">
                     {/* Main Hierarchy Line */}
                     <div className="absolute left-0 top-2 bottom-2 w-[1px] bg-zinc-800"></div>
 
-                    {SECTIONS.map((section) => (
+                    {TEAMS.map((team) => (
                         <MenuItem
-                            key={section.id}
-                            label={section.title}
-                            active={activeSection === section.id}
-                            onClick={() => scrollToSection(section.id)}
+                            key={team.id}
+                            label={team.title}
+                            active={activeTeamId === team.id}
+                            onClick={() => scrollToSection(team.id)}
                         />
                     ))}
                 </div>
@@ -138,63 +173,66 @@ export default function LearnAboutPage() {
                         <ChevronLeft size={20} />
                     </Link>
                     <p className="text-zinc-500 font-medium text-sm flex items-center gap-2">
-                        View Docs <span className="text-zinc-700">/</span> <span className="text-white">Learn about our Agent</span>
+                        View Docs <span className="text-zinc-700">/</span> <span className="text-white">Our Agents</span>
                     </p>
                 </div>
 
-                <div className="px-12 max-w-4xl w-full pb-60 pt-8">
+                <div className="px-12 max-w-5xl w-full pb-60 pt-8">
                     <h1 className="text-4xl font-bold text-white mb-4 tracking-tight">
-                        Learn about our Agent
+                        Our Agents
                     </h1>
                     <p className="text-zinc-400 mb-16 text-lg">
-                        Meet the specialized agents powering our autonomous trading system.
+                        Meet the specialized teams powering our autonomous trading system.
                     </p>
 
-                    {/* Loop Render Sections */}
-                    <div className="flex flex-col gap-16">
-                        {SECTIONS.map((section) => (
-                            <section key={section.id} id={section.id} className="scroll-mt-40 animate-in fade-in duration-700">
+                    {/* Loop Render Teams */}
+                    <div className="flex flex-col gap-24">
+                        {TEAMS.map((team) => (
+                            <section key={team.id} id={team.id} className="scroll-mt-40 animate-in fade-in duration-700">
 
-                                {/* Agent Card Design */}
-                                <div className="bg-[#1a1a1a] border border-zinc-800 rounded-2xl p-8 hover:border-zinc-600 transition-colors shadow-lg relative overflow-hidden group">
-
-                                    {/* Decorative Gradient Blob */}
-                                    <div className="absolute -right-20 -top-20 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl group-hover:bg-cyan-500/10 transition-all"></div>
-
-                                    <div className="flex items-start gap-6 relative z-10">
-                                        {/* Icon Box */}
-                                        <div className="p-4 bg-zinc-900 rounded-xl border border-zinc-700 shadow-inner shrink-0">
-                                            {section.icon}
-                                        </div>
-
-                                        <div className="flex-1">
-                                            <h2 className="text-2xl font-bold text-white mb-1">
-                                                {section.title}
-                                            </h2>
-                                            <p className="text-cyan-400 text-sm font-mono mb-4 uppercase tracking-wider">
-                                                Role: {section.role}
-                                            </p>
-
-                                            <p className="text-zinc-300 leading-relaxed text-lg mb-6">
-                                                {section.content}
-                                            </p>
-
-                                            {/* Mock Stats / Tags */}
-                                            <div className="flex flex-wrap gap-3">
-                                                <span className="px-3 py-1 bg-zinc-800 rounded-full text-xs text-zinc-400 border border-zinc-700">High Frequency</span>
-                                                <span className="px-3 py-1 bg-zinc-800 rounded-full text-xs text-zinc-400 border border-zinc-700">Low Latency</span>
-                                                <span className="px-3 py-1 bg-zinc-800 rounded-full text-xs text-zinc-400 border border-zinc-700">AI Driven</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
+                                {/* Team Header */}
+                                <div className="mb-10">
+                                    <h2 className="text-3xl font-bold text-white mb-4 flex items-center gap-3">
+                                        <span className="text-cyan-500">
+                                            {team.id === 'aggregation-team' && <Users size={28} />}
+                                            {team.id === 'research-team' && <BrainCircuit size={28} />}
+                                            {team.id === 'risk-team' && <Activity size={28} />}
+                                        </span>
+                                        {team.title}
+                                    </h2>
+                                    <p className="text-zinc-400 text-lg leading-relaxed max-w-3xl border-l-2 border-zinc-700 pl-4">
+                                        {team.description}
+                                    </p>
                                 </div>
 
-                                {/* Skeleton Text (เนื้อหาเพิ่มเติมแบบในรูปภาพ) */}
-                                <div className="space-y-3 mt-8 opacity-30 px-4">
-                                    <div className="h-2 bg-zinc-700 rounded-full w-full"></div>
-                                    <div className="h-2 bg-zinc-700 rounded-full w-[94%]"></div>
-                                    <div className="h-2 bg-zinc-700 rounded-full w-[60%]"></div>
+                                {/* Agents Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {team.agents.map((agent) => (
+                                        <div key={agent.id} className="bg-[#1a1a1a] border border-zinc-800 rounded-2xl p-6 hover:border-zinc-600 transition-colors shadow-lg relative overflow-hidden group flex flex-col h-full">
+
+                                            {/* Decorative Gradient Blob */}
+                                            <div className="absolute -right-16 -top-16 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl group-hover:bg-cyan-500/10 transition-all"></div>
+
+                                            <div className="flex items-center gap-4 mb-4 relative z-10">
+                                                <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-700 shadow-inner">
+                                                    {agent.icon}
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-white leading-tight">
+                                                        {agent.title}
+                                                    </h3>
+                                                    <p className="text-cyan-400 text-xs font-mono uppercase tracking-wider mt-1">
+                                                        {agent.role}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-zinc-400 text-sm leading-relaxed relative z-10 flex-1">
+                                                {agent.content}
+                                            </p>
+
+                                        </div>
+                                    ))}
                                 </div>
 
                             </section>
@@ -211,15 +249,6 @@ export default function LearnAboutPage() {
 // ----------------------------------------------------------------------
 // SUB-COMPONENTS
 // ----------------------------------------------------------------------
-
-function NavIcon({ icon, active = false }: { icon: React.ReactNode, active?: boolean }) {
-    return (
-        <div className={`cursor-pointer p-2.5 rounded-xl transition-all duration-200 relative ${active ? 'text-white bg-zinc-800' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900'}`}>
-            {active && (<div className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-5 bg-cyan-400 rounded-r-full"></div>)}
-            {icon}
-        </div>
-    );
-}
 
 function MenuItem({ label, active = false, onClick }: { label: string, active?: boolean, onClick: () => void }) {
     return (

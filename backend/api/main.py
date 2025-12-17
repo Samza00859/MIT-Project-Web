@@ -6,6 +6,7 @@ import asyncio
 import json
 import datetime
 import logging
+import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from contextlib import asynccontextmanager
@@ -23,6 +24,9 @@ logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
+
+# Create FastAPI app
+app = FastAPI(title="TradingAgents API", version="1.0.0")
 
 try:
     import yfinance as yf
@@ -61,7 +65,142 @@ class AnalysisRequest(BaseModel):
     report_length: Optional[str] = "summary"
 
 
-def extract_content_string(content):
+    report_length: Optional[str] = "summary"
+    
+import requests
+
+# Hardcoded Token from User Request (or load from env if preferred, but user gave it explicitly)
+# Ideally we load this from env, but we'll set it as default if missing
+DEFAULT_TELEGRAM_TOKEN = "8350009727:AAF6rxfs5T8EOmG6czYAHLVmsT9CQe2eLQE"
+
+class TelegramSettings(BaseModel):
+    chat_id: str
+
+
+@app.post("/api/settings/telegram/pair")
+async def pair_telegram():
+    """Attempt to pair with Telegram Bot by checking recent updates."""
+    try:
+        token = os.getenv("TELEGRAM_TOKEN", DEFAULT_TELEGRAM_TOKEN)
+        
+        # 1. Allow user to overwrite token if they want, but use default for now
+        # We need to ensure the token is saved to env if it's not there
+        
+        url = f"https://api.telegram.org/bot{token}/getUpdates"
+        resp = requests.get(url, timeout=10)
+        data = resp.json()
+        
+        if not data.get("ok"):
+             raise HTTPException(status_code=400, detail=f"Telegram API Error: {data.get('description')}")
+             
+        results = data.get("result", [])
+        if not results:
+             return {"status": "waiting", "message": "No messages found. Please click Start on the bot."}
+             
+        # Get latest message
+        latest = results[-1]
+        chat_id = None
+        
+        if "message" in latest:
+             chat_id = latest["message"]["chat"]["id"]
+        elif "my_chat_member" in latest:
+             chat_id = latest["my_chat_member"]["chat"]["id"]
+             
+        if not chat_id:
+             return {"status": "waiting", "message": "Could not identify Chat ID from updates."}
+             
+        # Found Chat ID! Save it.
+        str_chat_id = str(chat_id)
+        os.environ["TELEGRAM_CHAT_ID"] = str_chat_id
+        os.environ["TELEGRAM_TOKEN"] = token # Ensure token is set in current env
+        
+        # Save to .env
+        env_path = PROJECT_ROOT / ".env"
+        lines = []
+        if env_path.exists():
+             with open(env_path, "r", encoding="utf-8") as f:
+                  lines = f.readlines()
+                  
+        new_lines = []
+        token_found = False
+        chat_id_found = False
+        
+        for line in lines:
+             stripped = line.strip()
+             if stripped.startswith("TELEGRAM_TOKEN="):
+                  new_lines.append(f"TELEGRAM_TOKEN={token}\n")
+                  token_found = True
+             elif stripped.startswith("TELEGRAM_CHAT_ID="):
+                  new_lines.append(f"TELEGRAM_CHAT_ID={str_chat_id}\n")
+                  chat_id_found = True
+             else:
+                  new_lines.append(line)
+                  
+        if not token_found:
+             if new_lines and not new_lines[-1].endswith("\n"): new_lines.append("\n")
+             new_lines.append(f"TELEGRAM_TOKEN={token}\n")
+             
+        if not chat_id_found:
+             if new_lines and not new_lines[-1].endswith("\n"): new_lines.append("\n")
+             new_lines.append(f"TELEGRAM_CHAT_ID={str_chat_id}\n")
+             
+        with open(env_path, "w", encoding="utf-8") as f:
+             f.writelines(new_lines)
+             
+        return {
+             "status": "success", 
+             "message": "Successfully paired!", 
+             "chat_id": str_chat_id,
+             "bot_name": "TradingAgentsBot" # Placeholder or fetch from getMe
+        }
+
+    except Exception as e:
+        logger.error(f"Pairing failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/settings/telegram")
+async def update_telegram_settings(settings: TelegramSettings):
+    """Update Telegram Chat ID in .env file."""
+    try:
+        # 1. Update os.environ
+        os.environ["TELEGRAM_CHAT_ID"] = settings.chat_id
+        
+        # 2. Update .env file
+        env_path = PROJECT_ROOT / ".env"
+        
+        # Read existing lines
+        lines = []
+        if env_path.exists():
+            with open(env_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+        
+        # Check if key exists
+        key_found = False
+        new_lines = []
+        for line in lines:
+            if line.strip().startswith("TELEGRAM_CHAT_ID="):
+                new_lines.append(f"TELEGRAM_CHAT_ID={settings.chat_id}\n")
+                key_found = True
+            else:
+                new_lines.append(line)
+        
+        # If not found, append
+        if not key_found:
+            if new_lines and not new_lines[-1].endswith("\n"):
+                new_lines.append("\n")
+            new_lines.append(f"TELEGRAM_CHAT_ID={settings.chat_id}\n")
+            
+        # Write back
+        with open(env_path, "w", encoding="utf-8") as f:
+            f.writelines(new_lines)
+            
+        return {"status": "success", "message": "Telegram Chat ID updated"}
+        
+    except Exception as e:
+        logger.error(f"Failed to update Telegram settings: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
     """Extract string content from various message formats."""
     if isinstance(content, str):
         return content
@@ -614,8 +753,7 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
         raise
 
 
-# Create FastAPI app
-app = FastAPI(title="TradingAgents API", version="1.0.0")
+
 
 # Configure CORS
 app.add_middleware(
