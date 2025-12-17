@@ -1,5 +1,6 @@
 import React from "react";
 import { jsPDF } from "jspdf";
+import TelegramConnect from "./TelegramConnect";
 
 interface ReportSectionsProps {
     reportSections: { key: string; label: string; text: string }[];
@@ -13,11 +14,6 @@ interface ReportSectionsProps {
 
 // Helper Functions needed for Report Generation
 function extractKeyPoints(text: string) {
-    // ... logic from page.tsx (We might need to duplicate this or move to utils file - let's duplicate for now or better, ask to move to utils later. 
-    // To keep it clean, I will implement a basic version or import if I can, but since I can't easily modify utils right now in this prompt without context, 
-    // I'll include the necessary helpers inside this component or basic formatting logic)
-
-    // Actually, let's keep the helper functions here for now as they are specific to report parsing.
     const keyPoints: string[] = [];
     const bulletMatches = text.match(/[-*•·]\s*([^\n]+)/g);
     if (bulletMatches) {
@@ -28,7 +24,6 @@ function extractKeyPoints(text: string) {
             }
         });
     }
-    // ... simplified fallback
     return keyPoints;
 }
 
@@ -40,15 +35,12 @@ function formatInlineMarkdown(text: string) {
     return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
 }
 
-// ... Summarize Report logic is complex, maybe we can skip pdf generation logic in the component for now if passed as handler?
-// Wait, the handleDownloadPdf was using these helpers.
-// Let's pass the handlers as props to simplify the component responsibilities.
-
 interface ReportSectionsDisplayProps extends ReportSectionsProps {
     handleCopyReport: () => void;
     handleDownloadPdf: () => void;
     reportLength: "summary report" | "full report";
     setReportLength: (length: "summary report" | "full report") => void;
+    isRunning?: boolean;
 }
 
 // Helper to render Markdown text (with bold/list support)
@@ -86,8 +78,6 @@ function RenderMarkdown({ text }: { text: string }) {
 
 // Helper to render JSON Data Beautifully
 function RenderJsonData({ data, isDarkMode }: { data: any; isDarkMode: boolean }) {
-    // 1. Array handling
-    // 1. Array handling
     if (Array.isArray(data)) {
         // Optimization: If array contains only primitives (strings/numbers), render as a tag cloud/list in ONE box
         const isPrimitives = data.every(item => ['string', 'number', 'boolean'].includes(typeof item));
@@ -180,7 +170,6 @@ function RenderJsonData({ data, isDarkMode }: { data: any; isDarkMode: boolean }
         );
     }
 
-    // 2. Object handling
     if (typeof data === "object" && data !== null) {
         return (
             <div className="flex flex-col gap-6">
@@ -298,6 +287,7 @@ export default function ReportSections({
     handleDownloadPdf,
     reportLength,
     setReportLength,
+    isRunning = false,
 }: ReportSectionsDisplayProps) {
     return (
         <section
@@ -355,6 +345,9 @@ export default function ReportSections({
                     >
                         Download PDF
                     </button>
+
+                    {/* Compact Telegram Button */}
+                    <TelegramConnect variant="header-button" />
                 </div>
             </header>
             <article
@@ -362,8 +355,15 @@ export default function ReportSections({
                     }`}
             >
                 {reportSections.length === 0 ? (
-                    <div className="flex h-40 flex-col items-center justify-center opacity-50">
-                        <p>Run the pipeline to load the latest report.</p>
+                    <div className="flex h-full min-h-[200px] flex-col items-center justify-center opacity-70">
+                        {isRunning ? (
+                            <div className="flex flex-col items-center gap-4 animate-pulse">
+                                <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#2df4c6] border-t-transparent"></div>
+                                <p className="text-[#2df4c6] font-medium">Generating report... Please wait.</p>
+                            </div>
+                        ) : (
+                            <p>Run the pipeline to load the latest report.</p>
+                        )}
                     </div>
                 ) : (
                     reportSections.map((section, idx) => (

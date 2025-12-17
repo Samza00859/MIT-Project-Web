@@ -6,6 +6,7 @@ import { jsPDF } from "jspdf";
 import Sidebar from "../components/Sidebar";
 import DebugPanel from "../components/DebugPanel";
 import ReportSections from "../components/ReportSections";
+import TelegramConnect from "../components/TelegramConnect";
 
 // --- Constants & Types ---
 
@@ -1215,6 +1216,7 @@ export default function Home() {
             </div>
           </article>
 
+
           {/* Generate / Stop Button */}
           {isRunning ? (
             <button
@@ -1335,6 +1337,7 @@ export default function Home() {
           handleDownloadPdf={handleDownloadPdf}
           reportLength={reportLength}
           setReportLength={setReportLength}
+          isRunning={isRunning}
         />
 
         {/* Summary Panel */}
