@@ -8,11 +8,11 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 const UnderlineInput: React.FC<InputProps> = ({ label, required, ...props }) => {
     return (
         <div className="mb-6 w-full">
-            <label className="block text-xs font-bold text-gray-800 mb-2">
+            <label className="block text-sm font-bold text-gray-800 mb-3">
                 {label}{required && <span className="text-red-500">*</span>}
             </label>
             <input
-                className="w-full bg-transparent border-b border-gray-400 text-gray-800 py-1 focus:outline-none focus:border-black transition-colors"
+                className="w-full bg-transparent border-b-2 border-gray-400 text-gray-800 py-2 text-base focus:outline-none focus:border-black transition-colors"
                 {...props}
             />
         </div>

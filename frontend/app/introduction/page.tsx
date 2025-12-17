@@ -25,9 +25,9 @@ export default function IntroductionPage() {
                     {/* Logo Placeholder */}
                 </div>
                 <div className="flex gap-4 text-sm font-medium tracking-wide">
-                    <Link href="/view-docs" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
+                    <Link href="/docs" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
                         }`}>View Docs</Link>
-                    <Link href="/contact" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
+                    <Link href="/contact-public" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
                         }`}>Contact</Link>
                 </div>
             </nav>
@@ -129,16 +129,16 @@ export default function IntroductionPage() {
 
                     {/* Hero Text */}
                     <h2 className="mb-6 text-3xl font-bold leading-tight md:text-4xl">
-                        ยกระดับการเทรดด้วย AI อัจฉริยะ<br />
+                        Elevate Your Trading with Intelligent AI<br />
                         Multi-Agents LLM Financial Trading
                     </h2>
 
                     <p className={`max-w-lg text-lg leading-relaxed ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                        พบกับ Trading Agent ที่ไม่หยุดนิ่งด้วยสถาปัตยกรรม Multi-Agents LLM Financial Trading
-                        ระบบของเราไม่ใช่แค่บอทธรรมดา แต่คือเครือข่ายของ Agent อัจฉริยะที่สื่อสาร,
-                        แลกเปลี่ยนข้อมูล, และเรียนรู้อาจประสบการณ์การเทรดนับล้าน การทำงานร่วมกันของ AI
-                        เหล่านี้ช่วยให้ Agent ของคุณสามารถปรับตัว, พัฒนากลยุทธ์,
-                        และเพิ่มประสิทธิภาพในการสร้างกำไรได้อย่างต่อเนื่องในทุกสถานการณ์ตลาด
+                        Discover Trading Agents that never stop evolving with Multi-Agents LLM Financial Trading architecture.
+                        Our system is not just an ordinary bot, but a network of intelligent Agents that communicate,
+                        exchange information, and learn from millions of trading experiences. The collaborative work of these AIs
+                        enables your Agents to adapt, develop strategies,
+                        and continuously improve profitability in every market condition.
                     </p>
                 </div>
             </div>

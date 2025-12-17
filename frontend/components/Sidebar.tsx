@@ -5,11 +5,19 @@ import Link from "next/link";
 
 import Image from "next/image";
 
+interface NavItem {
+    id: string;
+    icon: string;
+    label: string;
+    href: string;
+}
+
 interface SidebarProps {
     activeId: string;
     isDarkMode: boolean;
     toggleTheme: () => void;
     children?: ReactNode;
+    navItems?: NavItem[];
 }
 
 export default function Sidebar({
@@ -17,6 +25,7 @@ export default function Sidebar({
     isDarkMode,
     toggleTheme,
     children,
+    navItems,
 }: SidebarProps) {
     const [isCollapsed, setIsCollapsed] = React.useState(false);
     const [isMobileOpen, setIsMobileOpen] = React.useState(false);
@@ -108,12 +117,12 @@ export default function Sidebar({
                 </div>
 
                 <nav className="flex flex-col gap-2.5">
-                    {[
+                    {(navItems || [
                         { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
                         { id: "generate", icon: "🌐", label: "Generate", href: "/" },
-                        { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
-                        { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
-                    ].map((item) => (
+                        { id: "contact", icon: "📬", label: "Contact", href: "/dashboard/contact" },
+                        { id: "docs", icon: "📄", label: "View Docs", href: "/dashboard/view-docs" },
+                    ]).map((item) => (
                         <Link
                             key={item.id}
                             href={item.href}

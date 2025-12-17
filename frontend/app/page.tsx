@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
 import { jsPDF } from "jspdf";
 import Sidebar from "../components/Sidebar";
 import DebugPanel from "../components/DebugPanel";
@@ -407,8 +408,14 @@ export default function Home() {
 
 
   const wsRef = useRef<WebSocket | null>(null);
+  const isRunningRef = useRef(false);
   const debugLogRef = useRef<HTMLDivElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync isRunning state with ref
+  useEffect(() => {
+    isRunningRef.current = isRunning;
+  }, [isRunning]);
 
   // Initialize Date
   useEffect(() => {
@@ -522,12 +529,23 @@ export default function Home() {
           return;
         }
         setWsStatus("connected");
-        addDebugLog("system", "WebSocket connected", false);
+        if (isRunningRef.current) {
+          addDebugLog("system", "WebSocket reconnected. Analysis continues...", false);
+        } else {
+          addDebugLog("system", "WebSocket connected", false);
+        }
       };
 
       ws.onmessage = (event) => {
         if (!isMounted) return;
-        const message = JSON.parse(event.data);
+        let message;
+        try {
+          message = JSON.parse(event.data);
+        } catch (err) {
+          console.error("Failed to parse WebSocket message:", err);
+          addDebugLog("error", "Failed to parse message from server", true);
+          return;
+        }
         const { type, data } = message;
 
         addDebugLog(
@@ -553,6 +571,13 @@ export default function Home() {
                 });
                 return newState;
               });
+            }
+            if (data.message) {
+              // Handle status messages (e.g., "Analysis cancelled", "Analysis stopped")
+              addDebugLog("system", data.message, false);
+              if (data.message.includes("stopped") || data.message.includes("cancelled")) {
+                setIsRunning(false);
+              }
             }
             break;
 
@@ -601,29 +626,66 @@ export default function Home() {
             ]);
             setIsRunning(false);
             break;
+
+          case "pong":
+            // Keep-alive response, no action needed
+            break;
         }
       };
 
       ws.onerror = () => {
         if (!isMounted) return;
         console.warn("WebSocket connection error. Retrying...");
+        if (isRunningRef.current) {
+          addDebugLog("warning", "Connection lost during analysis. Attempting to reconnect...", true);
+        }
         ws.close(); // Trigger onclose
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
         if (!isMounted) return;
         setWsStatus("disconnected");
+        
+        // If analysis was running, the backend has cancelled it
+        // Stop the analysis state and notify user
+        if (isRunningRef.current) {
+          setIsRunning(false);
+          addDebugLog("error", "Connection lost. Analysis was interrupted. Please restart the analysis.", true);
+          setReportSections((prev) => [
+            ...prev,
+            {
+              key: "connection_error",
+              label: "Connection Error",
+              text: "WebSocket connection was lost during analysis. The analysis was interrupted. Please restart the analysis after reconnection.",
+            },
+          ]);
+        }
+        
         // Retry connection after 3 seconds
         reconnectTimeout = setTimeout(() => {
-          connectWebSocket();
+          if (isMounted) {
+            connectWebSocket();
+          }
         }, 3000);
       };
     };
 
     connectWebSocket();
 
+    // Keep-alive ping every 30 seconds
+    const pingInterval = setInterval(() => {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        try {
+          wsRef.current.send(JSON.stringify({ action: "ping" }));
+        } catch (err) {
+          console.warn("Failed to send ping:", err);
+        }
+      }
+    }, 30000);
+
     return () => {
       isMounted = false;
+      clearInterval(pingInterval);
       if (wsRef.current) {
         wsRef.current.close();
       }
@@ -948,6 +1010,19 @@ export default function Home() {
 
   return (
     <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? "bg-[#070a13] text-[#f8fbff]" : "bg-[#f0f2f5] text-[#1a202c]"}`}>
+      {/* Navigation Bar */}
+      <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6">
+        <div className="flex items-center gap-2">
+          {/* Logo Placeholder */}
+        </div>
+        <div className="flex gap-4 text-sm font-medium tracking-wide">
+          <Link href="/docs" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
+            }`}>View Docs</Link>
+          <Link href="/contact-public" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
+            }`}>Contact</Link>
+        </div>
+      </nav>
+
       {/* Sidebar */}
       <Sidebar
         activeId="generate"
@@ -958,7 +1033,7 @@ export default function Home() {
       </Sidebar>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col gap-8 px-4 py-6 md:px-9 md:py-8 md:pb-12">
+      <main className="flex-1 flex flex-col gap-8 px-4 py-6 md:px-9 md:py-8 md:pb-12 pt-20">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-[0.85rem] uppercase tracking-widest text-[#8b94ad]">
@@ -966,7 +1041,6 @@ export default function Home() {
             </p>
             <h1 className="text-2xl font-semibold">Generate</h1>
           </div>
-
         </header>
 
         {/* Step Grid */}

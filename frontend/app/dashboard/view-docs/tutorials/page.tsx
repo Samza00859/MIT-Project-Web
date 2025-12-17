@@ -48,7 +48,7 @@ const SECTIONS = [
 
 import Sidebar from '@/components/Sidebar';
 
-export default function TutorialsPage() {
+export default function DashboardTutorialsPage() {
     const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [isDebugCollapsed, setIsDebugCollapsed] = useState(false);
@@ -103,8 +103,8 @@ export default function TutorialsPage() {
                 navItems={[
                     { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
                     { id: "generate", icon: "🌐", label: "Generate", href: "/" },
-                    { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
-                    { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
+                    { id: "contact", icon: "📬", label: "Contact", href: "/dashboard/contact" },
+                    { id: "docs", icon: "📄", label: "View Docs", href: "/dashboard/view-docs" },
                 ]}
             >
                 <div
@@ -245,3 +245,4 @@ function MenuItem({ label, active = false, onClick }: { label: string, active?: 
         </div>
     );
 }
+

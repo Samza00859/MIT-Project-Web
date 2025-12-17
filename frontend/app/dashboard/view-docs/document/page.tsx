@@ -108,9 +108,9 @@ const SECTIONS = [
     },
 ];
 
-import Sidebar from '../../../components/Sidebar';
+import Sidebar from '@/components/Sidebar';
 
-export default function DocumentPage() {
+export default function DashboardDocumentPage() {
     const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [isDebugCollapsed, setIsDebugCollapsed] = useState(false);
@@ -160,8 +160,8 @@ export default function DocumentPage() {
                 navItems={[
                     { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
                     { id: "generate", icon: "🌐", label: "Generate", href: "/" },
-                    { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
-                    { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
+                    { id: "contact", icon: "📬", label: "Contact", href: "/dashboard/contact" },
+                    { id: "docs", icon: "📄", label: "View Docs", href: "/dashboard/view-docs" },
                 ]}
             >
                 <div
@@ -197,7 +197,7 @@ export default function DocumentPage() {
 
                 {/* Sticky Header / Breadcrumb */}
                 <div className="sticky top-0 bg-[#161616]/90 backdrop-blur-sm pt-8 pb-4 px-12 z-30 border-b border-zinc-800/30 flex items-center gap-4">
-                    <Link href="/view-docs" className="text-zinc-400 hover:text-white transition-colors">
+                    <Link href="/dashboard/view-docs" className="text-zinc-400 hover:text-white transition-colors">
                         <ChevronLeft size={20} />
                     </Link>
                     <p className="text-zinc-500 font-medium text-sm">
@@ -268,3 +268,4 @@ function SkeletonLine({ width }: { width: string }) {
         <div className="h-[6px] bg-zinc-600 rounded-full animate-pulse" style={{ width: width }}></div>
     );
 }
+

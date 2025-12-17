@@ -46,9 +46,9 @@ const SECTIONS = [
     },
 ];
 
-import Sidebar from '../../../components/Sidebar';
+import Sidebar from '@/components/Sidebar';
 
-export default function LearnAboutPage() {
+export default function DashboardLearnAboutPage() {
     const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [isDebugCollapsed, setIsDebugCollapsed] = useState(false);
@@ -103,8 +103,8 @@ export default function LearnAboutPage() {
                 navItems={[
                     { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
                     { id: "generate", icon: "🌐", label: "Generate", href: "/" },
-                    { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
-                    { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
+                    { id: "contact", icon: "📬", label: "Contact", href: "/dashboard/contact" },
+                    { id: "docs", icon: "📄", label: "View Docs", href: "/dashboard/view-docs" },
                 ]}
             >
                 <div
@@ -140,7 +140,7 @@ export default function LearnAboutPage() {
 
                 {/* Sticky Header */}
                 <div className="sticky top-0 bg-[#161616]/95 backdrop-blur-sm pt-8 pb-4 px-12 z-30 border-b border-zinc-800/30 flex items-center gap-4">
-                    <Link href="/view-docs" className="text-zinc-400 hover:text-white transition-colors">
+                    <Link href="/dashboard/view-docs" className="text-zinc-400 hover:text-white transition-colors">
                         <ChevronLeft size={20} />
                     </Link>
                     <p className="text-zinc-500 font-medium text-sm flex items-center gap-2">
@@ -243,3 +243,4 @@ function MenuItem({ label, active = false, onClick }: { label: string, active?: 
         </div>
     );
 }
+

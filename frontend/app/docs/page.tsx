@@ -3,14 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Mountain } from 'lucide-react';
-import Sidebar from '@/components/Sidebar';
 
-export default function ViewDocsPage() {
+export default function DocsPage() {
     const [isDarkMode, setIsDarkMode] = useState(true);
-
-    const toggleTheme = () => {
-        setIsDarkMode(!isDarkMode);
-    };
 
     const docTutorialsSections = [
         {
@@ -31,23 +26,23 @@ export default function ViewDocsPage() {
     ];
 
     return (
-        <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? "bg-[#111317] text-[#f8fbff]" : "bg-[#f0f2f5] text-[#1a202c]"}`}>
-            {/* Sidebar */}
-            <Sidebar
-                activeId="docs"
-                isDarkMode={isDarkMode}
-                toggleTheme={toggleTheme}
-                navItems={[
-                    { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
-                    { id: "generate", icon: "🌐", label: "Generate", href: "/" },
-                    { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
-                    { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
-                ]}
-            />
+        <div className={`min-h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? "bg-[#111317] text-[#f8fbff]" : "bg-[#f0f2f5] text-[#1a202c]"}`}>
+            {/* Navigation Bar */}
+            <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6">
+                <div className="flex items-center gap-2">
+                    {/* Logo Placeholder */}
+                </div>
+                <div className="flex gap-4 text-sm font-medium tracking-wide">
+                    <Link href="/docs" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
+                        }`}>View Docs</Link>
+                    <Link href="/contact-public" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
+                        }`}>Contact</Link>
+                </div>
+            </nav>
 
             {/* Main Content */}
-            <main className="flex-1 flex flex-col bg-[#161616] relative min-h-screen min-w-0">
-                <div className="px-8 md:px-12 lg:px-16 py-12 max-w-6xl w-full mx-auto">
+            <main className="flex flex-col bg-[#161616] relative min-h-screen min-w-0">
+                <div className="px-8 md:px-12 lg:px-16 py-12 max-w-6xl w-full mx-auto pt-24">
                     {/* Header */}
                     <div className="mb-12">
                         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
@@ -60,9 +55,10 @@ export default function ViewDocsPage() {
                         <h2 className="text-3xl font-bold text-white mb-8">Document & Tutorials</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {docTutorialsSections.map((section) => (
-                                <div
+                                <Link
                                     key={section.id}
-                                    className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-6 flex flex-col"
+                                    href={section.href}
+                                    className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-6 flex flex-col hover:border-cyan-500/50 transition-all"
                                 >
                                     {/* Placeholder Image */}
                                     <div className="flex justify-center mb-4">
@@ -82,13 +78,10 @@ export default function ViewDocsPage() {
                                     </p>
 
                                     {/* Get Start Button */}
-                                    <Link
-                                        href={section.href}
-                                        className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors"
-                                    >
+                                    <div className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors">
                                         Get Start
-                                    </Link>
-                                </div>
+                                    </div>
+                                </Link>
                             ))}
                         </div>
                     </div>
@@ -127,3 +120,4 @@ export default function ViewDocsPage() {
         </div>
     );
 }
+

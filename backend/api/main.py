@@ -463,7 +463,6 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
         # Send all buffered reports now
         for report in buffered_reports:
             await send_update(websocket, "report", report)
-            import asyncio
             await asyncio.sleep(0.05)
 
         # Get final state from trace
@@ -604,7 +603,7 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
 
     except asyncio.CancelledError:
         logger.info(f"🛑 Analysis for {request.ticker} was cancelled.")
-        await send_update(websocket, "error", {"message": "Analysis cancelled."})
+        await send_update(websocket, "status", {"message": "Analysis cancelled."})
         raise
 
     except Exception as e:
@@ -685,7 +684,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     except asyncio.CancelledError:
                         pass
                     analysis_task = None
-                    await send_update(websocket, "error", {"message": "Analysis stopped. System ready."})
+                    await send_update(websocket, "status", {"message": "Analysis stopped. System ready."})
                     logger.info("🛑 Analysis stopped by user. System reset and ready.")
                 
             elif action == "ping":

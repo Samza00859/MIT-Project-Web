@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 
-export default function ContactPage() {
+export default function DashboardContactPage() {
     const [isDarkMode, setIsDarkMode] = useState(true);
 
     const toggleTheme = () => {
@@ -39,42 +39,28 @@ export default function ContactPage() {
     ];
 
     return (
-        <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? "bg-[#111317] text-[#f8fbff]" : "bg-[#f0f2f5] text-[#1a202c]"}`}>
-            {/* Navigation Bar */}
-            <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6">
-                <div className="flex items-center gap-2">
-                    {/* Logo Placeholder */}
-                </div>
-                <div className="flex gap-4 text-sm font-medium tracking-wide">
-                    <Link href="/view-docs" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
-                        }`}>View Docs</Link>
-                    <Link href="/contact" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
-                        }`}>Contact</Link>
-                </div>
-            </nav>
-
-            {/* Sidebar */}
-            <Sidebar
-                activeId="contact"
-                isDarkMode={isDarkMode}
+        <div className={`flex min-h-screen w-full ${isDarkMode ? "bg-[#0a0c10]" : "bg-gray-50"}`}>
+            <Sidebar 
+                activeId="contact" 
+                isDarkMode={isDarkMode} 
                 toggleTheme={toggleTheme}
                 navItems={[
                     { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
                     { id: "generate", icon: "🌐", label: "Generate", href: "/" },
-                    { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
-                    { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
+                    { id: "contact", icon: "📬", label: "Contact", href: "/dashboard/contact" },
+                    { id: "docs", icon: "📄", label: "View Docs", href: "/dashboard/view-docs" },
                 ]}
             />
-
-            {/* Main Content */}
-            <main className="flex-1 p-8 md:p-12 lg:p-16 pt-20">
+            <main className="flex-1 p-8 md:p-12 lg:p-16">
                 <header className="mb-8">
-                    <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>Contact Us</h1>
-                    <p className={`text-sm md:text-base ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                        Get in touch with our team
+                    <h1 className={`text-3xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Contact Us</h1>
+                    <p className={`mt-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        Get in touch with our team - Dashboard (Logged-in Users Only)
+                    </p>
+                    <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
+                        This is the dashboard version. For public access, visit <Link href="/contact" className="underline hover:text-[#2df4c6]">Public Contact</Link>
                     </p>
                 </header>
-
                 <section className="flex flex-col gap-6">
                     {contacts.map((contact, index) => (
                         <article
@@ -84,7 +70,7 @@ export default function ContactPage() {
                         >
                             {/* Top Section: Profile & Info */}
                             <div className="flex flex-col gap-6 md:flex-row md:items-center">
-                                <div className={`h-24 w-24 flex-shrink-0 rounded-full ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`}></div>
+                                <div className={`h-24 w-24 flex-shrink-0 rounded-full ${isDarkMode ? "bg-white" : "bg-gray-200"}`}></div>
                                 <div className={`flex flex-col gap-2 text-sm tracking-wide ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                                     <p>{contact.name}</p>
                                     <p>{contact.company}</p>
@@ -124,3 +110,4 @@ export default function ContactPage() {
         </div>
     );
 }
+
