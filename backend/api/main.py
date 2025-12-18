@@ -11,12 +11,15 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from .database import init_db, AsyncSessionLocal
+from .models import ExecutionHistory
+from .history_router import router as history_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -602,12 +605,52 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             "final_state": frontend_final_state
         })
 
+        # Save to execution history
+        try:
+            async with AsyncSessionLocal() as db:
+                history_record = ExecutionHistory(
+                    action_type="analysis",
+                    input_params={
+                        "ticker": request.ticker,
+                        "analysis_date": request.analysis_date,
+                        "analysts": request.analysts,
+                        "research_depth": request.research_depth
+                    },
+                    output_result={
+                        "decision": decision,
+                        "summary": frontend_final_state.get("Summarize_final_trade_decision_report")
+                    },
+                    status="success"
+                )
+                db.add(history_record)
+                await db.commit()
+                logger.info(f"✅ Saved execution history for {request.ticker}")
+        except Exception as e:
+            logger.error(f"❌ Failed to save execution history: {e}")
+
     except asyncio.CancelledError:
         logger.info(f"🛑 Analysis for {request.ticker} was cancelled.")
         await send_update(websocket, "error", {"message": "Analysis cancelled."})
         raise
 
     except Exception as e:
+        # Save error to execution history
+        try:
+            async with AsyncSessionLocal() as db:
+                history_record = ExecutionHistory(
+                    action_type="analysis",
+                    input_params={
+                        "ticker": request.ticker,
+                        "analysis_date": request.analysis_date
+                    },
+                    status="error",
+                    error_message=str(e)
+                )
+                db.add(history_record)
+                await db.commit()
+        except Exception as db_e:
+            logger.error(f"❌ Failed to save error history: {db_e}")
+
         await send_update(websocket, "error", {
             "message": str(e)
         })
@@ -615,8 +658,19 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
 
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize database
+    try:
+        await init_db()
+        logger.info("✅ Database initialized")
+    except Exception as e:
+        logger.error(f"❌ Database initialization failed: {e}")
+    yield
+
 # Create FastAPI app
-app = FastAPI(title="TradingAgents API", version="1.0.0")
+app = FastAPI(title="TradingAgents API", version="1.0.0", lifespan=lifespan)
+app.include_router(history_router)
 
 # Configure CORS
 app.add_middleware(

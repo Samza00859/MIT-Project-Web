@@ -189,6 +189,7 @@ export default function Sidebar({
                     {[
                         { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
                         { id: "generate", icon: "🌐", label: "Generate", href: "/" },
+                        { id: "history", icon: "📜", label: "History", href: "/history" },
                         { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
                         { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
                     ].map((item) => (
@@ -281,10 +282,10 @@ export default function Sidebar({
                                     onClick={handleAutoPair}
                                     disabled={telegramStatus === "saving"}
                                     className={`w-full py-3 rounded-xl font-bold text-md transition-all flex items-center justify-center gap-2 ${telegramStatus === "success"
-                                            ? "bg-green-500 text-white"
-                                            : telegramStatus === "error"
-                                                ? "bg-red-500 text-white"
-                                                : "bg-[#2df4c6] text-[#03161b] hover:bg-[#20dcb0]"
+                                        ? "bg-green-500 text-white"
+                                        : telegramStatus === "error"
+                                            ? "bg-red-500 text-white"
+                                            : "bg-[#2df4c6] text-[#03161b] hover:bg-[#20dcb0]"
                                         }`}
                                 >
                                     {telegramStatus === "saving" && <span className="animate-spin">⌛</span>}
@@ -292,8 +293,8 @@ export default function Sidebar({
                                 </button>
                                 {pairingMessage && (
                                     <p className={`mt-2 text-center text-xs ${telegramStatus === "error" ? "text-red-400" :
-                                            telegramStatus === "waiting" ? "text-yellow-400" :
-                                                telegramStatus === "success" ? "text-green-400" : "text-gray-400"
+                                        telegramStatus === "waiting" ? "text-yellow-400" :
+                                            telegramStatus === "success" ? "text-green-400" : "text-gray-400"
                                         }`}>
                                         {pairingMessage}
                                     </p>

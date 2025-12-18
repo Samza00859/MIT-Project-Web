@@ -1,4 +1,4 @@
-aiofiles==24.1.0
+﻿aiofiles==24.1.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.2
 aiosignal==1.4.0
@@ -195,12 +195,14 @@ PyJWT==2.10.1
 pyparsing==3.2.5
 PyPika==0.48.9
 pyproject_hooks==1.2.0
+pyreadline3==3.5.4
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
 python-engineio==4.12.3
 python-multipart==0.0.20
 python-socketio==5.14.3
 pytz==2025.2
+pywin32==311
 PyYAML==6.0.3
 questionary==2.1.1
 redis==7.0.1
@@ -267,6 +269,4 @@ zstandard==0.25.0
 alpha-vantage
 Mastodon.py
 tradingview-datafeed
-twelvedata
-asyncpg>=0.29.0
-psycopg2-binary>=2.9.9
+twelvedata獡湹灣㹧〽㈮⸹ਰ獰捹灯㉧戭湩牡㹹㈽㤮㤮

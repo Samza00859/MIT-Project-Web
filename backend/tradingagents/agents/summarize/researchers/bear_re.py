@@ -2,7 +2,7 @@ import openai, os
 
 # ควรสร้าง Client นอกฟังก์ชัน หรือใช้ Singleton เพื่อไม่ให้สร้าง connection ใหม่ทุกครั้งที่เรียก
 client = openai.OpenAI(
-    api_key=os.getenv("TYPHOON_API_KEY"),
+    api_key=os.getenv("TYPHOON_API_KEY").strip('"') if os.getenv("TYPHOON_API_KEY") else None,
     base_url="https://api.opentyphoon.ai/v1"
 )
 
