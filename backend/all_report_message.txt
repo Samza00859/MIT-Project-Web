@@ -11,23 +11,29 @@ YFinance Score: 158
 TwelveData Score: 557
 TradingView Score: 555
 
-🏆 Best Source: TWELVEDATA
+🏆 Best Source: YFINANCE
 
+📊 Indicator 'close_50_sma' Source Comparison for SPY:
+Yahoo Finance Score: 21
+Alpha Vantage Score: 21
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
 
-🌐 Social Media News: 
-Bluesky news fetched for CSCO: 29 posts found.
-Mastodon news fetched for CSCO: 19 posts found.
-Subreddit news fetched for CSCO: 1 posts found.
+📊 Indicator 'close_200_sma' Source Comparison for SPY:
+Yahoo Finance Score: 21
+Alpha Vantage Score: 21
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
 
-📰 News :
-Fetched 0 news items for CISCO from Finnhub.
-Fetched 50 news items for CISCO from Reddit.
-Fetched 0 news items for CISCO from YFinance.
-Fetched 0 news items for CISCO from Alpha Vantage.
+📊 Indicator 'close_10_ema' Source Comparison for SPY:
+Yahoo Finance Score: 21
+Alpha Vantage Score: 21
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
 
-🌏 Global News: 
-Reddit global news have : 40 posts.
-Yfinance global news have : 49 posts.
-Finnhub global news have : 50 posts.
+📊 Indicator 'macd' Source Comparison for SPY:
+Yahoo Finance Score: 0
+Alpha Vantage Score: 0
+TradingView Score: 0
+🏆 Best Source: YAHOO
 
-Fetched fundamentals for CISCO: YF=0, FH=1, AV=0 fields.
