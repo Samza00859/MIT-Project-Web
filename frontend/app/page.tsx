@@ -97,6 +97,8 @@ const REPORT_ORDER = [
   "final_trade_decision", "Summarize_final_trade_decision_report"
 ];
 
+const TEAM_KEYS = ["analyst", "research", "trader", "risk", "portfolio"] as const;
+
 const SECTION_MAP: Record<string, { key: string; label: string }> = {
   market_report: { key: "market", label: "Market Analysis (Full)" },
   Summarize_market_report: { key: "sum_market", label: "Market Analysis (Summary)" },
@@ -307,7 +309,11 @@ export default function Home() {
 
   // Fetch Market Data Effect
   useEffect(() => {
-    const fetchMarketData = async () => {
+    let isMounted = true;
+    let retryTimeout: NodeJS.Timeout;
+
+    const fetchMarketData = async (retries = 5) => {
+      if (!isMounted) return;
       try {
         // Determine API Base URL (similar to WS logic but http)
         let apiUrl = "http://localhost:8000";
@@ -317,24 +323,42 @@ export default function Home() {
           apiUrl = `${protocol}//${host}:8000`;
         }
 
-        setMarketData(null); // Reset while loading
-        setLogoError(false); // Reset logo error
-        setLogoSrc(""); // Reset logo source
+        // Only clear data on initial attempt
+        if (retries === 5) {
+          setMarketData(null); // Reset while loading
+          setLogoError(false); // Reset logo error
+          setLogoSrc(""); // Reset logo source
+        }
+
         const res = await fetch(`${apiUrl}/quote/${ticker}`);
         if (res.ok) {
           const data = await res.json();
-          setMarketData(data);
-          setLogoSrc(data.logo_url);
+          if (isMounted) {
+            setMarketData(data);
+            setLogoSrc(data.logo_url);
+          }
+        } else {
+          throw new Error(`Status: ${res.status}`);
         }
       } catch (e) {
-        console.error("Failed to fetch market data", e);
+        if (isMounted) {
+          console.error("Failed to fetch market data", e);
+          if (retries > 0) {
+            console.log(`Retrying fetch for ${ticker}... (${retries} retries left)`);
+            retryTimeout = setTimeout(() => fetchMarketData(retries - 1), 2000);
+          }
+        }
       }
     };
 
     if (ticker) {
       // Debounce slightly to avoid rapid calls if typing
-      const timeout = setTimeout(fetchMarketData, 500);
-      return () => clearTimeout(timeout);
+      const timeout = setTimeout(() => fetchMarketData(), 500);
+      return () => {
+        isMounted = false;
+        clearTimeout(timeout);
+        clearTimeout(retryTimeout);
+      };
     }
   }, [ticker]);
 
@@ -681,6 +705,12 @@ export default function Home() {
     wsRef.current.send(JSON.stringify({ action: "stop" }));
     addDebugLog("system", "Stopping analysis...", true);
     setIsRunning(false);
+
+    // Reset Dashboard State
+    setTeamState(deepClone(TEAM_TEMPLATE));
+    setReportSections([]);
+    setDecision("Awaiting run");
+    setFinalReportData(null);
   }, [addDebugLog]);
 
   // Handlers
@@ -1171,13 +1201,25 @@ export default function Home() {
 
         {/* Teams Grid */}
         <section className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5">
-          {Object.entries(teamState).map(([teamKey, members]) => {
+          {TEAM_KEYS.map((teamKey, index) => {
+            const members = teamState[teamKey];
             const completedCount = members.filter(
               (m) => m.status === "completed"
             ).length;
             const progress = Math.round(
               (completedCount / members.length) * 100
             );
+
+            // Logic: Show "Completed" (Green) only if:
+            // 1. The entire team is finished
+            // 2. OR the next team has already started working
+            const isTeamFinished = members.every((m) => m.status === "completed");
+            const nextTeamKey = TEAM_KEYS[index + 1];
+            const isNextTeamStarted = nextTeamKey
+              ? teamState[nextTeamKey].some((m) => m.status !== "pending")
+              : false;
+
+            const showGreenCompletion = isTeamFinished || isNextTeamStarted;
 
             let headerTitle = "";
             let headerSub = "";
@@ -1224,26 +1266,47 @@ export default function Home() {
                   </div>
                 </header>
                 <ul className="flex flex-col gap-2.5">
-                  {members.map((member, idx) => (
-                    <li
-                      key={idx}
-                      className="flex flex-wrap items-center justify-between gap-y-1 text-sm text-[#8b94ad]"
-                    >
-                      <span>{member.name}</span>
-                      <span
-                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs capitalize ${member.status === "completed"
-                          ? "bg-[#2df4c6]/10 text-[#2df4c6]"
-                          : member.status === "pending"
-                            ? "bg-[#f9a826]/10 text-[#f9a826]"
-                            : member.status === "in_progress"
-                              ? "bg-[#3db8ff]/10 text-[#3db8ff]"
-                              : "bg-[#ff4d6d]/10 text-[#ff4d6d]"
-                          }`}
+                  {members.map((member, idx) => {
+                    let statusLabel = member.status.replace("_", " ");
+                    let statusColorClass = "";
+
+                    if (member.status === "completed") {
+                      if (showGreenCompletion) {
+                        statusColorClass = "bg-[#2df4c6]/10 text-[#2df4c6]";
+                      } else {
+                        statusLabel = "Completed";
+                        statusColorClass = isDarkMode
+                          ? "bg-green-600/10 text-green-600"
+                          : "bg-green-600 text-green-600";
+                      }
+                    } else if (member.status === "pending") {
+                      statusColorClass = "bg-[#f9a826]/10 text-[#f9a826]";
+                    } else if (member.status === "in_progress") {
+                      statusColorClass = "bg-[#3db8ff]/10 text-[#3db8ff]";
+                    } else {
+                      statusColorClass = "bg-[#ff4d6d]/10 text-[#ff4d6d]";
+                    }
+
+                    return (
+                      <li
+                        key={idx}
+                        className="flex flex-wrap items-center justify-between gap-y-1 text-sm text-[#8b94ad]"
                       >
-                        {member.status.replace("_", " ")}
-                      </span>
-                    </li>
-                  ))}
+                        <span>{member.name}</span>
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs capitalize ${statusColorClass}`}
+                        >
+                          {(member.status === "in_progress" || (member.status === "pending" && isRunning)) && (
+                            <svg className="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                          )}
+                          {statusLabel}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </article>
             );
