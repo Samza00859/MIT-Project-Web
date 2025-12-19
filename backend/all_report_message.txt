@@ -3,99 +3,99 @@
 ===== TOTAL RECORDS CHECK =====
 YFinance:      250
 TwelveData:    250
-TradingView:   250
+TradingView:   0
 
 
 ===== SIMILARITY SCORE =====
-YFinance Score: 41
-TwelveData Score: 499
-TradingView Score: 504
+YFinance Score: 124
+TwelveData Score: 124
+TradingView Score: 0
 
-🏆 Best Source: TRADINGVIEW
+🏆 Best Source: YFINANCE
 
-📊 Indicator 'close_50_sma' Source Comparison for NVDA:
-Yahoo Finance Score: 42
-Alpha Vantage Score: 42
-TradingView Score: 42
-🏆 Best Source: YAHOO, ALPHA, TV
-
-📊 Indicator 'close_200_sma' Source Comparison for NVDA:
+📊 Indicator 'close_50_sma' Source Comparison for SPY:
 Yahoo Finance Score: 21
 Alpha Vantage Score: 21
 TradingView Score: 0
 🏆 Best Source: YAHOO, ALPHA
 
-📊 Indicator 'close_10_ema' Source Comparison for NVDA:
-Yahoo Finance Score: 42
-Alpha Vantage Score: 42
-TradingView Score: 42
-🏆 Best Source: YAHOO, ALPHA, TV
-
-📊 Indicator 'macd' Source Comparison for NVDA:
-Yahoo Finance Score: 17
-Alpha Vantage Score: 0
-TradingView Score: 17
-🏆 Best Source: YAHOO, TV
-
-📊 Indicator 'macds' Source Comparison for NVDA:
-Yahoo Finance Score: 16
-Alpha Vantage Score: 0
-TradingView Score: 16
-🏆 Best Source: YAHOO, TV
-
-📊 Indicator 'macdh' Source Comparison for NVDA:
+📊 Indicator 'close_200_sma' Source Comparison for SPY:
 Yahoo Finance Score: 21
-Alpha Vantage Score: 0
-TradingView Score: 21
-🏆 Best Source: YAHOO, TV
+Alpha Vantage Score: 21
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
 
-📊 Indicator 'rsi' Source Comparison for NVDA:
-Yahoo Finance Score: 42
-Alpha Vantage Score: 42
-TradingView Score: 42
-🏆 Best Source: YAHOO, ALPHA, TV
-
-📊 Indicator 'boll' Source Comparison for NVDA:
-Yahoo Finance Score: 42
-Alpha Vantage Score: 42
-TradingView Score: 42
-🏆 Best Source: YAHOO, ALPHA, TV
-
-📊 Indicator 'boll_ub' Source Comparison for NVDA:
-Yahoo Finance Score: 42
-Alpha Vantage Score: 42
-TradingView Score: 42
-🏆 Best Source: YAHOO, ALPHA, TV
-
-📊 Indicator 'boll_lb' Source Comparison for NVDA:
-Yahoo Finance Score: 42
-Alpha Vantage Score: 42
-TradingView Score: 42
-🏆 Best Source: YAHOO, ALPHA, TV
-
-📊 Indicator 'atr' Source Comparison for NVDA:
-Yahoo Finance Score: 42
-Alpha Vantage Score: 42
-TradingView Score: 42
-🏆 Best Source: YAHOO, ALPHA, TV
-
-📊 Indicator 'vwma' Source Comparison for NVDA:
+📊 Indicator 'close_10_ema' Source Comparison for SPY:
 Yahoo Finance Score: 21
+Alpha Vantage Score: 21
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
+
+📊 Indicator 'macd' Source Comparison for SPY:
+Yahoo Finance Score: 0
 Alpha Vantage Score: 0
-TradingView Score: 21
-🏆 Best Source: YAHOO, TV
+TradingView Score: 0
+🏆 Best Source: YAHOO
+
+📊 Indicator 'macds' Source Comparison for SPY:
+Yahoo Finance Score: 0
+Alpha Vantage Score: 0
+TradingView Score: 0
+🏆 Best Source: YAHOO
+
+📊 Indicator 'macdh' Source Comparison for SPY:
+Yahoo Finance Score: 0
+Alpha Vantage Score: 0
+TradingView Score: 0
+🏆 Best Source: YAHOO
+
+📊 Indicator 'rsi' Source Comparison for SPY:
+Yahoo Finance Score: 21
+Alpha Vantage Score: 21
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
+
+📊 Indicator 'boll' Source Comparison for SPY:
+Yahoo Finance Score: 21
+Alpha Vantage Score: 21
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
+
+📊 Indicator 'boll_ub' Source Comparison for SPY:
+Yahoo Finance Score: 21
+Alpha Vantage Score: 21
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
+
+📊 Indicator 'boll_lb' Source Comparison for SPY:
+Yahoo Finance Score: 21
+Alpha Vantage Score: 21
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
+
+📊 Indicator 'atr' Source Comparison for SPY:
+Yahoo Finance Score: 21
+Alpha Vantage Score: 21
+TradingView Score: 0
+🏆 Best Source: YAHOO, ALPHA
+
+📊 Indicator 'vwma' Source Comparison for SPY:
+Yahoo Finance Score: 0
+Alpha Vantage Score: 0
+TradingView Score: 0
+🏆 Best Source: YAHOO
 
 
 🌐 Social Media News: 
-Bluesky news fetched for NVDA: 27 posts found.
-Mastodon news fetched for NVDA: 120 posts found.
-Subreddit news fetched for NVDA: 19 posts found.
+Bluesky news fetched for SPY: 31 posts found.
+Mastodon news fetched for SPY: 120 posts found.
+Subreddit news fetched for SPY: 32 posts found.
 
 📰 News :
-Fetched 50 news items for NVDA from Finnhub.
-Fetched 0 news items for NVDA from Reddit.
-Fetched 10 news items for NVDA from YFinance.
-Fetched 50 news items for NVDA from Alpha Vantage.
+Fetched 50 news items for SPY from Finnhub.
+Fetched 50 news items for SPY from Reddit.
+Fetched 10 news items for SPY from YFinance.
+Fetched 5 news items for SPY from Alpha Vantage.
 
 🌏 Global News: 
 Reddit global news have : 40 posts.
@@ -103,8 +103,8 @@ Yfinance global news have : 50 posts.
 Finnhub global news have : 50 posts.
 
 
-Fetched fundamentals for NVDA:
-- YFinance: 4 fields fetched
-- Finnhub: 1 fields fetched
-- AlphaVantage: 3 fields fetched
-📜 Fundamental data for NVDA. Chosen source: alphavantage
+Fetched fundamentals for SPY:
+- YFinance: 1 fields fetched
+- Finnhub: 0 fields fetched
+- AlphaVantage: 0 fields fetched
+📜 Fundamental data for SPY. Chosen source: yfinance

@@ -10,39 +10,46 @@ import Link from 'next/link';
 // --- 1. Adjust sections (SECTIONS) to include all 7 topics as shown in Tutorials image ---
 const SECTIONS = [
     {
-        id: 'create-account',
-        title: 'Creating an Account',
-        content: 'Step-by-step guide to setting up your TradingAgent profile. Learn how to verify your identity, set up two-factor authentication (2FA), and link your preferred exchange API keys securely.'
+        id: 'start-analysis',
+        title: 'Starting an Analysis',
+        content: null, // content is simple, simplified below in steps
+        steps: [
+            "Navigate to the Homepage: Open the main dashboard where you'll see the input panel.",
+            "Enter Stock Ticker: Type the symbol of the company you want to analyze (e.g., 'AAPL' for Apple, 'TSLA' for Tesla).",
+            "Select Date Range: Choose the start and end dates for the historical data analysis.",
+            "Click Generate: Hit the 'Generate Analysis' button to initialize the multi-agent system. The agents will begin gathering data immediately."
+        ]
     },
     {
-        id: 'dashboard',
-        title: 'Dashboard Overview',
-        content: 'Navigate through the command center. We explain every widget on your main dashboard, including real-time portfolio value, active agent status, and recent system notifications.'
+        id: 'understanding-reports',
+        title: 'Understanding the Report',
+        content: null,
+        steps: [
+            "Agent Insights: Review the individual outputs from Fundamental, Technical, and Sentiment agents. Each provides a unique perspective on the stock.",
+            "Conversation Flow: Observe the internal dialogue and debate between specialized agents. You can see how the Bull and Bear agents argue their cases and how the Risk Manager weighs in before a final decision is made.",
+            "Consensus Verdict: The consensus verdict is the final decision of the system. It is the aggregated decision from all agents."
+        ]
     },
     {
-        id: 'use-agents',
-        title: 'How to Use the Trading Agents',
-        content: 'Master the core functionality. Learn how to select specific agent roles (Analyst, Risk Manager, Executor), configure their individual parameters, and start your first multi-agent session.'
+        id: 'telegram-alerts',
+        title: 'Connecting Telegram Alerts',
+        content: null,
+        steps: [
+            "Open Connect Menu: Click the mobile phone icon (📱) in the left sidebar.",
+            "Start the Bot: Click the provided link to open 'TradingAgentsBot' in Telegram and tap 'Start'.",
+            "Auto-Connect: Return to the website and click 'Connect Automatically'. The system will detect your Chat ID and pair your account instantly.",
+            "Receive Alerts: You will now get real-time notifications whenever a report is ready."
+        ]
     },
     {
-        id: 'backtest',
-        title: 'How to Run a Backtest',
-        content: 'Validate your strategies before risking real capital. This tutorial covers selecting historical datasets, setting timeframes, and interpreting the simulation results to refine your approach.'
-    },
-    {
-        id: 'decisions',
-        title: 'Understanding Trade Decisions',
-        content: 'Why did the agent buy? Analyze the "Explainable AI" logs to see the specific market signals, sentiment scores, and risk calculations that triggered a specific trade execution.'
-    },
-    {
-        id: 'metrics',
-        title: 'Performance Metrics Explained',
-        content: 'Go beyond just ROI. Understand advanced metrics like Sharpe Ratio, Maximum Drawdown, Alpha, and Beta to truly evaluate the risk-adjusted performance of your trading bots.'
-    },
-    {
-        id: 'risks',
-        title: 'Managing Risks and Alerts',
-        content: 'Safety first. Configure stop-loss limits, max daily drawdown caps, and set up instant email or Telegram alerts to keep you informed of any critical market anomalies.'
+        id: 'exporting-pdf',
+        title: 'Exporting Reports to PDF',
+        content: null,
+        steps: [
+            "Complete Analysis: Wait for the progress bar to reach 100% and the report to be fully generated.",
+            "Locate Download Button: Look for the 'Download Report' button usually located at the top-right of the report card.",
+            "Save File: Click the button to generate a clean, professional PDF version of the analysis, suitable for printing or sharing."
+        ]
     },
 ];
 
@@ -153,7 +160,7 @@ export default function TutorialsPage() {
                         Tutorials
                     </h1>
                     <p className="text-zinc-400 mb-16 text-lg">
-                        Master the TradingAgent platform with our comprehensive video guides.
+                        Step-by-step guides to mastering the TradingAgent platform.
                     </p>
 
                     {/* Loop Render Sections */}
@@ -162,47 +169,27 @@ export default function TutorialsPage() {
                             <section key={section.id} id={section.id} className="scroll-mt-40 animate-in fade-in duration-700">
 
                                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                                    {section.title}
+                                    <span className="text-cyan-500 font-mono text-xl">0{index + 1}.</span> {section.title}
                                 </h2>
 
-                                <p className="text-zinc-400 leading-relaxed text-lg mb-8 max-w-2xl">
-                                    {section.content}
-                                </p>
-
-                                {/* Video Placeholder Box */}
-                                <div className="w-full aspect-video bg-[#0f0f0f] border border-zinc-800 rounded-xl flex flex-col items-center justify-center group cursor-pointer hover:border-zinc-600 hover:bg-[#1a1a1a] transition-all relative overflow-hidden shadow-2xl">
-
-                                    {/* Decorative Background */}
-                                    <div className="absolute inset-0 opacity-20"
-                                        style={{ backgroundImage: 'radial-gradient(circle, #333 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
-                                    </div>
-
-                                    {/* Play Button */}
-                                    <div className="w-20 h-20 rounded-full bg-zinc-800/80 flex items-center justify-center group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-black transition-all duration-300 shadow-2xl z-10 backdrop-blur-sm border border-white/5">
-                                        <Play size={32} fill="currentColor" className="ml-1 text-white group-hover:text-black transition-colors" />
-                                    </div>
-
-                                    {/* Duration Badge */}
-                                    <div className="absolute bottom-4 right-4 bg-black/80 text-xs font-mono px-2 py-1 rounded text-zinc-300 border border-zinc-800">
-                                        {/* Mock Duration */}
-                                        {['05:20', '12:45', '08:30', '15:10', '06:15', '10:00', '07:45'][index]}
-                                    </div>
-
-                                    <p className="mt-6 text-zinc-500 font-medium text-sm z-10 group-hover:text-zinc-300 transition-colors">
-                                        Watch Tutorial
-                                    </p>
-                                </div>
-
-                                {/* Additional Resources / Steps */}
-                                <div className="mt-8 pt-6 border-t border-zinc-800/50">
-                                    <h4 className="text-sm font-bold text-zinc-300 mb-3 flex items-center gap-2">
-                                        <Activity size={16} className="text-cyan-500" /> Key Takeaways
-                                    </h4>
-                                    <ul className="space-y-2 text-zinc-500 text-sm list-disc pl-5">
-                                        <li>Understand the core mechanics of {section.title.toLowerCase()}.</li>
-                                        <li>Best practices for implementation and error handling.</li>
-                                        <li>Advanced configuration options for power users.</li>
-                                    </ul>
+                                {/* Text Steps */}
+                                <div className="space-y-6">
+                                    {section.steps.map((step, i) => {
+                                        const [title, desc] = step.split(': ');
+                                        return (
+                                            <div key={i} className="flex gap-4 group">
+                                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 mt-1 flex items-center justify-center text-zinc-400 font-bold text-sm group-hover:bg-cyan-500 group-hover:text-black group-hover:border-cyan-400 transition-all">
+                                                    {i + 1}
+                                                </div>
+                                                <div className="flex-1 bg-zinc-900/50 p-5 rounded-xl border border-zinc-800/50 hover:border-zinc-700 transition-colors">
+                                                    <h3 className="font-bold text-gray-200 mb-2">{title}</h3>
+                                                    <p className="text-zinc-400 text-sm leading-relaxed">
+                                                        {desc || title}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
 
                             </section>

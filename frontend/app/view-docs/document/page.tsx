@@ -18,22 +18,16 @@ const SECTIONS = [
         id: 'introduction',
         title: 'Introduction',
         content: (
-            <div className="space-y-3 opacity-60">
-                <SkeletonLine width="100%" />
-                <SkeletonLine width="92%" />
-                <SkeletonLine width="98%" />
-                <SkeletonLine width="45%" />
-                <div className="h-4"></div>
-                <SkeletonLine width="95%" />
-                <SkeletonLine width="60%" />
-                <div className="h-4"></div>
-                <SkeletonLine width="100%" />
-                <SkeletonLine width="88%" />
-                <SkeletonLine width="94%" />
-                <SkeletonLine width="30%" />
-                <div className="h-4"></div>
-                <SkeletonLine width="100%" />
-                <SkeletonLine width="90%" />
+            <div className="space-y-4">
+                <p>
+                    Significant progress has been made in automated problem-solving using societies of agents powered by large language models (LLMs). While single-agent systems handle specific tasks well, complex financial markets require collaborative dynamics similar to real-world trading firms.
+                </p>
+                <p>
+                    <strong>TradingAgents</strong> proposes a novel stock trading framework inspired by professional trading firms, featuring LLM-powered agents in specialized roles. By simulating a dynamic, collaborative trading environment, this framework aims to replicate the multi-faceted decision-making process of successful investment houses.
+                </p>
+                <p>
+                    This comprehensive multi-agent system moves beyond simple data gathering, integrating diverse perspectives from fundamental analysis to technical indicators, debating insights, and synthesizing them into informed trading decisions.
+                </p>
             </div>
         )
     },
@@ -41,22 +35,21 @@ const SECTIONS = [
         id: 'related-work',
         title: 'Related Work',
         content: (
-            <div className="space-y-3 opacity-60">
-                <SkeletonLine width="100%" />
-                <SkeletonLine width="92%" />
-                <SkeletonLine width="98%" />
-                <SkeletonLine width="45%" />
-                <div className="h-4"></div>
-                <SkeletonLine width="95%" />
-                <SkeletonLine width="60%" />
-                <div className="h-4"></div>
-                <SkeletonLine width="100%" />
-                <SkeletonLine width="88%" />
-                <SkeletonLine width="94%" />
-                <SkeletonLine width="30%" />
-                <div className="h-4"></div>
-                <SkeletonLine width="100%" />
-                <SkeletonLine width="90%" />
+            <div className="space-y-4">
+                <p>
+                    In the domain of financial trading, efforts have historically focused on quantitative models and, more recently, single-agent LLM systems.
+                </p>
+                <ul className="list-disc pl-5 space-y-2">
+                    <li>
+                        <strong>Single-Agent Systems:</strong> Often limited to handling specific, isolated tasks such as sentiment analysis of news headlines or pattern recognition in price charts.
+                    </li>
+                    <li>
+                        <strong>Traditional Multi-Agent Frameworks:</strong> Previous attempts have largely operated independently, with agents gathering data in silos without true collaborative synthesis.
+                    </li>
+                    <li>
+                        <strong>TradingAgents Approach:</strong> Unlike predecessors, this framework emphasizes the <em>collaborative dynamics</em> found in institutional firms. It introduces structured debates and hierarchical decision-making, allowing agents to challenge and refine each other's insights before a trade is executed.
+                    </li>
+                </ul>
             </div>
         )
     },
@@ -64,22 +57,28 @@ const SECTIONS = [
         id: 'role-specialization',
         title: 'Role Specialization',
         content: (
-            <div className="space-y-3 opacity-60">
-                <SkeletonLine width="100%" />
-                <SkeletonLine width="92%" />
-                <SkeletonLine width="98%" />
-                <SkeletonLine width="45%" />
-                <div className="h-4"></div>
-                <SkeletonLine width="95%" />
-                <SkeletonLine width="60%" />
-                <div className="h-4"></div>
-                <SkeletonLine width="100%" />
-                <SkeletonLine width="88%" />
-                <SkeletonLine width="94%" />
-                <SkeletonLine width="30%" />
-                <div className="h-4"></div>
-                <SkeletonLine width="100%" />
-                <SkeletonLine width="90%" />
+            <div className="space-y-4">
+                <p>
+                    The framework assigns specialized roles to LLM agents, ensuring expert-level analysis across all market dimensions:
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <div className="p-4 bg-zinc-900 rounded-lg border border-zinc-800">
+                        <h3 className="font-bold text-cyan-400 mb-2">Fundamental Analysts</h3>
+                        <p className="text-sm">Analyze company financial health, earnings reports, and macroeconomic indicators to determine long-term value.</p>
+                    </div>
+                    <div className="p-4 bg-zinc-900 rounded-lg border border-zinc-800">
+                        <h3 className="font-bold text-cyan-400 mb-2">Technical Analysts</h3>
+                        <p className="text-sm">Study price action, trends, and volume patterns to identify optimal entry and exit points.</p>
+                    </div>
+                    <div className="p-4 bg-zinc-900 rounded-lg border border-zinc-800">
+                        <h3 className="font-bold text-cyan-400 mb-2">Sentiment Analysts</h3>
+                        <p className="text-sm">Process news, social media, and market chatter to gauge market psychology and potential volatility.</p>
+                    </div>
+                    <div className="p-4 bg-zinc-900 rounded-lg border border-zinc-800">
+                        <h3 className="font-bold text-cyan-400 mb-2">Risk Management</h3>
+                        <p className="text-sm">Monitor portfolio exposure and set strict limits to preserve capital and manage downside risk.</p>
+                    </div>
+                </div>
             </div>
         )
     },
@@ -87,22 +86,24 @@ const SECTIONS = [
         id: 'agent-workflow',
         title: 'Agent Workflow',
         content: (
-            <div className="space-y-3 opacity-60">
-                <SkeletonLine width="100%" />
-                <SkeletonLine width="92%" />
-                <SkeletonLine width="98%" />
-                <SkeletonLine width="45%" />
-                <div className="h-4"></div>
-                <SkeletonLine width="95%" />
-                <SkeletonLine width="60%" />
-                <div className="h-4"></div>
-                <SkeletonLine width="100%" />
-                <SkeletonLine width="88%" />
-                <SkeletonLine width="94%" />
-                <SkeletonLine width="30%" />
-                <div className="h-4"></div>
-                <SkeletonLine width="100%" />
-                <SkeletonLine width="90%" />
+            <div className="space-y-4">
+                <p>
+                    The decision-making process follows a structured workflow designed to mimic an investment committee:
+                </p>
+                <ol className="list-decimal pl-5 space-y-3">
+                    <li>
+                        <strong>Data Gathering:</strong> Individual specialists (Fundamental, Technical, Sentiment) independently gather data and form initial hypotheses.
+                    </li>
+                    <li>
+                        <strong>Bull & Bear Debate:</strong> Dedicated <strong>Bull</strong> and <strong>Bear</strong> researcher agents assess market conditions from opposing viewpoints, challenging assumptions to uncover blind spots.
+                    </li>
+                    <li>
+                        <strong>Synthesis:</strong> Traders synthesize the diverse insights from the debate and analyst reports, weighing conflicting evidence.
+                    </li>
+                    <li>
+                        <strong>Execution:</strong> Informed decisions are made, with final checks by the Risk Management team to ensure alignment with portfolio constraints before execution.
+                    </li>
+                </ol>
             </div>
         )
     },
