@@ -129,6 +129,55 @@ const SECTION_MAP: Record<string, { key: string; label: string }> = {
   Summarize_final_trade_decision_report: { key: "sum_final", label: "Portfolio Decision (Summary)" },
 };
 
+// --- Market Icons & Info ---
+const MARKET_INFO: Record<string, { label: string; icon: React.ReactNode }> = {
+  US: {
+    label: "US Stocks",
+    icon: (
+      <svg viewBox="0 0 32 24" className="w-6 h-4 rounded-sm shadow-sm overflow-hidden">
+        <rect width="32" height="24" fill="#B22234" />
+        <path d="M0 4h32M0 8h32M0 12h32M0 16h32M0 20h32" stroke="white" strokeWidth="2" />
+        <rect width="14" height="13" fill="#3C3B6E" />
+        <path d="M2 2h10M2 4.25h10M2 6.5h10M2 8.75h10M2 11h10" stroke="white" strokeWidth="1" strokeDasharray="1 1" />
+      </svg>
+    ),
+  },
+  TH: {
+    label: "Thai Stocks",
+    icon: (
+      <svg viewBox="0 0 32 24" className="w-6 h-4 rounded-sm shadow-sm overflow-hidden">
+        <rect width="32" height="24" fill="#F4F5F8" />
+        <rect y="0" width="32" height="4" fill="#ED1C24" />
+        <rect y="20" width="32" height="4" fill="#ED1C24" />
+        <rect y="8" width="32" height="8" fill="#241D4E" />
+      </svg>
+    ),
+  },
+  CN: {
+    label: "China Stocks",
+    icon: (
+      <svg viewBox="0 0 32 24" className="w-6 h-4 rounded-sm shadow-sm overflow-hidden">
+        <rect width="32" height="24" fill="#EE1C25" />
+        <circle cx="5" cy="6" r="3" fill="#FFFF00" />
+        <circle cx="10" cy="3" r="1" fill="#FFFF00" />
+        <circle cx="12" cy="5" r="1" fill="#FFFF00" />
+        <circle cx="12" cy="8" r="1" fill="#FFFF00" />
+        <circle cx="10" cy="10" r="1" fill="#FFFF00" />
+      </svg>
+    ),
+  },
+  GOLD: {
+    label: "Gold / Precious Metals",
+    icon: (
+      <svg viewBox="0 0 32 24" className="w-6 h-4 rounded-sm shadow-sm">
+        <rect width="32" height="24" fill="#1e293b" rx="2" />
+        <circle cx="16" cy="12" r="7" fill="#FFD700" stroke="#B8860B" strokeWidth="2" />
+        <path d="M16 8v8M14 10h2a2 2 0 1 1 0 4h-2" stroke="#B8860B" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+};
+
 // --- Helper Functions ---
 
 function toISODate() {
@@ -270,6 +319,7 @@ function summarizeReport(reportText: string | any, decision: string) {
 export default function Home() {
   // State
   const [ticker, setTicker] = useState("SPY");
+  const [selectedMarket, setSelectedMarket] = useState("US");
   const [analysisDate, setAnalysisDate] = useState("");
   const [researchDepth, setResearchDepth] = useState(3);
   const [reportLength, setReportLength] = useState<"summary report" | "full report">("summary report");
@@ -307,6 +357,103 @@ export default function Home() {
   const [logoError, setLogoError] = useState(false);
   const [logoSrc, setLogoSrc] = useState("");
 
+  // Ticker Search State
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [marketTickers, setMarketTickers] = useState<any[]>([]); // Cache for backend list
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showMarketSelector, setShowMarketSelector] = useState(false); // New Dropdown State
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Fetch Full Ticker List from Backend
+  const fetchMarketTickers = async (market: string) => {
+    try {
+      let apiUrl = "http://localhost:8000";
+      if (typeof window !== "undefined" && window.location.hostname !== "" && window.location.protocol !== "file:") {
+        const protocol = window.location.protocol;
+        const host = window.location.hostname;
+        apiUrl = `${protocol}//${host}:8000`;
+      }
+
+      const res = await fetch(`${apiUrl}/api/tickers?market=${market}`);
+      if (res.ok) {
+        const data = await res.json();
+        setMarketTickers(data);
+        if (ticker.length < 2) {
+          setSuggestions(data);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching market tickers:", error);
+    }
+  };
+
+  const fetchSuggestions = async (query: string) => {
+    if (!query || query.length < 2) {
+      setSuggestions(marketTickers);
+      return;
+    }
+
+    try {
+      let apiUrl = "http://localhost:8000";
+      if (typeof window !== "undefined" && window.location.hostname !== "" && window.location.protocol !== "file:") {
+        const protocol = window.location.protocol;
+        const host = window.location.hostname;
+        apiUrl = `${protocol}//${host}:8000`;
+      }
+
+      const res = await fetch(`${apiUrl}/api/search?q=${query}&market=${selectedMarket}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSuggestions(data);
+        setShowSuggestions(true);
+      }
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+    }
+  };
+
+  // Logic: When Market changes -> Fetch Tickers for that market
+  useEffect(() => {
+    fetchMarketTickers(selectedMarket);
+    // Note: we don't clear suggestions immediately here because fetch will update them
+  }, [selectedMarket]);
+
+  const handleTickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.toUpperCase();
+    setTicker(val);
+
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+
+    if (val.length < 2) {
+      // Revert to backend list if input cleared
+      setSuggestions(marketTickers);
+      setShowSuggestions(true);
+      return;
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchSuggestions(val);
+    }, 300);
+  };
+
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement>) => {
+    setShowSuggestions(true);
+    // Always show the full list on focus so user can switch easily
+    setSuggestions(marketTickers);
+
+    // Optional: Select text (if it's a focus event) for quick replacement, 
+    // unless it's a click where user might want to place cursor
+    if (e.type === 'focus') {
+      (e.target as HTMLInputElement).select();
+    }
+  };
+
+  const selectSuggestion = (symbol: string) => {
+    setTicker(symbol);
+    setShowSuggestions(false);
+    setSuggestions([]);
+  };
+
   // Fetch Market Data Effect
   useEffect(() => {
     let isMounted = true;
@@ -342,7 +489,24 @@ export default function Home() {
           const data = await res.json();
           if (isMounted) {
             setMarketData(data);
-            setLogoSrc(data.logo_url);
+
+            // Smarter Logo Logic:
+            // 1. Try provided logo_url
+            // 2. If website exists, try Google Favicon (reliable for global sites)
+            // 3. Fallback to clearbit in JSX onError
+            if (data.logo_url) {
+              setLogoSrc(data.logo_url);
+            } else if (data.website) {
+              // Clean website url to get domain
+              try {
+                const domain = new URL(data.website).hostname;
+                setLogoSrc(`https://www.google.com/s2/favicons?domain=${domain}&sz=64`);
+              } catch (e) {
+                setLogoSrc("");
+              }
+            } else {
+              setLogoSrc("");
+            }
           }
         } else {
           throw new Error(`Status: ${res.status}`);
@@ -383,18 +547,17 @@ export default function Home() {
 
   // Handle Logo Error with Fallback
   const handleLogoError = () => {
+    // If current logo failed, try fallback strategy
     if (marketData?.website && !logoSrc.includes("google.com")) {
-      // Try Google Favicon as fallback
       try {
-        let domain = new URL(marketData.website).hostname;
-        if (domain.startsWith("www.")) domain = domain.substring(4);
-        setLogoSrc(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`);
+        const domain = new URL(marketData.website).hostname;
+        setLogoSrc(`https://www.google.com/s2/favicons?domain=${domain}&sz=64`);
+        return;
       } catch (e) {
-        setLogoError(true);
+        // Failed to parse URL, proceed to error
       }
-    } else {
-      setLogoError(true);
     }
+    setLogoError(true);
   };
 
   // Helper to create sparkline path
@@ -1013,35 +1176,110 @@ export default function Home() {
 
         {/* Step Grid */}
         <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
-          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
+          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
             <header>
               <p className="text-[0.7rem] uppercase tracking-widest text-[#8b94ad]">
                 Step 1
               </p>
               <h2 className="text-lg font-semibold">Ticker Symbol</h2>
             </header>
-            <label className="flex flex-col gap-1.5 text-[0.85rem] text-[#8b94ad]">
-              <span>Select (ex. SPY)</span>
-              <input
-                type="text"
-                list="ticker-suggestions"
-                autoComplete="off"
-                placeholder="SPY"
-                value={ticker}
-                onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                className={`min-w-[160px] rounded-xl border px-3 py-2.5 ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff]" : "border-gray-200 bg-gray-50 text-gray-900"}`}
-              />
-              <datalist id="ticker-suggestions">
-                <option value="SPY"></option>
-                <option value="NVDA"></option>
-                <option value="AAPL"></option>
-                <option value="TSLA"></option>
-                <option value="MSFT"></option>
-              </datalist>
-            </label>
+            <div className="flex flex-col gap-1.5 text-[0.85rem] text-[#8b94ad]">
+              <span>Select Market & Ticker</span>
+              <div className="flex gap-2">
+                {/* Custom Market Select Dropdown */}
+                <div
+                  className="relative"
+                  onBlur={(e) => {
+                    // Close dropdown if focus leaves the container
+                    if (!e.currentTarget.contains(e.relatedTarget)) {
+                      setShowMarketSelector(false);
+                    }
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setShowMarketSelector(!showMarketSelector)}
+                    className={`flex items-center gap-2 h-full rounded-xl border px-3 py-2.5 transition-colors cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] hover:bg-white/5" : "border-gray-200 bg-gray-50 hover:bg-gray-100"}`}
+                  >
+                    {MARKET_INFO[selectedMarket]?.icon || <span>?</span>}
+                    <svg className={`w-3 h-3 text-gray-400 transition-transform ${showMarketSelector ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {/* Market Dropdown Menu */}
+                  {showMarketSelector && (
+                    <div className={`absolute left-0 top-full z-[60] mt-1 w-48 rounded-xl border shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100 ${isDarkMode ? "bg-[#1a2133] border-white/10" : "bg-white border-gray-100"}`}>
+                      {Object.entries(MARKET_INFO).map(([key, info]) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => {
+                            setSelectedMarket(key);
+                            setShowMarketSelector(false);
+                          }}
+                          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${key === selectedMarket ? (isDarkMode ? "bg-white/10 text-white" : "bg-blue-50 text-blue-600") : (isDarkMode ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-gray-50")}`}
+                        >
+                          {info.icon}
+                          <span className="font-medium">{info.label}</span>
+                          {key === selectedMarket && <span className="ml-auto text-xs opacity-60">✓</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Ticker Input */}
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    autoComplete="off"
+                    placeholder="Select or Type Symbol"
+                    value={ticker}
+                    onChange={handleTickerChange}
+                    onFocus={handleInputFocus}
+                    onClick={() => {
+                      if (!showSuggestions) {
+                        setShowSuggestions(true);
+                        setSuggestions(marketTickers);
+                      }
+                    }}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    className={`w-full min-w-[120px] rounded-xl border pl-3 pr-8 py-2.5 cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff]" : "border-gray-200 bg-gray-50 text-gray-900"}`}
+                  />
+                  {/* Chevron Icon */}
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                  </div>
+
+                  {/* Suggestions Dropdown */}
+                  {showSuggestions && suggestions.length > 0 && (
+                    <ul className={`absolute left-0 top-full z-50 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-gray-200 bg-white"}`}>
+                      {/* Optional Header for List */}
+                      <li className={`px-4 py-2 text-[10px] uppercase tracking-wider font-semibold opacity-50 ${isDarkMode ? "bg-white/5" : "bg-gray-100"}`}>
+                        {ticker.length < 2 ? "Popular Recommendations" : "Search Results"}
+                      </li>
+                      {suggestions.map((item, idx) => (
+                        <li
+                          key={idx}
+                          onClick={() => selectSuggestion(item.symbol)}
+                          className={`cursor-pointer px-4 py-2 text-sm flex justify-between items-center transition-colors ${isDarkMode ? "hover:bg-white/5 text-gray-200" : "hover:bg-gray-50 text-gray-700"}`}
+                        >
+                          <div>
+                            <span className="font-bold">{item.symbol}</span>
+                            <span className="ml-2 text-xs opacity-70">{item.name}</span>
+                          </div>
+                          <span className="text-[10px] opacity-50 border rounded px-1">{item.exchange}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </div>
           </article>
 
-          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
+          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
             <header>
               <p className="text-[0.7rem] uppercase tracking-widest text-[#8b94ad]">
                 Step 2
@@ -1093,7 +1331,7 @@ export default function Home() {
 
 
           {/* Live Market Data Card */}
-          <article className={`relative flex flex-col justify-between overflow-hidden rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
+          <article className={`relative flex flex-col overflow-hidden rounded-[20px] border p-5 h-[210px] transition-all duration-300 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
             {/* Header */}
             <div className="relative z-10 flex items-start justify-between">
               <div className="flex items-center gap-2">
@@ -1112,8 +1350,8 @@ export default function Home() {
 
             {/* Main Info */}
             <div className="relative z-10 mt-4 flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <div className={`flex h-6 w-6 items-center justify-center rounded-full overflow-hidden ${isDarkMode ? "bg-white text-black" : "bg-black text-white"}`}>
+              <div className="flex items-center gap-3">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full overflow-hidden flex-shrink-0 ${isDarkMode ? "bg-white text-black" : "bg-black text-white"}`}>
                   {logoSrc && !logoError ? (
                     <img
                       src={logoSrc}
@@ -1122,7 +1360,7 @@ export default function Home() {
                       onError={handleLogoError}
                     />
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
                       <path d="M12 2a10 10 0 0 1 10 10H12V2z" fill="currentColor"></path>
                       <path d="M21.18 10.98a10.05 10.05 0 0 0-9.16-8.96"></path>
@@ -1130,7 +1368,8 @@ export default function Home() {
                   )}
                 </div>
                 <h3 className="text-lg font-bold truncate">
-                  {marketData?.shortName || ticker}
+                  {/* Prioritize full name from our curated list, then market data name */}
+                  {marketTickers.find(t => t.symbol === ticker)?.name || marketData?.name || marketData?.shortName || ticker}
                 </h3>
               </div>
               <div className="mt-2 min-h-[40px]">

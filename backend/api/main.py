@@ -739,6 +739,103 @@ async def test_endpoint():
         }
 
 
+@app.get("/api/search")
+async def search_ticker(q: str, market: str = "US"):
+    """
+    Search for a ticker by name or symbol using Yahoo Finance API.
+    market filters: 'US', 'TH' (Thai), 'CN' (China), 'GOLD'.
+    """
+    import requests
+    try:
+        url = "https://query2.finance.yahoo.com/v1/finance/search"
+        params = {
+            "q": q,
+            "quotesCount": 20, # Fetch more to allow for filtering
+            "newsCount": 0,
+            "enableFuzzyQuery": "false",
+            "quotesQueryId": "tss_match_phrase_query"
+        }
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
+        resp = requests.get(url, params=params, headers=headers, timeout=5)
+        if resp.status_code != 200:
+            logger.error(f"Yahoo Search API Error: {resp.status_code}")
+            return []
+
+        data = resp.json()
+        quotes = data.get("quotes", [])
+        
+        # Filtering Logic
+        market = market.upper()
+        filtered_results = []
+        
+        for item in quotes:
+            symbol = item.get("symbol", "")
+            exch = item.get("exchDisp", "").upper()
+            qtype = item.get("quoteType", "").upper()
+            name = (item.get("shortname") or item.get("longname") or "").upper()
+            
+            if not symbol: continue
+
+            # Filter by Market
+            is_match = False
+            
+            if market == "TH":
+                if symbol.endswith(".BK") or exch == "SET":
+                    is_match = True
+            
+            elif market == "CN":
+                if symbol.endswith(".SS") or symbol.endswith(".SZ"):
+                    is_match = True
+            
+            elif market == "GOLD":
+                # Matches Gold Futures, ETFs, or Spot
+                if "GOLD" in name or "XAU" in symbol or "GC=F" in symbol:
+                     is_match = True
+            
+            else: # Default "US" or others
+                # US stocks typically don't have .XX suffixes (except specialized classes)
+                # And usually are on NYSE, NASDAQ, etc.
+                if "." not in symbol: 
+                     is_match = True
+                elif exch in ["NYSE", "NASDAQ", "NYQ", "NMS", "NGM", "OPR", "CME"]:
+                     is_match = True
+
+            if is_match:
+                filtered_results.append({
+                    "symbol": item.get("symbol"),
+                    "name": item.get("shortname") or item.get("longname") or item.get("symbol"),
+                    "type": qtype,
+                    "exchange": item.get("exchDisp", "")
+                })
+            
+        return filtered_results[:10] # Return top 10 after filtering
+    except Exception as e:
+        logger.error(f"Search failed: {e}")
+        return []
+
+
+@app.get("/api/tickers")
+async def get_market_tickers(market: str):
+    """
+    Get a list of curated tickers for a specific market directly from backend data.
+    """
+    try:
+        # Try importing from api package first (common in uvicorn run from root)
+        from api.stock_data import get_tickers_by_market
+        return get_tickers_by_market(market)
+    except ImportError:
+        try:
+             # Fallback: relative import or same directory
+             from stock_data import get_tickers_by_market
+             return get_tickers_by_market(market)
+        except Exception as e:
+            logger.error(f"Failed to import stock_data: {e}")
+            return []
+    except Exception as e:
+        logger.error(f"Error fetching tickers: {e}")
+        return []
 
 
 class TelegramConnectRequest(BaseModel):
