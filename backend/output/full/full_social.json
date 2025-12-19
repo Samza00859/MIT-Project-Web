@@ -1,33 +1,33 @@
 {
-    "sentiment_verdict": "Bearish",
-    "social_volume": "Elevated volume with heavy options trading activity and recession discussions",
-    "dominant_narrative": "Markets are facing recession fears with deteriorating economic data, including concerns about corporate bankruptcies reaching 15-year highs and labor market weakness, while the S&P 500 struggles to break through resistance levels near record highs.",
+    "sentiment_verdict": "Bullish",
+    "social_volume": "Elevated due to stock reaching 25-year high and AI infrastructure positioning",
+    "dominant_narrative": "Cisco Systems has achieved a historic milestone by surpassing its dot-com era peak after 25 years, driven by positioning as a critical AI infrastructure provider. The company's Silicon One chips and Splunk integration are being recognized as foundational components for artificial intelligence networking.",
     "top_topics": [
         {
-            "topic": "Recession Concerns",
-            "sentiment": "Negative",
-            "analysis_snippet": "Multiple analysts and traders are expressing concerns about an impending recession, citing collapsing labor markets and rising corporate bankruptcies."
+            "topic": "AI Infrastructure Leadership",
+            "sentiment": "Positive",
+            "analysis_snippet": "Social media highlights Cisco's role as an AI plumbing powerhouse with Silicon One chips and Splunk observability forming critical infrastructure."
         },
         {
-            "topic": "Technical Resistance Levels",
+            "topic": "Historic Stock Performance",
+            "sentiment": "Positive",
+            "analysis_snippet": "Discussion centers on Cisco reaching a new all-time high, surpassing its dot-com bubble peak after 25 years."
+        },
+        {
+            "topic": "Institutional Confidence",
+            "sentiment": "Positive",
+            "analysis_snippet": "Morgan Stanley raised price target to $91 and maintained overweight rating, signaling strong institutional support."
+        },
+        {
+            "topic": "Cybersecurity Market Position",
             "sentiment": "Mixed",
-            "analysis_snippet": "The S&P 500 is stuck below key resistance levels with discussions about triple top reversal patterns and distribution at highs."
+            "analysis_snippet": "Cisco is frequently mentioned alongside other cybersecurity leaders, though some question whether AI hype masks underlying business challenges."
         },
         {
-            "topic": "Federal Reserve Policy Impact",
+            "topic": "Historical Comparisons",
             "sentiment": "Mixed",
-            "analysis_snippet": "Traders are debating whether recent Fed rate cuts will support markets or if monetary easing cannot save overvalued assets."
-        },
-        {
-            "topic": "Options Trading Activity",
-            "sentiment": "Mixed",
-            "analysis_snippet": "Heavy institutional options volume in SPY with traders taking both bullish and bearish positions, including significant put buying."
-        },
-        {
-            "topic": "AI Bubble Concerns",
-            "sentiment": "Negative",
-            "analysis_snippet": "Growing skepticism about AI spending not generating proportional returns, with warnings that the AI bubble may be bursting."
+            "analysis_snippet": "Analysts draw parallels between current AI stocks and dot-com era Cisco, creating both optimism and caution among investors."
         }
     ],
-    "psychology": "Fear Uncertainty and Doubt about economic fundamentals combined with defensive positioning and risk aversion"
+    "psychology": "Fear Of Missing Out combined with cautious optimism about sustainable growth beyond historical peaks"
 }

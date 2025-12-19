@@ -47,7 +47,7 @@ def create_summarizer_social():
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=0.4,
-                max_tokens=1024
+                max_tokens=2048
             )
 
             summary_content = response.choices[0].message.content

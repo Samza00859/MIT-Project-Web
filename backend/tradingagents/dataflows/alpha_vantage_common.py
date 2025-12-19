@@ -4,6 +4,9 @@ import pandas as pd
 import json
 from datetime import datetime
 from io import StringIO
+from dotenv import load_dotenv
+
+load_dotenv()
 
 API_BASE_URL = "https://www.alphavantage.co/query"
 
