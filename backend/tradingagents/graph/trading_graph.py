@@ -60,12 +60,31 @@ def sent_to_telegram(message: str):
             "text": message,
             "parse_mode": "Markdown",
         }
+        
+        from requests.adapters import HTTPAdapter
+        from urllib3.util.retry import Retry
+
+        # Configure retry strategy
+        retry_strategy = Retry(
+            total=3,  # Maximum number of retries
+            backoff_factor=1,  # Wait 1s, 2s, 4s between retries
+            status_forcelist=[429, 500, 502, 503, 504],  # Retry on these status codes
+            allowed_methods=["POST"]
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        http = requests.Session()
+        http.mount("https://", adapter)
+        http.mount("http://", adapter)
+
         try:
-            response = requests.post(url, data=payload, timeout=10)
+            # timeout=(connect_timeout, read_timeout)
+            response = http.post(url, data=payload, timeout=(30, 60))
             response.raise_for_status()
             console.print("[green]Report sent to Telegram successfully![/green]")
         except requests.RequestException as e:
-            console.print(f"[red]Failed to send report to Telegram: {e}[/red]")
+            console.print(f"[red]Failed to send report to Telegram after retries: {e}[/red]")
+        finally:
+            http.close()
     else:
         console.print("[yellow]Telegram not configured. Skipping sending report.[/yellow]")
 

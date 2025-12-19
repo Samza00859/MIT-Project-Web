@@ -130,19 +130,7 @@ export default function ViewDocsPage() {
                         </div>
                     </section>
 
-                    {/* Download Document Section */}
-                    <section className="flex flex-col gap-8 items-center">
-                        <h2 className={`text-2xl font-bold self-start px-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>Download Document</h2>
-                        <div className="flex flex-wrap gap-8 justify-center w-full">
-                            <DocCard
-                                title="Download Document"
-                                description="Learn about how to use our website"
-                                buttonText="Download"
-                                buttonColor="blue"
-                                isDarkMode={isDarkMode}
-                            />
-                        </div>
-                    </section>
+
                 </div>
             </main>
         </div >

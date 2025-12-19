@@ -90,6 +90,71 @@ def compute_core_indicator_score(data_yf, data_av, data_tv, indicator, tolerance
 
     return scores, best_sources
 
+import yfinance as yf
+
+# --- 1. นักสืบหาตลาด (Auto-Detect) ---
+def auto_detect_market(symbol: str) -> str:
+    symbol = symbol.upper().strip()
+    
+    # ทองคำ/Forex
+    if symbol in ["GOLD", "XAUUSD", "GC=F", "XAU/USD"]: return "GOLD"
+    
+    # หุ้นจีน/ฮ่องกง (ตัวเลข)
+    if symbol.isdigit():
+        if len(symbol) <= 5: return "HK" # ฮ่องกง
+        return "CN" # จีนแผ่นดินใหญ่
+        
+    # หุ้นไทย (เช็ค YF เร็วๆ)
+    try:
+        if yf.Ticker(f"{symbol}.BK").fast_info.market_cap is not None: return "TH"
+    except: pass
+
+    return "US" # Default
+
+# --- 2. ตัวแปลงรหัสให้ตรงแต่ละค่าย (Resolver) ---
+def resolve_symbol_for_indicators(symbol: str, market: str):
+    symbol = symbol.upper().strip()
+    
+    # Default = US Stocks
+    mapping = {
+        "yfinance": symbol,
+        "alphavantage": symbol,
+        "tradingview": symbol 
+    }
+
+    if market == "TH":
+        clean = symbol.replace(".BK", "")
+        mapping["yfinance"] = f"{clean}.BK"
+        mapping["alphavantage"] = f"{clean}.BK" # AlphaVantage รองรับ .BK
+        mapping["tradingview"] = f"SET:{clean}"
+
+    elif market == "CN":
+        # จีน: ต้องแยก Shanghai (6xxxx) / Shenzhen (0xxxx/3xxxx)
+        # Yahoo ใช้ .SS/.SZ
+        # AlphaVantage ใช้ .SH/.SZ
+        suffix_yf = ".SS" if symbol.startswith("6") else ".SZ"
+        suffix_av = ".SH" if symbol.startswith("6") else ".SZ" # AV บางทีใช้ SH สำหรับ Shanghai
+        
+        mapping["yfinance"] = f"{symbol}{suffix_yf}"
+        mapping["alphavantage"] = f"{symbol}{suffix_av}"
+        
+        prefix_tv = "SSE" if symbol.startswith("6") else "SZSE"
+        mapping["tradingview"] = f"{prefix_tv}:{symbol}"
+
+    elif market == "HK":
+        clean = symbol.replace(".HK", "").zfill(4) # เติม 0 ให้ครบ 4 หลัก
+        mapping["yfinance"] = f"{clean}.HK"
+        mapping["alphavantage"] = f"{clean}.HK"
+        mapping["tradingview"] = f"HKEX:{int(clean)}" # TV ไม่เอาเลข 0 นำหน้า
+
+    elif market == "GOLD":
+        # ทองคำ ความยากคือ AV กับ YF ใช้คนละตัว
+        mapping["yfinance"] = "GC=F"       # Gold Futures
+        mapping["alphavantage"] = "XAUUSD" # Spot Gold (Forex) แม่นกว่าสำหรับ Indicator
+        mapping["tradingview"] = "OANDA:XAUUSD"
+
+    return mapping
+
 def sent_to_telegram(report_message):
     """Send comparison result to Telegram bot."""
     TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -123,6 +188,7 @@ def get_indicators(
     indicator: str,
     curr_date: str,
     look_back_days: int,
+    market: str = None
 ) -> str:
     """
     Retrieve technical indicators for a given ticker symbol.
@@ -140,60 +206,82 @@ def get_indicators(
         str: A formatted string containing the indicator data.
     """
     
-    print(f"\n🚀 Fetching & Comparing Indicator '{indicator}' for {symbol}...")
+    # 1. Auto-Detect Market (ถ้าไม่ได้ส่งมา)
+    if not market:
+        market = auto_detect_market(symbol)
 
-    # 1. Fetch Data (Safely)
+    # 2. Resolve Symbol ให้ตรงกับแต่ละเจ้า
+    tickers = resolve_symbol_for_indicators(symbol, market)
+
+    print(f"\n🚀 Fetching Indicator '{indicator}' for {symbol} (Market: {market})...")
+    print(f"   [Target Tickers] YF: {tickers['yfinance']}, AV: {tickers['alphavantage']}, TV: {tickers['tradingview']}")
+
+    # --- 3. Fetch Data (ส่ง Ticker ที่ถูกต้องไป) ---
+    
+    # YFinance
     result_str_yf, data_yf = "", []
     try:
-        result_str_yf, data_yf = get_stock_stats_indicators_window(symbol, indicator, curr_date, look_back_days)
+        # ส่ง tickers['yfinance'] แทน symbol เดิม
+        result_str_yf, data_yf = get_stock_stats_indicators_window(
+            tickers['yfinance'], indicator, curr_date, look_back_days
+        )
     except Exception as e:
         print(f"⚠️ Yahoo Finance Error: {e}")
 
+    # Alpha Vantage
     result_str_av, data_av = "", []
     try:
-        result_str_av, data_av = get_indicator(symbol, indicator, curr_date, look_back_days)
+        # ส่ง tickers['alphavantage']
+        # หมายเหตุ: สำหรับทองคำ (XAUUSD) ใน Alpha Vantage อาจต้องเรียกฟังก์ชันแยกถ้า library คุณแยก endpoint
+        # แต่ถ้าใช้ฟังก์ชันมาตรฐานที่เรียก TIME_SERIES_DAILY มันอาจจะไม่เจอ XAUUSD
+        # ถ้าโค้ด get_indicator ของคุณรองรับ FX_DAILY จะดีมาก
+        result_str_av, data_av = get_indicator(
+            tickers['alphavantage'], indicator, curr_date, look_back_days
+        )
     except Exception as e:
         print(f"⚠️ Alpha Vantage Error: {e}")
 
+    # TradingView
     result_str_tv, data_tv = "", pd.DataFrame()
     try:
-        result_str_tv, data_tv = get_tradingview_indicators(symbol, indicator, curr_date, look_back_days)
+        # ส่ง tickers['tradingview']
+        result_str_tv, data_tv = get_tradingview_indicators(
+            tickers['tradingview'], indicator, curr_date, look_back_days
+        )
     except Exception as e:
         print(f"⚠️ TradingView Error: {e}")
 
-    # 2. Compute Scores
+    # --- 4. Compute Scores (เหมือนเดิม) ---
+    # หมายเหตุ: ทองคำราคา Future กับ Spot อาจต่างกันเล็กน้อย 
+    # คุณอาจต้องปรับ tolerance เพิ่มขึ้นถ้า market == "GOLD"
+    current_tolerance = 0.05 if market == "GOLD" else 0.01
+
     scores, best_sources = compute_core_indicator_score(
         data_yf=data_yf,
         data_av=data_av,
         data_tv=data_tv,
         indicator=indicator,
-        tolerance=0.01  # 1% tolerance
+        tolerance=current_tolerance # ปรับความยืดหยุ่นตามสินทรัพย์
     )
 
     print(f"   Scores: {scores} => Best: {best_sources}")
 
-    # 3. Send Report to Telegram (Optional)
+    # --- 5. Report & Return (เหมือนเดิม) ---
     report_message = (
-        f"📊 Indicator '{indicator}' Source Comparison for {symbol}:\n"
-        f"Yahoo Finance Score: {scores.get('yahoo', 0)}\n"
-        f"Alpha Vantage Score: {scores.get('alpha', 0)}\n"
-        f"TradingView Score: {scores.get('tv', 0)}\n"
-        f"🏆 Best Source: {', '.join([s.upper() for s in best_sources])}\n"
+        f"📊 Indicator '{indicator}' Source Comparison for {symbol} ({market}):\n"
+        f"Yahoo ({tickers['yfinance']}): {scores.get('yahoo', 0)}\n"
+        f"AlphaV ({tickers['alphavantage']}): {scores.get('alpha', 0)}\n"
+        f"TradingView ({tickers['tradingview']}): {scores.get('tv', 0)}\n"
+        f"🏆 Best: {', '.join([s.upper() for s in best_sources])}\n"
     )
-    sent_to_telegram(report_message)
+    # sent_to_telegram(report_message) # Uncomment ถ้าต้องการส่ง
 
-    # 4. Return Best Result
-    # Priority: Alpha > Yahoo > TV (ถ้าคะแนนเท่ากัน หรืออยู่ในกลุ่ม best_sources)
-    # แต่ต้องเช็คด้วยว่ามีข้อมูล (string ไม่ว่าง)
+    # Priority Logic
+    if 'alpha' in best_sources and result_str_av: return result_str_av
+    elif 'yahoo' in best_sources and result_str_yf: return result_str_yf
+    elif 'tv' in best_sources and result_str_tv: return result_str_tv
     
-    if 'alpha' in best_sources and result_str_av:
-        return result_str_av
-    elif 'yahoo' in best_sources and result_str_yf:
-        return result_str_yf
-    elif 'tv' in best_sources and result_str_tv:
-        return result_str_tv
-    
-    # Fallback logic (ถ้าตัวชนะไม่มีข้อมูล string ให้เอาตัวที่มี)
+    # Fallback
     if result_str_av: return result_str_av
     if result_str_yf: return result_str_yf
     if result_str_tv: return result_str_tv

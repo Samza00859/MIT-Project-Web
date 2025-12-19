@@ -163,7 +163,7 @@ export default function TutorialsPage() {
                             <section key={section.id} id={section.id} className="scroll-mt-40 animate-in fade-in duration-700">
 
                                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                                    <span className="text-cyan-500 font-mono text-xl">0{index + 1}.</span> {section.title}
+                                    <span className="text-cyan-500 font-mono text-xl">{index + 1}.</span> {section.title}
                                 </h2>
 
                                 {/* Text Steps */}

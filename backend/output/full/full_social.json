@@ -1,33 +1,33 @@
 {
-    "sentiment_verdict": "Neutral",
-    "social_volume": "Moderate volume with institutional options activity and analyst commentary driving discussions",
-    "dominant_narrative": "Apple faces mixed sentiment with technical weakness as the stock trades below its 50-day moving average for the first time since August, but receives analyst support with Morgan Stanley raising price target to $315 based on strong earnings forecasts and AI investments. Institutional options activity remains elevated.",
+    "sentiment_verdict": "Bullish",
+    "social_volume": "Elevated due to stock reaching 25-year high and AI infrastructure positioning",
+    "dominant_narrative": "Cisco Systems has achieved a historic milestone by surpassing its dot-com era peak after 25 years, driven by positioning as a critical AI infrastructure provider. The company's Silicon One chips and Splunk integration are being recognized as foundational components for artificial intelligence networking.",
     "top_topics": [
         {
-            "topic": "Technical Analysis and Price Levels",
+            "topic": "AI Infrastructure Leadership",
+            "sentiment": "Positive",
+            "analysis_snippet": "Social media highlights Cisco's role as an AI plumbing powerhouse with Silicon One chips and Splunk observability forming critical infrastructure."
+        },
+        {
+            "topic": "Historic Stock Performance",
+            "sentiment": "Positive",
+            "analysis_snippet": "Discussion centers on Cisco reaching a new all-time high, surpassing its dot-com bubble peak after 25 years."
+        },
+        {
+            "topic": "Institutional Confidence",
+            "sentiment": "Positive",
+            "analysis_snippet": "Morgan Stanley raised price target to $91 and maintained overweight rating, signaling strong institutional support."
+        },
+        {
+            "topic": "Cybersecurity Market Position",
             "sentiment": "Mixed",
-            "analysis_snippet": "Discussions focus on AAPL trading around $272 with support at $267.96 and resistance at $275.22, showing mixed trend signals across different timeframes."
+            "analysis_snippet": "Cisco is frequently mentioned alongside other cybersecurity leaders, though some question whether AI hype masks underlying business challenges."
         },
         {
-            "topic": "Analyst Price Target Upgrades",
-            "sentiment": "Positive",
-            "analysis_snippet": "Morgan Stanley raised Apple's price target to $315 citing strong earnings forecasts and strategic AI investments, providing fundamental support."
-        },
-        {
-            "topic": "Institutional Trading Activity",
-            "sentiment": "Positive",
-            "analysis_snippet": "Heavy institutional options volume and dark pool activity detected, indicating continued institutional interest despite retail concerns."
-        },
-        {
-            "topic": "Product Development Concerns",
-            "sentiment": "Negative",
-            "analysis_snippet": "Foldable iPhone development reportedly behind expectations with potential shortages, raising concerns about innovation timeline."
-        },
-        {
-            "topic": "International Business Expansion",
-            "sentiment": "Positive",
-            "analysis_snippet": "Apple in early talks with Indian chipmakers for iPhone component assembly and making iOS changes in Japan for regulatory compliance."
+            "topic": "Historical Comparisons",
+            "sentiment": "Mixed",
+            "analysis_snippet": "Analysts draw parallels between current AI stocks and dot-com era Cisco, creating both optimism and caution among investors."
         }
     ],
-    "psychology": "Cautious optimism with institutional accumulation but retail concern about technical weakness and product delays"
+    "psychology": "Fear Of Missing Out combined with cautious optimism about sustainable growth beyond historical peaks"
 }

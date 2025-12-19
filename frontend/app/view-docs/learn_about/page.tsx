@@ -159,7 +159,6 @@ export default function LearnAboutPage() {
         if (element) {
             const elementRect = element.getBoundingClientRect();
             const absoluteElementTop = elementRect.top + window.pageYOffset;
-            // Calculate position to center the element
             const offsetPosition = absoluteElementTop - (window.innerHeight / 2) + (elementRect.height / 2);
 
             window.scrollTo({
@@ -220,7 +219,7 @@ export default function LearnAboutPage() {
                     </p>
                 </div>
 
-                <div className="px-12 max-w-5xl w-full pb-60 pt-8">
+                <div className="px-12 max-w-5xl w-full pb-[80vh] pt-8">
                     <h1 className="text-4xl font-bold text-white mb-4 tracking-tight">
                         Our Agents
                     </h1>

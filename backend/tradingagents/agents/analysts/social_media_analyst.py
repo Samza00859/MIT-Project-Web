@@ -26,7 +26,7 @@ class SocialMediaReport(BaseModel):
 def create_social_media_analyst(llm):
     parser = JsonOutputParser(pydantic_object=SocialMediaReport)
 
-    async def social_media_analyst_node(state):
+    def social_media_analyst_node(state):
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
 
@@ -93,7 +93,7 @@ def create_social_media_analyst(llm):
         chain = prompt | llm.bind_tools(tools)
 
         # Execute
-        result = await chain.ainvoke(state["messages"])
+        result = chain.invoke(state["messages"])
         
         print("Social Media Analysis Result:", result)
 
