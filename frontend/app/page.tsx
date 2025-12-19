@@ -312,7 +312,7 @@ export default function Home() {
     let isMounted = true;
     let retryTimeout: NodeJS.Timeout;
 
-    const fetchMarketData = async (retries = 5) => {
+    const fetchMarketData = async (retries = 2) => {
       if (!isMounted) return;
       try {
         // Determine API Base URL (similar to WS logic but http)
@@ -324,13 +324,20 @@ export default function Home() {
         }
 
         // Only clear data on initial attempt
-        if (retries === 5) {
+        if (retries === 2) {
           setMarketData(null); // Reset while loading
           setLogoError(false); // Reset logo error
           setLogoSrc(""); // Reset logo source
         }
 
-        const res = await fetch(`${apiUrl}/quote/${ticker}`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+        const res = await fetch(`${apiUrl}/quote/${ticker}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
         if (res.ok) {
           const data = await res.json();
           if (isMounted) {
@@ -340,13 +347,17 @@ export default function Home() {
         } else {
           throw new Error(`Status: ${res.status}`);
         }
-      } catch (e) {
-        if (isMounted) {
-          console.error("Failed to fetch market data", e);
-          if (retries > 0) {
-            console.log(`Retrying fetch for ${ticker}... (${retries} retries left)`);
-            retryTimeout = setTimeout(() => fetchMarketData(retries - 1), 2000);
-          }
+      } catch (e: any) {
+        if (!isMounted) return;
+
+        // Only log error on final retry to reduce console spam
+        if (retries <= 0) {
+          console.warn(`Market data fetch failed for ${ticker}. Backend may not be running.`);
+        }
+
+        // Retry only once more if we have retries left
+        if (retries > 0) {
+          retryTimeout = setTimeout(() => fetchMarketData(retries - 1), 3000);
         }
       }
     };
