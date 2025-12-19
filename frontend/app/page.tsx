@@ -6,7 +6,7 @@ import { jsPDF } from "jspdf";
 import Sidebar from "../components/Sidebar";
 import DebugPanel from "../components/DebugPanel";
 import ReportSections from "../components/ReportSections";
-import TelegramConnect from "../components/TelegramConnect";
+import { buildApiUrl, buildWsUrl, mapFetchError } from "@/lib/api";
 
 // --- Constants & Types ---
 
@@ -301,6 +301,7 @@ export default function Home() {
   const [errorCount, setErrorCount] = useState(0);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   const [lastType, setLastType] = useState<string | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   const [marketData, setMarketData] = useState<any>(null);
   const [logoError, setLogoError] = useState(false);
@@ -310,25 +311,29 @@ export default function Home() {
   useEffect(() => {
     const fetchMarketData = async () => {
       try {
-        // Determine API Base URL (similar to WS logic but http)
-        let apiUrl = "http://localhost:8000";
-        if (typeof window !== "undefined" && window.location.hostname !== "" && window.location.protocol !== "file:") {
-          const protocol = window.location.protocol;
-          const host = window.location.hostname;
-          apiUrl = `${protocol}//${host}:8000`;
-        }
+        const apiUrl = buildApiUrl(`/quote/${ticker}`);
 
         setMarketData(null); // Reset while loading
         setLogoError(false); // Reset logo error
         setLogoSrc(""); // Reset logo source
-        const res = await fetch(`${apiUrl}/quote/${ticker}`);
-        if (res.ok) {
-          const data = await res.json();
-          setMarketData(data);
-          setLogoSrc(data.logo_url);
+        const res = await fetch(apiUrl);
+        if (!res.ok) {
+          const notFound = res.status === 404;
+          setConnectionError(
+            notFound
+              ? "API not found at /quote — confirm the backend is running on port 8000."
+              : `Failed to load market data (${res.status}).`
+          );
+          return;
         }
+
+        const data = await res.json();
+        setMarketData(data);
+        setLogoSrc(data.logo_url);
+        setConnectionError(null);
       } catch (e) {
         console.error("Failed to fetch market data", e);
+        setConnectionError(mapFetchError(e, "/quote"));
       }
     };
 
@@ -503,21 +508,7 @@ export default function Home() {
     const connectWebSocket = () => {
       if (!isMounted) return;
 
-      let url;
-      if (
-        typeof window !== "undefined" &&
-        (window.location.protocol === "file:" || window.location.hostname === "")
-      ) {
-        url = "ws://localhost:8000/ws";
-      } else if (typeof window !== "undefined") {
-        const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        const wsHost = window.location.hostname;
-        const wsPort = "8000";
-        url = `${wsProtocol}//${wsHost}:${wsPort}/ws`;
-      } else {
-        url = "ws://localhost:8000/ws";
-      }
-
+      const url = buildWsUrl("/ws");
       setWsUrl(url);
       setWsStatus("connecting");
 
@@ -530,6 +521,7 @@ export default function Home() {
           return;
         }
         setWsStatus("connected");
+        setConnectionError(null);
         if (isRunningRef.current) {
           addDebugLog("system", "WebSocket reconnected. Analysis continues...", false);
         } else {
@@ -637,6 +629,9 @@ export default function Home() {
       ws.onerror = () => {
         if (!isMounted) return;
         console.warn("WebSocket connection error. Retrying...");
+        setConnectionError(
+          "Realtime connection failed. Verify the backend websocket is reachable on http://localhost:8000/ws and that CORS allows this origin."
+        );
         if (isRunningRef.current) {
           addDebugLog("warning", "Connection lost during analysis. Attempting to reconnect...", true);
         }
@@ -661,6 +656,7 @@ export default function Home() {
             },
           ]);
         }
+        setConnectionError("Realtime connection lost. Reconnecting to backend...");
         
         // Retry connection after 3 seconds
         reconnectTimeout = setTimeout(() => {
@@ -1044,6 +1040,12 @@ export default function Home() {
           </div>
         </header>
 
+        {connectionError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 shadow-sm">
+            {connectionError}
+          </div>
+        )}
+
         {/* Step Grid */}
         <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
           <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
@@ -1216,7 +1218,6 @@ export default function Home() {
             </div>
           </article>
 
-
           {/* Generate / Stop Button */}
           {isRunning ? (
             <button
@@ -1337,7 +1338,6 @@ export default function Home() {
           handleDownloadPdf={handleDownloadPdf}
           reportLength={reportLength}
           setReportLength={setReportLength}
-          isRunning={isRunning}
         />
 
         {/* Summary Panel */}

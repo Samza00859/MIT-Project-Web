@@ -6,34 +6,131 @@ import asyncio
 import json
 import os
 import datetime
+from datetime import timedelta
 import logging
+import base64
+import hashlib
+import hmac
+import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from fastapi.responses import FileResponse, RedirectResponse
+from pydantic import BaseModel, EmailStr
 from dotenv import load_dotenv
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+
+from backend.auth import (
+    UserCreate,
+    UserInDB,
+    get_password_hash,
+    verify_password,
+    create_access_token,
+    decode_access_token,
+    fake_users_db,
+    get_user,
+    update_user,
+    create_user,
+    get_user_by_verification_token,
+    delete_user,
+    refresh_email_verification,
+)
+from backend.config import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    EMAIL_SENDING,
+    EMAIL_VERIFICATION_ENABLED,
+    EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS,
+    VERIFICATION_TOKEN_SECRET,
+)
+from backend.email_service import send_verification_email
+
+# Configure logging first
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Ensure internal modules (like `tradingagents` and `cli`) are importable.
+# They live under `backend/` but are imported as top-level modules in this file.
+# When running from the repo root, Python can import `backend.*` but not `tradingagents`
+# unless `backend/` is on sys.path.
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
+if str(BACKEND_ROOT) not in sys.path:
+    sys.path.insert(0, str(BACKEND_ROOT))
+
+# Load environment variables
+# Suppress dotenv parse warnings (e.g., comments with colons in .env file)
+# These warnings are harmless - dotenv will still load valid variables
+import warnings
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=UserWarning, module="dotenv")
+    warnings.filterwarnings("ignore", message=".*python-dotenv.*")
+    try:
+        load_dotenv(verbose=False)
+    except Exception as e:
+        logger.warning(f"Error loading .env file: {e}")
+
+# Create FastAPI app
+app = FastAPI(title="TradingAgents API", version="1.0.0")
+
+# Port is logged on startup so engineers can quickly confirm which host:port is
+# exposed. Defaults to 8000 for local development.
+API_PORT = int(os.getenv("PORT", "8000"))
+
+# Configure CORS (must be registered before any routers/endpoints)
+# The frontend (Next.js) runs on :3000 during development, so we explicitly allow
+# that origin and still keep a small whitelist for local variations. Credentials
+# are enabled only when needed; current frontend uses bearer tokens (no cookies),
+# so credentials remain disabled to simplify local CORS.
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        frontend_url,
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+    ],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load environment variables
-load_dotenv()
+
+@app.middleware("http")
+async def log_requests(request, call_next):
+    """Log incoming requests to help debug frontend/backend connectivity."""
+    logger.info("➡️ %s %s", request.method, request.url.path)
+    response = await call_next(request)
+    logger.info("⬅️ %s %s %s", request.method, request.url.path, response.status_code)
+    return response
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 try:
     import yfinance as yf
+except ImportError as e:  # pragma: no cover - optional dependency
+    yf = None
+    logger.warning("yfinance not available; /quote endpoints will be disabled (%s)", e)
+
+try:
     from tradingagents.graph.trading_graph import TradingAgentsGraph
     from tradingagents.default_config import DEFAULT_CONFIG
-    from cli.models import AnalystType
-    logger.info("Successfully imported TradingAgents modules and yfinance")
-except ImportError as e:
-    logger.error(f"Failed to import required modules: {e}")
-    raise
+    logger.info("Successfully imported TradingAgents modules")
+except ImportError as e:  # pragma: no cover - optional dependency
+    TradingAgentsGraph = None
+    DEFAULT_CONFIG = None
+    logger.warning("TradingAgents modules not available; analysis endpoints will be disabled (%s)", e)
 
 # Get the project root directory (parent of api directory)
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -43,6 +140,380 @@ logger.info(f"Project root: {PROJECT_ROOT}")
 logger.info(f"Web directory: {WEB_DIR} (exists: {WEB_DIR.exists()})")
 
 # Active WebSocket connections
+active_connections: List[WebSocket] = []
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
+
+
+@app.on_event("startup")
+async def log_startup() -> None:
+    """Log port and catch misconfiguration early."""
+    try:
+        logger.info(f"🚀 TradingAgents API starting on http://0.0.0.0:{API_PORT}")
+        logger.info(f"📧 Email Sending: {'ENABLED' if EMAIL_SENDING else 'DISABLED'}")
+        if EMAIL_SENDING:
+            from backend.config import RESEND_FROM_EMAIL
+            logger.info(f"📧 Resend From Email: {RESEND_FROM_EMAIL}")
+    except Exception as exc:  # pragma: no cover - defensive logging
+        logger.error(f"Failed to log startup details: {exc}")
+
+# --- Auth Endpoints ---
+
+@app.post("/api/auth/register", status_code=status.HTTP_201_CREATED)
+async def register_user(user: UserCreate):
+    """
+    Register a new user.
+
+    Email verification is disabled in this project build, so accounts are created as verified
+    and no emails are sent.
+    """
+    try:
+        # Check if email already exists
+        existing_user = await get_user(user.email)
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+        
+        # Create user (if verification is enabled, user will be created unverified with a token + 6-digit code)
+        new_user = await create_user(user)
+        await update_user(new_user)
+
+        # If verification is enabled, optionally email the link/code (if email sending is enabled).
+        # For local development (EMAIL_SENDING=false) we still return dev fields so the UI can be tested.
+        verification_required = EMAIL_VERIFICATION_ENABLED and not new_user.is_verified
+        verification_link = None
+        email_sent = False
+        email_error = None
+        if verification_required:
+            frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
+            verification_link = f"{frontend_url}/Auth/verify-code?email={new_user.email}"
+            if EMAIL_SENDING:
+                try:
+                    email_sent = await send_verification_email(
+                        recipient_email=new_user.email,
+                        verification_link=verification_link,
+                        verification_code=new_user.verification_code,
+                    )
+                    if email_sent:
+                        logger.info(f"✅ Verification email sent successfully to {new_user.email}")
+                    else:
+                        logger.warning(f"❌ Failed to send verification email to {new_user.email} (email service returned False)")
+                        email_error = "Email service configuration issue. Please check server logs."
+                except Exception as exc:
+                    logger.error(f"❌ Exception while sending verification email to {new_user.email}: {exc}", exc_info=True)
+                    email_error = str(exc)
+            else:
+                logger.info(f"📧 Email sending disabled. Verification code for {new_user.email}: {new_user.verification_code}")
+
+        response = {
+            "message": "User registered successfully.",
+            "email": new_user.email,
+            "is_verified": new_user.is_verified,
+            "verification_required": verification_required,
+            "email_sent": email_sent,
+            # Dev-only helpers: when we aren't sending emails, surface the code so you can test the OTP UI.
+            # DO NOT rely on this in production.
+            "dev_verification_code": new_user.verification_code if (verification_required and not EMAIL_SENDING) else None,
+            "dev_verification_link": verification_link if (verification_required and not EMAIL_SENDING) else None,
+        }
+        
+        if email_error:
+            response["email_error"] = email_error
+        
+        return response
+    except HTTPException:
+        # Re-raise HTTP-specific errors unchanged
+        raise
+    except Exception as exc:
+        logger.exception("Failed to register user")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error while registering user."
+        ) from exc
+
+@app.get("/api/auth/verify-email")
+async def verify_email(token: str):
+    if not EMAIL_VERIFICATION_ENABLED:
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Email verification is disabled on this server.")
+
+    user = await get_user_by_verification_token(token)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid verification token.")
+    if user.is_verified:
+        return {"message": "Email already verified.", "email": user.email, "is_verified": True}
+    if user.token_expired_at and datetime.datetime.utcnow() > user.token_expired_at:
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Verification token expired. Please resend the code.")
+
+    user.is_verified = True
+    user.email_verification_token = None
+    user.verification_code = None
+    user.token_expired_at = None
+    await update_user(user)
+    return {"message": "Email verified successfully.", "email": user.email, "is_verified": True}
+
+class VerifyCodeRequest(BaseModel):
+    email: EmailStr
+    code: str
+
+@app.post("/api/auth/verify-code")
+async def verify_code(data: VerifyCodeRequest):
+    if not EMAIL_VERIFICATION_ENABLED:
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Email verification is disabled on this server.")
+
+    user = await get_user(data.email)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+
+    if user.is_verified:
+        return {"message": "Email already verified.", "email": user.email, "is_verified": True}
+
+    if user.token_expired_at and datetime.datetime.utcnow() > user.token_expired_at:
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Verification code expired. Please resend the code.")
+
+    # Basic validation: must be exactly 6 digits
+    code = (data.code or "").strip()
+    if not code.isdigit() or len(code) != 6:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid code format.")
+
+    if not user.verification_code or user.verification_code != code:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect verification code.")
+
+    user.is_verified = True
+    user.email_verification_token = None
+    user.verification_code = None
+    user.token_expired_at = None
+    await update_user(user)
+    return {"message": "Email verified successfully.", "email": user.email, "is_verified": True}
+
+
+class ResendVerificationCodeRequest(BaseModel):
+    email: EmailStr
+
+
+@app.post("/api/auth/resend-verification-code")
+async def resend_verification_code(data: ResendVerificationCodeRequest):
+    if not EMAIL_VERIFICATION_ENABLED:
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Email verification is disabled on this server.")
+
+    user = await get_user(data.email)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    if user.is_verified:
+        return {"message": "Email already verified.", "email": user.email, "is_verified": True}
+
+    now = datetime.datetime.utcnow()
+    if user.last_verification_sent_at:
+        seconds_since = (now - user.last_verification_sent_at).total_seconds()
+        if seconds_since < EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS:
+            retry_after = int(EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS - seconds_since)
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Please wait {retry_after}s before requesting a new code.",
+                headers={"Retry-After": str(retry_after)},
+            )
+
+    user = await refresh_email_verification(user)
+    await update_user(user)
+
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
+    verification_link = f"{frontend_url}/Auth/verify-code?email={user.email}"
+    email_sent = False
+    email_error = None
+    
+    if EMAIL_SENDING:
+        try:
+            email_sent = await send_verification_email(
+                recipient_email=user.email,
+                verification_link=verification_link,
+                verification_code=user.verification_code,
+            )
+            if email_sent:
+                logger.info(f"✅ Verification email sent successfully to {user.email}")
+            else:
+                logger.warning(f"❌ Failed to send verification email to {user.email} (email service returned False)")
+                email_error = "Email service configuration issue. Please check server logs."
+        except Exception as exc:
+            logger.error(f"❌ Exception while sending verification email to {user.email}: {exc}", exc_info=True)
+            email_error = str(exc)
+    else:
+        logger.info(f"📧 Email sending disabled. Verification code for {user.email}: {user.verification_code}")
+
+    response = {
+        "message": "Verification code resent.",
+        "email": user.email,
+        "email_sent": email_sent,
+        "dev_verification_code": user.verification_code if not EMAIL_SENDING else None,
+        "dev_verification_link": verification_link if not EMAIL_SENDING else None,
+    }
+    
+    if email_error:
+        response["email_error"] = email_error
+    
+    return response
+
+
+class VerifyEmailTokenRequest(BaseModel):
+    email: EmailStr
+    token: str
+
+
+def _b64url_decode(data: str) -> bytes:
+    # Add base64 padding if needed
+    padding = "=" * (-len(data) % 4)
+    return base64.urlsafe_b64decode((data + padding).encode("utf-8"))
+
+
+def _verify_node_token(token: str) -> str:
+    """
+    Legacy (unused): verify token generated by a removed Node email verification service using HMAC-SHA256.
+
+    Token format: base64url(payload_json) + "." + base64url(hmac_sha256(secret, payload_b64))
+    Returns the email from the payload if valid, otherwise raises HTTPException.
+    """
+    if not token or "." not in token:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token format")
+
+    payload_b64, sig_b64 = token.split(".", 1)
+    expected_sig = hmac.new(
+        VERIFICATION_TOKEN_SECRET.encode("utf-8"),
+        payload_b64.encode("utf-8"),
+        hashlib.sha256,
+    ).digest()
+    expected_sig_b64 = base64.urlsafe_b64encode(expected_sig).decode("utf-8").rstrip("=")
+
+    if not hmac.compare_digest(expected_sig_b64, sig_b64):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token signature")
+
+    try:
+        payload_raw = _b64url_decode(payload_b64)
+        payload = json.loads(payload_raw.decode("utf-8"))
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token payload")
+
+    email = payload.get("email")
+    exp = payload.get("exp")  # epoch seconds
+    now = int(datetime.datetime.utcnow().timestamp())
+    if not email or not isinstance(email, str):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token missing email")
+    if not exp or not isinstance(exp, int):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token missing exp")
+    if now > exp:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token expired")
+
+    return email
+
+
+@app.post("/api/auth/verify-email-token")
+async def verify_email_token(data: VerifyEmailTokenRequest):
+    if not EMAIL_VERIFICATION_ENABLED:
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Email verification is disabled on this server.")
+
+    # This endpoint exists for a legacy Node token format. If you still use it, it verifies the token
+    # and marks the user as verified. Otherwise, prefer /api/auth/verify-email (token in query) or /api/auth/verify-code.
+    email_from_token = _verify_node_token(data.token)
+    if email_from_token != data.email:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token email does not match request email.")
+
+    user = await get_user(data.email)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+
+    user.is_verified = True
+    user.email_verification_token = None
+    user.verification_code = None
+    user.token_expired_at = None
+    await update_user(user)
+    return {"message": "Email verified successfully.", "email": user.email, "is_verified": True}
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+@app.post("/api/auth/login", response_model=Token)
+async def login_for_access_token(login_data: LoginRequest):
+    """
+    Login endpoint that accepts JSON body with email and password.
+    Email verification is disabled, so all registered users can login.
+    """
+    user = await get_user(login_data.email)
+    if not user or not verify_password(login_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    if EMAIL_VERIFICATION_ENABLED and not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Email not verified. Please verify your email before logging in.",
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    email = decode_access_token(token)
+    if email is None:
+        raise credentials_exception
+    user = await get_user(email)
+    if user is None:
+        raise credentials_exception
+    return user
+
+@app.get("/api/users/me", response_model=UserInDB)
+async def read_users_me(current_user: UserInDB = Depends(get_current_user)):
+    return current_user
+
+@app.delete("/api/users/me")
+async def delete_my_account(current_user: UserInDB = Depends(get_current_user)):
+    """
+    Delete the currently logged-in user's account and send a confirmation email.
+    """
+    email = current_user.email
+    success = await delete_user(email)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete account"
+        )
+    
+    return {"message": "Account successfully deleted"}
+
+class DeleteAccountRequest(BaseModel):
+    email: EmailStr
+
+@app.post("/api/auth/delete-account")
+async def admin_delete_account(data: DeleteAccountRequest):
+    """
+    Delete an account by email and send a confirmation email.
+    In a real app, this should be restricted to administrators.
+    """
+    user = await get_user(data.email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    success = await delete_user(data.email)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete account"
+        )
+    
+    return {"message": f"Account {data.email} successfully deleted"}
+
+
 active_connections: List[WebSocket] = []
 
 
@@ -96,6 +567,11 @@ async def send_update(websocket: WebSocket, update_type: str, data: Dict[str, An
 async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
     """Run the trading analysis and stream updates via WebSocket."""
     try:
+        if TradingAgentsGraph is None or DEFAULT_CONFIG is None:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Trading engine not available on this server (missing TradingAgents dependencies).",
+            )
         # Create config
         config = DEFAULT_CONFIG.copy()
         config["max_debate_rounds"] = request.research_depth
@@ -616,16 +1092,6 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
 
 
 # Create FastAPI app
-app = FastAPI(title="TradingAgents API", version="1.0.0")
-
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend URL
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Mount static files for web interface
 if WEB_DIR.exists():
@@ -709,22 +1175,20 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint."""
-    return {
-        "status": "ok",
-        "connections": len(active_connections),
-        "project_root": str(PROJECT_ROOT),
-        "web_dir_exists": WEB_DIR.exists()
-    }
+    return {"status": "ok"}
 
 
 @app.get("/api/test")
 async def test_endpoint():
     """Test endpoint to verify API is working."""
     try:
-        # Test imports
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
-        from tradingagents.default_config import DEFAULT_CONFIG
-        
+        if TradingAgentsGraph is None or DEFAULT_CONFIG is None:
+            return {
+                "status": "ok",
+                "message": "API is working correctly (trading modules unavailable)",
+                "tradingagents_imported": False,
+                "config_loaded": False,
+            }
         return {
             "status": "ok",
             "message": "API is working correctly",
@@ -942,6 +1406,8 @@ async def get_telegram_status():
 async def get_quote(ticker: str):
     """Fetch real-time quote data for a ticker."""
     try:
+        if yf is None:
+            raise HTTPException(status_code=503, detail="yfinance not installed on this server")
         t = yf.Ticker(ticker)
         
         # Get fast price data
@@ -1015,5 +1481,5 @@ async def get_quote(ticker: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=API_PORT)
 

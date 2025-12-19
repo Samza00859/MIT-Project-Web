@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
+import { buildApiUrl, mapFetchError } from "@/lib/api";
 
 declare global {
     interface Window {
@@ -20,21 +21,11 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
     const [currentChatId, setCurrentChatId] = useState("");
     const [isOpen, setIsOpen] = useState(false); // For modal variant
 
-    // Determine API Base URL
-    const getApiUrl = () => {
-        if (typeof window !== "undefined" && window.location.hostname !== "" && window.location.protocol !== "file:") {
-            const protocol = window.location.protocol;
-            const host = window.location.hostname;
-            return `${protocol}//${host}:8000`;
-        }
-        return "http://localhost:8000";
-    };
-
     // Fetch initial status from backend
     useEffect(() => {
         const fetchStatus = async () => {
             try {
-                const res = await fetch(`${getApiUrl()}/api/telegram/status`);
+                const res = await fetch(buildApiUrl("/api/telegram/status"));
                 if (res.ok) {
                     const data = await res.json();
                     // We intentionally do NOT auto-connect on load, forcing a fresh connection if requested.
@@ -51,7 +42,7 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
                     }
                 }
             } catch (e) {
-                console.error("Failed to fetch telegram status", e);
+                console.error("Failed to fetch telegram status", e, mapFetchError(e, "/api/telegram/status"));
             }
         };
 
@@ -179,7 +170,7 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
             setCountdown(prev => prev - 1);
 
             try {
-                const res = await fetch(`${getApiUrl()}/api/telegram/detect`, {
+                const res = await fetch(buildApiUrl("/api/telegram/detect"), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ start_time: startTime })
@@ -195,7 +186,7 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
                     setCountdown(0);
                 }
             } catch (e) {
-                // Ignore errors during polling
+                setDetectMessage(mapFetchError(e, "/api/telegram/detect"));
             }
 
             if (attempts >= maxAttempts) {
