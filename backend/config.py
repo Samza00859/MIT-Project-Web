@@ -48,3 +48,9 @@ EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS = int(os.getenv("EMAIL_VERIFICATION_R
 # Legacy (unused): shared secret for a removed Node email verification service.
 VERIFICATION_TOKEN_SECRET = os.getenv("VERIFICATION_TOKEN_SECRET", "dev-verify-token-secret")
 
+# SMTP Email Settings (for email_utils.py - alternative to Resend)
+EMAIL_USERNAME = os.getenv("EMAIL_USERNAME", "your_email@gmail.com")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "your_app_password")
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+

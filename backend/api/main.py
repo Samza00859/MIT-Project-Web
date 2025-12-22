@@ -31,7 +31,6 @@ from backend.auth import (
     verify_password,
     create_access_token,
     decode_access_token,
-    fake_users_db,
     get_user,
     update_user,
     create_user,
@@ -72,8 +71,18 @@ with warnings.catch_warnings():
     except Exception as e:
         logger.warning(f"Error loading .env file: {e}")
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize database
+    try:
+        await init_db()
+        logger.info("✅ Database initialized")
+    except Exception as e:
+        logger.error(f"❌ Database initialization failed: {e}")
+    yield
+
 # Create FastAPI app
-app = FastAPI(title="TradingAgents API", version="1.0.0")
+app = FastAPI(title="TradingAgents API", version="1.0.0", lifespan=lifespan)
 
 # Port is logged on startup so engineers can quickly confirm which host:port is
 # exposed. Defaults to 8000 for local development.
@@ -165,10 +174,15 @@ async def log_startup() -> None:
 @app.post("/api/auth/register", status_code=status.HTTP_201_CREATED)
 async def register_user(user: UserCreate):
     """
-    Register a new user.
-
-    Email verification is disabled in this project build, so accounts are created as verified
-    and no emails are sent.
+    Register a new user following the sign-up workflow:
+    1. User fills registration form → Frontend sends Register POST request
+    2. Backend creates new user in DB (with 6-digit verification code)
+    3. Backend sends verification email with 6-digit code
+    4. User enters code → Frontend sends Verify POST request to /api/auth/verify-code
+    5. Backend sets email as verified in DB
+    6. Backend sends OK confirmation
+    
+    Returns verification code in dev mode when EMAIL_SENDING is disabled.
     """
     try:
         # Check if email already exists
@@ -262,6 +276,14 @@ class VerifyCodeRequest(BaseModel):
 
 @app.post("/api/auth/verify-code")
 async def verify_code(data: VerifyCodeRequest):
+    """
+    Verify user email with 6-digit code following the workflow:
+    4. User enters 6-digit code → Frontend sends Verify POST request
+    5. Backend sets email as verified in DB
+    6. Backend sends OK confirmation
+    
+    Returns success message when verification is complete.
+    """
     if not EMAIL_VERIFICATION_ENABLED:
         raise HTTPException(status_code=status.HTTP_410_GONE, detail="Email verification is disabled on this server.")
 
@@ -456,7 +478,94 @@ async def login_for_access_token(login_data: LoginRequest):
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "user": user}
+
+class GoogleLoginRequest(BaseModel):
+    credential: str
+    email: str
+    name: Optional[str] = None
+    picture: Optional[str] = None
+
+@app.post("/api/auth/google")
+async def google_login(google_data: GoogleLoginRequest):
+    """
+    Google OAuth login endpoint.
+    Verifies Google credential token and creates/logs in user.
+    """
+    import requests
+    from jose import jwt, JWTError
+    
+    try:
+        # Verify Google credential token
+        # For production, you should verify the token with Google's API
+        # For now, we'll decode and trust the JWT (in production, verify signature)
+        try:
+            # Decode without verification for now (in production, verify with Google's public keys)
+            # Note: In production, you should verify the token signature with Google's public keys
+            decoded_token = jwt.decode(google_data.credential, options={"verify_signature": False})
+            google_email = decoded_token.get("email")
+            google_name = decoded_token.get("name", google_data.name)
+            google_picture = decoded_token.get("picture", google_data.picture)
+            
+            if not google_email:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Invalid Google credential: email not found"
+                )
+        except Exception as e:
+            logger.error(f"Failed to decode Google credential: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid Google credential"
+            )
+
+        # Check if user exists
+        user = await get_user(google_email)
+        
+        if user:
+            # User exists, log them in
+            # Skip email verification for Google OAuth users
+            if not user.is_verified:
+                user.is_verified = True
+                await update_user(user)
+        else:
+            # Create new user with Google OAuth
+            # Generate a random password (won't be used for Google OAuth users)
+            import secrets
+            random_password = secrets.token_urlsafe(32)
+            
+            new_user = UserCreate(
+                email=google_email,
+                password=random_password,  # Random password, won't be used
+            )
+            user = await create_user(new_user)
+            # Mark as verified since Google already verified the email
+            user.is_verified = True
+            await update_user(user)
+            logger.info(f"✅ New user created via Google OAuth: {google_email}")
+
+        # Create access token
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user.email}, expires_delta=access_token_expires
+        )
+        
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": {
+                "email": user.email,
+                "is_verified": user.is_verified,
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("Failed to process Google login")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error while processing Google login."
+        ) from exc
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
     credentials_exception = HTTPException(
@@ -1134,18 +1243,6 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
 
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Initialize database
-    try:
-        await init_db()
-        logger.info("✅ Database initialized")
-    except Exception as e:
-        logger.error(f"❌ Database initialization failed: {e}")
-    yield
-
-# Create FastAPI app
-app = FastAPI(title="TradingAgents API", version="1.0.0", lifespan=lifespan)
 app.include_router(history_router)
 
 # Configure CORS

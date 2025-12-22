@@ -7,8 +7,18 @@ import string
 from pydantic import BaseModel, EmailStr
 from passlib.context import CryptContext
 from jose import JWTError, jwt
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
-from .config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, EMAIL_VERIFICATION_EXPIRE_HOURS, EMAIL_VERIFICATION_ENABLED
+from backend.api.database import AsyncSessionLocal
+from backend.api.models import User as UserModel
+from .config import (
+    SECRET_KEY,
+    ALGORITHM,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    EMAIL_VERIFICATION_EXPIRE_HOURS,
+    EMAIL_VERIFICATION_ENABLED,
+)
 
 # Use a pure-Python scheme to avoid native bcrypt build issues on some platforms.
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
@@ -90,21 +100,23 @@ def decode_access_token(token: str) -> Optional[str]:
         return None
 
 
-# --- In-memory "Database" (for demonstration purposes) ---
-# In a real application, you would use a proper database (e.g., PostgreSQL, MongoDB).
-# This dictionary simulates a user table.
-fake_users_db: dict[str, UserInDB] = {}
+# --- Database helpers ---
+async def _get_user_by_email(session, email: str) -> Optional[UserModel]:
+    result = await session.execute(select(UserModel).where(UserModel.email == email))
+    return result.scalar_one_or_none()
 
-async def get_user(email: str) -> Optional[UserInDB]:
-    """Get user by email."""
-    return fake_users_db.get(email)
+async def get_user(email: str) -> Optional[UserModel]:
+    """Get user by email from the database."""
+    async with AsyncSessionLocal() as session:
+        return await _get_user_by_email(session, email)
 
-async def get_user_by_verification_token(token: str) -> Optional[UserInDB]:
+async def get_user_by_verification_token(token: str) -> Optional[UserModel]:
     """Get user by email verification token."""
-    for user in fake_users_db.values():
-        if user.email_verification_token == token:
-            return user
-    return None
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(UserModel).where(UserModel.email_verification_token == token)
+        )
+        return result.scalar_one_or_none()
 
 def generate_email_verification_token() -> str:
     """Generate a secure random token for email verification."""
@@ -115,7 +127,12 @@ def generate_verification_code(length: int = 6) -> str:
     """Generate a numeric verification code."""
     return ''.join(random.choices(string.digits, k=length))
 
-async def create_user(user: UserCreate, verification_token: Optional[str] = None, verification_code: Optional[str] = None, token_expires_at: Optional[datetime] = None) -> UserInDB:
+async def create_user(
+    user: UserCreate,
+    verification_token: Optional[str] = None,
+    verification_code: Optional[str] = None,
+    token_expires_at: Optional[datetime] = None,
+) -> UserModel:
     """
     Create a new user in the database.
     
@@ -149,7 +166,7 @@ async def create_user(user: UserCreate, verification_token: Optional[str] = None
         is_verified = True
         sent_at = None
     
-    db_user = UserInDB(
+    db_user = UserModel(
         email=user.email,
         hashed_password=hashed_password,
         is_verified=is_verified,
@@ -158,11 +175,19 @@ async def create_user(user: UserCreate, verification_token: Optional[str] = None
         token_expired_at=token_expires_at,
         last_verification_sent_at=sent_at,
     )
-    fake_users_db[user.email] = db_user
+    async with AsyncSessionLocal() as session:
+        session.add(db_user)
+        try:
+            await session.commit()
+        except IntegrityError:
+            await session.rollback()
+            # Likely duplicate email
+            raise
+        await session.refresh(db_user)
     return db_user
 
 
-async def refresh_email_verification(user: UserInDB) -> UserInDB:
+async def refresh_email_verification(user: UserModel) -> UserModel:
     """
     Regenerate the email verification token + 6-digit code and extend expiry.
 
@@ -172,25 +197,35 @@ async def refresh_email_verification(user: UserInDB) -> UserInDB:
     user.verification_code = generate_verification_code()
     user.token_expired_at = datetime.utcnow() + timedelta(hours=EMAIL_VERIFICATION_EXPIRE_HOURS)
     user.last_verification_sent_at = datetime.utcnow()
-    fake_users_db[user.email] = user
+    async with AsyncSessionLocal() as session:
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
     return user
 
-async def get_user_by_verification_code(code: str) -> Optional[UserInDB]:
+async def get_user_by_verification_code(code: str) -> Optional[UserModel]:
     """Get user by numeric verification code."""
-    for user in fake_users_db.values():
-        if user.verification_code == code:
-            return user
-    return None
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(UserModel).where(UserModel.verification_code == code)
+        )
+        return result.scalar_one_or_none()
 
-async def update_user(user: UserInDB) -> UserInDB:
+async def update_user(user: UserModel) -> UserModel:
     """Update user in database."""
-    fake_users_db[user.email] = user
-    return user
+    async with AsyncSessionLocal() as session:
+        merged = await session.merge(user)
+        await session.commit()
+        await session.refresh(merged)
+        return merged
 
 async def delete_user(email: str) -> bool:
     """Delete user from database."""
-    if email in fake_users_db:
-        del fake_users_db[email]
+    async with AsyncSessionLocal() as session:
+        existing = await _get_user_by_email(session, email)
+        if not existing:
+            return False
+        await session.delete(existing)
+        await session.commit()
         return True
-    return False
 

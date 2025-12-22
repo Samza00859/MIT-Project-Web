@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y \
 # or just install the dependencies from pyproject.toml.
 # I'll use pip to install the packages directly for simplicity in the Dockerfile.
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements_utf8.txt .
+RUN pip install --no-cache-dir -r requirements_utf8.txt
 
 # Manually install the new dependencies to be sure
 RUN pip install --no-cache-dir sqlalchemy asyncpg psycopg2-binary fastapi uvicorn pydantic-settings

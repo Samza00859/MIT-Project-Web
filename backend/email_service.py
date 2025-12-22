@@ -1,8 +1,12 @@
 """
 Email Service Module
-Handles email sending using Resend API.
+Handles email sending using SMTP or Resend API.
+SMTP is used as the primary method, Resend as fallback.
 """
 import logging
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from typing import Optional
 
 try:
@@ -10,7 +14,15 @@ try:
 except ImportError:
     Resend = None
 
-from .config import RESEND_API_KEY, EMAIL_VERIFICATION_EXPIRE_HOURS, RESEND_FROM_EMAIL
+from .config import (
+    RESEND_API_KEY, 
+    EMAIL_VERIFICATION_EXPIRE_HOURS, 
+    RESEND_FROM_EMAIL,
+    EMAIL_USERNAME,
+    EMAIL_PASSWORD,
+    EMAIL_HOST,
+    EMAIL_PORT
+)
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +60,73 @@ class EmailService:
             return False
         return True
     
+    def _validate_smtp_config(self) -> bool:
+        """Validate SMTP configuration."""
+        if not EMAIL_USERNAME or EMAIL_USERNAME == "your_email@gmail.com":
+            logger.debug("EMAIL_USERNAME not configured.")
+            return False
+        if not EMAIL_PASSWORD or EMAIL_PASSWORD == "your_app_password":
+            logger.debug("EMAIL_PASSWORD not configured.")
+            return False
+        if not EMAIL_HOST:
+            logger.debug("EMAIL_HOST not configured.")
+            return False
+        return True
+    
+    def _send_via_smtp(self, to_email: str, subject: str, html_body: str, text_body: str) -> bool:
+        """
+        Send email via SMTP.
+        
+        Args:
+            to_email: Recipient email address
+            subject: Email subject
+            html_body: HTML email body
+            text_body: Plain text email body
+            
+        Returns:
+            True if email sent successfully, False otherwise
+        """
+        try:
+            # Create message
+            message = MIMEMultipart("alternative")
+            message["Subject"] = subject
+            message["From"] = EMAIL_USERNAME
+            message["To"] = to_email
+            
+            # Add text and HTML parts
+            part1 = MIMEText(text_body, "plain")
+            part2 = MIMEText(html_body, "html")
+            message.attach(part1)
+            message.attach(part2)
+            
+            # Connect and send
+            logger.info(f"Connecting to SMTP {EMAIL_HOST}:{EMAIL_PORT}...")
+            with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT, timeout=10) as server:
+                server.ehlo()
+                server.starttls()
+                server.ehlo()
+                logger.info(f"Logging in as {EMAIL_USERNAME}...")
+                server.login(EMAIL_USERNAME, EMAIL_PASSWORD)
+                logger.info(f"Sending email to {to_email}...")
+                server.send_message(message)
+            
+            logger.info(f"✅ Email sent successfully via SMTP to {to_email}")
+            return True
+            
+        except smtplib.SMTPAuthenticationError as e:
+            logger.error(f"SMTP Authentication failed: {e}")
+            logger.error("Check your EMAIL_USERNAME and EMAIL_PASSWORD (must be App Password for Gmail)")
+            return False
+        except smtplib.SMTPException as e:
+            logger.error(f"SMTP error: {e}")
+            return False
+        except Exception as e:
+            logger.error(f"Failed to send email via SMTP: {e}")
+            return False
+    
     def send_verification_email(self, recipient_email: str, verification_link: str, verification_code: Optional[str] = None) -> bool:
         """
-        Send email verification email using Resend.
+        Send email verification email using SMTP (primary) or Resend (fallback).
         
         Args:
             recipient_email: User's email address
@@ -60,9 +136,6 @@ class EmailService:
         Returns:
             True if email sent successfully, False otherwise
         """
-        if not self._validate_config():
-            return False
-        
         subject = "Verify Your Email for TradingAgents"
         expire_text = f"{EMAIL_VERIFICATION_EXPIRE_HOURS} hours"
 
@@ -186,7 +259,26 @@ Best regards,
 TradingAgents Team
 """
         
+        # Try SMTP first if configured
+        if self._validate_smtp_config():
+            logger.info("Attempting to send email via SMTP...")
+            try:
+                if self._send_via_smtp(recipient_email, subject, html_body, text_body):
+                    return True
+                else:
+                    logger.warning("SMTP sending failed, will try Resend if available")
+            except Exception as e:
+                logger.error(f"SMTP sending error: {e}, will try Resend if available")
+        else:
+            logger.info("SMTP not configured, will use Resend if available")
+        
+        # Fallback to Resend if SMTP failed or not configured
+        if not self._validate_config():
+            logger.error("Neither SMTP nor Resend is properly configured")
+            return False
+        
         try:
+            logger.info("Attempting to send email via Resend...")
             params = {
                 "from": self.from_email,
                 "to": recipient_email,

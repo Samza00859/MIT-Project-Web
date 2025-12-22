@@ -1,5 +1,13 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, JSON, DateTime, Text
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    JSON,
+    DateTime,
+    Text,
+    Boolean,
+)
 from .database import Base
 
 class ExecutionHistory(Base):
@@ -23,3 +31,17 @@ class ExecutionHistory(Base):
             "status": self.status,
             "error_message": self.error_message
         }
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    hashed_password = Column(String(255), nullable=False)
+    is_verified = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    email_verification_token = Column(String(255), nullable=True, index=True)
+    verification_code = Column(String(10), nullable=True, index=True)
+    token_expired_at = Column(DateTime, nullable=True)
+    last_verification_sent_at = Column(DateTime, nullable=True)

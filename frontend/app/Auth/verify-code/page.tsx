@@ -1,13 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import AuthSidebar from "@/components/AuthSidebar";
 import PasscodeInput from "@/components/PasscodeInput";
 import { buildApiUrl, mapFetchError } from "@/lib/api";
 
-export default function VerifyCodePage() {
+function VerifyCodeContent() {
   const router = useRouter();
   const params = useSearchParams();
   const email = (params.get("email") || "").trim();
@@ -187,6 +187,20 @@ export default function VerifyCodePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyCodePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#E5E5E5]">
+          <p className="text-sm text-gray-700">Loading verification...</p>
+        </div>
+      }
+    >
+      <VerifyCodeContent />
+    </Suspense>
   );
 }
 
