@@ -23,4 +23,4 @@ ENV DATABASE_URL=postgresql+asyncpg://user:password@db:5432/trading_db
 
 EXPOSE 8000
 
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["sh", "-c", "echo 'Running database migrations...' && alembic upgrade head && echo 'Starting application...' && uvicorn api.main:app --host 0.0.0.0 --port 8000"]
