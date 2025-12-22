@@ -40,7 +40,7 @@ def main():
     try:
         graph = TradingAgentsGraph(selected_analysts=analysts, debug=False)
         
-        ticker = "NVDA"
+        ticker = "CISCO"
         trade_date = "2025-11-30"
 
         print(f"🚀 Propagating for {ticker} on {trade_date}...")

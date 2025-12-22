@@ -11,7 +11,7 @@ class RiskManagerOutput(BaseModel):
     refined_trader_plan: str = Field(description="The final approved execution plan (Entry, Stop Loss, Position Size, etc.)")
 
 def create_risk_manager(llm, memory):
-    async def risk_manager_node(state) -> dict:
+    def risk_manager_node(state) -> dict:
 
         company_name = state["company_of_interest"]
 
@@ -66,7 +66,7 @@ def create_risk_manager(llm, memory):
 
         try:
             # Invoke Chain
-            parsed_result = await chain.ainvoke({
+            parsed_result = chain.invoke({
                 "trader_plan": trader_plan,
                 "history": history,
                 "past_memory_str": past_memory_str

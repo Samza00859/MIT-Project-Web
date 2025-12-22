@@ -4,7 +4,7 @@ import json
 
 
 def create_bear_researcher(llm, memory):
-    async def bear_node(state) -> dict:
+    def bear_node(state) -> dict:
         investment_debate_state = state["investment_debate_state"]
         history = investment_debate_state.get("history", "")
         bear_history = investment_debate_state.get("bear_history", "")
@@ -59,7 +59,7 @@ def create_bear_researcher(llm, memory):
         """
 
         # เรียก LLM (ส่งเป็น List เพื่อแยก Role)
-        response = await llm.ainvoke([
+        response = llm.invoke([
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_message}
         ])

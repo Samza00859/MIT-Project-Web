@@ -50,7 +50,7 @@ class MarketReport(BaseModel):
 def create_market_analyst(llm):
     parser = JsonOutputParser(pydantic_object=MarketReport)
 
-    async def market_analyst_node(state):
+    def market_analyst_node(state):
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
         
@@ -122,7 +122,7 @@ Return ONLY the JSON object, no markdown code blocks.
         chain = prompt | llm.bind_tools(tools)
 
         # Execute
-        result = await chain.ainvoke(state["messages"])
+        result = chain.invoke(state["messages"])
         
         # print("Market Analysis Result:", result)
         
