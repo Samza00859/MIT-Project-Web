@@ -87,6 +87,7 @@ export default function RegisterPage() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
+    const [facebookLoading, setFacebookLoading] = useState(false);
 
     const passwordStrength = useMemo(() => calculatePasswordStrength(password), [password]);
 
@@ -219,6 +220,175 @@ export default function RegisterPage() {
         };
     }, [handleGoogleCredentialResponse]);
 
+    // Load Facebook SDK
+    React.useEffect(() => {
+        const facebookAppId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+        
+        if (!facebookAppId) {
+            console.warn('Facebook App ID is not configured. Facebook Sign-In will not work.');
+            return;
+        }
+
+        // Check if script already exists
+        const existingScript = document.querySelector('script[src*="connect.facebook.net"]');
+        if (existingScript) {
+            // Script already loaded, just initialize
+            if (window.FB) {
+                try {
+                    window.FB.init({
+                        appId: facebookAppId,
+                        cookie: true,
+                        xfbml: true,
+                        version: 'v18.0'
+                    });
+                } catch (error) {
+                    console.error('Failed to initialize Facebook SDK:', error);
+                }
+            }
+            return;
+        }
+
+        // Load Facebook SDK script
+        const script = document.createElement('script');
+        script.src = 'https://connect.facebook.net/en_US/sdk.js';
+        script.async = true;
+        script.defer = true;
+        script.crossOrigin = 'anonymous';
+        script.onload = () => {
+            if (window.FB) {
+                try {
+                    window.FB.init({
+                        appId: facebookAppId,
+                        cookie: true,
+                        xfbml: true,
+                        version: 'v18.0'
+                    });
+                } catch (error) {
+                    console.error('Failed to initialize Facebook SDK:', error);
+                }
+            }
+        };
+        script.onerror = () => {
+            console.error('Failed to load Facebook SDK script');
+        };
+        document.head.appendChild(script);
+
+        return () => {
+            // Cleanup script on unmount
+            const scriptToRemove = document.querySelector('script[src*="connect.facebook.net"]');
+            if (scriptToRemove) {
+                scriptToRemove.remove();
+            }
+        };
+    }, []);
+
+    const handleFacebookLogin = () => {
+        const facebookAppId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+        
+        if (!facebookAppId) {
+            setError('Facebook Sign-In is not configured. Please set NEXT_PUBLIC_FACEBOOK_APP_ID in your environment variables.');
+            return;
+        }
+
+        if (!window.FB) {
+            setError('Facebook SDK is not available. Please wait a moment and try again.');
+            return;
+        }
+
+        setFacebookLoading(true);
+        setError('');
+        setSuccess(false);
+
+        try {
+            window.FB.login(async (response: any) => {
+                if (response.authResponse) {
+                    // User logged in successfully
+                    const accessToken = response.authResponse.accessToken;
+                    
+                    try {
+                        // Get user info from Facebook
+                        window.FB.api('/me', { fields: 'id,name,email,picture' }, async (userInfo: any) => {
+                            if (userInfo.error) {
+                                setError('Failed to get user info from Facebook: ' + userInfo.error.message);
+                                setFacebookLoading(false);
+                                return;
+                            }
+
+                            try {
+                                // Call backend to register/login with Facebook
+                                const requestUrl = buildApiUrl('/api/auth/facebook');
+                                const backendResponse = await fetch(requestUrl, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        access_token: accessToken,
+                                        email: userInfo.email,
+                                        name: userInfo.name,
+                                        picture: userInfo.picture?.data?.url,
+                                        facebook_id: userInfo.id,
+                                    }),
+                                    mode: 'cors',
+                                    credentials: 'omit',
+                                });
+
+                                // Read response text first (can only read once)
+                                const responseText = await backendResponse.text();
+                                
+                                if (!backendResponse.ok) {
+                                    let errorMessage = 'Facebook login failed';
+                                    try {
+                                        const errorData = JSON.parse(responseText);
+                                        errorMessage = errorData.detail || errorData.message || errorMessage;
+                                    } catch (e) {
+                                        errorMessage = `Server error: ${backendResponse.status} ${backendResponse.statusText}`;
+                                    }
+                                    throw new Error(errorMessage);
+                                }
+
+                                // Parse successful response
+                                const data = JSON.parse(responseText);
+
+                                if (data.access_token) {
+                                    localStorage.setItem('access_token', data.access_token);
+                                    if (data.user) {
+                                        localStorage.setItem('user', JSON.stringify(data.user));
+                                    }
+                                    setSuccess(true);
+                                    setTimeout(() => router.push('/'), 600);
+                                } else {
+                                    throw new Error('No access token received');
+                                }
+                            } catch (error) {
+                                console.error('Facebook login error:', error);
+                                let errorMessage = 'Facebook login failed. Please try again.';
+                                if (error instanceof Error) {
+                                    errorMessage = error.message;
+                                }
+                                setError(errorMessage);
+                            } finally {
+                                setFacebookLoading(false);
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Failed to get Facebook user info:', error);
+                        setError('Failed to get user info from Facebook. Please try again.');
+                        setFacebookLoading(false);
+                    }
+                } else {
+                    // User cancelled login
+                    setFacebookLoading(false);
+                }
+            }, { scope: 'email,public_profile' });
+        } catch (error) {
+            console.error('Failed to initiate Facebook login:', error);
+            setError('Failed to open Facebook login. Please try again.');
+            setFacebookLoading(false);
+        }
+    };
+
     const handleGoogleLogin = () => {
         const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
         
@@ -227,15 +397,94 @@ export default function RegisterPage() {
             return;
         }
 
-        if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+        if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) {
             setError('Google Sign-In is not available. Please wait a moment and try again.');
             return;
         }
 
         try {
-            window.google.accounts.id.prompt();
+            // Use OAuth2 flow for custom button
+            window.google.accounts.oauth2.initTokenClient({
+                client_id: googleClientId,
+                scope: 'email profile',
+                callback: async (response: any) => {
+                    if (response.error) {
+                        setError('Google Sign-In failed: ' + response.error);
+                        return;
+                    }
+                    
+                    // Get user info using access token
+                    try {
+                        const userInfoResponse = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${response.access_token}`);
+                        
+                        if (!userInfoResponse.ok) {
+                            throw new Error('Failed to get user info from Google');
+                        }
+                        
+                        const userInfo = await userInfoResponse.json();
+                        
+                        if (!userInfo.email) {
+                            throw new Error('Email not found in Google account');
+                        }
+                        
+                        // Call backend to register/login with Google
+                        const requestUrl = buildApiUrl('/api/auth/google');
+                        const backendResponse = await fetch(requestUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                access_token: response.access_token,
+                                email: userInfo.email,
+                                name: userInfo.name,
+                                picture: userInfo.picture,
+                            }),
+                            mode: 'cors',
+                            credentials: 'omit',
+                        });
+
+                        // Read response text first (can only read once)
+                        const responseText = await backendResponse.text();
+                        
+                        if (!backendResponse.ok) {
+                            let errorMessage = 'Google login failed';
+                            try {
+                                const errorData = JSON.parse(responseText);
+                                errorMessage = errorData.detail || errorData.message || errorMessage;
+                            } catch (e) {
+                                // If not JSON, use status text
+                                errorMessage = `Server error: ${backendResponse.status} ${backendResponse.statusText}`;
+                            }
+                            throw new Error(errorMessage);
+                        }
+
+                        // Parse successful response
+                        const data = JSON.parse(responseText);
+
+                        if (data.access_token) {
+                            localStorage.setItem('access_token', data.access_token);
+                            if (data.user) {
+                                localStorage.setItem('user', JSON.stringify(data.user));
+                            }
+                            setSuccess(true);
+                            setTimeout(() => router.push('/'), 600);
+                        } else {
+                            throw new Error('No access token received');
+                        }
+                    } catch (error) {
+                        console.error('Google login error:', error);
+                        let errorMessage = 'Google login failed. Please try again.';
+                        if (error instanceof Error) {
+                            errorMessage = error.message;
+                        }
+                        setError(errorMessage);
+                    }
+                },
+            }).requestAccessToken();
         } catch (error) {
-            console.error('Failed to prompt Google Sign-In:', error);
+            console.error('Failed to initiate Google Sign-In:', error);
             setError('Failed to open Google Sign-In. Please try again.');
         }
     };
@@ -564,7 +813,9 @@ export default function RegisterPage() {
                             {/* Facebook */}
                             <button
                                 type="button"
-                                className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1877F2] text-white text-sm font-semibold hover:bg-[#166FE5] transition shadow-md hover:shadow-lg"
+                                onClick={handleFacebookLogin}
+                                disabled={facebookLoading || googleLoading || isLoading}
+                                className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1877F2] text-white text-sm font-semibold hover:bg-[#166FE5] transition shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>

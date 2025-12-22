@@ -38,6 +38,7 @@ from backend.auth import (
     delete_user,
     refresh_email_verification,
 )
+from sqlalchemy.exc import IntegrityError
 from backend.config import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     EMAIL_SENDING,
@@ -481,74 +482,191 @@ async def login_for_access_token(login_data: LoginRequest):
     return {"access_token": access_token, "token_type": "bearer", "user": user}
 
 class GoogleLoginRequest(BaseModel):
-    credential: str
+    access_token: Optional[str] = None
+    credential: Optional[str] = None  # For One Tap (not used in OAuth2 flow)
     email: str
     name: Optional[str] = None
     picture: Optional[str] = None
+
+class FacebookLoginRequest(BaseModel):
+    access_token: str
+    email: str
+    name: Optional[str] = None
+    picture: Optional[str] = None
+    facebook_id: Optional[str] = None
 
 @app.post("/api/auth/google")
 async def google_login(google_data: GoogleLoginRequest):
     """
     Google OAuth login endpoint.
-    Verifies Google credential token and creates/logs in user.
+    Verifies Google access token or credential and creates/logs in user.
     """
     import requests
     from jose import jwt, JWTError
     
     try:
-        # Verify Google credential token
-        # For production, you should verify the token with Google's API
-        # For now, we'll decode and trust the JWT (in production, verify signature)
-        try:
-            # Decode without verification for now (in production, verify with Google's public keys)
-            # Note: In production, you should verify the token signature with Google's public keys
-            decoded_token = jwt.decode(google_data.credential, options={"verify_signature": False})
-            google_email = decoded_token.get("email")
-            google_name = decoded_token.get("name", google_data.name)
-            google_picture = decoded_token.get("picture", google_data.picture)
-            
-            if not google_email:
+        google_email = google_data.email
+        google_name = google_data.name
+        google_picture = google_data.picture
+        
+        # If using OAuth2 flow (access_token), verify with Google API
+        if google_data.access_token:
+            try:
+                # Verify access token with Google API
+                # Use asyncio.to_thread to avoid blocking the event loop
+                def verify_token():
+                    response = requests.get(
+                        "https://www.googleapis.com/oauth2/v2/userinfo",
+                        params={"access_token": google_data.access_token},
+                        timeout=10
+                    )
+                    return response
+                
+                user_info_response = await asyncio.to_thread(verify_token)
+                
+                if user_info_response.status_code != 200:
+                    error_text = user_info_response.text[:200] if user_info_response.text else "No error details"
+                    logger.error(f"Google API returned status {user_info_response.status_code}: {error_text}")
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="Invalid Google access token"
+                    )
+                user_info = user_info_response.json()
+                google_email = user_info.get("email", google_data.email)
+                google_name = user_info.get("name", google_data.name)
+                google_picture = user_info.get("picture", google_data.picture)
+            except requests.RequestException as e:
+                logger.error(f"Failed to verify Google access token: {e}", exc_info=True)
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Invalid Google credential: email not found"
+                    detail=f"Failed to verify Google access token: {str(e)}"
                 )
-        except Exception as e:
-            logger.error(f"Failed to decode Google credential: {e}")
+        # If using One Tap (credential), decode JWT
+        elif google_data.credential:
+            try:
+                # Decode without verification for now (in production, verify with Google's public keys)
+                decoded_token = jwt.decode(google_data.credential, options={"verify_signature": False})
+                google_email = decoded_token.get("email", google_data.email)
+                google_name = decoded_token.get("name", google_data.name)
+                google_picture = decoded_token.get("picture", google_data.picture)
+                
+                if not google_email:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Invalid Google credential: email not found"
+                    )
+            except Exception as e:
+                logger.error(f"Failed to decode Google credential: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Invalid Google credential"
+                )
+        else:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid Google credential"
+                detail="Either access_token or credential must be provided"
+            )
+        
+        if not google_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email is required"
             )
 
         # Check if user exists
-        user = await get_user(google_email)
+        try:
+            user = await get_user(google_email)
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"Failed to get user from database: {error_msg}", exc_info=True)
+            
+            # Provide more specific error messages
+            if "connection" in error_msg.lower() or "connect" in error_msg.lower():
+                detail = "Database connection error. Please ensure the database is running and DATABASE_URL is correct."
+            elif "timeout" in error_msg.lower():
+                detail = "Database connection timeout. Please check your database connection."
+            elif "authentication" in error_msg.lower() or "password" in error_msg.lower():
+                detail = "Database authentication failed. Please check your DATABASE_URL credentials."
+            else:
+                detail = f"Database error while checking user: {error_msg}"
+            
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=detail
+            )
         
         if user:
             # User exists, log them in
             # Skip email verification for Google OAuth users
             if not user.is_verified:
-                user.is_verified = True
-                await update_user(user)
+                try:
+                    user.is_verified = True
+                    await update_user(user)
+                    logger.info(f"✅ User verified via Google OAuth: {google_email}")
+                except Exception as e:
+                    logger.error(f"Failed to update user verification status: {e}", exc_info=True)
+                    # Continue anyway, user can still login
         else:
             # Create new user with Google OAuth
             # Generate a random password (won't be used for Google OAuth users)
-            import secrets
-            random_password = secrets.token_urlsafe(32)
-            
-            new_user = UserCreate(
-                email=google_email,
-                password=random_password,  # Random password, won't be used
-            )
-            user = await create_user(new_user)
-            # Mark as verified since Google already verified the email
-            user.is_verified = True
-            await update_user(user)
-            logger.info(f"✅ New user created via Google OAuth: {google_email}")
+            try:
+                import secrets
+                random_password = secrets.token_urlsafe(32)
+                
+                new_user = UserCreate(
+                    email=google_email,
+                    password=random_password,  # Random password, won't be used
+                )
+                user = await create_user(new_user)
+                # Mark as verified since Google already verified the email
+                user.is_verified = True
+                await update_user(user)
+                logger.info(f"✅ New user created via Google OAuth: {google_email}")
+            except IntegrityError as e:
+                logger.error(f"Failed to create user (duplicate email?): {e}", exc_info=True)
+                # User might have been created between check and create, try to get again
+                try:
+                    user = await get_user(google_email)
+                    if user:
+                        logger.info(f"User already exists, using existing user: {google_email}")
+                    else:
+                        raise HTTPException(
+                            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail="Failed to create user: email may already exist"
+                        )
+                except Exception as e2:
+                    logger.error(f"Failed to get user after creation error: {e2}", exc_info=True)
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail=f"Failed to create user: {str(e)}"
+                    )
+            except Exception as e:
+                error_msg = str(e)
+                logger.error(f"Failed to create user: {error_msg}", exc_info=True)
+                
+                # Provide more specific error messages
+                if "connection" in error_msg.lower() or "connect" in error_msg.lower():
+                    detail = "Database connection error. Please ensure the database is running and DATABASE_URL is correct."
+                else:
+                    detail = f"Failed to create user: {error_msg}"
+                
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=detail
+                )
 
         # Create access token
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(
-            data={"sub": user.email}, expires_delta=access_token_expires
-        )
+        try:
+            access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            access_token = create_access_token(
+                data={"sub": user.email}, expires_delta=access_token_expires
+            )
+        except Exception as e:
+            logger.error(f"Failed to create access token: {e}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create access token"
+            )
         
         return {
             "access_token": access_token,
@@ -564,7 +682,183 @@ async def google_login(google_data: GoogleLoginRequest):
         logger.exception("Failed to process Google login")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error while processing Google login."
+            detail=f"Internal server error while processing Google login: {str(exc)}"
+        ) from exc
+
+@app.post("/api/auth/facebook")
+async def facebook_login(facebook_data: FacebookLoginRequest):
+    """
+    Facebook OAuth login endpoint.
+    Verifies Facebook access token and creates/logs in user.
+    """
+    try:
+        facebook_email = facebook_data.email
+        facebook_name = facebook_data.name
+        facebook_picture = facebook_data.picture
+        
+        # Verify access token with Facebook API
+        if facebook_data.access_token:
+            try:
+                # Verify access token with Facebook API
+                def verify_token():
+                    response = requests.get(
+                        "https://graph.facebook.com/me",
+                        params={
+                            "access_token": facebook_data.access_token,
+                            "fields": "id,name,email,picture"
+                        },
+                        timeout=10
+                    )
+                    return response
+                
+                user_info_response = await asyncio.to_thread(verify_token)
+                
+                if user_info_response.status_code != 200:
+                    error_text = user_info_response.text[:200] if user_info_response.text else "No error details"
+                    logger.error(f"Facebook API returned status {user_info_response.status_code}: {error_text}")
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="Invalid Facebook access token"
+                    )
+                user_info = user_info_response.json()
+                
+                # Verify email matches
+                if user_info.get("email") and user_info.get("email") != facebook_email:
+                    logger.warning(f"Email mismatch: provided={facebook_email}, facebook={user_info.get('email')}")
+                    # Use email from Facebook API as it's more reliable
+                    facebook_email = user_info.get("email", facebook_email)
+                
+                facebook_name = user_info.get("name", facebook_name)
+                if user_info.get("picture") and user_info.get("picture").get("data"):
+                    facebook_picture = user_info.get("picture").get("data").get("url", facebook_picture)
+            except requests.RequestException as e:
+                logger.error(f"Failed to verify Facebook access token: {e}", exc_info=True)
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Failed to verify Facebook access token"
+                )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Facebook access_token is required"
+            )
+        
+        if not facebook_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email is required"
+            )
+
+        # Check if user exists
+        try:
+            user = await get_user(facebook_email)
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"Failed to get user from database: {error_msg}", exc_info=True)
+            
+            # Provide more specific error messages
+            if "connection" in error_msg.lower() or "connect" in error_msg.lower():
+                detail = "Database connection error. Please ensure the database is running and DATABASE_URL is correct."
+            elif "timeout" in error_msg.lower():
+                detail = "Database connection timeout. Please check your database connection."
+            elif "authentication" in error_msg.lower() or "password" in error_msg.lower():
+                detail = "Database authentication failed. Please check your DATABASE_URL credentials."
+            else:
+                detail = f"Database error while checking user: {error_msg}"
+            
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=detail
+            )
+        
+        if user:
+            # User exists, log them in
+            # Skip email verification for Facebook OAuth users
+            if not user.is_verified:
+                try:
+                    user.is_verified = True
+                    await update_user(user)
+                    logger.info(f"✅ User verified via Facebook OAuth: {facebook_email}")
+                except Exception as e:
+                    logger.error(f"Failed to update user verification status: {e}", exc_info=True)
+                    # Continue anyway, user can still login
+        else:
+            # Create new user with Facebook OAuth
+            # Generate a random password (won't be used for Facebook OAuth users)
+            try:
+                import secrets
+                random_password = secrets.token_urlsafe(32)
+                
+                new_user = UserCreate(
+                    email=facebook_email,
+                    password=random_password,  # Random password, won't be used
+                )
+                user = await create_user(new_user)
+                # Mark as verified since Facebook already verified the email
+                user.is_verified = True
+                await update_user(user)
+                logger.info(f"✅ New user created via Facebook OAuth: {facebook_email}")
+            except IntegrityError as e:
+                logger.error(f"Failed to create user (duplicate email?): {e}", exc_info=True)
+                # User might have been created between check and create, try to get again
+                try:
+                    user = await get_user(facebook_email)
+                    if user:
+                        logger.info(f"User already exists, using existing user: {facebook_email}")
+                    else:
+                        raise HTTPException(
+                            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail="Failed to create user: email may already exist"
+                        )
+                except Exception as e2:
+                    logger.error(f"Failed to get user after creation error: {e2}", exc_info=True)
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail=f"Failed to create user: {str(e)}"
+                    )
+            except Exception as e:
+                error_msg = str(e)
+                logger.error(f"Failed to create user: {error_msg}", exc_info=True)
+                
+                # Provide more specific error messages
+                if "connection" in error_msg.lower() or "connect" in error_msg.lower():
+                    detail = "Database connection error. Please ensure the database is running and DATABASE_URL is correct."
+                else:
+                    detail = f"Failed to create user: {error_msg}"
+                
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=detail
+                )
+
+        # Create access token
+        try:
+            access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            access_token = create_access_token(
+                data={"sub": user.email}, expires_delta=access_token_expires
+            )
+        except Exception as e:
+            logger.error(f"Failed to create access token: {e}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create access token"
+            )
+        
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": {
+                "email": user.email,
+                "is_verified": user.is_verified,
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("Failed to process Facebook login")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error while processing Facebook login: {str(exc)}"
         ) from exc
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
