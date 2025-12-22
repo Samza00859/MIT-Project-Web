@@ -613,10 +613,15 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
         })
         raise
 
-
+from api.history_router import router as history_router
+from api.report_router import router as report_router
+# ↑ path ต้องตรงจริง ๆ
 
 # Create FastAPI app
 app = FastAPI(title="TradingAgents API", version="1.0.0")
+
+app.include_router(history_router)
+app.include_router(report_router)
 
 # Configure CORS
 app.add_middleware(
