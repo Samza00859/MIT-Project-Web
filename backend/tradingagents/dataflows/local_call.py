@@ -1,5 +1,5 @@
 from typing import Annotated
-from .local import alphavantage_get_company_news, get_world_news_yf, fetch_reddit_world_news, fetch_reddit_symbol_top_praw, fetch_mastodon_stock_posts, fetch_bsky_stock_posts, pick_fundamental_source, finnhub_get_company_news, reddit_get_company_news, yfinance_get_company_news, fetch_finnhub_world_news
+from .local import ryt9_get_company_news, alphavantage_get_company_news, get_world_news_yf, fetch_reddit_world_news, fetch_reddit_symbol_top_praw, fetch_mastodon_stock_posts, fetch_bsky_stock_posts, pick_fundamental_source, finnhub_get_company_news, reddit_get_company_news, yfinance_get_company_news, fetch_finnhub_world_news
 import os, requests
 from rich.console import Console
 
@@ -58,6 +58,15 @@ def get_alphavantage_company_news(
     # print(f'\n\n\n [get_alphavantage_company_news] AlphaVantage company news result:\n{res}\n\n\n')
     return res
 
+def get_ryt9_company_news(
+    query: Annotated[str, "Query to search with"],
+    start_date: Annotated[str, "Start date in yyyy-mm-dd format"],
+    end_date: Annotated[str, "End date in yyyy-mm-dd format"],
+) -> str:
+    
+    res = ryt9_get_company_news(query)
+    # print(f'\n\n\n [get_ryt9_company_news] Ryt9 company news result:\n{res}\n\n\n')
+    return res
 
 #global news data
 def get_yfinance_world_news(

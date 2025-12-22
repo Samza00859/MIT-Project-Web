@@ -4,7 +4,7 @@ import json
 
 
 def create_safe_debator(llm):
-    async def safe_node(state) -> dict:
+    def safe_node(state) -> dict:
         risk_debate_state = state["risk_debate_state"]
         history = risk_debate_state.get("history", "")
         safe_history = risk_debate_state.get("safe_history", "")
@@ -52,7 +52,7 @@ def create_safe_debator(llm):
         3. Conclude with **Protective Measures**, demanding a reduced Position Size or a tighter Stop Loss to ensure survival.
         """
 
-        response = await llm.ainvoke([
+        response = llm.invoke([
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ])

@@ -1,33 +1,33 @@
 {
-    "sentiment_verdict": "Neutral",
-    "social_volume": "Elevated due to year-end portfolio discussions and options activity",
-    "dominant_narrative": "Investors are debating whether to hold or exit NVDA positions amid concerns about valuation and emerging competition, while still recognizing the company's dominant position in AI infrastructure. The stock is experiencing technical pressure but maintains strong institutional options interest.",
+    "sentiment_verdict": "Bullish",
+    "social_volume": "Elevated due to stock reaching 25-year high and AI infrastructure positioning",
+    "dominant_narrative": "Cisco Systems has achieved a historic milestone by surpassing its dot-com era peak after 25 years, driven by positioning as a critical AI infrastructure provider. The company's Silicon One chips and Splunk integration are being recognized as foundational components for artificial intelligence networking.",
     "top_topics": [
         {
-            "topic": "Portfolio Exit Strategy Discussions",
-            "sentiment": "Mixed",
-            "analysis_snippet": "Investors are actively debating whether to hold or sell NVDA shares amid valuation concerns and year-end portfolio rebalancing."
-        },
-        {
-            "topic": "Institutional Options Activity",
+            "topic": "AI Infrastructure Leadership",
             "sentiment": "Positive",
-            "analysis_snippet": "High institutional options volume indicates continued strong interest and hedging activity around NVDA despite recent price weakness."
+            "analysis_snippet": "Social media highlights Cisco's role as an AI plumbing powerhouse with Silicon One chips and Splunk observability forming critical infrastructure."
         },
         {
-            "topic": "Chinese GPU Competition",
-            "sentiment": "Negative",
-            "analysis_snippet": "Market participants are noting the emergence of Chinese GPU competitor MetaX, which could challenge NVDA's market dominance in the long term."
-        },
-        {
-            "topic": "Technical Support Levels",
-            "sentiment": "Mixed",
-            "analysis_snippet": "Traders are monitoring key technical support levels as NVDA experiences price pressure, with discussions about whether current levels will hold."
-        },
-        {
-            "topic": "AI Infrastructure Demand",
+            "topic": "Historic Stock Performance",
             "sentiment": "Positive",
-            "analysis_snippet": "Continued discussions about AI infrastructure growth and NVDA's Blackwell chips maintain the long-term bullish narrative despite short-term concerns."
+            "analysis_snippet": "Discussion centers on Cisco reaching a new all-time high, surpassing its dot-com bubble peak after 25 years."
+        },
+        {
+            "topic": "Institutional Confidence",
+            "sentiment": "Positive",
+            "analysis_snippet": "Morgan Stanley raised price target to $91 and maintained overweight rating, signaling strong institutional support."
+        },
+        {
+            "topic": "Cybersecurity Market Position",
+            "sentiment": "Mixed",
+            "analysis_snippet": "Cisco is frequently mentioned alongside other cybersecurity leaders, though some question whether AI hype masks underlying business challenges."
+        },
+        {
+            "topic": "Historical Comparisons",
+            "sentiment": "Mixed",
+            "analysis_snippet": "Analysts draw parallels between current AI stocks and dot-com era Cisco, creating both optimism and caution among investors."
         }
     ],
-    "psychology": "Fear Uncertainty and Doubt about valuation and competition, mixed with Hold On for Dear Life mentality among long-term AI believers"
+    "psychology": "Fear Of Missing Out combined with cautious optimism about sustainable growth beyond historical peaks"
 }

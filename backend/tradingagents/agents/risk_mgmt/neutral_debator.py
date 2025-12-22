@@ -3,7 +3,7 @@ import json
 
 
 def create_neutral_debator(llm):
-    async def neutral_node(state) -> dict:
+    def neutral_node(state) -> dict:
         risk_debate_state = state["risk_debate_state"]
         history = risk_debate_state.get("history", "")
         neutral_history = risk_debate_state.get("neutral_history", "")
@@ -51,7 +51,7 @@ def create_neutral_debator(llm):
         3. Conclude with a **Strategic Compromise**, proposing specific modifications (e.g., "Enter, but with half the position size" or "Wait for confirmation").
         """
         
-        response = await llm.ainvoke([
+        response = llm.invoke([
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ])

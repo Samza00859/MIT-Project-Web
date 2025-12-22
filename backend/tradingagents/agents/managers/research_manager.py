@@ -3,7 +3,7 @@ import json
 
 
 def create_research_manager(llm, memory):
-    async def research_manager_node(state) -> dict:
+    def research_manager_node(state) -> dict:
         history = state["investment_debate_state"].get("history", "")
         market_research_report = state["market_report"]
         sentiment_report = state["sentiment_report"]
@@ -43,7 +43,7 @@ def create_research_manager(llm, memory):
         Focus only on the core insights and the decision logic. No fluff, no formatting structure.
         """
         
-        response = await llm.ainvoke([
+        response = llm.invoke([
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt}
         ])

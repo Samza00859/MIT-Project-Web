@@ -1,0 +1,42 @@
+{
+  "symbol": "PTT.BK",
+  "chosen_source": "yfinance",
+  "scores": {
+    "yfinance": 0,
+    "finnhub": 0,
+    "alphavantage": 0
+  },
+  "completeness": {
+    "yfinance": 13,
+    "finnhub": 1,
+    "alphavantage": 0
+  },
+  "final_payload": {
+    "overview": {
+      "marketCap": 885135495343.75,
+      "sharesOutstanding": null,
+      "peRatio": null,
+      "currency": "THB",
+      "exchange": "SET",
+      "name": "PTT_PTT",
+      "sector": "Energy",
+      "industry": "Oil & Gas Integrated"
+    },
+    "balancesheet": {
+      "totalAssets": 3438784276337.0,
+      "totalLiabilities": 1781907191678.0,
+      "shareholderEquity": 1656877084659.0
+    },
+    "cashflow": {
+      "operatingCashFlow": 373239907059.0,
+      "freeCashFlow": 202909538872.0,
+      "capitalExpenditures": null
+    },
+    "incomestatement": {
+      "totalRevenue": 3090453000000.0,
+      "netIncome": 90072026202.0,
+      "eps": null
+    }
+  },
+  "timestamp": "2025-12-18T10:27:16.342015+00:00"
+}

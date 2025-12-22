@@ -35,7 +35,7 @@ class FundamentalReport(BaseModel):
 def create_fundamentals_analyst(llm):
     parser = JsonOutputParser(pydantic_object=FundamentalReport)
 
-    async def fundamentals_analyst_node(state):
+    def fundamentals_analyst_node(state):
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
 
@@ -109,7 +109,7 @@ def create_fundamentals_analyst(llm):
         chain = prompt | llm.bind_tools(tools)
 
         # Execute
-        result = await chain.ainvoke(state["messages"])
+        result = chain.invoke(state["messages"])
         
         print("Fundamentals Analysis Result:", result)
 

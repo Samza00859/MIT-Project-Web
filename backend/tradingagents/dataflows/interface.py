@@ -31,6 +31,7 @@ from .local_call import (
     get_reddit_company_news, 
     get_yfinance_company_news,
     get_alphavantage_company_news,
+    get_ryt9_company_news,
     
     #globalnews data
     get_reddit_world_news,
@@ -142,7 +143,7 @@ VENDOR_METHODS = {
         "google": get_google_news,
         
         #more
-        "local": [get_finnhub_company_news, get_reddit_company_news, get_yfinance_company_news, get_alphavantage_company_news],
+        "local": [get_finnhub_company_news, get_reddit_company_news, get_yfinance_company_news, get_alphavantage_company_news, get_ryt9_company_news],
     },
     "get_global_news": {
         "openai": get_global_news_openai,

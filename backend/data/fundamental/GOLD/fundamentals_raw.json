@@ -1,0 +1,34 @@
+{
+  "symbol": "GOLD",
+  "raw": {
+    "yfinance": {
+      "overview": {
+        "marketCap": 805871473.7021751,
+        "sharesOutstanding": null,
+        "peRatio": null,
+        "currency": "USD",
+        "exchange": "NYQ",
+        "name": "Gold.com, Inc.",
+        "sector": "Financial Services",
+        "industry": "Capital Markets"
+      },
+      "balancesheet": {
+        "totalAssets": 2215431000.0,
+        "totalLiabilities": 1512760000.0,
+        "shareholderEquity": 702671000.0
+      },
+      "cashflow": {
+        "operatingCashFlow": 152347000.0,
+        "freeCashFlow": 141669000.0,
+        "capitalExpenditures": null
+      },
+      "incomestatement": {
+        "totalRevenue": 10978614000.0,
+        "netIncome": 17320000.0,
+        "eps": null
+      }
+    },
+    "finnhub": {},
+    "alphavantage": {}
+  }
+}

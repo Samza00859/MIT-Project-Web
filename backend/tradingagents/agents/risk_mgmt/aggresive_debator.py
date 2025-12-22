@@ -3,7 +3,7 @@ import json
 
 
 def create_risky_debator(llm):
-    async def risky_node(state) -> dict:
+    def risky_node(state) -> dict:
         risk_debate_state = state["risk_debate_state"]
         history = risk_debate_state.get("history", "")
         risky_history = risk_debate_state.get("risky_history", "")
@@ -53,7 +53,7 @@ def create_risky_debator(llm):
         4. Maintain a "Fortune favors the bold" tone throughout.
         """
 
-        response = await llm.ainvoke([
+        response = llm.invoke([
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ])
