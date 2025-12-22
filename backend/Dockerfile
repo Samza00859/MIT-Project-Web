@@ -2,7 +2,10 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
+<<<<<<< HEAD
 # Install system dependencies
+=======
+>>>>>>> test_database
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -10,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
+<<<<<<< HEAD
 # Copy requirements or pyproject.toml
 # Since the project uses uv or pip, I'll use pip with requirements.txt if available, 
 # or just install the dependencies from pyproject.toml.
@@ -24,9 +28,24 @@ RUN pip install --no-cache-dir sqlalchemy asyncpg psycopg2-binary fastapi uvicor
 COPY . .
 
 # Set environment variables
+=======
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Copy และให้สิทธิ์ entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+>>>>>>> test_database
 ENV PYTHONPATH=/app
 ENV DATABASE_URL=postgresql+asyncpg://user:password@db:5432/trading_db
 
 EXPOSE 8000
 
+<<<<<<< HEAD
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+=======
+ENTRYPOINT ["/entrypoint.sh"]
+>>>>>>> test_database
