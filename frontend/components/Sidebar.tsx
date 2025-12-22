@@ -189,6 +189,7 @@ export default function Sidebar({
                     {[
                         { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
                         { id: "generate", icon: "🌐", label: "Generate", href: "/" },
+                        { id: "history", icon: "📜", label: "History", href: "/history" },
                         { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
                         { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
                     ].map((item) => (
