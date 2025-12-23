@@ -254,28 +254,38 @@
 
 import chromadb
 from chromadb.config import Settings
-import google.generativeai as genai
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import os, dotenv
 
 dotenv.load_dotenv()
 
 class FinancialSituationMemory:
-    def __init__(self, name, api_key=os.getenv("GOOGLE_API_KEY")):
+    def __init__(self, name, config_or_api_key=None):
         
-        # --- 1. Setup Google Gemini ---
-        if not api_key:
-             # Try to load from .env again if passed explicitly as None but env might have it
+        # --- 1. Setup Google Gemini via LangChain ---
+        # Handle both config dict and api_key string for backward compatibility
+        api_key = None
+        
+        if isinstance(config_or_api_key, dict):
+            # It's a config dict, try to get API key from it or environment
+            api_key = config_or_api_key.get("google_api_key") or os.getenv("GOOGLE_API_KEY")
+        elif isinstance(config_or_api_key, str):
+            # It's directly an API key string
+            api_key = config_or_api_key
+        else:
+            # Try to load from environment
             dotenv.load_dotenv()
             api_key = os.getenv("GOOGLE_API_KEY")
             
         if not api_key:
-            raise ValueError("GOOGLE_API_KEY not found in environment variables")
+            raise ValueError("GOOGLE_API_KEY not found in environment variables or config")
             
-        genai.configure(api_key=api_key)
-        
-        # Select model: 'models/text-embedding-004'
-        self.model_name = 'models/text-embedding-004' 
-        print(f"Initialized Google Embedding model: {self.model_name}")
+        # Use langchain-google-genai embeddings
+        self.embedding_model = GoogleGenerativeAIEmbeddings(
+            model="models/text-embedding-004",
+            google_api_key=api_key
+        )
+        print(f"Initialized Google Embedding model: models/text-embedding-004")
         
         # --- 2. Setup ChromaDB ---
         self.chroma_client = chromadb.Client(Settings(allow_reset=True))
@@ -283,7 +293,7 @@ class FinancialSituationMemory:
 
     def get_embedding(self, text, task_type="retrieval_document"):
         """
-        Get embedding from Google API
+        Get embedding from Google API via LangChain
         task_type options: 
           - 'retrieval_query': for query text
           - 'retrieval_document': for storage text
@@ -292,13 +302,9 @@ class FinancialSituationMemory:
             return []
             
         try:
-            result = genai.embed_content(
-                model=self.model_name,
-                content=text,
-                task_type=task_type,
-                title="Financial Situation" if task_type == "retrieval_document" else None
-            )
-            return result['embedding']
+            # Use langchain embeddings
+            embedding = self.embedding_model.embed_query(text)
+            return embedding
         except Exception as e:
             print(f"Error getting embedding: {e}")
             raise e
@@ -314,15 +320,9 @@ class FinancialSituationMemory:
         # Prepare data for Batch Embedding
         docs_to_embed = [s[0] for s in situations_and_advice]
         
-        # Call API for batch embeddings
-        # For stored documents, use task_type="retrieval_document"
+        # Call API for batch embeddings using langchain
         try:
-            embeddings_result = genai.embed_content(
-                model=self.model_name,
-                content=docs_to_embed,
-                task_type="retrieval_document"
-            )
-            embeddings = embeddings_result['embedding']
+            embeddings = self.embedding_model.embed_documents(docs_to_embed)
         except Exception as e:
              print(f"Batch embedding failed: {e}. Falling back to iterative approach.")
              embeddings = []

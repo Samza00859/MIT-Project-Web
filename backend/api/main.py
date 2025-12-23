@@ -514,7 +514,7 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             logger.info("📝 Running Summarizers...")
             for key, summarizer_func in summarizers.items():
                 try:
-                    update_dict = summarizer_func(final_state_graph)
+                    update_dict = await summarizer_func(final_state_graph)
                     if update_dict:
                         final_state_graph.update(update_dict)
                 except Exception as e:

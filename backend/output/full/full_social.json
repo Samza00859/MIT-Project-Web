@@ -1,28 +1,7 @@
 {
     "sentiment_verdict": "Neutral",
-    "social_volume": "Low volume with specific news events.",
-    "dominant_narrative": "Mentions of Tencent (0700.HK) are driven by regulatory news, including app privacy concerns and past US military-linked list inclusion. There's also discussion around competition in the AI and cloud computing sectors.",
-    "top_topics": [
-        {
-            "topic": "App Privacy and Data Collection",
-            "sentiment": "Negative",
-            "analysis_snippet": "Concerns are raised regarding Tencent's apps exceeding data collection limits, as reported by Chinese authorities."
-        },
-        {
-            "topic": "US Military-Linked List Inclusion",
-            "sentiment": "Negative",
-            "analysis_snippet": "Past reports indicate Tencent's shares dropped following its inclusion on a US list of military-linked companies, which the company disputed."
-        },
-        {
-            "topic": "AI and Cloud Computing Competition",
-            "sentiment": "Mixed",
-            "analysis_snippet": "Tencent is involved in a price war for large-language models and faces challenges in its cloud business due to weak AI demand and competition."
-        },
-        {
-            "topic": "Nvidia Product Demand in China",
-            "sentiment": "Neutral",
-            "analysis_snippet": "Tencent is mentioned in the context of waiting for Nvidia's new AI chips, with discussions on Nvidia's product demand in the Chinese market."
-        }
-    ],
-    "psychology": "Cautious observation amidst regulatory scrutiny and competitive market dynamics."
+    "social_volume": "No social media data available for the specified period.",
+    "dominant_narrative": "No discernible narrative from social media due to a lack of data.",
+    "top_topics": [],
+    "psychology": "No crowd psychology indicators available."
 }
