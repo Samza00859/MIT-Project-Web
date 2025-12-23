@@ -37,6 +37,16 @@ const REPORT_ORDER = [
     "Portfolio Management Decision"
 ];
 
+const TITLE_MAP: Record<string, string> = {
+    "fundamental": "Fundamentals Review",
+    "market": "Market Analysis",
+    "sentiment": "Social Sentiment",
+    "news": "News Analysis",
+    "trader": "Trader Plan",
+    "risk": "Portfolio Management Decision",
+    "technical": "Market Analysis"
+};
+
 function escapeHtml(text: string) {
     if (typeof text !== 'string') return String(text);
     return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -116,7 +126,7 @@ export default function HistoryPage() {
     const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
     const [loading, setLoading] = useState(true);
     const [isDarkMode, setIsDarkMode] = useState(true);
-    const [viewMode, setViewMode] = useState<"formatted" | "json">("formatted");
+    const [viewMode, setViewMode] = useState<"summary" | "detailed">("detailed");
 
     useEffect(() => {
         fetchHistory();
@@ -146,15 +156,35 @@ export default function HistoryPage() {
 
     const getGroupedSections = (item: HistoryItem) => {
         const sectionsMap: Record<string, { sum?: any, full?: any }> = {};
+        const titlesFound = new Set<string>();
 
         item.reports.forEach(report => {
-            const title = report.title || "Report";
+            let title = report.title || "Report";
+            // Map known short titles to full titles
+            if (TITLE_MAP[title.toLowerCase()]) {
+                title = TITLE_MAP[title.toLowerCase()];
+            }
+
             if (!sectionsMap[title]) sectionsMap[title] = {};
-            if (report.report_type === "sum_report") sectionsMap[title].sum = report.content;
-            if (report.report_type === "full_report") sectionsMap[title].full = report.content;
+
+            let content = report.content;
+            if (typeof content === 'object' && content !== null) {
+                content = content.summary || content.text || content.reasoning || content;
+            }
+
+            if (report.report_type === "sum_report") {
+                sectionsMap[title].sum = content;
+            } else if (report.report_type === "full_report") {
+                sectionsMap[title].full = report.content;
+            }
+            titlesFound.add(title);
         });
 
-        return REPORT_ORDER.filter(title => sectionsMap[title]).map(title => ({
+        // Combine titles in order + any extra titles found
+        const orderedTitles = REPORT_ORDER.filter(title => sectionsMap[title]);
+        const otherTitles = Array.from(titlesFound).filter(t => !REPORT_ORDER.includes(t));
+
+        return [...orderedTitles, ...otherTitles].map(title => ({
             label: title,
             sum: sectionsMap[title].sum,
             full: sectionsMap[title].full
@@ -162,18 +192,32 @@ export default function HistoryPage() {
     };
 
     const getSummary = (item: HistoryItem) => {
-        const portSummary = item.reports.find(r => r.title === "Portfolio Management Decision" && r.report_type === "sum_report");
-        const portFull = item.reports.find(r => r.title === "Portfolio Management Decision" && r.report_type === "full_report");
+        const portSummary = item.reports.find(r =>
+            (r.title === "Portfolio Management Decision" || r.title?.toLowerCase() === "risk") &&
+            r.report_type === "sum_report"
+        );
+        const portFull = item.reports.find(r =>
+            (r.title === "Portfolio Management Decision" || r.title?.toLowerCase() === "risk") &&
+            r.report_type === "full_report"
+        );
 
         if (!portSummary) return null;
 
+        let content = portSummary.content;
+        if (typeof content === 'object' && content !== null) {
+            content = content.summary || content.text || content.reasoning || content;
+        }
+
         let decision = "N/A";
-        if (portFull && typeof portFull.content === 'object') {
-            decision = portFull.content.judge_decision || portFull.content.decision || "N/A";
+        if (portFull && typeof portFull.content === 'object' && portFull.content !== null) {
+            decision = portFull.content.judge_decision ||
+                portFull.content.decision ||
+                portFull.content.recommendation ||
+                (portFull.content.score ? `SCORE: ${portFull.content.score}` : "N/A");
         }
 
         return {
-            summary: portSummary.content,
+            summary: content,
             decision: decision
         };
     };
@@ -244,16 +288,16 @@ export default function HistoryPage() {
                                 </div>
                                 <div className={`flex rounded-full border p-1 ${isDarkMode ? "border-white/10 bg-white/5" : "border-gray-200 bg-gray-100"}`}>
                                     <button
-                                        onClick={() => setViewMode("formatted")}
-                                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "formatted" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
+                                        onClick={() => setViewMode("summary")}
+                                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "summary" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
                                     >
-                                        Formatted
+                                        Executive Summary
                                     </button>
                                     <button
-                                        onClick={() => setViewMode("json")}
-                                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "json" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
+                                        onClick={() => setViewMode("detailed")}
+                                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "detailed" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
                                     >
-                                        Raw JSON
+                                        Detailed Report
                                     </button>
                                 </div>
                             </header>
@@ -275,22 +319,29 @@ export default function HistoryPage() {
                                                     <div className="flex-1">
                                                         <h3 className="text-sm font-bold uppercase tracking-widest text-[#8b94ad] mb-2">Final Recommendation Summary</h3>
                                                         <div className="text-lg opacity-90 italic leading-relaxed">
-                                                            <RenderMarkdown text={String(summary.summary)} />
+                                                            {typeof summary.summary === 'string' ? (
+                                                                <RenderMarkdown text={summary.summary} />
+                                                            ) : (
+                                                                <RenderJsonData data={summary.summary} isDarkMode={isDarkMode} />
+                                                            )}
                                                         </div>
                                                     </div>
                                                     <div className="w-full md:w-auto p-6 rounded-2xl bg-[#2df4c6]/10 border border-[#2df4c6]/30 text-center">
                                                         <span className="text-xs uppercase font-bold text-[#2df4c6] block mb-1">Recommendation</span>
-                                                        <strong className="text-3xl text-[#2df4c6]">{summary.decision}</strong>
+                                                        <strong className="text-3xl text-[#2df4c6] uppercase">{summary.decision}</strong>
                                                     </div>
                                                 </div>
                                             </section>
                                         );
                                     })()}
 
-                                    {/* Detailed Reports */}
-                                    {viewMode === "formatted" ? (
-                                        <div className="space-y-8">
-                                            {getGroupedSections(selectedItem).map((section, idx) => (
+                                    {/* Selected View Content */}
+                                    <div className="space-y-8">
+                                        {getGroupedSections(selectedItem).map((section, idx) => {
+                                            const hasContent = (viewMode === "summary" && section.sum) || (viewMode === "detailed" && section.full);
+                                            if (!hasContent) return null;
+
+                                            return (
                                                 <div key={idx} className={`p-6 rounded-[20px] border ${isDarkMode ? "bg-[#111726] border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.3)]" : "bg-white border-gray-200 shadow-sm"}`}>
                                                     <h3 className="text-xl font-bold mb-6 flex items-center gap-3 border-b border-white/5 pb-4">
                                                         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2df4c6]/20 text-sm text-[#2df4c6]">
@@ -300,37 +351,38 @@ export default function HistoryPage() {
                                                     </h3>
 
                                                     <div className="space-y-8">
-                                                        {section.sum && (
+                                                        {viewMode === "summary" && section.sum && (
                                                             <div className={`p-5 rounded-2xl ${isDarkMode ? "bg-white/5" : "bg-gray-50"}`}>
                                                                 <h4 className="text-xs font-bold uppercase tracking-widest opacity-50 mb-3 text-[#2df4c6]">Executive Summary</h4>
-                                                                <RenderMarkdown text={String(section.sum)} />
+                                                                <div className="opacity-90">
+                                                                    {typeof section.sum === 'string' ? (
+                                                                        <RenderMarkdown text={section.sum} />
+                                                                    ) : (
+                                                                        <RenderJsonData data={section.sum} isDarkMode={isDarkMode} />
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         )}
 
-                                                        {section.full && (
+                                                        {viewMode === "detailed" && section.full && (
                                                             <div>
                                                                 <h4 className="text-xs font-bold uppercase tracking-widest opacity-50 mb-3">Detailed Data / Research</h4>
                                                                 <div className="opacity-90">
                                                                     {typeof section.full === 'string' ? (
                                                                         <RenderMarkdown text={section.full} />
                                                                     ) : (
-                                                                        <RenderJsonData data={section.full} isDarkMode={isDarkMode} />
+                                                                        <div className="mt-4">
+                                                                            <RenderJsonData data={section.full} isDarkMode={isDarkMode} />
+                                                                        </div>
                                                                     )}
                                                                 </div>
                                                             </div>
                                                         )}
                                                     </div>
                                                 </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className={`p-6 rounded-[20px] border ${isDarkMode ? "bg-[#111726] border-white/5" : "bg-white border-gray-200 shadow-sm"}`}>
-                                            <h3 className="text-sm font-bold uppercase tracking-widest text-[#8b94ad] mb-4">Raw Execution Data</h3>
-                                            <pre className={`text-xs p-6 rounded-2xl overflow-auto h-[600px] ${isDarkMode ? "bg-black/40 text-[#2df4c6] font-mono" : "bg-gray-100 text-blue-900 font-mono"}`}>
-                                                {JSON.stringify(selectedItem, null, 2)}
-                                            </pre>
-                                        </div>
-                                    )}
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             )}
                         </div>
