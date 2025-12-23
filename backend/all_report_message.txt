@@ -1,39 +1,15 @@
 🏷️ Stock Data Source Comparison Result:
 
-===== TOTAL RECORDS CHECK (CSCO - US) =====
-YFinance (CSCO):      249
-TwelveData (CSCO):    249
-TradingView (CSCO):   249
+===== TOTAL RECORDS CHECK (0700.HK - HK) =====
+YFinance (0700.HK):      245
+TwelveData (0700):    0
+TradingView (HKEX:700):   245
 
 
 ===== SIMILARITY SCORE =====
-YFinance Score: 158
-TwelveData Score: 557
-TradingView Score: 555
+YFinance Score: 273
+TwelveData Score: 0
+TradingView Score: 273
 
 🏆 Best Source: YFINANCE
-
-📊 Indicator 'close_50_sma' Source Comparison for SPY:
-Yahoo Finance Score: 21
-Alpha Vantage Score: 21
-TradingView Score: 0
-🏆 Best Source: YAHOO, ALPHA
-
-📊 Indicator 'close_200_sma' Source Comparison for SPY:
-Yahoo Finance Score: 21
-Alpha Vantage Score: 21
-TradingView Score: 0
-🏆 Best Source: YAHOO, ALPHA
-
-📊 Indicator 'close_10_ema' Source Comparison for SPY:
-Yahoo Finance Score: 21
-Alpha Vantage Score: 21
-TradingView Score: 0
-🏆 Best Source: YAHOO, ALPHA
-
-📊 Indicator 'macd' Source Comparison for SPY:
-Yahoo Finance Score: 0
-Alpha Vantage Score: 0
-TradingView Score: 0
-🏆 Best Source: YAHOO
 

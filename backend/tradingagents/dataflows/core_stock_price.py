@@ -312,7 +312,7 @@ def compare_stock_providers(symbol, start_date, end_date, market=None):
 # ✅ MAIN TOOL DEFINITION (For Agent)
 # ==========================================
 
-@tool
+# @tool
 def get_stock_data(
     symbol: Annotated[str, "Ticker symbol of the company, e.g. AAPL, TSM"],
     start_date: Annotated[str, "Start date in yyyy-mm-dd format"],

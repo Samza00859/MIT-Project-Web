@@ -41,7 +41,8 @@ from .local_call import (
     #social media posts data
     get_bluesky_news,
     get_mastodon_news,
-    get_subreddit_news
+    get_subreddit_news,
+    get_social_async
     )
 
 from .core_stock_price import get_stock_data
@@ -162,7 +163,7 @@ VENDOR_METHODS = {
     
     #social media posts data
     "get_social": {
-        "local": [get_bluesky_news, get_mastodon_news, get_subreddit_news]
+        "local": get_social_async
     }
 }
 

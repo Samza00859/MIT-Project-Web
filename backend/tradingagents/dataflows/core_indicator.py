@@ -5,6 +5,8 @@ import requests
 from typing import Annotated
 from datetime import datetime
 from langchain_core.tools import tool
+import concurrent.futures
+import time
 
 # --- Import Provider Functions (ตรวจสอบ Path ให้ถูกต้อง) ---
 from tradingagents.dataflows.y_finance import get_stock_stats_indicators_window
@@ -182,7 +184,7 @@ def sent_to_telegram(report_message):
 # ✅ MAIN TOOL DEFINITION
 # ==========================================
 
-@tool
+# @tool
 def get_indicators(
     symbol: str,
     indicator: str,
@@ -287,3 +289,48 @@ def get_indicators(
     if result_str_tv: return result_str_tv
     
     return f"No data found for indicator {indicator}"
+
+def get_all_indicators_batch(symbol: str, curr_date: str, look_back_days: int = 7) -> str:
+    """
+    Fetch all key indicators in parallel using ThreadPoolExecutor.
+    """
+    # List of key indicators corresponding to the Market Analyst's needs
+    indicators_list = [
+        "close_50_sma", "close_200_sma", "close_10_ema",
+        "macd", "rsi", "boll", "atr", "vwma"
+    ]
+    
+    results = {}
+    
+    def fetch_one(ind):
+        try:
+            # Safety delay to prevent IP blocking / Rate Limiting
+            time.sleep(2)
+            # Call the existing tool function directly
+            return get_indicators(symbol=symbol, indicator=ind, curr_date=curr_date, look_back_days=look_back_days)
+        except Exception as e:
+            return f"Error fetching {ind}: {e}"
+
+    print(f"\n🚀🚀 Batch Fetching {len(indicators_list)} Indicators for {symbol}...")
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        future_to_ind = {executor.submit(fetch_one, ind): ind for ind in indicators_list}
+        for future in concurrent.futures.as_completed(future_to_ind):
+            ind = future_to_ind[future]
+            try:
+                data = future.result()
+                # Clean up the output slightly if it contains long strings
+                results[ind] = data.strip()
+            except Exception as e:
+                results[ind] = f"Error: {e}"
+
+    # Format Output as a consolidated string
+    output_lines = []
+    output_lines.append(f"=== BATCH INDICATOR REPORT FOR {symbol} ===")
+    for ind in indicators_list: # Preserve order
+        val = results.get(ind, "N/A")
+        output_lines.append(f"--- {ind.upper()} ---")
+        output_lines.append(val)
+        output_lines.append("") # Empty line separator
+    
+    return "\n".join(output_lines)

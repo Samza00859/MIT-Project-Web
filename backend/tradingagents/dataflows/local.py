@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Dict, Optional, Iterable, Tuple, Annotated
 import pandas as pd
-import os, time, json, requests, re
+import os, time, json, requests, re, asyncio
 from .config import DATA_DIR
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -2097,15 +2097,16 @@ def fetch_finnhub(symbol: str) -> Dict[str, Dict]:
 # =========================
 # ORCHESTRATOR & SCORING
 # =========================
-def fetch_all_fundamentals(symbol: str) -> Dict:
-    # 1. YFinance
-    y = fetch_yfinance(symbol)
+async def fetch_all_fundamentals(symbol: str) -> Dict:
+    # Use asyncio.gather to fetch data concurrently in separate threads
+    # This prevents blocking the event loop while waiting for HTTP requests
+    results = await asyncio.gather(
+        asyncio.to_thread(fetch_yfinance, symbol),
+        asyncio.to_thread(fetch_finnhub, symbol),
+        asyncio.to_thread(fetch_alphavantage, symbol)
+    )
     
-    # 2. Finnhub
-    f = fetch_finnhub(symbol)
-    
-    # 3. AlphaVantage
-    a = fetch_alphavantage(symbol)
+    y, f, a = results
 
     # Log fields found
     def _count(d): return sum(1 for sec in d.values() for v in sec.values() if v is not None)
@@ -2171,7 +2172,7 @@ def decide_single_source(fetched: Dict) -> Dict:
         "timestamp": _now_iso()
     }
 
-def pick_fundamental_source(symbol: str) -> Dict:
+async def pick_fundamental_source(symbol: str) -> Dict:
     """
     Main Entry Point:
     1. Resolve Symbol (Add .BK, .SS, etc.)
@@ -2182,7 +2183,7 @@ def pick_fundamental_source(symbol: str) -> Dict:
     resolved_symbol = auto_resolve_symbol(symbol)
     print(f"Resolved to: {resolved_symbol}")
 
-    fetched = fetch_all_fundamentals(resolved_symbol)
+    fetched = await fetch_all_fundamentals(resolved_symbol)
     result = decide_single_source(fetched)
     # Save Logic
     # 1. Raw Data

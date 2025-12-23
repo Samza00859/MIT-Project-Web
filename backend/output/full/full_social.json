@@ -1,33 +1,28 @@
 {
-    "sentiment_verdict": "Bullish",
-    "social_volume": "Elevated due to stock reaching 25-year high and AI infrastructure positioning",
-    "dominant_narrative": "Cisco Systems has achieved a historic milestone by surpassing its dot-com era peak after 25 years, driven by positioning as a critical AI infrastructure provider. The company's Silicon One chips and Splunk integration are being recognized as foundational components for artificial intelligence networking.",
+    "sentiment_verdict": "Neutral",
+    "social_volume": "Low volume with specific news events.",
+    "dominant_narrative": "Mentions of Tencent (0700.HK) are driven by regulatory news, including app privacy concerns and past US military-linked list inclusion. There's also discussion around competition in the AI and cloud computing sectors.",
     "top_topics": [
         {
-            "topic": "AI Infrastructure Leadership",
-            "sentiment": "Positive",
-            "analysis_snippet": "Social media highlights Cisco's role as an AI plumbing powerhouse with Silicon One chips and Splunk observability forming critical infrastructure."
+            "topic": "App Privacy and Data Collection",
+            "sentiment": "Negative",
+            "analysis_snippet": "Concerns are raised regarding Tencent's apps exceeding data collection limits, as reported by Chinese authorities."
         },
         {
-            "topic": "Historic Stock Performance",
-            "sentiment": "Positive",
-            "analysis_snippet": "Discussion centers on Cisco reaching a new all-time high, surpassing its dot-com bubble peak after 25 years."
+            "topic": "US Military-Linked List Inclusion",
+            "sentiment": "Negative",
+            "analysis_snippet": "Past reports indicate Tencent's shares dropped following its inclusion on a US list of military-linked companies, which the company disputed."
         },
         {
-            "topic": "Institutional Confidence",
-            "sentiment": "Positive",
-            "analysis_snippet": "Morgan Stanley raised price target to $91 and maintained overweight rating, signaling strong institutional support."
-        },
-        {
-            "topic": "Cybersecurity Market Position",
+            "topic": "AI and Cloud Computing Competition",
             "sentiment": "Mixed",
-            "analysis_snippet": "Cisco is frequently mentioned alongside other cybersecurity leaders, though some question whether AI hype masks underlying business challenges."
+            "analysis_snippet": "Tencent is involved in a price war for large-language models and faces challenges in its cloud business due to weak AI demand and competition."
         },
         {
-            "topic": "Historical Comparisons",
-            "sentiment": "Mixed",
-            "analysis_snippet": "Analysts draw parallels between current AI stocks and dot-com era Cisco, creating both optimism and caution among investors."
+            "topic": "Nvidia Product Demand in China",
+            "sentiment": "Neutral",
+            "analysis_snippet": "Tencent is mentioned in the context of waiting for Nvidia's new AI chips, with discussions on Nvidia's product demand in the Chinese market."
         }
     ],
-    "psychology": "Fear Of Missing Out combined with cautious optimism about sustainable growth beyond historical peaks"
+    "psychology": "Cautious observation amidst regulatory scrutiny and competitive market dynamics."
 }

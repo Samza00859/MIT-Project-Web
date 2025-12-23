@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import JsonOutputParser
 
-from tradingagents.agents.utils.agent_utils import get_news, get_global_news
+from tradingagents.agents.utils.agent_utils import get_all_news_batch
 
 
 # ===================== PYDANTIC MODELS ======================
@@ -32,7 +32,7 @@ class NewsReport(BaseModel):
 def create_news_analyst(llm):
     parser = JsonOutputParser(pydantic_object=NewsReport)
 
-    def news_analyst_node(state):
+    async def news_analyst_node(state):
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
 
@@ -43,22 +43,19 @@ def create_news_analyst(llm):
         except Exception:
             start_date = "2024-01-01"
 
-        tools = [get_news, get_global_news]
+        # ===================== PRE-FETCH DATA ======================
+        news_data = await get_all_news_batch(ticker, start_date, current_date)
 
         # ===================== SYSTEM MESSAGE ======================
         system_message = f"""
 You are a Senior Market News Analyst specializing in financial news and market impact assessment.
 
-**CRITICAL INSTRUCTION:**
-- You **MUST CALL** both tools IMMEDIATELY to gather comprehensive data.
-- **DO NOT** hallucinate or invent news stories.
-- Base all analysis on actual news retrieved from the tools.
+NEWS DATA CONTEXT:
+{news_data}
 
-**MANDATORY WORKFLOW:**
-1. Call `get_global_news(curr_date='{current_date}', look_back_days=7)` to gather macro news.
-2. Call `get_news(ticker='{ticker}', start_date='{start_date}', end_date='{current_date}')` to gather company-specific news.
-3. Analyze both macro and company-specific factors.
-4. Synthesize findings into the required JSON format.
+INSTRUCTIONS:
+1. Analyze both macro and company-specific factors provided above.
+2. Synthesize findings into the required JSON format.
 
 **ANALYSIS GUIDELINES:**
 - Focus on material news that could impact stock price
@@ -83,30 +80,19 @@ Return ONLY the JSON object, no markdown code blocks.
         prompt = ChatPromptTemplate.from_messages([
             (
                 "system",
-                "You are a helpful AI assistant, collaborating with other assistants. "
-                "Use the provided tools to progress towards answering the question. "
-                "You have access to the following tools: {tool_names}. \n\n"
-                "{system_message}\n\n"
-                "For your reference, the current date is {current_date}. "
-                "The company we want to look at is {ticker}. "
-                "Analysis period: {start_date} to {current_date}."
+                "{system_message}"
             ),
             MessagesPlaceholder(variable_name="messages"),
         ])
 
-        prompt = prompt.partial(
-            system_message=system_message,
-            tool_names=", ".join([tool.name for tool in tools]),
-            current_date=current_date,
-            ticker=ticker,
-            start_date=start_date
-        )
+        prompt = prompt.partial(system_message=system_message)
 
         # ===================== CHAIN ======================
-        chain = prompt | llm.bind_tools(tools)
+        # NO TOOL BINDING
+        chain = prompt | llm
 
         # Execute
-        result = chain.invoke(state["messages"])
+        result = await chain.ainvoke(state["messages"])
         
         print("News Analysis Result:", result)
 
