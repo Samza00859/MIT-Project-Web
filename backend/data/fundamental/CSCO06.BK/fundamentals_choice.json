@@ -1,0 +1,30 @@
+{
+  "symbol": "CSCO06.BK",
+  "chosen_source": "yfinance",
+  "scores": {
+    "yfinance": 0,
+    "finnhub": 0,
+    "alphavantage": 0
+  },
+  "completeness": {
+    "yfinance": 3,
+    "finnhub": 1,
+    "alphavantage": 0
+  },
+  "final_payload": {
+    "overview": {
+      "marketCap": null,
+      "sharesOutstanding": null,
+      "peRatio": null,
+      "currency": "THB",
+      "exchange": "SET",
+      "name": "CSCO06_DR CSCO#KKPS",
+      "sector": "",
+      "industry": ""
+    },
+    "balancesheet": {},
+    "cashflow": {},
+    "incomestatement": {}
+  },
+  "timestamp": "2025-12-19T07:26:22.558327+00:00"
+}

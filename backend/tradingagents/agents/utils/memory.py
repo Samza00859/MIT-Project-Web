@@ -112,62 +112,234 @@
 #     except Exception as e:
 #         print(f"Error during recommendation: {str(e)}")
 
+
+# selection 2
+
+# import chromadb
+# from chromadb.config import Settings
+# # from openai import OpenAI # <--- ไม่ต้องใช้ OpenAI client ที่นี่แล้ว
+
+# # --- เพิ่มส่วน Import ใหม่ ---
+# from sentence_transformers import SentenceTransformer
+# # -------------------------
+
+# class FinancialSituationMemory:
+#     def __init__(self, name, config):
+        
+#         # --- ส่วนแก้ไขเริ่มต้น ---
+#         # 1. โหลด Embedding Model แบบ Open Source มาไว้ในหน่วยความจำ
+#         # 'all-MiniLM-L6-v2' เป็นโมเดลที่เล็ก เร็ว และมีคุณภาพดีมากสำหรับงานทั่วไป
+#         # ครั้งแรกที่รัน โค้ดจะดาวน์โหลดโมเดลนี้มาเก็บไว้ในเครื่องคุณโดยอัตโนมัติ
+#         print("Initializing Open Source Embedding model...")
+#         self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+#         print("Embedding model initialized.")
+#         # --- ส่วนแก้ไขสิ้นสุด ---
+
+#         # ส่วนของ ChromaDB ยังคงเดิม
+#         self.chroma_client = chromadb.Client(Settings(allow_reset=True))
+#         # self.situation_collection = self.chroma_client.create_collection(name=name)
+#         self.situation_collection = self.chroma_client.get_or_create_collection(name=name)
+
+#     def get_embedding(self, text):
+#         """Get embedding for a text using a local SentenceTransformer model"""
+        
+#         # --- ส่วนแก้ไข ---
+#         # ใช้โมเดลที่โหลดมาเพื่อแปลงข้อความเป็น embedding
+#         # .encode() จะคืนค่าเป็น NumPy array ซึ่ง ChromaDB ใช้งานได้เลย
+#         embedding = self.embedding_model.encode(text)
+#         return embedding
+#         # --- สิ้นสุด ---
+
+#     def add_situations(self, situations_and_advice):
+#         """Add financial situations and their corresponding advice. Parameter is a list of tuples (situation, rec)"""
+
+#         situations = []
+#         advice = []
+#         ids = []
+#         embeddings = []
+
+#         offset = self.situation_collection.count()
+
+#         # สร้าง embeddings ทั้งหมดในครั้งเดียวเพื่อความรวดเร็ว
+#         all_situations_to_embed = [s[0] for s in situations_and_advice]
+#         all_embeddings = self.embedding_model.encode(all_situations_to_embed)
+
+#         for i, (situation, recommendation) in enumerate(situations_and_advice):
+#             situations.append(situation)
+#             advice.append(recommendation)
+#             ids.append(str(offset + i))
+        
+#         # เพิ่ม embeddings ที่สร้างไว้แล้ว
+#         embeddings.extend(all_embeddings)
+
+#         self.situation_collection.add(
+#             documents=situations,
+#             metadatas=[{"recommendation": rec} for rec in advice],
+#             embeddings=embeddings,
+#             ids=ids,
+#         )
+
+#     def get_memories(self, current_situation, n_matches=1):
+#         """Find matching recommendations using embeddings"""
+#         query_embedding = self.get_embedding(current_situation)
+
+#         results = self.situation_collection.query(
+#             query_embeddings=[query_embedding.tolist()], # ChromaDB บางเวอร์ชันต้องการ list
+#             n_results=n_matches,
+#             include=["metadatas", "documents", "distances"],
+#         )
+
+#         matched_results = []
+#         for i in range(len(results["documents"][0])):
+#             matched_results.append(
+#                 {
+#                     "matched_situation": results["documents"][0][i],
+#                     "recommendation": results["metadatas"][0][i]["recommendation"],
+#                     "similarity_score": 1 - results["distances"][0][i],
+#                 }
+#             )
+
+#         return matched_results
+
+
+# # ส่วน if __name__ == "__main__": ไม่ต้องแก้ไข
+# # แต่ตอนรันต้องแก้เล็กน้อย เพราะ __init__ ต้องการ name และ config
+# if __name__ == "__main__":
+#     # Example usage
+#     # สร้าง config จำลองขึ้นมาเพื่อทดสอบ
+#     mock_config = {"backend_url": ""} # ไม่ได้ใช้แล้ว แต่ใส่ไว้ให้โค้ดรันผ่าน
+#     matcher = FinancialSituationMemory(name="test_memory", config=mock_config)
+
+#     # ... ส่วนที่เหลือทำงานได้เหมือนเดิม ...
+#     example_data = [
+#         (
+#             "High inflation rate with rising interest rates and declining consumer spending",
+#             "Consider defensive sectors like consumer staples and utilities. Review fixed-income portfolio duration.",
+#         ),
+#         (
+#             "Tech sector showing high volatility with increasing institutional selling pressure",
+#             "Reduce exposure to high-growth tech stocks. Look for value opportunities in established tech companies with strong cash flows.",
+#         ),
+#         (
+#             "Strong dollar affecting emerging markets with increasing forex volatility",
+#             "Hedge currency exposure in international positions. Consider reducing allocation to emerging market debt.",
+#         ),
+#         (
+#             "Market showing signs of sector rotation with rising yields",
+#             "Rebalance portfolio to maintain target allocations. Consider increasing exposure to sectors benefiting from higher rates.",
+#         ),
+#     ]
+
+#     matcher.add_situations(example_data)
+
+#     current_situation = """
+#     Market showing increased volatility in tech sector, with institutional investors 
+#     reducing positions and rising interest rates affecting growth stock valuations
+#     """
+
+#     try:
+#         recommendations = matcher.get_memories(current_situation, n_matches=2)
+
+#         for i, rec in enumerate(recommendations, 1):
+#             print(f"\nMatch {i}:")
+#             print(f"Similarity Score: {rec['similarity_score']:.2f}")
+#             print(f"Matched Situation: {rec['matched_situation']}")
+#             print(f"Recommendation: {rec['recommendation']}")
+
+#     except Exception as e:
+#         print(f"Error during recommendation: {str(e)}")
+
+
+#section 3 
+
 import chromadb
 from chromadb.config import Settings
-# from openai import OpenAI # <--- ไม่ต้องใช้ OpenAI client ที่นี่แล้ว
+import google.generativeai as genai
+import os, dotenv
 
-# --- เพิ่มส่วน Import ใหม่ ---
-from sentence_transformers import SentenceTransformer
-# -------------------------
+dotenv.load_dotenv()
 
 class FinancialSituationMemory:
-    def __init__(self, name, config):
+    def __init__(self, name, api_key=os.getenv("GOOGLE_API_KEY")):
         
-        # --- ส่วนแก้ไขเริ่มต้น ---
-        # 1. โหลด Embedding Model แบบ Open Source มาไว้ในหน่วยความจำ
-        # 'all-MiniLM-L6-v2' เป็นโมเดลที่เล็ก เร็ว และมีคุณภาพดีมากสำหรับงานทั่วไป
-        # ครั้งแรกที่รัน โค้ดจะดาวน์โหลดโมเดลนี้มาเก็บไว้ในเครื่องคุณโดยอัตโนมัติ
-        print("Initializing Open Source Embedding model...")
-        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-        print("Embedding model initialized.")
-        # --- ส่วนแก้ไขสิ้นสุด ---
-
-        # ส่วนของ ChromaDB ยังคงเดิม
+        # --- 1. Setup Google Gemini ---
+        if not api_key:
+             # Try to load from .env again if passed explicitly as None but env might have it
+            dotenv.load_dotenv()
+            api_key = os.getenv("GOOGLE_API_KEY")
+            
+        if not api_key:
+            raise ValueError("GOOGLE_API_KEY not found in environment variables")
+            
+        genai.configure(api_key=api_key)
+        
+        # Select model: 'models/text-embedding-004'
+        self.model_name = 'models/text-embedding-004' 
+        print(f"Initialized Google Embedding model: {self.model_name}")
+        
+        # --- 2. Setup ChromaDB ---
         self.chroma_client = chromadb.Client(Settings(allow_reset=True))
-        # self.situation_collection = self.chroma_client.create_collection(name=name)
         self.situation_collection = self.chroma_client.get_or_create_collection(name=name)
 
-    def get_embedding(self, text):
-        """Get embedding for a text using a local SentenceTransformer model"""
-        
-        # --- ส่วนแก้ไข ---
-        # ใช้โมเดลที่โหลดมาเพื่อแปลงข้อความเป็น embedding
-        # .encode() จะคืนค่าเป็น NumPy array ซึ่ง ChromaDB ใช้งานได้เลย
-        embedding = self.embedding_model.encode(text)
-        return embedding
-        # --- สิ้นสุด ---
+    def get_embedding(self, text, task_type="retrieval_document"):
+        """
+        Get embedding from Google API
+        task_type options: 
+          - 'retrieval_query': for query text
+          - 'retrieval_document': for storage text
+        """
+        if not text:
+            return []
+            
+        try:
+            result = genai.embed_content(
+                model=self.model_name,
+                content=text,
+                task_type=task_type,
+                title="Financial Situation" if task_type == "retrieval_document" else None
+            )
+            return result['embedding']
+        except Exception as e:
+            print(f"Error getting embedding: {e}")
+            raise e
 
     def add_situations(self, situations_and_advice):
-        """Add financial situations and their corresponding advice. Parameter is a list of tuples (situation, rec)"""
-
+        """Add situations using Google Embeddings (Batch mode)"""
         situations = []
         advice = []
         ids = []
-        embeddings = []
-
+        
         offset = self.situation_collection.count()
-
-        # สร้าง embeddings ทั้งหมดในครั้งเดียวเพื่อความรวดเร็ว
-        all_situations_to_embed = [s[0] for s in situations_and_advice]
-        all_embeddings = self.embedding_model.encode(all_situations_to_embed)
+        
+        # Prepare data for Batch Embedding
+        docs_to_embed = [s[0] for s in situations_and_advice]
+        
+        # Call API for batch embeddings
+        # For stored documents, use task_type="retrieval_document"
+        try:
+            embeddings_result = genai.embed_content(
+                model=self.model_name,
+                content=docs_to_embed,
+                task_type="retrieval_document"
+            )
+            embeddings = embeddings_result['embedding']
+        except Exception as e:
+             print(f"Batch embedding failed: {e}. Falling back to iterative approach.")
+             embeddings = []
+             import time
+             for doc in docs_to_embed:
+                 try:
+                     emb = self.get_embedding(doc, task_type="retrieval_document")
+                     embeddings.append(emb)
+                     time.sleep(1) # Rate limiting
+                 except Exception as inner_e:
+                     print(f"Iterative embedding failed for doc: {inner_e}")
+                     raise inner_e
 
         for i, (situation, recommendation) in enumerate(situations_and_advice):
             situations.append(situation)
             advice.append(recommendation)
             ids.append(str(offset + i))
-        
-        # เพิ่ม embeddings ที่สร้างไว้แล้ว
-        embeddings.extend(all_embeddings)
 
         self.situation_collection.add(
             documents=situations,
@@ -177,71 +349,60 @@ class FinancialSituationMemory:
         )
 
     def get_memories(self, current_situation, n_matches=1):
-        """Find matching recommendations using embeddings"""
-        query_embedding = self.get_embedding(current_situation)
+        """Find matches"""
+        
+        # For search queries, use 'retrieval_query'
+        query_embedding = self.get_embedding(current_situation, task_type="retrieval_query")
 
         results = self.situation_collection.query(
-            query_embeddings=[query_embedding.tolist()], # ChromaDB บางเวอร์ชันต้องการ list
+            query_embeddings=[query_embedding],
             n_results=n_matches,
             include=["metadatas", "documents", "distances"],
         )
 
         matched_results = []
-        for i in range(len(results["documents"][0])):
-            matched_results.append(
-                {
+        # Prevent error if no results found
+        if results["documents"]:
+            for i in range(len(results["documents"][0])):
+                matched_results.append({
                     "matched_situation": results["documents"][0][i],
                     "recommendation": results["metadatas"][0][i]["recommendation"],
                     "similarity_score": 1 - results["distances"][0][i],
-                }
-            )
+                })
 
         return matched_results
 
-
-# ส่วน if __name__ == "__main__": ไม่ต้องแก้ไข
-# แต่ตอนรันต้องแก้เล็กน้อย เพราะ __init__ ต้องการ name และ config
+# --- Usage Example ---
 if __name__ == "__main__":
-    # Example usage
-    # สร้าง config จำลองขึ้นมาเพื่อทดสอบ
-    mock_config = {"backend_url": ""} # ไม่ได้ใช้แล้ว แต่ใส่ไว้ให้โค้ดรันผ่าน
-    matcher = FinancialSituationMemory(name="test_memory", config=mock_config)
+    # Load env again to be sure
+    dotenv.load_dotenv()
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+    
+    if not GOOGLE_API_KEY:
+        print("⚠️ Please set your GOOGLE_API_KEY first!")
+    else:
+        # Use a localized test collection name to avoid conflicts
+        matcher = FinancialSituationMemory(name="test_gemini_memory_v2")
 
-    # ... ส่วนที่เหลือทำงานได้เหมือนเดิม ...
-    example_data = [
-        (
-            "High inflation rate with rising interest rates and declining consumer spending",
-            "Consider defensive sectors like consumer staples and utilities. Review fixed-income portfolio duration.",
-        ),
-        (
-            "Tech sector showing high volatility with increasing institutional selling pressure",
-            "Reduce exposure to high-growth tech stocks. Look for value opportunities in established tech companies with strong cash flows.",
-        ),
-        (
-            "Strong dollar affecting emerging markets with increasing forex volatility",
-            "Hedge currency exposure in international positions. Consider reducing allocation to emerging market debt.",
-        ),
-        (
-            "Market showing signs of sector rotation with rising yields",
-            "Rebalance portfolio to maintain target allocations. Consider increasing exposure to sectors benefiting from higher rates.",
-        ),
-    ]
+        # Example data
+        example_data = [
+            ("High inflation rate with rising interest rates", "Defensive sectors"),
+            ("Tech sector volatility", "Reduce exposure to growth stocks"),
+            ("Strong dollar impacting emerging markets", "Hedge currency exposure"),
+        ]
 
-    matcher.add_situations(example_data)
+        try:
+            print("Adding situations...")
+            matcher.add_situations(example_data)
 
-    current_situation = """
-    Market showing increased volatility in tech sector, with institutional investors 
-    reducing positions and rising interest rates affecting growth stock valuations
-    """
+            current_situation = "Market showing volatility in tech sector with rising rates"
+            print(f"Querying: {current_situation}")
+            
+            recommendations = matcher.get_memories(current_situation, n_matches=1)
+            for rec in recommendations:
+                print(f"Score: {rec['similarity_score']:.4f}")
+                print(f"Rec: {rec['recommendation']}")
+                
+        except Exception as e:
+            print(f"Error: {e}")
 
-    try:
-        recommendations = matcher.get_memories(current_situation, n_matches=2)
-
-        for i, rec in enumerate(recommendations, 1):
-            print(f"\nMatch {i}:")
-            print(f"Similarity Score: {rec['similarity_score']:.2f}")
-            print(f"Matched Situation: {rec['matched_situation']}")
-            print(f"Recommendation: {rec['recommendation']}")
-
-    except Exception as e:
-        print(f"Error during recommendation: {str(e)}")
