@@ -25,6 +25,10 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 load_dotenv()
 
+# Database imports
+from database.database import AsyncSessionLocal
+from database.models import ExecutionHistory, ReportResult
+
 try:
     import yfinance as yf
     from tradingagents.graph.trading_graph import TradingAgentsGraph
@@ -60,6 +64,7 @@ class AnalysisRequest(BaseModel):
     shallow_thinker: str
     deep_thinker: str
     report_length: Optional[str] = "summary"
+    user_id: Optional[int] = 1 # Default for mockup
 
 
 def extract_content_string(content):
@@ -136,6 +141,26 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             request.ticker, request.analysis_date
         )
         args = graph.propagator.get_graph_args()
+
+        # 📊 1. Create ExecutionHistory record IMMEDIATELY
+        execution_id = None
+        try:
+            async with AsyncSessionLocal() as db:
+                db_history = ExecutionHistory(
+                    ticker=request.ticker,
+                    analysis_date=request.analysis_date,
+                    status="executing",
+                    error_message=None
+                )
+                db.add(db_history)
+                await db.commit()
+                await db.refresh(db_history)
+                execution_id = db_history.id
+                logger.info(f"💾 Created initial history record ID: {execution_id}")
+        except Exception as db_init_err:
+            logger.error(f"❌ Failed to create initial history record: {db_init_err}")
+            # Non-fatal for analysis itself, but history won't work
+            pass
 
         # Initialize agent statuses
         agent_status = {
@@ -562,6 +587,93 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
 
             logger.info("✅ Summaries generated and saved directly to backend/output")
 
+            # ==========================================================
+            # 💾 Database Completion Block
+            # ==========================================================
+            if execution_id:
+                try:
+                    logger.info(f"💾 Updating execution {execution_id} to success and saving reports...")
+                    async with AsyncSessionLocal() as db:
+                        # Get the record
+                        stmt = select(ExecutionHistory).where(ExecutionHistory.id == execution_id)
+                        res = await db.execute(stmt)
+                        db_history = res.scalar_one_or_none()
+                        
+                        if db_history:
+                            db_history.status = "success"
+                            
+                            # Mapping of internal keys to Database Titles
+                            title_map = {
+                                "Summarize_fundamentals_report": ("sum_report", "fundamental"),
+                                "Summarize_market_report": ("sum_report", "market"),
+                                "Summarize_social_report": ("sum_report", "sentiment"),
+                                "Summarize_news_report": ("sum_report", "news"),
+                                "bull_researcher_summarizer": ("sum_report", "Risk: Bull"),
+                                "bear_researcher_summarizer": ("sum_report", "Risk: Bear"),
+                                "Summarize_conservative_report": ("sum_report", "Risk: Conservative"),
+                                "Summarize_aggressive_report": ("sum_report", "Risk: Aggressive"),
+                                "Summarize_neutral_report": ("sum_report", "Risk: Neutral"),
+                                "trader_summarizer": ("sum_report", "trader"),
+                                "Summarize_investment_plan_report": ("sum_report", "Research Team Decision"),
+                                "Summarize_final_trade_decision_report": ("sum_report", "risk"),
+                                
+                                "fundamentals_report": ("full_report", "fundamental"),
+                                "market_report": ("full_report", "market"),
+                                "sentiment_report": ("full_report", "sentiment"),
+                                "news_report": ("full_report", "news"),
+                                "trader_investment_plan": ("full_report", "trader"),
+                                "investment_plan": ("full_report", "Research Team Decision"),
+                                "final_trade_decision": ("full_report", "Portfolio Management Decision"),
+                                "investment_debate_state": ("full_report", "Research Team Internal"),
+                                "risk_debate_state": ("full_report", "Portfolio Management Internal")
+                            }
+
+                            reports_to_add = []
+
+                            # Process Summaries (Text files)
+                            for key, (r_type, title) in title_map.items():
+                                if r_type == "sum_report":
+                                    content = final_state_graph.get(key)
+                                    if content:
+                                        # Use str and ensure it's wrapped in {"text": ...}
+                                        # SQLAlchemy handles quote escaping automatically in parameterized queries
+                                        reports_to_add.append(ReportResult(
+                                            execution_id=execution_id,
+                                            report_type="sum_report",
+                                            title=title,
+                                            content={"text": str(content)}
+                                        ))
+
+                            # Process Full Reports
+                            for key, (r_type, title) in title_map.items():
+                                if r_type == "full_report":
+                                    content = final_state_graph.get(key)
+                                    if content:
+                                        if title == "Research Team Decision": # investment_plan is text
+                                            reports_to_add.append(ReportResult(
+                                                execution_id=execution_id,
+                                                report_type="full_report",
+                                                title=title,
+                                                content={"text": str(content)}
+                                            ))
+                                        else:
+                                            # JSON content
+                                            reports_to_add.append(ReportResult(
+                                                execution_id=execution_id,
+                                                report_type="full_report",
+                                                title=title,
+                                                content=content if isinstance(content, dict) else {"content": str(content)}
+                                            ))
+
+                            db.add_all(reports_to_add)
+                            await db.commit()
+                            logger.info(f"✅ Database update complete for execution {execution_id}")
+
+                except Exception as db_err:
+                    logger.error(f"❌ Database update failed: {db_err}")
+                    import traceback
+                    traceback.print_exc()
+
         except Exception as e:
             logger.error(f"❌ Failed to run summarization logic: {e}")
             import traceback
@@ -608,6 +720,21 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
         raise
 
     except Exception as e:
+        logger.error(f"❌ Analysis failed for {request.ticker}: {e}")
+        if execution_id:
+            try:
+                async with AsyncSessionLocal() as db:
+                    stmt = select(ExecutionHistory).where(ExecutionHistory.id == execution_id)
+                    res = await db.execute(stmt)
+                    db_history = res.scalar_one_or_none()
+                    if db_history:
+                        db_history.status = "error"
+                        db_history.error_message = str(e)
+                        await db.commit()
+                        logger.info(f"💾 Updated history {execution_id} with error status.")
+            except Exception as db_update_err:
+                logger.error(f"❌ Failed to update history status on error: {db_update_err}")
+
         await send_update(websocket, "error", {
             "message": str(e)
         })
