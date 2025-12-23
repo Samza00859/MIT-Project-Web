@@ -1,0 +1,27 @@
+{
+  "symbol": "CISCO",
+  "chosen_source": "finnhub",
+  "scores": {
+    "yfinance": 0,
+    "finnhub": 0,
+    "alphavantage": 0
+  },
+  "completeness": {
+    "yfinance": 0,
+    "finnhub": 1,
+    "alphavantage": 0
+  },
+  "final_payload": {
+    "overview": {
+      "name": null,
+      "currency": null,
+      "marketCap": 0.0,
+      "sharesOutstanding": null,
+      "sector": null
+    },
+    "balancesheet": {},
+    "cashflow": {},
+    "incomestatement": {}
+  },
+  "timestamp": "2025-12-19T03:27:38.799172+00:00"
+}

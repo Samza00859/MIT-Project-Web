@@ -3,8 +3,10 @@ from typing import Annotated
 from tradingagents.dataflows.interface import route_to_vendor
 
 
-@tool
-def get_fundamentals(
+import inspect
+
+# @tool
+async def get_fundamentals(
     ticker: Annotated[str, "ticker symbol"],
     curr_date: Annotated[str, "current date you are trading at, yyyy-mm-dd"],
 ) -> str:
@@ -20,7 +22,10 @@ def get_fundamentals(
     # print("\n\n\nDEBUG:get_fundamentals")
     # print(route_to_vendor("get_fundamentals", ticker, curr_date))
     # print("\n\n\nFINISH DEBUG:get_fundamentals")
-    return route_to_vendor("get_fundamentals", ticker, curr_date)
+    res = route_to_vendor("get_fundamentals", ticker, curr_date)
+    if inspect.isawaitable(res):
+        return await res
+    return res
 
 
 @tool
@@ -81,3 +86,33 @@ def get_income_statement(
     # print(route_to_vendor("get_fundamentals", ticker, curr_date))
     # print("\n\n\nFINISH DEBUG:get_fundamentals")
     return route_to_vendor("get_income_statement", ticker, freq, curr_date)
+
+async def get_all_fundamentals_batch(ticker: str, curr_date: str) -> str:
+    """
+    Fetch all fundamental data reports in a single batch.
+    """
+    print(f"📊 Fundamentals Analyst: Pre-fetching data for {ticker}...")
+    try:
+        # Fetching core fundamentals
+        fund_summary = await get_fundamentals(ticker=ticker, curr_date=curr_date)
+        
+        # Consider fetching financial statements if needed for in-depth analysis
+        # For significantly faster speed, we might prioritize just the summary if it's rich enough.
+        # But to match 'Deep Research', let's fetch them.
+        
+        # Note: If these calls are independent network requests, we can parallelize them.
+        # Assuming they are likely independent or cached.
+        
+        # For now, let's just append the summary. If you want full sheets, uncomment below.
+        # balance = get_balance_sheet(ticker=ticker, curr_date=curr_date)
+        # cash = get_cashflow(ticker=ticker, curr_date=curr_date)
+        # income = get_income_statement(ticker=ticker, curr_date=curr_date)
+        
+        combined_report = f"""
+        === FUNDAMENTAL SUMMARY ===
+        {fund_summary}
+        
+        """
+        return combined_report
+    except Exception as e:
+        return f"Error fetching fundamentals: {e}"

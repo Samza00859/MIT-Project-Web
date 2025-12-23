@@ -1,13 +1,14 @@
 import openai, os
+from openai import AsyncOpenAI
 
 # ควรสร้าง Client นอกฟังก์ชัน หรือใช้ Singleton เพื่อไม่ให้สร้าง connection ใหม่ทุกครั้งที่เรียก
-client = openai.OpenAI(
+client = AsyncOpenAI(
     api_key=os.getenv("TYPHOON_API_KEY"),
     base_url="https://api.opentyphoon.ai/v1"
 )
 
 def create_summarizer_neutral():
-    def neutral_node_summarizer(state) -> dict:
+    async def neutral_node_summarizer(state) -> dict: # async def
         
         # ดึงรายงานเดิมมา
         neutral_report = state.get("risk_debate_state").get("neutral_history")
@@ -40,14 +41,14 @@ def create_summarizer_neutral():
         """
         
         try:
-            response = client.chat.completions.create(
+            response = await client.chat.completions.create( # await
                 model="typhoon-v2.1-12b-instruct",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=0.4,
-                max_tokens=1024
+                max_tokens=2048
             )
 
             summary_content = response.choices[0].message.content

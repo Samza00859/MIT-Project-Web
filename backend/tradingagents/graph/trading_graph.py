@@ -1,6 +1,6 @@
 # TradingAgents/graph/trading_graph.py
 
-import os, requests
+import os, requests, asyncio
 from pathlib import Path
 import json
 from datetime import date
@@ -60,12 +60,31 @@ def sent_to_telegram(message: str):
             "text": message,
             "parse_mode": "Markdown",
         }
+        
+        from requests.adapters import HTTPAdapter
+        from urllib3.util.retry import Retry
+
+        # Configure retry strategy
+        retry_strategy = Retry(
+            total=3,  # Maximum number of retries
+            backoff_factor=1,  # Wait 1s, 2s, 4s between retries
+            status_forcelist=[429, 500, 502, 503, 504],  # Retry on these status codes
+            allowed_methods=["POST"]
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        http = requests.Session()
+        http.mount("https://", adapter)
+        http.mount("http://", adapter)
+
         try:
-            response = requests.post(url, data=payload, timeout=10)
+            # timeout=(connect_timeout, read_timeout)
+            response = http.post(url, data=payload, timeout=(30, 60))
             response.raise_for_status()
             console.print("[green]Report sent to Telegram successfully![/green]")
         except requests.RequestException as e:
-            console.print(f"[red]Failed to send report to Telegram: {e}[/red]")
+            console.print(f"[red]Failed to send report to Telegram after retries: {e}[/red]")
+        finally:
+            http.close()
     else:
         console.print("[yellow]Telegram not configured. Skipping sending report.[/yellow]")
 
@@ -191,7 +210,7 @@ class TradingAgentsGraph:
             ),
         }
 
-    def propagate(self, company_name, trade_date):
+    async def propagate(self, company_name, trade_date):
         """Run the trading agents graph for a company on a specific date."""
 
         self.ticker = company_name
@@ -205,7 +224,7 @@ class TradingAgentsGraph:
         if self.debug:
             # Debug mode with tracing
             trace = []
-            for chunk in self.graph.stream(init_agent_state, **args):
+            async for chunk in self.graph.astream(init_agent_state, **args):
                 if len(chunk["messages"]) == 0:
                     pass
                 else:
@@ -215,7 +234,7 @@ class TradingAgentsGraph:
             final_state = trace[-1]
         else:
             # Standard mode without tracing
-            final_state = self.graph.invoke(init_agent_state, **args)
+            final_state = await self.graph.ainvoke(init_agent_state, **args)
 
         # Store current state for reflection
         self.curr_state = final_state
@@ -235,18 +254,24 @@ class TradingAgentsGraph:
             sum_bear = create_summarizer_bear_researcher()
             sum_trader = create_summarizer_trader()
             
-            update_dict_fund = summarizer_func(final_state)
-            update_dict_market = sum_market(final_state)
-            update_dict_social = sum_social(final_state)
-            update_dict_news = sum_news(final_state)
-            update_dict_cons = sum_cons(final_state)
-            update_dict_aggr = sum_aggr(final_state)
-            update_dict_neut = sum_neut(final_state)
-            update_dict_investment_plan = sum_investment_plan(final_state)
-            update_dict_risk_plan = sum_risk_plan(final_state)
-            update_dict_bull = sum_bull(final_state)
-            update_dict_bear = sum_bear(final_state)
-            update_dict_trader = sum_trader(final_state)
+            results = await asyncio.gather(
+                summarizer_func(final_state),
+                sum_market(final_state),
+                sum_social(final_state),
+                sum_news(final_state),
+                sum_cons(final_state),
+                sum_aggr(final_state),
+                sum_neut(final_state),
+                sum_investment_plan(final_state),
+                sum_risk_plan(final_state),
+                sum_bull(final_state),
+                sum_bear(final_state),
+                sum_trader(final_state)
+            )
+
+            (update_dict_fund, update_dict_market, update_dict_social, update_dict_news,
+             update_dict_cons, update_dict_aggr, update_dict_neut, update_dict_investment_plan,
+             update_dict_risk_plan, update_dict_bull, update_dict_bear, update_dict_trader) = results
             
             
             # --- อัปเดต Fundamental ---
