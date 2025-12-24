@@ -998,7 +998,7 @@ export default function Home() {
         <section className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5">
           {Object.entries(teamState).map(([teamKey, members]) => {
             const completedCount = members.filter(
-              (m) => m.status === "completed"
+              (m: { status: string; }) => m.status === "completed"
             ).length;
             const progress = Math.round(
               (completedCount / members.length) * 100
@@ -1049,7 +1049,7 @@ export default function Home() {
                   </div>
                 </header>
                 <ul className="flex flex-col gap-2.5">
-                  {members.map((member, idx) => (
+                  {members.map((member: { name: string; status: string; }, idx: number) => (
                     <li
                       key={idx}
                       className="flex flex-wrap items-center justify-between gap-y-1 text-sm text-[#8b94ad]"

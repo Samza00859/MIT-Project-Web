@@ -28,6 +28,7 @@ load_dotenv()
 # Database imports
 from database.database import AsyncSessionLocal
 from database.models import ExecutionHistory, ReportResult
+from sqlalchemy import select
 
 try:
     import yfinance as yf
@@ -145,7 +146,9 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
         # 📊 1. Create ExecutionHistory record IMMEDIATELY
         execution_id = None
         try:
+            logger.info("🔌 Attempting to connect to database...")
             async with AsyncSessionLocal() as db:
+                logger.info("✅ Database connection established")
                 db_history = ExecutionHistory(
                     ticker=request.ticker,
                     analysis_date=request.analysis_date,
@@ -159,6 +162,8 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                 logger.info(f"💾 Created initial history record ID: {execution_id}")
         except Exception as db_init_err:
             logger.error(f"❌ Failed to create initial history record: {db_init_err}")
+            import traceback
+            traceback.print_exc()
             # Non-fatal for analysis itself, but history won't work
             pass
 
@@ -491,8 +496,16 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             await send_update(websocket, "report", report)
             await asyncio.sleep(0.05)
 
-        # Get final state from trace
-        final_state_graph = trace[-1]
+        # Get final state by merging all trace chunks (each chunk only contains incremental changes)
+        final_state_graph = {}
+        for chunk in trace:
+            if isinstance(chunk, dict):
+                final_state_graph.update(chunk)
+        
+        # Also include the accumulated report_sections which were collected during streaming
+        final_state_graph.update(report_sections)
+        
+        logger.info(f"📊 Final state keys: {list(final_state_graph.keys())}")
 
         # --- Summarization & Output Logic (Replicating propagate) ---
         try:
@@ -539,11 +552,17 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             logger.info("📝 Running Summarizers...")
             for key, summarizer_func in summarizers.items():
                 try:
-                    update_dict = summarizer_func(final_state_graph)
+                    # Summarizers return async functions, so we need to await them
+                    update_dict = await summarizer_func(final_state_graph)
                     if update_dict:
                         final_state_graph.update(update_dict)
+                        logger.info(f"✅ Summarizer {key} completed successfully")
+                    else:
+                        logger.warning(f"⚠️ Summarizer {key} returned empty result")
                 except Exception as e:
-                     logger.error(f"Error running summarizer {key}: {e}")
+                    logger.error(f"❌ Error running summarizer {key}: {e}")
+                    import traceback
+                    traceback.print_exc()
 
             # Define file mappings (Key in State -> (Sum Filename, Full Filename, Full Key in State))
             file_mappings = [
@@ -588,11 +607,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             logger.info("✅ Summaries generated and saved directly to backend/output")
 
             # ==========================================================
-            # 💾 Database Completion Block
+            # 💾 Database Completion Block - Read from output files
             # ==========================================================
+            logger.info(f"🔍 Checking execution_id: {execution_id}")
             if execution_id:
                 try:
-                    logger.info(f"💾 Updating execution {execution_id} to success and saving reports...")
+                    logger.info(f"💾 Updating execution {execution_id} to success and saving reports from files...")
                     async with AsyncSessionLocal() as db:
                         # Get the record
                         stmt = select(ExecutionHistory).where(ExecutionHistory.id == execution_id)
@@ -602,77 +622,112 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                         if db_history:
                             db_history.status = "success"
                             
-                            # Mapping of internal keys to Database Titles
-                            title_map = {
-                                "Summarize_fundamentals_report": ("sum_report", "fundamental"),
-                                "Summarize_market_report": ("sum_report", "market"),
-                                "Summarize_social_report": ("sum_report", "sentiment"),
-                                "Summarize_news_report": ("sum_report", "news"),
-                                "bull_researcher_summarizer": ("sum_report", "Risk: Bull"),
-                                "bear_researcher_summarizer": ("sum_report", "Risk: Bear"),
-                                "Summarize_conservative_report": ("sum_report", "Risk: Conservative"),
-                                "Summarize_aggressive_report": ("sum_report", "Risk: Aggressive"),
-                                "Summarize_neutral_report": ("sum_report", "Risk: Neutral"),
-                                "trader_summarizer": ("sum_report", "trader"),
-                                "Summarize_investment_plan_report": ("sum_report", "Research Team Decision"),
-                                "Summarize_final_trade_decision_report": ("sum_report", "risk"),
-                                
-                                "fundamentals_report": ("full_report", "fundamental"),
-                                "market_report": ("full_report", "market"),
-                                "sentiment_report": ("full_report", "sentiment"),
-                                "news_report": ("full_report", "news"),
-                                "trader_investment_plan": ("full_report", "trader"),
-                                "investment_plan": ("full_report", "Research Team Decision"),
-                                "final_trade_decision": ("full_report", "Portfolio Management Decision"),
-                                "investment_debate_state": ("full_report", "Research Team Internal"),
-                                "risk_debate_state": ("full_report", "Portfolio Management Internal")
-                            }
-
+                            # Log the paths we're looking at
+                            logger.info(f"📂 sum_dir path: {sum_dir}")
+                            logger.info(f"📂 full_dir path: {full_dir}")
+                            logger.info(f"📂 sum_dir exists: {sum_dir.exists()}")
+                            logger.info(f"📂 full_dir exists: {full_dir.exists()}")
+                            
+                            # List files in directories
+                            if sum_dir.exists():
+                                sum_files_list = list(sum_dir.iterdir())
+                                logger.info(f"📄 Files in sum_dir: {[f.name for f in sum_files_list]}")
+                            if full_dir.exists():
+                                full_files_list = list(full_dir.iterdir())
+                                logger.info(f"📄 Files in full_dir: {[f.name for f in full_files_list]}")
+                            
                             reports_to_add = []
-
-                            # Process Summaries (Text files)
-                            for key, (r_type, title) in title_map.items():
-                                if r_type == "sum_report":
-                                    content = final_state_graph.get(key)
-                                    if content:
-                                        # Use str and ensure it's wrapped in {"text": ...}
-                                        # SQLAlchemy handles quote escaping automatically in parameterized queries
-                                        reports_to_add.append(ReportResult(
-                                            execution_id=execution_id,
-                                            report_type="sum_report",
-                                            title=title,
-                                            content={"text": str(content)}
-                                        ))
-
-                            # Process Full Reports
-                            for key, (r_type, title) in title_map.items():
-                                if r_type == "full_report":
-                                    content = final_state_graph.get(key)
-                                    if content:
-                                        if title == "Research Team Decision": # investment_plan is text
+                            
+                            # File mapping: (filename, report_type, title)
+                            sum_files = [
+                                ("sum_funda.txt", "sum_report", "Fundamentals Review"),
+                                ("sum_market.txt", "sum_report", "Market Analysis"),
+                                ("sum_social.txt", "sum_report", "Social Sentiment"),
+                                ("sum_news.txt", "sum_report", "News Analysis"),
+                                ("sum_bull.txt", "sum_report", "Bull Case"),
+                                ("sum_bear.txt", "sum_report", "Bear Case"),
+                                ("sum_conservative.txt", "sum_report", "Risk: Conservative"),
+                                ("sum_aggressive.txt", "sum_report", "Risk: Aggressive"),
+                                ("sum_neutral.txt", "sum_report", "Risk: Neutral"),
+                                ("sum_trader.txt", "sum_report", "Trader Plan"),
+                                ("sum_investment_plan.txt", "sum_report", "Research Team Decision"),
+                                ("sum_final_decision.txt", "sum_report", "Portfolio Management Decision"),
+                            ]
+                            
+                            full_files = [
+                                ("full_funda.json", "full_report", "Fundamentals Review"),
+                                ("full_market.json", "full_report", "Market Analysis"),
+                                ("full_social.json", "full_report", "Social Sentiment"),
+                                ("full_news.json", "full_report", "News Analysis"),
+                                ("full_bull.json", "full_report", "Bull Case"),
+                                ("full_bear.json", "full_report", "Bear Case"),
+                                ("full_conservative.json", "full_report", "Risk: Conservative"),
+                                ("full_aggressive.json", "full_report", "Risk: Aggressive"),
+                                ("full_neutral.json", "full_report", "Risk: Neutral"),
+                                ("full_trader.json", "full_report", "Trader Plan"),
+                                ("investment_plan.txt", "full_report", "Research Team Decision"),
+                                ("final_decision.json", "full_report", "Portfolio Management Decision"),
+                            ]
+                            
+                            # Read and save summary reports
+                            for filename, report_type, title in sum_files:
+                                filepath = sum_dir / filename
+                                if filepath.exists():
+                                    try:
+                                        with open(filepath, 'r', encoding='utf-8') as f:
+                                            content = f.read()
+                                        if content.strip():
                                             reports_to_add.append(ReportResult(
                                                 execution_id=execution_id,
-                                                report_type="full_report",
+                                                report_type=report_type,
                                                 title=title,
-                                                content={"text": str(content)}
+                                                content={"text": content}
                                             ))
-                                        else:
-                                            # JSON content
+                                            logger.info(f"📄 Added sum: {title}")
+                                    except Exception as read_err:
+                                        logger.warning(f"⚠️ Failed to read {filename}: {read_err}")
+                            
+                            # Read and save full reports
+                            for filename, report_type, title in full_files:
+                                filepath = full_dir / filename
+                                if filepath.exists():
+                                    try:
+                                        with open(filepath, 'r', encoding='utf-8') as f:
+                                            raw_content = f.read()
+                                        
+                                        if raw_content.strip():
+                                            # Parse JSON files, keep text files as is
+                                            if filename.endswith('.json'):
+                                                try:
+                                                    content = json.loads(raw_content)
+                                                except json.JSONDecodeError:
+                                                    content = {"text": raw_content}
+                                            else:
+                                                content = {"text": raw_content}
+                                            
                                             reports_to_add.append(ReportResult(
                                                 execution_id=execution_id,
-                                                report_type="full_report",
+                                                report_type=report_type,
                                                 title=title,
-                                                content=content if isinstance(content, dict) else {"content": str(content)}
+                                                content=content
                                             ))
-
+                                            logger.info(f"📄 Added full: {title}")
+                                    except Exception as read_err:
+                                        logger.warning(f"⚠️ Failed to read {filename}: {read_err}")
+                            
+                            logger.info(f"📊 Adding {len(reports_to_add)} reports to database...")
                             db.add_all(reports_to_add)
                             await db.commit()
-                            logger.info(f"✅ Database update complete for execution {execution_id}")
+                            logger.info(f"✅ Database update complete for execution {execution_id} - Saved {len(reports_to_add)} reports")
+                        else:
+                            logger.warning(f"⚠️ ExecutionHistory with id {execution_id} not found")
 
                 except Exception as db_err:
                     logger.error(f"❌ Database update failed: {db_err}")
                     import traceback
                     traceback.print_exc()
+            else:
+                logger.warning("⚠️ No execution_id available - skipping database save")
 
         except Exception as e:
             logger.error(f"❌ Failed to run summarization logic: {e}")
@@ -760,6 +815,19 @@ from api.report_router import router as report_router
 
 # Create FastAPI app
 app = FastAPI(title="TradingAgents API", version="1.0.0")
+
+# Startup event - Create database tables
+@app.on_event("startup")
+async def startup_event():
+    from database.database import init_db
+    logger.info("🚀 Starting up - initializing database...")
+    try:
+        await init_db()
+        logger.info("✅ Database initialized successfully")
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize database: {e}")
+        import traceback
+        traceback.print_exc()
 
 app.include_router(history_router)
 app.include_router(report_router)

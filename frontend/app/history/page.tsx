@@ -272,11 +272,15 @@ export default function HistoryPage() {
                                         <span className="font-bold text-xs tracking-widest opacity-70">ID #{item.id}</span>
                                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${item.status === "success"
                                             ? "bg-[#2df4c6]/20 text-[#2df4c6]"
-                                            : item.status === "executing"
-                                                ? "bg-yellow-500/20 text-yellow-400"
-                                                : "bg-red-500/20 text-red-400"
+                                            : (item.status === "executing" && item.reports.length === 0)
+                                                ? "bg-red-500/20 text-red-400"
+                                                : item.status === "executing"
+                                                    ? "bg-yellow-500/20 text-yellow-400"
+                                                    : "bg-red-500/20 text-red-400"
                                             }`}>
-                                            {item.status}
+                                            {item.status === "executing" && item.reports.length === 0
+                                                ? "INCOMPLETE"
+                                                : item.status}
                                         </span>
                                     </div>
                                     <div className="font-bold text-lg">{item.ticker}</div>
@@ -300,11 +304,15 @@ export default function HistoryPage() {
                                         <h1 className="text-4xl font-bold">{selectedItem.ticker}</h1>
                                         <span className={`px-3 py-1 rounded-full text-sm font-bold ${selectedItem.status === "success"
                                                 ? "bg-[#2df4c6]/20 text-[#2df4c6]"
-                                                : selectedItem.status === "executing"
-                                                    ? "bg-yellow-500/20 text-yellow-400"
-                                                    : "bg-red-500/10 text-red-500"
+                                                : (selectedItem.status === "executing" && selectedItem.reports.length === 0)
+                                                    ? "bg-red-500/10 text-red-500"
+                                                    : selectedItem.status === "executing"
+                                                        ? "bg-yellow-500/20 text-yellow-400"
+                                                        : "bg-red-500/10 text-red-500"
                                             }`}>
-                                            {selectedItem.status.toUpperCase()}
+                                            {selectedItem.status === "executing" && selectedItem.reports.length === 0
+                                                ? "INCOMPLETE"
+                                                : selectedItem.status.toUpperCase()}
                                         </span>
                                     </div>
                                     <p className="opacity-50 text-lg">Analysis for {selectedItem.analysis_date}</p>
@@ -314,34 +322,35 @@ export default function HistoryPage() {
                                         onClick={() => setViewMode("summary")}
                                         className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "summary" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
                                     >
-                                        Executive Summary
+                                        Summary report
                                     </button>
                                     <button
                                         onClick={() => setViewMode("detailed")}
                                         className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "detailed" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
                                     >
-                                        Detailed Report
+                                        Full report
                                     </button>
                                 </div>
                             </header>
 
-                            {selectedItem.status === "error" || selectedItem.status === "cancelled" ? (
+                            {/* Show error for: error, cancelled, OR executing with no reports (incomplete) */}
+                            {selectedItem.status === "error" || selectedItem.status === "cancelled" ||
+                                (selectedItem.status === "executing" && selectedItem.reports.length === 0) ? (
                                 <div className="p-8 rounded-[20px] bg-red-500/5 border border-red-500/20 text-red-400">
                                     <h3 className="text-xl font-bold mb-4">
-                                        {selectedItem.status === "cancelled" ? "Analysis Cancelled" : "Analysis Failed"}
+                                        {selectedItem.status === "cancelled"
+                                            ? "Analysis Cancelled"
+                                            : selectedItem.status === "executing"
+                                                ? "Analysis Incomplete"
+                                                : "Analysis Failed"}
                                     </h3>
                                     <p className="bg-black/20 p-4 rounded-xl font-mono text-sm">
-                                        {selectedItem.error_message || (selectedItem.status === "cancelled" ? "This analysis was cancelled before completion." : "Unknown error")}
-                                    </p>
-                                </div>
-                            ) : selectedItem.status === "executing" ? (
-                                <div className="p-8 rounded-[20px] bg-yellow-500/5 border border-yellow-500/20 text-yellow-400">
-                                    <h3 className="text-xl font-bold mb-4 flex items-center gap-3">
-                                        <div className="w-5 h-5 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
-                                        Analysis In Progress
-                                    </h3>
-                                    <p className="opacity-70">
-                                        This analysis is still running or was interrupted. Reports will appear here once the analysis completes successfully.
+                                        {selectedItem.error_message ||
+                                            (selectedItem.status === "cancelled"
+                                                ? "This analysis was cancelled before completion."
+                                                : selectedItem.status === "executing"
+                                                    ? "This analysis was interrupted and did not complete. No reports were saved."
+                                                    : "Unknown error")}
                                     </p>
                                 </div>
                             ) : selectedItem.reports.length === 0 ? (
