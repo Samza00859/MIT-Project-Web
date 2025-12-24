@@ -32,7 +32,8 @@ function escapeHtml(text: string) {
 }
 
 function formatInlineMarkdown(text: string) {
-    return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    // Remove all asterisks for display
+    return escapeHtml(text).replace(/\*+/g, "");
 }
 
 interface ReportSectionsDisplayProps extends ReportSectionsProps {

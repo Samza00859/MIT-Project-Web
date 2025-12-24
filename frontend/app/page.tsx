@@ -203,8 +203,8 @@ function escapeHtml(text: string) {
 }
 
 function formatInlineMarkdown(text: string) {
-  // Simple bold replacement
-  return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  // Remove all asterisks for display
+  return escapeHtml(text).replace(/\*+/g, "");
 }
 
 function extractDecision(markdownText: string) {
