@@ -226,10 +226,30 @@ export default function HistoryPage() {
 
         let decision = "N/A";
         if (portFull && typeof portFull.content === 'object' && portFull.content !== null) {
+            // 1. Try direct keys
             decision = portFull.content.judge_decision ||
                 portFull.content.decision ||
                 portFull.content.recommendation ||
                 (portFull.content.score ? `SCORE: ${portFull.content.score}` : "N/A");
+
+            // 2. If still N/A, try to parse JSON from 'text' (e.g. if it had markdown headers)
+            if (decision === "N/A" && typeof portFull.content.text === 'string') {
+                try {
+                    const text = portFull.content.text;
+                    const firstBrace = text.indexOf('{');
+                    const lastBrace = text.lastIndexOf('}');
+                    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                        const jsonStr = text.substring(firstBrace, lastBrace + 1);
+                        const parsed = JSON.parse(jsonStr);
+                        decision = parsed.judge_decision ||
+                            parsed.decision ||
+                            parsed.recommendation ||
+                            (parsed.score ? `SCORE: ${parsed.score}` : "N/A");
+                    }
+                } catch (e) {
+                    // ignore parse error
+                }
+            }
         }
 
         return {
@@ -303,12 +323,12 @@ export default function HistoryPage() {
                                     <div className="flex items-center gap-3 mb-2">
                                         <h1 className="text-4xl font-bold">{selectedItem.ticker}</h1>
                                         <span className={`px-3 py-1 rounded-full text-sm font-bold ${selectedItem.status === "success"
-                                                ? "bg-[#2df4c6]/20 text-[#2df4c6]"
-                                                : (selectedItem.status === "executing" && selectedItem.reports.length === 0)
-                                                    ? "bg-red-500/10 text-red-500"
-                                                    : selectedItem.status === "executing"
-                                                        ? "bg-yellow-500/20 text-yellow-400"
-                                                        : "bg-red-500/10 text-red-500"
+                                            ? "bg-[#2df4c6]/20 text-[#2df4c6]"
+                                            : (selectedItem.status === "executing" && selectedItem.reports.length === 0)
+                                                ? "bg-red-500/10 text-red-500"
+                                                : selectedItem.status === "executing"
+                                                    ? "bg-yellow-500/20 text-yellow-400"
+                                                    : "bg-red-500/10 text-red-500"
                                             }`}>
                                             {selectedItem.status === "executing" && selectedItem.reports.length === 0
                                                 ? "INCOMPLETE"

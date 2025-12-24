@@ -1,8 +1,23 @@
 {
-    "sentiment_score": 50,
-    "sentiment_verdict": "Error",
-    "social_volume_analysis": "Parsing error occurred.",
-    "dominant_narrative": "Error processing data.",
-    "top_discussion_topics": [],
-    "retail_psychology_assessment": "Error occurred during analysis."
+    "sentiment_verdict": "Neutral",
+    "social_volume": "Moderate volume, with recent posts focusing on technical indicators and sentiment data.",
+    "dominant_narrative": "Market sentiment is mixed, with recent posts highlighting a negative sentiment score and oversold technical conditions, but longer-term discussions remain focused on AI partnerships and product cycles.",
+    "top_topics": [
+        {
+            "topic": "Stock Sentiment and Technical Analysis",
+            "sentiment": "Negative",
+            "analysis_snippet": "Recent sentiment data and RSI indicators point to negative market sentiment and oversold conditions."
+        },
+        {
+            "topic": "AI Strategy and Partnerships",
+            "sentiment": "Positive",
+            "analysis_snippet": "Longer-term optimism is driven by expectations for Apple's AI strategy, including potential partnerships and the 'Apple Intelligence' platform."
+        },
+        {
+            "topic": "Executive Changes and Leadership",
+            "sentiment": "Mixed",
+            "analysis_snippet": "Discussions show mixed reactions to senior executive departures and speculation about Tim Cook's future."
+        }
+    ],
+    "psychology": "Fear Uncertainty and Doubt regarding near-term price action, countered by longer-term Hold On for Dear Life mentality among some investors."
 }
