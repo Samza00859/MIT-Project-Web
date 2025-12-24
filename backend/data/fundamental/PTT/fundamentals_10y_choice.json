@@ -1,0 +1,46 @@
+{
+  "symbol": "PTT",
+  "chosen_source": "yfinance",
+  "years_found": 0,
+  "available_years": [],
+  "all_scores": {
+    "yfinance": 0,
+    "finnhub": 0,
+    "alphavantage": 0
+  },
+  "final_payload": {
+    "overview": {
+      "marketCap": null,
+      "sharesOutstanding": null,
+      "peRatio": null,
+      "currency": null,
+      "exchange": "YHD",
+      "name": "6441",
+      "sector": null,
+      "industry": null
+    },
+    "balancesheet": {},
+    "cashflow": {},
+    "incomestatement": {}
+  },
+  "raw": {
+    "yfinance": {
+      "overview": {
+        "marketCap": null,
+        "sharesOutstanding": null,
+        "peRatio": null,
+        "currency": null,
+        "exchange": "YHD",
+        "name": "6441",
+        "sector": null,
+        "industry": null
+      },
+      "balancesheet": {},
+      "cashflow": {},
+      "incomestatement": {}
+    },
+    "finnhub": {},
+    "alphavantage": {}
+  },
+  "timestamp": "2025-12-24T07:30:13.117381+00:00"
+}

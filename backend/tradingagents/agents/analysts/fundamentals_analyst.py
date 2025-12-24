@@ -8,6 +8,7 @@ from langchain_core.output_parsers import JsonOutputParser
 from tradingagents.agents.utils.fundamental_data_tools import (
     get_all_fundamentals_batch
 )
+from tradingagents.dataflows.local_call import get_10years_fundamentals
 
 
 # ===================== PYDANTIC MODELS ======================
@@ -37,7 +38,7 @@ def create_fundamentals_analyst(llm):
         ticker = state["company_of_interest"]
 
         # ===================== PRE-FETCH DATA ======================
-        fundamentals_data = await get_all_fundamentals_batch(ticker, current_date)
+        fundamentals_data = await get_10years_fundamentals(ticker)
 
         # ===================== SYSTEM MESSAGE ======================
         system_message = f"""

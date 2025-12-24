@@ -1,0 +1,46 @@
+{
+  "symbol": "US",
+  "chosen_source": "yfinance",
+  "years_found": 0,
+  "available_years": [],
+  "all_scores": {
+    "yfinance": 0,
+    "finnhub": 0,
+    "alphavantage": 0
+  },
+  "final_payload": {
+    "overview": {
+      "marketCap": null,
+      "sharesOutstanding": null,
+      "peRatio": null,
+      "currency": null,
+      "exchange": "NMS",
+      "name": null,
+      "sector": null,
+      "industry": null
+    },
+    "balancesheet": {},
+    "cashflow": {},
+    "incomestatement": {}
+  },
+  "raw": {
+    "yfinance": {
+      "overview": {
+        "marketCap": null,
+        "sharesOutstanding": null,
+        "peRatio": null,
+        "currency": null,
+        "exchange": "NMS",
+        "name": null,
+        "sector": null,
+        "industry": null
+      },
+      "balancesheet": {},
+      "cashflow": {},
+      "incomestatement": {}
+    },
+    "finnhub": {},
+    "alphavantage": {}
+  },
+  "timestamp": "2025-12-24T07:51:34.511044+00:00"
+}

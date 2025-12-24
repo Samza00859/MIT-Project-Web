@@ -18,6 +18,18 @@ async def get_fundamentals_local(ticker, curr_date):
         
     return res
 
+async def get_10years_fundamentals(ticker):
+    """
+    Fetch comprehensive fundamental data for up to 10 years efficiently.
+    """
+    from .local import pick_fundamental_source_10years
+    
+    res = await pick_fundamental_source_10years(ticker)
+    
+    print(f'\n\n\n [get_10years_fundamentals] Chosen 10-year source result:\n{res}\n\n\n')
+    
+    return res
+
 #company news data
 def get_finnhub_company_news(
     query: Annotated[str, "Search query or ticker symbol"],
