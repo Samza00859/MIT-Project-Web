@@ -6,144 +6,39 @@ import asyncio
 import json
 import os
 import datetime
-from datetime import timedelta
 import logging
-import base64
-import hashlib
-import hmac
-import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends, status
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, RedirectResponse
-from pydantic import BaseModel, EmailStr
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
 from dotenv import load_dotenv
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-
-from backend.auth import (
-    UserCreate,
-    UserInDB,
-    get_password_hash,
-    verify_password,
-    create_access_token,
-    decode_access_token,
-    get_user,
-    update_user,
-    create_user,
-    get_user_by_verification_token,
-    delete_user,
-    refresh_email_verification,
-)
-from sqlalchemy.exc import IntegrityError
-from backend.config import (
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-    EMAIL_SENDING,
-    EMAIL_VERIFICATION_ENABLED,
-    EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS,
-    VERIFICATION_TOKEN_SECRET,
-)
-from backend.email_service import send_verification_email
-
-# Configure logging first
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Ensure internal modules (like `tradingagents` and `cli`) are importable.
-# They live under `backend/` but are imported as top-level modules in this file.
-# When running from the repo root, Python can import `backend.*` but not `tradingagents`
-# unless `backend/` is on sys.path.
-BACKEND_ROOT = Path(__file__).resolve().parents[1]
-if str(BACKEND_ROOT) not in sys.path:
-    sys.path.insert(0, str(BACKEND_ROOT))
-
-# Load environment variables
-# Suppress dotenv parse warnings (e.g., comments with colons in .env file)
-# These warnings are harmless - dotenv will still load valid variables
-import warnings
-with warnings.catch_warnings():
-    warnings.filterwarnings("ignore", category=UserWarning, module="dotenv")
-    warnings.filterwarnings("ignore", message=".*python-dotenv.*")
-    try:
-        load_dotenv(verbose=False)
-    except Exception as e:
-        logger.warning(f"Error loading .env file: {e}")
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Initialize database
-    try:
-        await init_db()
-        logger.info("✅ Database initialized")
-    except Exception as e:
-        logger.error(f"❌ Database initialization failed: {e}")
-    yield
-
-# Create FastAPI app
-app = FastAPI(title="TradingAgents API", version="1.0.0", lifespan=lifespan)
-
-# Port is logged on startup so engineers can quickly confirm which host:port is
-# exposed. Defaults to 8000 for local development.
-API_PORT = int(os.getenv("PORT", "8000"))
-
-# Configure CORS (must be registered before any routers/endpoints)
-# The frontend (Next.js) runs on :3000 during development, so we explicitly allow
-# that origin and still keep a small whitelist for local variations. Credentials
-# are enabled only when needed; current frontend uses bearer tokens (no cookies),
-# so credentials remain disabled to simplify local CORS.
-frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        frontend_url,
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:3001",
-    ],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-from .database import init_db, AsyncSessionLocal
-from .models import ExecutionHistory
-from .history_router import router as history_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Load environment variables
+load_dotenv()
 
-@app.middleware("http")
-async def log_requests(request, call_next):
-    """Log incoming requests to help debug frontend/backend connectivity."""
-    logger.info("➡️ %s %s", request.method, request.url.path)
-    response = await call_next(request)
-    logger.info("⬅️ %s %s %s", request.method, request.url.path, response.status_code)
-    return response
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+# Database imports
+from database.database import AsyncSessionLocal
+from database.models import ExecutionHistory, ReportResult
+from sqlalchemy import select
 
 try:
     import yfinance as yf
-except ImportError as e:  # pragma: no cover - optional dependency
-    yf = None
-    logger.warning("yfinance not available; /quote endpoints will be disabled (%s)", e)
-
-try:
     from tradingagents.graph.trading_graph import TradingAgentsGraph
     from tradingagents.default_config import DEFAULT_CONFIG
-    logger.info("Successfully imported TradingAgents modules")
-except ImportError as e:  # pragma: no cover - optional dependency
-    TradingAgentsGraph = None
-    DEFAULT_CONFIG = None
-    logger.warning("TradingAgents modules not available; analysis endpoints will be disabled (%s)", e)
+    from cli.models import AnalystType
+    logger.info("Successfully imported TradingAgents modules and yfinance")
+except ImportError as e:
+    logger.error(f"Failed to import required modules: {e}")
+    raise
 
 # Get the project root directory (parent of api directory)
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -153,773 +48,6 @@ logger.info(f"Project root: {PROJECT_ROOT}")
 logger.info(f"Web directory: {WEB_DIR} (exists: {WEB_DIR.exists()})")
 
 # Active WebSocket connections
-active_connections: List[WebSocket] = []
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
-
-
-@app.on_event("startup")
-async def log_startup() -> None:
-    """Log port and catch misconfiguration early."""
-    try:
-        logger.info(f"🚀 TradingAgents API starting on http://0.0.0.0:{API_PORT}")
-        logger.info(f"📧 Email Sending: {'ENABLED' if EMAIL_SENDING else 'DISABLED'}")
-        if EMAIL_SENDING:
-            from backend.config import RESEND_FROM_EMAIL
-            logger.info(f"📧 Resend From Email: {RESEND_FROM_EMAIL}")
-    except Exception as exc:  # pragma: no cover - defensive logging
-        logger.error(f"Failed to log startup details: {exc}")
-
-# --- Auth Endpoints ---
-
-@app.post("/api/auth/register", status_code=status.HTTP_201_CREATED)
-async def register_user(user: UserCreate):
-    """
-    Register a new user following the sign-up workflow:
-    1. User fills registration form → Frontend sends Register POST request
-    2. Backend creates new user in DB (with 6-digit verification code)
-    3. Backend sends verification email with 6-digit code
-    4. User enters code → Frontend sends Verify POST request to /api/auth/verify-code
-    5. Backend sets email as verified in DB
-    6. Backend sends OK confirmation
-    
-    Returns verification code in dev mode when EMAIL_SENDING is disabled.
-    """
-    try:
-        # Check if email already exists
-        existing_user = await get_user(user.email)
-        if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered"
-            )
-        
-        # Create user (if verification is enabled, user will be created unverified with a token + 6-digit code)
-        new_user = await create_user(user)
-        await update_user(new_user)
-
-        # If verification is enabled, optionally email the link/code (if email sending is enabled).
-        # For local development (EMAIL_SENDING=false) we still return dev fields so the UI can be tested.
-        verification_required = EMAIL_VERIFICATION_ENABLED and not new_user.is_verified
-        verification_link = None
-        email_sent = False
-        email_error = None
-        if verification_required:
-            frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
-            verification_link = f"{frontend_url}/Auth/verify-code?email={new_user.email}"
-            if EMAIL_SENDING:
-                try:
-                    email_sent = await send_verification_email(
-                        recipient_email=new_user.email,
-                        verification_link=verification_link,
-                        verification_code=new_user.verification_code,
-                    )
-                    if email_sent:
-                        logger.info(f"✅ Verification email sent successfully to {new_user.email}")
-                    else:
-                        logger.warning(f"❌ Failed to send verification email to {new_user.email} (email service returned False)")
-                        email_error = "Email service configuration issue. Please check server logs."
-                except Exception as exc:
-                    logger.error(f"❌ Exception while sending verification email to {new_user.email}: {exc}", exc_info=True)
-                    email_error = str(exc)
-            else:
-                logger.info(f"📧 Email sending disabled. Verification code for {new_user.email}: {new_user.verification_code}")
-
-        response = {
-            "message": "User registered successfully.",
-            "email": new_user.email,
-            "is_verified": new_user.is_verified,
-            "verification_required": verification_required,
-            "email_sent": email_sent,
-            # Dev-only helpers: when we aren't sending emails, surface the code so you can test the OTP UI.
-            # DO NOT rely on this in production.
-            "dev_verification_code": new_user.verification_code if (verification_required and not EMAIL_SENDING) else None,
-            "dev_verification_link": verification_link if (verification_required and not EMAIL_SENDING) else None,
-        }
-        
-        if email_error:
-            response["email_error"] = email_error
-        
-        return response
-    except HTTPException:
-        # Re-raise HTTP-specific errors unchanged
-        raise
-    except Exception as exc:
-        logger.exception("Failed to register user")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error while registering user."
-        ) from exc
-
-@app.get("/api/auth/verify-email")
-async def verify_email(token: str):
-    if not EMAIL_VERIFICATION_ENABLED:
-        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Email verification is disabled on this server.")
-
-    user = await get_user_by_verification_token(token)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid verification token.")
-    if user.is_verified:
-        return {"message": "Email already verified.", "email": user.email, "is_verified": True}
-    if user.token_expired_at and datetime.datetime.utcnow() > user.token_expired_at:
-        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Verification token expired. Please resend the code.")
-
-    user.is_verified = True
-    user.email_verification_token = None
-    user.verification_code = None
-    user.token_expired_at = None
-    await update_user(user)
-    return {"message": "Email verified successfully.", "email": user.email, "is_verified": True}
-
-class VerifyCodeRequest(BaseModel):
-    email: EmailStr
-    code: str
-
-@app.post("/api/auth/verify-code")
-async def verify_code(data: VerifyCodeRequest):
-    """
-    Verify user email with 6-digit code following the workflow:
-    4. User enters 6-digit code → Frontend sends Verify POST request
-    5. Backend sets email as verified in DB
-    6. Backend sends OK confirmation
-    
-    Returns success message when verification is complete.
-    """
-    if not EMAIL_VERIFICATION_ENABLED:
-        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Email verification is disabled on this server.")
-
-    user = await get_user(data.email)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-
-    if user.is_verified:
-        return {"message": "Email already verified.", "email": user.email, "is_verified": True}
-
-    if user.token_expired_at and datetime.datetime.utcnow() > user.token_expired_at:
-        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Verification code expired. Please resend the code.")
-
-    # Basic validation: must be exactly 6 digits
-    code = (data.code or "").strip()
-    if not code.isdigit() or len(code) != 6:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid code format.")
-
-    if not user.verification_code or user.verification_code != code:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect verification code.")
-
-    user.is_verified = True
-    user.email_verification_token = None
-    user.verification_code = None
-    user.token_expired_at = None
-    await update_user(user)
-    return {"message": "Email verified successfully.", "email": user.email, "is_verified": True}
-
-
-class ResendVerificationCodeRequest(BaseModel):
-    email: EmailStr
-
-
-@app.post("/api/auth/resend-verification-code")
-async def resend_verification_code(data: ResendVerificationCodeRequest):
-    if not EMAIL_VERIFICATION_ENABLED:
-        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Email verification is disabled on this server.")
-
-    user = await get_user(data.email)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-    if user.is_verified:
-        return {"message": "Email already verified.", "email": user.email, "is_verified": True}
-
-    now = datetime.datetime.utcnow()
-    if user.last_verification_sent_at:
-        seconds_since = (now - user.last_verification_sent_at).total_seconds()
-        if seconds_since < EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS:
-            retry_after = int(EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS - seconds_since)
-            raise HTTPException(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail=f"Please wait {retry_after}s before requesting a new code.",
-                headers={"Retry-After": str(retry_after)},
-            )
-
-    user = await refresh_email_verification(user)
-    await update_user(user)
-
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
-    verification_link = f"{frontend_url}/Auth/verify-code?email={user.email}"
-    email_sent = False
-    email_error = None
-    
-    if EMAIL_SENDING:
-        try:
-            email_sent = await send_verification_email(
-                recipient_email=user.email,
-                verification_link=verification_link,
-                verification_code=user.verification_code,
-            )
-            if email_sent:
-                logger.info(f"✅ Verification email sent successfully to {user.email}")
-            else:
-                logger.warning(f"❌ Failed to send verification email to {user.email} (email service returned False)")
-                email_error = "Email service configuration issue. Please check server logs."
-        except Exception as exc:
-            logger.error(f"❌ Exception while sending verification email to {user.email}: {exc}", exc_info=True)
-            email_error = str(exc)
-    else:
-        logger.info(f"📧 Email sending disabled. Verification code for {user.email}: {user.verification_code}")
-
-    response = {
-        "message": "Verification code resent.",
-        "email": user.email,
-        "email_sent": email_sent,
-        "dev_verification_code": user.verification_code if not EMAIL_SENDING else None,
-        "dev_verification_link": verification_link if not EMAIL_SENDING else None,
-    }
-    
-    if email_error:
-        response["email_error"] = email_error
-    
-    return response
-
-
-class VerifyEmailTokenRequest(BaseModel):
-    email: EmailStr
-    token: str
-
-
-def _b64url_decode(data: str) -> bytes:
-    # Add base64 padding if needed
-    padding = "=" * (-len(data) % 4)
-    return base64.urlsafe_b64decode((data + padding).encode("utf-8"))
-
-
-def _verify_node_token(token: str) -> str:
-    """
-    Legacy (unused): verify token generated by a removed Node email verification service using HMAC-SHA256.
-
-    Token format: base64url(payload_json) + "." + base64url(hmac_sha256(secret, payload_b64))
-    Returns the email from the payload if valid, otherwise raises HTTPException.
-    """
-    if not token or "." not in token:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token format")
-
-    payload_b64, sig_b64 = token.split(".", 1)
-    expected_sig = hmac.new(
-        VERIFICATION_TOKEN_SECRET.encode("utf-8"),
-        payload_b64.encode("utf-8"),
-        hashlib.sha256,
-    ).digest()
-    expected_sig_b64 = base64.urlsafe_b64encode(expected_sig).decode("utf-8").rstrip("=")
-
-    if not hmac.compare_digest(expected_sig_b64, sig_b64):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token signature")
-
-    try:
-        payload_raw = _b64url_decode(payload_b64)
-        payload = json.loads(payload_raw.decode("utf-8"))
-    except Exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token payload")
-
-    email = payload.get("email")
-    exp = payload.get("exp")  # epoch seconds
-    now = int(datetime.datetime.utcnow().timestamp())
-    if not email or not isinstance(email, str):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token missing email")
-    if not exp or not isinstance(exp, int):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token missing exp")
-    if now > exp:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token expired")
-
-    return email
-
-
-@app.post("/api/auth/verify-email-token")
-async def verify_email_token(data: VerifyEmailTokenRequest):
-    if not EMAIL_VERIFICATION_ENABLED:
-        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Email verification is disabled on this server.")
-
-    # This endpoint exists for a legacy Node token format. If you still use it, it verifies the token
-    # and marks the user as verified. Otherwise, prefer /api/auth/verify-email (token in query) or /api/auth/verify-code.
-    email_from_token = _verify_node_token(data.token)
-    if email_from_token != data.email:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token email does not match request email.")
-
-    user = await get_user(data.email)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-
-    user.is_verified = True
-    user.email_verification_token = None
-    user.verification_code = None
-    user.token_expired_at = None
-    await update_user(user)
-    return {"message": "Email verified successfully.", "email": user.email, "is_verified": True}
-
-class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
-
-@app.post("/api/auth/login", response_model=Token)
-async def login_for_access_token(login_data: LoginRequest):
-    """
-    Login endpoint that accepts JSON body with email and password.
-    Email verification is disabled, so all registered users can login.
-    """
-    user = await get_user(login_data.email)
-    if not user or not verify_password(login_data.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    if EMAIL_VERIFICATION_ENABLED and not user.is_verified:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Email not verified. Please verify your email before logging in.",
-        )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer", "user": user}
-
-class GoogleLoginRequest(BaseModel):
-    access_token: Optional[str] = None
-    credential: Optional[str] = None  # For One Tap (not used in OAuth2 flow)
-    email: str
-    name: Optional[str] = None
-    picture: Optional[str] = None
-
-class FacebookLoginRequest(BaseModel):
-    access_token: str
-    email: str
-    name: Optional[str] = None
-    picture: Optional[str] = None
-    facebook_id: Optional[str] = None
-
-@app.post("/api/auth/google")
-async def google_login(google_data: GoogleLoginRequest):
-    """
-    Google OAuth login endpoint.
-    Verifies Google access token or credential and creates/logs in user.
-    """
-    import requests
-    from jose import jwt, JWTError
-    
-    try:
-        google_email = google_data.email
-        google_name = google_data.name
-        google_picture = google_data.picture
-        
-        # If using OAuth2 flow (access_token), verify with Google API
-        if google_data.access_token:
-            try:
-                # Verify access token with Google API
-                # Use asyncio.to_thread to avoid blocking the event loop
-                def verify_token():
-                    response = requests.get(
-                        "https://www.googleapis.com/oauth2/v2/userinfo",
-                        params={"access_token": google_data.access_token},
-                        timeout=10
-                    )
-                    return response
-                
-                user_info_response = await asyncio.to_thread(verify_token)
-                
-                if user_info_response.status_code != 200:
-                    error_text = user_info_response.text[:200] if user_info_response.text else "No error details"
-                    logger.error(f"Google API returned status {user_info_response.status_code}: {error_text}")
-                    raise HTTPException(
-                        status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="Invalid Google access token"
-                    )
-                user_info = user_info_response.json()
-                google_email = user_info.get("email", google_data.email)
-                google_name = user_info.get("name", google_data.name)
-                google_picture = user_info.get("picture", google_data.picture)
-            except requests.RequestException as e:
-                logger.error(f"Failed to verify Google access token: {e}", exc_info=True)
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Failed to verify Google access token: {str(e)}"
-                )
-        # If using One Tap (credential), decode JWT
-        elif google_data.credential:
-            try:
-                # Decode without verification for now (in production, verify with Google's public keys)
-                decoded_token = jwt.decode(google_data.credential, options={"verify_signature": False})
-                google_email = decoded_token.get("email", google_data.email)
-                google_name = decoded_token.get("name", google_data.name)
-                google_picture = decoded_token.get("picture", google_data.picture)
-                
-                if not google_email:
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="Invalid Google credential: email not found"
-                    )
-            except Exception as e:
-                logger.error(f"Failed to decode Google credential: {e}")
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Invalid Google credential"
-                )
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Either access_token or credential must be provided"
-            )
-        
-        if not google_email:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email is required"
-            )
-
-        # Check if user exists
-        try:
-            user = await get_user(google_email)
-        except Exception as e:
-            error_msg = str(e)
-            logger.error(f"Failed to get user from database: {error_msg}", exc_info=True)
-            
-            # Provide more specific error messages
-            if "connection" in error_msg.lower() or "connect" in error_msg.lower():
-                detail = "Database connection error. Please ensure the database is running and DATABASE_URL is correct."
-            elif "timeout" in error_msg.lower():
-                detail = "Database connection timeout. Please check your database connection."
-            elif "authentication" in error_msg.lower() or "password" in error_msg.lower():
-                detail = "Database authentication failed. Please check your DATABASE_URL credentials."
-            else:
-                detail = f"Database error while checking user: {error_msg}"
-            
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=detail
-            )
-        
-        if user:
-            # User exists, log them in
-            # Skip email verification for Google OAuth users
-            if not user.is_verified:
-                try:
-                    user.is_verified = True
-                    await update_user(user)
-                    logger.info(f"✅ User verified via Google OAuth: {google_email}")
-                except Exception as e:
-                    logger.error(f"Failed to update user verification status: {e}", exc_info=True)
-                    # Continue anyway, user can still login
-        else:
-            # Create new user with Google OAuth
-            # Generate a random password (won't be used for Google OAuth users)
-            try:
-                import secrets
-                random_password = secrets.token_urlsafe(32)
-                
-                new_user = UserCreate(
-                    email=google_email,
-                    password=random_password,  # Random password, won't be used
-                )
-                user = await create_user(new_user)
-                # Mark as verified since Google already verified the email
-                user.is_verified = True
-                await update_user(user)
-                logger.info(f"✅ New user created via Google OAuth: {google_email}")
-            except IntegrityError as e:
-                logger.error(f"Failed to create user (duplicate email?): {e}", exc_info=True)
-                # User might have been created between check and create, try to get again
-                try:
-                    user = await get_user(google_email)
-                    if user:
-                        logger.info(f"User already exists, using existing user: {google_email}")
-                    else:
-                        raise HTTPException(
-                            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            detail="Failed to create user: email may already exist"
-                        )
-                except Exception as e2:
-                    logger.error(f"Failed to get user after creation error: {e2}", exc_info=True)
-                    raise HTTPException(
-                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        detail=f"Failed to create user: {str(e)}"
-                    )
-            except Exception as e:
-                error_msg = str(e)
-                logger.error(f"Failed to create user: {error_msg}", exc_info=True)
-                
-                # Provide more specific error messages
-                if "connection" in error_msg.lower() or "connect" in error_msg.lower():
-                    detail = "Database connection error. Please ensure the database is running and DATABASE_URL is correct."
-                else:
-                    detail = f"Failed to create user: {error_msg}"
-                
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=detail
-                )
-
-        # Create access token
-        try:
-            access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            access_token = create_access_token(
-                data={"sub": user.email}, expires_delta=access_token_expires
-            )
-        except Exception as e:
-            logger.error(f"Failed to create access token: {e}", exc_info=True)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to create access token"
-            )
-        
-        return {
-            "access_token": access_token,
-            "token_type": "bearer",
-            "user": {
-                "email": user.email,
-                "is_verified": user.is_verified,
-            }
-        }
-    except HTTPException:
-        raise
-    except Exception as exc:
-        logger.exception("Failed to process Google login")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal server error while processing Google login: {str(exc)}"
-        ) from exc
-
-@app.post("/api/auth/facebook")
-async def facebook_login(facebook_data: FacebookLoginRequest):
-    """
-    Facebook OAuth login endpoint.
-    Verifies Facebook access token and creates/logs in user.
-    """
-    try:
-        facebook_email = facebook_data.email
-        facebook_name = facebook_data.name
-        facebook_picture = facebook_data.picture
-        
-        # Verify access token with Facebook API
-        if facebook_data.access_token:
-            try:
-                # Verify access token with Facebook API
-                def verify_token():
-                    response = requests.get(
-                        "https://graph.facebook.com/me",
-                        params={
-                            "access_token": facebook_data.access_token,
-                            "fields": "id,name,email,picture"
-                        },
-                        timeout=10
-                    )
-                    return response
-                
-                user_info_response = await asyncio.to_thread(verify_token)
-                
-                if user_info_response.status_code != 200:
-                    error_text = user_info_response.text[:200] if user_info_response.text else "No error details"
-                    logger.error(f"Facebook API returned status {user_info_response.status_code}: {error_text}")
-                    raise HTTPException(
-                        status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="Invalid Facebook access token"
-                    )
-                user_info = user_info_response.json()
-                
-                # Verify email matches
-                if user_info.get("email") and user_info.get("email") != facebook_email:
-                    logger.warning(f"Email mismatch: provided={facebook_email}, facebook={user_info.get('email')}")
-                    # Use email from Facebook API as it's more reliable
-                    facebook_email = user_info.get("email", facebook_email)
-                
-                facebook_name = user_info.get("name", facebook_name)
-                if user_info.get("picture") and user_info.get("picture").get("data"):
-                    facebook_picture = user_info.get("picture").get("data").get("url", facebook_picture)
-            except requests.RequestException as e:
-                logger.error(f"Failed to verify Facebook access token: {e}", exc_info=True)
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Failed to verify Facebook access token"
-                )
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Facebook access_token is required"
-            )
-        
-        if not facebook_email:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email is required"
-            )
-
-        # Check if user exists
-        try:
-            user = await get_user(facebook_email)
-        except Exception as e:
-            error_msg = str(e)
-            logger.error(f"Failed to get user from database: {error_msg}", exc_info=True)
-            
-            # Provide more specific error messages
-            if "connection" in error_msg.lower() or "connect" in error_msg.lower():
-                detail = "Database connection error. Please ensure the database is running and DATABASE_URL is correct."
-            elif "timeout" in error_msg.lower():
-                detail = "Database connection timeout. Please check your database connection."
-            elif "authentication" in error_msg.lower() or "password" in error_msg.lower():
-                detail = "Database authentication failed. Please check your DATABASE_URL credentials."
-            else:
-                detail = f"Database error while checking user: {error_msg}"
-            
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=detail
-            )
-        
-        if user:
-            # User exists, log them in
-            # Skip email verification for Facebook OAuth users
-            if not user.is_verified:
-                try:
-                    user.is_verified = True
-                    await update_user(user)
-                    logger.info(f"✅ User verified via Facebook OAuth: {facebook_email}")
-                except Exception as e:
-                    logger.error(f"Failed to update user verification status: {e}", exc_info=True)
-                    # Continue anyway, user can still login
-        else:
-            # Create new user with Facebook OAuth
-            # Generate a random password (won't be used for Facebook OAuth users)
-            try:
-                import secrets
-                random_password = secrets.token_urlsafe(32)
-                
-                new_user = UserCreate(
-                    email=facebook_email,
-                    password=random_password,  # Random password, won't be used
-                )
-                user = await create_user(new_user)
-                # Mark as verified since Facebook already verified the email
-                user.is_verified = True
-                await update_user(user)
-                logger.info(f"✅ New user created via Facebook OAuth: {facebook_email}")
-            except IntegrityError as e:
-                logger.error(f"Failed to create user (duplicate email?): {e}", exc_info=True)
-                # User might have been created between check and create, try to get again
-                try:
-                    user = await get_user(facebook_email)
-                    if user:
-                        logger.info(f"User already exists, using existing user: {facebook_email}")
-                    else:
-                        raise HTTPException(
-                            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            detail="Failed to create user: email may already exist"
-                        )
-                except Exception as e2:
-                    logger.error(f"Failed to get user after creation error: {e2}", exc_info=True)
-                    raise HTTPException(
-                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        detail=f"Failed to create user: {str(e)}"
-                    )
-            except Exception as e:
-                error_msg = str(e)
-                logger.error(f"Failed to create user: {error_msg}", exc_info=True)
-                
-                # Provide more specific error messages
-                if "connection" in error_msg.lower() or "connect" in error_msg.lower():
-                    detail = "Database connection error. Please ensure the database is running and DATABASE_URL is correct."
-                else:
-                    detail = f"Failed to create user: {error_msg}"
-                
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=detail
-                )
-
-        # Create access token
-        try:
-            access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            access_token = create_access_token(
-                data={"sub": user.email}, expires_delta=access_token_expires
-            )
-        except Exception as e:
-            logger.error(f"Failed to create access token: {e}", exc_info=True)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to create access token"
-            )
-        
-        return {
-            "access_token": access_token,
-            "token_type": "bearer",
-            "user": {
-                "email": user.email,
-                "is_verified": user.is_verified,
-            }
-        }
-    except HTTPException:
-        raise
-    except Exception as exc:
-        logger.exception("Failed to process Facebook login")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal server error while processing Facebook login: {str(exc)}"
-        ) from exc
-
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    email = decode_access_token(token)
-    if email is None:
-        raise credentials_exception
-    user = await get_user(email)
-    if user is None:
-        raise credentials_exception
-    return user
-
-@app.get("/api/users/me", response_model=UserInDB)
-async def read_users_me(current_user: UserInDB = Depends(get_current_user)):
-    return current_user
-
-@app.delete("/api/users/me")
-async def delete_my_account(current_user: UserInDB = Depends(get_current_user)):
-    """
-    Delete the currently logged-in user's account and send a confirmation email.
-    """
-    email = current_user.email
-    success = await delete_user(email)
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to delete account"
-        )
-    
-    return {"message": "Account successfully deleted"}
-
-class DeleteAccountRequest(BaseModel):
-    email: EmailStr
-
-@app.post("/api/auth/delete-account")
-async def admin_delete_account(data: DeleteAccountRequest):
-    """
-    Delete an account by email and send a confirmation email.
-    In a real app, this should be restricted to administrators.
-    """
-    user = await get_user(data.email)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-    
-    success = await delete_user(data.email)
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to delete account"
-        )
-    
-    return {"message": f"Account {data.email} successfully deleted"}
-
-
 active_connections: List[WebSocket] = []
 
 
@@ -933,10 +61,11 @@ class AnalysisRequest(BaseModel):
     analysts: List[str]  # List of analyst types: ["market", "social", "news", "fundamentals"]
     research_depth: int  # 1, 3, or 5
     llm_provider: str  # "openai", "anthropic", "google", etc.
-    backend_url: str
+    backend_url: str or None    
     shallow_thinker: str
     deep_thinker: str
     report_length: Optional[str] = "summary"
+    user_id: Optional[int] = 1 # Default for mockup
 
 
 def extract_content_string(content):
@@ -973,11 +102,6 @@ async def send_update(websocket: WebSocket, update_type: str, data: Dict[str, An
 async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
     """Run the trading analysis and stream updates via WebSocket."""
     try:
-        if TradingAgentsGraph is None or DEFAULT_CONFIG is None:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Trading engine not available on this server (missing TradingAgents dependencies).",
-            )
         # Create config
         config = DEFAULT_CONFIG.copy()
         config["max_debate_rounds"] = request.research_depth
@@ -1018,6 +142,30 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             request.ticker, request.analysis_date
         )
         args = graph.propagator.get_graph_args()
+
+        # 📊 1. Create ExecutionHistory record IMMEDIATELY
+        execution_id = None
+        try:
+            logger.info("🔌 Attempting to connect to database...")
+            async with AsyncSessionLocal() as db:
+                logger.info("✅ Database connection established")
+                db_history = ExecutionHistory(
+                    ticker=request.ticker,
+                    analysis_date=request.analysis_date,
+                    status="executing",
+                    error_message=None
+                )
+                db.add(db_history)
+                await db.commit()
+                await db.refresh(db_history)
+                execution_id = db_history.id
+                logger.info(f"💾 Created initial history record ID: {execution_id}")
+        except Exception as db_init_err:
+            logger.error(f"❌ Failed to create initial history record: {db_init_err}")
+            import traceback
+            traceback.print_exc()
+            # Non-fatal for analysis itself, but history won't work
+            pass
 
         # Initialize agent statuses
         agent_status = {
@@ -1348,8 +496,16 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             await send_update(websocket, "report", report)
             await asyncio.sleep(0.05)
 
-        # Get final state from trace
-        final_state_graph = trace[-1]
+        # Get final state by merging all trace chunks (each chunk only contains incremental changes)
+        final_state_graph = {}
+        for chunk in trace:
+            if isinstance(chunk, dict):
+                final_state_graph.update(chunk)
+        
+        # Also include the accumulated report_sections which were collected during streaming
+        final_state_graph.update(report_sections)
+        
+        logger.info(f"📊 Final state keys: {list(final_state_graph.keys())}")
 
         # --- Summarization & Output Logic (Replicating propagate) ---
         try:
@@ -1396,11 +552,17 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             logger.info("📝 Running Summarizers...")
             for key, summarizer_func in summarizers.items():
                 try:
-                    update_dict = summarizer_func(final_state_graph)
+                    # Summarizers return async functions, so we need to await them
+                    update_dict = await summarizer_func(final_state_graph)
                     if update_dict:
                         final_state_graph.update(update_dict)
+                        logger.info(f"✅ Summarizer {key} completed successfully")
+                    else:
+                        logger.warning(f"⚠️ Summarizer {key} returned empty result")
                 except Exception as e:
-                     logger.error(f"Error running summarizer {key}: {e}")
+                    logger.error(f"❌ Error running summarizer {key}: {e}")
+                    import traceback
+                    traceback.print_exc()
 
             # Define file mappings (Key in State -> (Sum Filename, Full Filename, Full Key in State))
             file_mappings = [
@@ -1444,6 +606,129 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
 
             logger.info("✅ Summaries generated and saved directly to backend/output")
 
+            # ==========================================================
+            # 💾 Database Completion Block - Read from output files
+            # ==========================================================
+            logger.info(f"🔍 Checking execution_id: {execution_id}")
+            if execution_id:
+                try:
+                    logger.info(f"💾 Updating execution {execution_id} to success and saving reports from files...")
+                    async with AsyncSessionLocal() as db:
+                        # Get the record
+                        stmt = select(ExecutionHistory).where(ExecutionHistory.id == execution_id)
+                        res = await db.execute(stmt)
+                        db_history = res.scalar_one_or_none()
+                        
+                        if db_history:
+                            db_history.status = "success"
+                            
+                            # Log the paths we're looking at
+                            logger.info(f"📂 sum_dir path: {sum_dir}")
+                            logger.info(f"📂 full_dir path: {full_dir}")
+                            logger.info(f"📂 sum_dir exists: {sum_dir.exists()}")
+                            logger.info(f"📂 full_dir exists: {full_dir.exists()}")
+                            
+                            # List files in directories
+                            if sum_dir.exists():
+                                sum_files_list = list(sum_dir.iterdir())
+                                logger.info(f"📄 Files in sum_dir: {[f.name for f in sum_files_list]}")
+                            if full_dir.exists():
+                                full_files_list = list(full_dir.iterdir())
+                                logger.info(f"📄 Files in full_dir: {[f.name for f in full_files_list]}")
+                            
+                            reports_to_add = []
+                            
+                            # File mapping: (filename, report_type, title)
+                            sum_files = [
+                                ("sum_funda.txt", "sum_report", "Fundamentals Review"),
+                                ("sum_market.txt", "sum_report", "Market Analysis"),
+                                ("sum_social.txt", "sum_report", "Social Sentiment"),
+                                ("sum_news.txt", "sum_report", "News Analysis"),
+                                ("sum_bull.txt", "sum_report", "Bull Case"),
+                                ("sum_bear.txt", "sum_report", "Bear Case"),
+                                ("sum_conservative.txt", "sum_report", "Risk: Conservative"),
+                                ("sum_aggressive.txt", "sum_report", "Risk: Aggressive"),
+                                ("sum_neutral.txt", "sum_report", "Risk: Neutral"),
+                                ("sum_trader.txt", "sum_report", "Trader Plan"),
+                                ("sum_investment_plan.txt", "sum_report", "Research Team Decision"),
+                                ("sum_final_decision.txt", "sum_report", "Portfolio Management Decision"),
+                            ]
+                            
+                            full_files = [
+                                ("full_funda.json", "full_report", "Fundamentals Review"),
+                                ("full_market.json", "full_report", "Market Analysis"),
+                                ("full_social.json", "full_report", "Social Sentiment"),
+                                ("full_news.json", "full_report", "News Analysis"),
+                                ("full_bull.json", "full_report", "Bull Case"),
+                                ("full_bear.json", "full_report", "Bear Case"),
+                                ("full_conservative.json", "full_report", "Risk: Conservative"),
+                                ("full_aggressive.json", "full_report", "Risk: Aggressive"),
+                                ("full_neutral.json", "full_report", "Risk: Neutral"),
+                                ("full_trader.json", "full_report", "Trader Plan"),
+                                ("investment_plan.txt", "full_report", "Research Team Decision"),
+                                ("final_decision.json", "full_report", "Portfolio Management Decision"),
+                            ]
+                            
+                            # Read and save summary reports
+                            for filename, report_type, title in sum_files:
+                                filepath = sum_dir / filename
+                                if filepath.exists():
+                                    try:
+                                        with open(filepath, 'r', encoding='utf-8') as f:
+                                            content = f.read()
+                                        if content.strip():
+                                            reports_to_add.append(ReportResult(
+                                                execution_id=execution_id,
+                                                report_type=report_type,
+                                                title=title,
+                                                content={"text": content}
+                                            ))
+                                            logger.info(f"📄 Added sum: {title}")
+                                    except Exception as read_err:
+                                        logger.warning(f"⚠️ Failed to read {filename}: {read_err}")
+                            
+                            # Read and save full reports
+                            for filename, report_type, title in full_files:
+                                filepath = full_dir / filename
+                                if filepath.exists():
+                                    try:
+                                        with open(filepath, 'r', encoding='utf-8') as f:
+                                            raw_content = f.read()
+                                        
+                                        if raw_content.strip():
+                                            # Parse JSON files, keep text files as is
+                                            if filename.endswith('.json'):
+                                                try:
+                                                    content = json.loads(raw_content)
+                                                except json.JSONDecodeError:
+                                                    content = {"text": raw_content}
+                                            else:
+                                                content = {"text": raw_content}
+                                            
+                                            reports_to_add.append(ReportResult(
+                                                execution_id=execution_id,
+                                                report_type=report_type,
+                                                title=title,
+                                                content=content
+                                            ))
+                                            logger.info(f"📄 Added full: {title}")
+                                    except Exception as read_err:
+                                        logger.warning(f"⚠️ Failed to read {filename}: {read_err}")
+                            
+                            logger.info(f"📊 Adding {len(reports_to_add)} reports to database...")
+                            db.add_all(reports_to_add)
+                            await db.commit()
+                            logger.info(f"✅ Database update complete for execution {execution_id} - Saved {len(reports_to_add)} reports")
+                        else:
+                            logger.warning(f"⚠️ ExecutionHistory with id {execution_id} not found")
+
+                except Exception as db_err:
+                    logger.error(f"❌ Database update failed: {db_err}")
+                    import traceback
+                    traceback.print_exc()
+            else:
+                logger.warning("⚠️ No execution_id available - skipping database save")
+
         except Exception as e:
             logger.error(f"❌ Failed to run summarization logic: {e}")
             import traceback
@@ -1484,60 +769,68 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             "final_state": frontend_final_state
         })
 
-        # Save to execution history
-        try:
-            async with AsyncSessionLocal() as db:
-                history_record = ExecutionHistory(
-                    action_type="analysis",
-                    input_params={
-                        "ticker": request.ticker,
-                        "analysis_date": request.analysis_date,
-                        "analysts": request.analysts,
-                        "research_depth": request.research_depth
-                    },
-                    output_result={
-                        "decision": decision,
-                        "summary": frontend_final_state.get("Summarize_final_trade_decision_report")
-                    },
-                    status="success"
-                )
-                db.add(history_record)
-                await db.commit()
-                logger.info(f"✅ Saved execution history for {request.ticker}")
-        except Exception as e:
-            logger.error(f"❌ Failed to save execution history: {e}")
-
     except asyncio.CancelledError:
         logger.info(f"🛑 Analysis for {request.ticker} was cancelled.")
-        await send_update(websocket, "status", {"message": "Analysis cancelled."})
+        # Update database status to cancelled
+        if execution_id:
+            try:
+                async with AsyncSessionLocal() as db:
+                    stmt = select(ExecutionHistory).where(ExecutionHistory.id == execution_id)
+                    res = await db.execute(stmt)
+                    db_history = res.scalar_one_or_none()
+                    if db_history:
+                        db_history.status = "cancelled"
+                        db_history.error_message = "Analysis was cancelled by user"
+                        await db.commit()
+                        logger.info(f"💾 Updated history {execution_id} with cancelled status.")
+            except Exception as db_cancel_err:
+                logger.error(f"❌ Failed to update history status on cancel: {db_cancel_err}")
+        await send_update(websocket, "error", {"message": "Analysis cancelled."})
         raise
 
     except Exception as e:
-        # Save error to execution history
-        try:
-            async with AsyncSessionLocal() as db:
-                history_record = ExecutionHistory(
-                    action_type="analysis",
-                    input_params={
-                        "ticker": request.ticker,
-                        "analysis_date": request.analysis_date
-                    },
-                    status="error",
-                    error_message=str(e)
-                )
-                db.add(history_record)
-                await db.commit()
-        except Exception as db_e:
-            logger.error(f"❌ Failed to save error history: {db_e}")
+        logger.error(f"❌ Analysis failed for {request.ticker}: {e}")
+        if execution_id:
+            try:
+                async with AsyncSessionLocal() as db:
+                    stmt = select(ExecutionHistory).where(ExecutionHistory.id == execution_id)
+                    res = await db.execute(stmt)
+                    db_history = res.scalar_one_or_none()
+                    if db_history:
+                        db_history.status = "error"
+                        db_history.error_message = str(e)
+                        await db.commit()
+                        logger.info(f"💾 Updated history {execution_id} with error status.")
+            except Exception as db_update_err:
+                logger.error(f"❌ Failed to update history status on error: {db_update_err}")
 
         await send_update(websocket, "error", {
             "message": str(e)
         })
         raise
 
+from api.history_router import router as history_router
+from api.report_router import router as report_router
+# ↑ path ต้องตรงจริง ๆ
 
+# Create FastAPI app
+app = FastAPI(title="TradingAgents API", version="1.0.0")
+
+# Startup event - Create database tables
+@app.on_event("startup")
+async def startup_event():
+    from database.database import init_db
+    logger.info("🚀 Starting up - initializing database...")
+    try:
+        await init_db()
+        logger.info("✅ Database initialized successfully")
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize database: {e}")
+        import traceback
+        traceback.print_exc()
 
 app.include_router(history_router)
+app.include_router(report_router)
 
 # Configure CORS
 app.add_middleware(
@@ -1607,7 +900,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     except asyncio.CancelledError:
                         pass
                     analysis_task = None
-                    await send_update(websocket, "status", {"message": "Analysis stopped. System ready."})
+                    await send_update(websocket, "error", {"message": "Analysis stopped. System ready."})
                     logger.info("🛑 Analysis stopped by user. System reset and ready.")
                 
             elif action == "ping":
@@ -1630,20 +923,22 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "connections": len(active_connections),
+        "project_root": str(PROJECT_ROOT),
+        "web_dir_exists": WEB_DIR.exists()
+    }
 
 
 @app.get("/api/test")
 async def test_endpoint():
     """Test endpoint to verify API is working."""
     try:
-        if TradingAgentsGraph is None or DEFAULT_CONFIG is None:
-            return {
-                "status": "ok",
-                "message": "API is working correctly (trading modules unavailable)",
-                "tradingagents_imported": False,
-                "config_loaded": False,
-            }
+        # Test imports
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
+        from tradingagents.default_config import DEFAULT_CONFIG
+        
         return {
             "status": "ok",
             "message": "API is working correctly",
@@ -1958,8 +1253,6 @@ async def get_telegram_status():
 async def get_quote(ticker: str):
     """Fetch real-time quote data for a ticker."""
     try:
-        if yf is None:
-            raise HTTPException(status_code=503, detail="yfinance not installed on this server")
         t = yf.Ticker(ticker)
         
         # Get fast price data
@@ -2033,5 +1326,4 @@ async def get_quote(ticker: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=API_PORT)
-
+    uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -9,6 +9,8 @@ import Sidebar from "../components/Sidebar";
 import DebugPanel from "../components/DebugPanel";
 import ReportSections from "../components/ReportSections";
 import { buildApiUrl, buildWsUrl, mapFetchError } from "@/lib/api";
+import TelegramConnect from "../components/TelegramConnect";
+import { useGeneration } from "../context/GenerationContext";
 
 // --- Constants & Types ---
 
@@ -41,12 +43,18 @@ const SHALLOW_AGENTS = {
   deepseek: [
     ["DeepSeek Chat", "deepseek-chat"],
   ],
+  google: [
+    ["google", "gemini-2.5-flash-lite"],
+  ]
 };
 
 const DEEP_AGENTS = {
   deepseek: [
     ["DeepSeek Reasoner", "deepseek-reasoner"],
   ],
+  google: [
+    ["google", "gemini-2.5-flash"],
+  ]
 };
 
 const TEAM_TEMPLATE = {
@@ -320,6 +328,14 @@ function summarizeReport(reportText: string | any, decision: string) {
 // --- Components ---
 
 export default function Home() {
+  // Get global generation context
+  const {
+    startGeneration,
+    stopGeneration: stopPipeline,
+    // Form State (persisted from context)
+  } = useGeneration();
+
+  // Local State (UI-specific only)
   // State
   const [ticker, setTicker] = useState("");
   const [selectedMarket, setSelectedMarket] = useState("US");
@@ -361,6 +377,12 @@ export default function Home() {
   const [logoError, setLogoError] = useState(false);
   const [logoSrc, setLogoSrc] = useState("");
 
+  // Trigger to refetch market data when component mounts
+  const [mountKey, setMountKey] = useState(0);
+  useEffect(() => {
+    // Increment mountKey to trigger market data fetch on each mount
+    setMountKey(prev => prev + 1);
+  }, []);
   // Ticker Search State
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [marketTickers, setMarketTickers] = useState<any[]>([]); // Cache for backend list
@@ -555,7 +577,7 @@ export default function Home() {
         clearTimeout(retryTimeout);
       };
     }
-  }, [ticker]);
+  }, [ticker, mountKey]); // Added mountKey to trigger refetch on mount
 
   // Helper to format large numbers
   const formatVolume = (num: number) => {
@@ -905,59 +927,23 @@ export default function Home() {
   const runPipeline = useCallback(() => {
     if (isRunning) return;
 
-    // Check connection first
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      alert("WebSocket is not connected. Please refresh or check backend.");
+    if (wsStatus !== "connected") {
+      alert("WebSocket is not connected. Please wait and try again.");
       return;
     }
 
-    setIsRunning(true);
-    setTeamState(deepClone(TEAM_TEMPLATE));
-    setReportSections([]);
-    setDecision("Awaiting run");
-    setDebugLogs([]);
-    setMsgCount(0);
-    setErrorCount(0);
-    setFinalReportData(null); // Clear previous data
-
-    const request = {
-      action: "start_analysis",
-      request: {
-        ticker: ticker,
-        analysis_date: analysisDate,
-        analysts: ANALYSTS_DATA.map((a) => a.value),
-        research_depth: researchDepth,
-        llm_provider: "deepseek",
-        backend_url: "https://api.deepseek.com",
-        shallow_thinker: SHALLOW_AGENTS.deepseek[0][1],
-        deep_thinker: DEEP_AGENTS.deepseek[0][1],
-        report_length: reportLength,
-      },
-    };
-
-    try {
-      wsRef.current.send(JSON.stringify(request));
-      addDebugLog("request", `Starting analysis for ${ticker}`, false);
-    } catch (err: any) {
-      console.error("Send error:", err);
-      setIsRunning(false);
-      addDebugLog("error", "Failed to send request", true);
-    }
-  }, [isRunning, ticker, analysisDate, researchDepth, reportLength, addDebugLog]);
-
-  const stopPipeline = useCallback(() => {
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
-
-    wsRef.current.send(JSON.stringify({ action: "stop" }));
-    addDebugLog("system", "Stopping analysis...", true);
-    setIsRunning(false);
-
-    // Reset Dashboard State
-    setTeamState(deepClone(TEAM_TEMPLATE));
-    setReportSections([]);
-    setDecision("Awaiting run");
-    setFinalReportData(null);
-  }, [addDebugLog]);
+    startGeneration({
+      ticker,
+      analysisDate,
+      analysts: ANALYSTS_DATA.map((a) => a.value),
+      researchDepth,
+      llmProvider: "google",
+      backendUrl: "http://localhost:8000",
+      shallowThinker: SHALLOW_AGENTS.google[0][1],
+      deepThinker: DEEP_AGENTS.google[0][1],
+      reportLength,
+    });
+  }, [isRunning, wsStatus, startGeneration, ticker, analysisDate, researchDepth, reportLength]);
 
   // Handlers
   const handleCopyReport = async () => {
@@ -975,9 +961,45 @@ export default function Home() {
     }
   };
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     // 1. Setup Document
     const doc = new jsPDF({ unit: "pt", format: "a4" });
+
+    // Load Fonts Implementation
+    const loadFont = async (url: string): Promise<string> => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          // Remove data:application/octet-stream;base64, prefix
+          const base64data = (reader.result as string).split(",")[1];
+          resolve(base64data);
+        };
+        reader.readAsDataURL(blob);
+      });
+    };
+
+    try {
+      const [sarabunRegular, sarabunBold, maishan] = await Promise.all([
+        loadFont("/fonts/Sarabun-Regular.ttf"),
+        loadFont("/fonts/Sarabun-Bold.ttf"),
+        loadFont("/fonts/Maishan.ttf"),
+      ]);
+
+      doc.addFileToVFS("Sarabun-Regular.ttf", sarabunRegular);
+      doc.addFont("Sarabun-Regular.ttf", "Sarabun", "normal");
+
+      doc.addFileToVFS("Sarabun-Bold.ttf", sarabunBold);
+      doc.addFont("Sarabun-Bold.ttf", "Sarabun", "bold");
+
+      doc.addFileToVFS("Maishan.ttf", maishan);
+      doc.addFont("Maishan.ttf", "Maishan", "normal");
+    } catch (error) {
+      console.error("Error loading fonts:", error);
+      // Fallback to standard fonts if loading fails
+    }
+
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 40;
@@ -997,7 +1019,8 @@ export default function Home() {
     const drawPageFooter = (pageNumber: number) => {
       const str = `Page ${pageNumber}`;
       doc.setFontSize(8);
-      doc.setFont("helvetica", "normal");
+      // Determine font for footer (numbers are safe in Sarabun)
+      doc.setFont("Sarabun", "normal");
       doc.setTextColor(150, 150, 150);
       doc.text(str, pageWidth / 2, pageHeight - 20, { align: 'center' });
       doc.text("Generated by TradingAgents", pageWidth - margin, pageHeight - 20, { align: 'right' });
@@ -1010,17 +1033,39 @@ export default function Home() {
         yPosition = margin + 20;
         // Reset style after new page
         doc.setTextColor(0, 0, 0);
-        doc.setFont("helvetica", "normal");
         return true;
       }
       return false;
     };
 
-    // ฟังก์ชันพิมพ์ข้อความแบบรองรับการตัดบรรทัดอัตโนมัติ
+    // ฟังก์ชันพิมพ์ข้อความแบบรองรับการตัดบรรทัดอัตโนมัติ และเปลี่ยน Font ตามภาษา
     const addText = (text: string, fontSize = 10, isBold = false, indent = 0, color: [number, number, number] = [50, 50, 50]) => {
       doc.setFontSize(fontSize);
-      doc.setFont("helvetica", isBold ? "bold" : "normal");
       doc.setTextColor(color[0], color[1], color[2]);
+
+      // Simple language detection
+      // Check for Thai characters
+      const hasThai = /[\u0E00-\u0E7F]/.test(text);
+      // Check for Chinese characters
+      const hasChinese = /[\u4E00-\u9FFF]/.test(text);
+
+      let currentFont = "Sarabun"; // Default to Sarabun (covers Eng + Thai)
+      if (hasChinese && !hasThai) {
+        currentFont = "Maishan";
+      } else if (hasChinese && hasThai) {
+        // Mixed content: Sarabun might not show Chinese well, Maishan might not show Thai well.
+        // Prioritize Thai (Sarabun) as it is likely the primary non-English context for this user,
+        // OR default to Sarabun. Ideally we split text, but for simplicity:
+        currentFont = "Sarabun";
+      }
+
+      // Check if we requested bold but the font doesn't support it (Maishan might only have normal)
+      let currentStyle = isBold ? "bold" : "normal";
+      if (currentFont === "Maishan") {
+        currentStyle = "normal"; // Assuming Maishan only has normal
+      }
+
+      doc.setFont(currentFont, currentStyle);
 
       const lines = doc.splitTextToSize(text, maxWidth - indent);
 
@@ -1029,7 +1074,7 @@ export default function Home() {
         if (pageBreakTriggered) {
           // Re-apply style if page break happened
           doc.setFontSize(fontSize);
-          doc.setFont("helvetica", isBold ? "bold" : "normal");
+          doc.setFont(currentFont, currentStyle);
           doc.setTextColor(color[0], color[1], color[2]);
         }
 
@@ -1103,15 +1148,29 @@ export default function Home() {
             if (isShortText) {
               // Case 2: Short Text -> Inline Style (หัวข้อและเนื้อหาอยู่บรรทัดเดียวกัน)
               doc.setFontSize(10);
-              doc.setFont("helvetica", "bold");
+              doc.setFont("Sarabun", "bold");
               doc.setTextColor(50, 50, 50); // Key สีเทาเข้ม
               const keyWidth = doc.getTextWidth(label + ": ");
 
+              // Detect value language for inline text
+              const hasThai = /[\u0E00-\u0E7F]/.test(strVal);
+              const hasChinese = /[\u4E00-\u9FFF]/.test(strVal);
+              let valFont = "Sarabun";
+              if (hasChinese && !hasThai) valFont = "Maishan";
+
+              // Check width with correct font
+              doc.setFont(valFont, "normal");
+              const valWidth = doc.getTextWidth(strVal);
+
               // เช็คว่าพื้นที่พอมั้ย
-              if (margin + indent + keyWidth + doc.getTextWidth(strVal) < maxWidth) {
+              if (margin + indent + keyWidth + valWidth < maxWidth) {
+                // Draw Label
+                doc.setFont("Sarabun", "bold");
+                doc.setTextColor(50, 50, 50);
                 doc.text(label + ": ", margin + indent, yPosition);
 
-                doc.setFont("helvetica", "normal");
+                // Draw Value
+                doc.setFont(valFont, "normal");
                 doc.setTextColor(0, 0, 0); // Value สีดำ
                 doc.text(strVal, margin + indent + keyWidth, yPosition);
                 yPosition += lineHeight;
@@ -1139,14 +1198,14 @@ export default function Home() {
 
     // 1. Main Header
     doc.setFontSize(18);
-    doc.setFont("helvetica", "bold");
+    doc.setFont("Sarabun", "bold");
     doc.setTextColor(0, 51, 102); // Navy Blue
     doc.text(`TradingAgents Report: ${ticker}`, margin, yPosition);
     yPosition += 20;
 
     // Sub-header
     doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
+    doc.setFont("Sarabun", "normal");
     doc.setTextColor(100, 100, 100); // Gray
     doc.text(`Analysis Date: ${analysisDate}`, margin, yPosition);
     yPosition += 25;
@@ -1162,7 +1221,7 @@ export default function Home() {
     if (decision) {
       checkPageBreak(40);
       doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
+      doc.setFont("Sarabun", "bold");
       doc.setTextColor(0, 0, 0);
       doc.text(`Recommendation: ${decision}`, margin, yPosition);
       yPosition += 30;
@@ -1178,10 +1237,11 @@ export default function Home() {
 
       // Section Title
       doc.setFontSize(13);
-      doc.setFont("helvetica", "bold");
+      doc.setFont("Sarabun", "bold");
       doc.setTextColor(0, 0, 0);
       doc.text(section.label, margin + 8, yPosition + 5);
       yPosition += 30;
+
 
       // Prepare Content
       let contentData: any = section.text;
@@ -1594,7 +1654,7 @@ export default function Home() {
           {TEAM_KEYS.map((teamKey, index) => {
             const members = teamState[teamKey];
             const completedCount = members.filter(
-              (m) => m.status === "completed"
+              (m: { status: string; }) => m.status === "completed"
             ).length;
             const progress = Math.round(
               (completedCount / members.length) * 100

@@ -15,14 +15,14 @@ DEFAULT_CONFIG = {
     # "quick_think_llm": "gpt-4o-mini",
     # "backend_url": "https://api.openai.com/v1",
     # LLM settings
-    # "llm_provider": "google",
-    # "deep_think_llm": "gemini-2.0-flash",
-    # "quick_think_llm": "gemini-2.0-flash",
+    "llm_provider": "google",
+    "deep_think_llm": "gemini-2.5-flash",
+    "quick_think_llm": "gemini-2.5-flash-lite",
     
-    "llm_provider": "deepseek",
-    "deep_think_llm": "deepseek-reasoner",
-    "quick_think_llm": "deepseek-chat",
-    "backend_url": "https://api.deepseek.com",
+    # "llm_provider": "deepseek",
+    # "deep_think_llm": "deepseek-reasoner",
+    # "quick_think_llm": "deepseek-chat",
+    # "backend_url": "https://api.deepseek.com",
 
     # LLM settings second option
     # "llm_provider": "typhoon",              # หรือ "typhoon"
