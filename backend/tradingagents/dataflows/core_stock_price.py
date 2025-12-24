@@ -179,6 +179,9 @@ def auto_detect_market(symbol):
     if _check_ticker_exists(symbol):
         print(f"   👉 Found: US/Global Stock")
         return "US"
+    if _check_ticker_exists(f"{symbol}.BK"):
+        print(f"   👉 Found: Thai Stock (.BK)")
+        return "TH"
 
     print(f"   ⚠️ Not found, defaulting to US")
     return "US"
