@@ -8,9 +8,11 @@ import {
     FileText,
     Menu,
     LineChart,
-    ChevronLeft
+    ChevronLeft,
+    Download
 } from 'lucide-react';
 import Link from 'next/link';
+
 
 // --- 1. Content Data (Consolidated from sub-pages) ---
 const SECTIONS = [
@@ -151,6 +153,8 @@ export default function DocumentPage() {
         }
     };
 
+
+
     return (
         <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? "bg-[#111317] text-[#f8fbff]" : "bg-[#f0f2f5] text-[#1a202c]"}`}>
             {/* ================= LEFT SIDEBAR (Global) ================= */}
@@ -201,9 +205,20 @@ export default function DocumentPage() {
                 </div>
 
                 <div className="px-12 max-w-4xl w-full pb-40 pt-8">
-                    <h1 className="text-4xl font-bold text-white mb-16 tracking-tight">
-                        TradingAgent Multi Agent
-                    </h1>
+                    <div className="flex justify-between items-center mb-16">
+                        <h1 className="text-4xl font-bold text-white tracking-tight">
+                            TradingAgent Multi Agent
+                        </h1>
+                        <a
+                            href="https://arxiv.org/pdf/2412.20138"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+                        >
+                            <Download size={18} />
+                            Download PDF
+                        </a>
+                    </div>
 
                     {/* Loop Render Sections */}
                     <div className="flex flex-col gap-24">

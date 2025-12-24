@@ -1,6 +1,7 @@
 import os
 import json
 import sys
+import asyncio
 from dotenv import load_dotenv
 import sys
 
@@ -31,7 +32,7 @@ def print_section(title, content):
 # ---------------------------------------------------------
 # 3. เริ่มรันระบบ (Main Execution)
 # ---------------------------------------------------------
-def main():
+async def main():
     print("⚙️  Initializing System...")
     
     analysts = ["market", "social", "news", "fundamentals"]
@@ -40,13 +41,13 @@ def main():
     try:
         graph = TradingAgentsGraph(selected_analysts=analysts, debug=False)
         
-        ticker = "NVDA"
+        ticker = "0700.HK"
         trade_date = "2025-11-30"
 
         print(f"🚀 Propagating for {ticker} on {trade_date}...")
         print("   (This process may take 1-3 minutes depending on your LLM speed)\n")
         
-        final_state, final_decision = graph.propagate(company_name=ticker, trade_date=trade_date)
+        final_state, final_decision = await graph.propagate(company_name=ticker, trade_date=trade_date)
         with open("./final_state.txt", 'w', encoding='utf-8') as f:
             f.write(str(final_state))
 
@@ -183,4 +184,4 @@ def main():
         traceback.print_exc()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

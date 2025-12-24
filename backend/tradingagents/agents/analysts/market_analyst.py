@@ -5,8 +5,13 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel, Field
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import JsonOutputParser
-from tradingagents.dataflows.core_indicator import get_indicators
+from tradingagents.dataflows.core_calculator import process_indicators_from_csv
 from tradingagents.dataflows.core_stock_price import get_stock_data
+from tradingagents.dataflows.core_calculator import (
+    process_indicators_from_csv, 
+    calculate_sma, calculate_ema, calculate_rsi, calculate_macd, 
+    calculate_bollinger_bands, calculate_atr, calculate_vwma
+)
 
 
 # ===================== PYDANTIC MODELS ======================
@@ -50,7 +55,7 @@ class MarketReport(BaseModel):
 def create_market_analyst(llm):
     parser = JsonOutputParser(pydantic_object=MarketReport)
 
-    async def market_analyst_node(state):
+    def market_analyst_node(state):
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
         
@@ -61,117 +66,146 @@ def create_market_analyst(llm):
         except Exception:
             start_date = "2024-01-01"
 
-        tools = [get_stock_data, get_indicators]
+        # ===================== PRE-FETCH DATA ======================
+        print(f"📊 Market Analyst: Pre-fetching data for {ticker}...")
+        try:
+            # 1. Fetch Stock Data
+            stock_data = get_stock_data(ticker, start_date, current_date)
+            
+            # 2. Calculate Indicators Locally (No API Call)
+            indicators, df = process_indicators_from_csv(stock_data)
+            
+            indicators_context = ""
+            if indicators and "error" not in indicators:
+                indicators_context = json.dumps(indicators, indent=2)
+                
+                # Add Historical Context (Last 5 Days)
+                if df is not None and not df.empty:
+                                        
+                    # Recalculate series for history
+                    df['SMA_50'] = calculate_sma(df, 50)
+                    # df['SMA_200'] = calculate_sma(df, 200)
+                    df['EMA_10'] = calculate_ema(df, 10)
+                    df['RSI'] = calculate_rsi(df, 14)
+                    macd, signal, hist = calculate_macd(df)
+                    df['MACD'] = macd
+                    df['MACD_S'] = signal
+                    df['MACD_H'] = hist
+                    ub, lb = calculate_bollinger_bands(df)
+                    df['BOLL_UB'] = ub
+                    df['BOLL_LB'] = lb
+                    df['ATR'] = calculate_atr(df)
+                    df['VWMA'] = calculate_vwma(df)
+                    
+                    cols = ['Close', 'SMA_50', 'EMA_10', 'RSI', 'MACD','MACD_S','MACD_H','BOLL_UB','BOLL_LB','ATR','VWMA']
+                    history_str = df[cols].tail(100).to_string()
+                    indicators_context += f"\n\nRECENT HISTORICAL DATA :\n{history_str}"
+                    print(history_str)
+            else:
+                 indicators_context = f"Error calculating indicators: {indicators.get('error')}"
+
+            data_context = f"""
+            STOCK PRICE DATA (Last 1 Year - CSV Format):
+            {stock_data[-2000:] if len(stock_data) > 2000 else stock_data} 
+            
+            TECHNICAL INDICATORS (Current & History):
+            {indicators_context}
+            """
+        except Exception as e:
+            print(f"⚠️ Data pre-fetch failed: {e}")
+            data_context = f"Error fetching data: {e}"
 
         # ===================== SYSTEM MESSAGE ======================
         system_message = f"""
 You are an AI Trading Analysis Agent.
 
+DATA CONTEXT:
+{data_context}
+
 Rules:
-1) You MUST call `get_stock_data` FIRST using exactly 1 year of historical data (Start: {start_date}, End: {current_date}).
-2) You MUST call `get_indicators` SECOND using only the most recent 30 days of the fetched price data.
-3) Use ONLY the following indicator names:
-
+1) Analyze the provided STOCK PRICE DATA and TECHNICAL INDICATORS.
+2) Use ONLY the following indicator names in your report if available:
 [
-    "close_50_sma",
-    "close_200_sma",
-    "close_10_ema",
-    "macd",
-    "macds",
-    "macdh",
-    "rsi",
-    "boll",
-    "boll_ub",
-    "boll_lb",
-    "atr",
-    "vwma"
+    "close_50_sma", "close_200_sma", "close_10_ema", "macd", "macds", "macdh", 
+    "rsi", "boll", "boll_ub", "boll_lb", "atr", "vwma"
 ]
-
-4) After receiving indicator results, return the final answer as a valid JSON object ONLY.
-5) If any indicator fails, still include it with inferred signal + implication.
-6) Keep analysis concise and trading-focused.
+3) Return the final answer as a valid JSON object ONLY used the schema below.
+4) Do NOT output any markdown blocks (```json ... ```). Just the raw JSON string.
 
 OUTPUT FORMAT:
 {parser.get_format_instructions()}
-
-Return ONLY the JSON object, no markdown code blocks.
 """
 
         # ===================== PROMPT ======================
         prompt = ChatPromptTemplate.from_messages([
             (
                 "system",
-                "You are a helpful AI assistant, collaborating with other assistants. "
-                "Use the provided tools to progress towards answering the question. "
-                "You have access to the following tools: {tool_names}. \n\n"
-                "{system_message}\n\n"
-                "For your reference, the current date is {current_date}. "
-                "The company we want to look at is {ticker}."
+                "{system_message}"
             ),
             MessagesPlaceholder(variable_name="messages"),
         ])
 
-        prompt = prompt.partial(
-            system_message=system_message,
-            tool_names=", ".join([tool.name for tool in tools]),
-            current_date=current_date,
-            ticker=ticker
-        )
+        prompt = prompt.partial(system_message=system_message)
 
         # ===================== CHAIN ======================
-        chain = prompt | llm.bind_tools(tools)
+        # NO TOOL BINDING - Direct generation
+        chain = prompt | llm 
 
         # Execute
-        result = await chain.ainvoke(state["messages"])
-        
-        # print("Market Analysis Result:", result)
+        print("🤖 Market Analyst: Analyzing pre-fetched data...")
+        result = chain.invoke(state["messages"])
         
         # ========== PARSE WITH ROBUST ERROR HANDLING ==========
         report_dict = None
         
-        if not result.tool_calls:
-            raw_content = result.content
-            
-            # Handle list format (e.g., [{'type': 'text', 'text': '...'}])
-            if isinstance(raw_content, list):
-                for item in raw_content:
-                    if isinstance(item, dict) and item.get('type') == 'text':
-                        raw_content = item.get('text', '')
-                        break
-                else:
-                    raw_content = " ".join([str(item) for item in raw_content])
-            
-            if raw_content is None:
-                raw_content = ""
-            
-            try:
-                # Method 1: Use Parser (handles string cleaning internally)
-                report_dict = parser.parse(str(raw_content))
-                
-            except Exception as e1:
-                print(f"⚠️ Parser failed: {e1}")
-                
-                # Method 2: Clean markdown and extract JSON
-                try:
-                    clean = re.sub(r"```[\w]*\n?", "", str(raw_content)).strip()
-                    match = re.search(r"\{[\s\S]*\}", clean)
-                    
-                    if match:
-                        json_str = match.group(0)
-                        report_dict = json.loads(json_str)
-                        # Validate with Pydantic
-                        report_dict = MarketReport.model_validate(report_dict).model_dump()
-                    else:
-                        print("⚠️ No JSON object found in response")
-                        report_dict = {"error": "No JSON found", "raw": str(raw_content)[:200]}
-                        
-                except Exception as e2:
-                    print(f"⚠️ Fallback parsing failed: {e2}")
-                    report_dict = {"error": "Parsing failed", "raw": str(raw_content)[:200]}
+        raw_content = result.content
         
-        # If still None (tool_calls present), create empty structure
+        # Handle list format (e.g., [{'type': 'text', 'text': '...'}])
+        if isinstance(raw_content, list):
+            extracted_text = ""
+            for item in raw_content:
+                if isinstance(item, dict) and item.get('type') == 'text':
+                    extracted_text = item.get('text', '')
+                    break
+            else:
+                extracted_text = " ".join([str(item) for item in raw_content])
+            raw_content = extracted_text
+            
+        if raw_content is None:
+            raw_content = ""
+        
+        try:
+            # Method 1: Use Parser (handles string cleaning internally)
+            report_dict = parser.parse(str(raw_content))
+            
+        except Exception as e1:
+            print(f"⚠️ Parser failed: {e1}")
+            
+            # Method 2: Clean markdown and extract JSON
+            try:
+                clean = re.sub(r"```[\w]*\n?", "", str(raw_content)).strip()
+                match = re.search(r"\{[\s\S]*\}", clean)
+                
+                if match:
+                    json_str = match.group(0)
+                    report_dict = json.loads(json_str)
+                    # Validate with Pydantic
+                    report_dict = MarketReport.model_validate(report_dict).model_dump()
+                else:
+                    print("⚠️ No JSON object found in response")
+                    report_dict = {"error": "No JSON found", "raw": str(raw_content)[:200]}
+                    
+            except Exception as e2:
+                print(f"⚠️ Fallback parsing failed: {e2}")
+                report_dict = {"error": "Parsing failed", "raw": str(raw_content)[:200]}
+        
+        # If still None (and we expected JSON), return valid structure or error
         if report_dict is None:
-            report_dict = {"status": "waiting_for_tool_response"}
+            # Check if it was a tool call scenario (though we don't bind tools here)
+            if hasattr(result, 'tool_calls') and result.tool_calls:
+                 report_dict = {"status": "waiting_for_tool_response"}
+            else:
+                 report_dict = {"error": "Failed to parse report", "raw": str(raw_content)[:100]}
 
         # Convert dict to JSON string
         report_json = json.dumps(report_dict, indent=4, ensure_ascii=False)

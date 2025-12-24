@@ -1,18 +1,18 @@
 from typing import Annotated
-from .local import alphavantage_get_company_news, get_world_news_yf, fetch_reddit_world_news, fetch_reddit_symbol_top_praw, fetch_mastodon_stock_posts, fetch_bsky_stock_posts, pick_fundamental_source, finnhub_get_company_news, reddit_get_company_news, yfinance_get_company_news, fetch_finnhub_world_news
-import os, requests
+from .local import ryt9_get_company_news, alphavantage_get_company_news, get_world_news_yf, fetch_reddit_world_news, fetch_reddit_symbol_top_praw, fetch_mastodon_stock_posts, fetch_bsky_stock_posts, pick_fundamental_source, finnhub_get_company_news, reddit_get_company_news, yfinance_get_company_news, fetch_finnhub_world_news
+import os, requests, asyncio
 from rich.console import Console
 
 console = Console()
  
 #fundamental data
-def get_fundamentals_local(ticker, curr_date):
+async def get_fundamentals_local(ticker, curr_date):
     """
     มีการรับ parameter ตามรูปบบที่ต้นฉบับใช้เพื่อความรวดเร็วและลดการแก้ไขมากที่สุด
     แต่ในฟังก์ชันนี้จะใช้แค่ ticker เพื่อดึงข้อมูล
     """
         
-    res = pick_fundamental_source(ticker)
+    res = await pick_fundamental_source(ticker)
     
     print(f'\n\n\n [get_fundamentals_local] Chosen fundamental data source result:\n{res}\n\n\n')
         
@@ -58,6 +58,15 @@ def get_alphavantage_company_news(
     # print(f'\n\n\n [get_alphavantage_company_news] AlphaVantage company news result:\n{res}\n\n\n')
     return res
 
+def get_ryt9_company_news(
+    query: Annotated[str, "Query to search with"],
+    start_date: Annotated[str, "Start date in yyyy-mm-dd format"],
+    end_date: Annotated[str, "End date in yyyy-mm-dd format"],
+) -> str:
+    
+    res = ryt9_get_company_news(query)
+    # print(f'\n\n\n [get_ryt9_company_news] Ryt9 company news result:\n{res}\n\n\n')
+    return res
 
 #global news data
 def get_yfinance_world_news(
@@ -158,3 +167,31 @@ def get_subreddit_news(
         file.write(report_message + "\n\n")
 
     return res
+
+async def get_social_async(
+    ticker: Annotated[str, "ticker symbol of the company"]
+):
+    """
+    Asynchronously fetch social media data from multiple sources in parallel.
+    Wraps synchronous fetchers in threads.
+    """
+    print(f"💬 Social Analyst: Fetching data for {ticker} asynchronously...")
+    
+    # Run synchronous fetchers in threads
+    results = await asyncio.gather(
+        asyncio.to_thread(get_bluesky_news, ticker),
+        asyncio.to_thread(get_mastodon_news, ticker),
+        asyncio.to_thread(get_subreddit_news, ticker),
+        return_exceptions=True
+    )
+    
+    # Combine results
+    final_output = []
+    for res in results:
+        if isinstance(res, Exception):
+            print(f"❌ Error in social fetch task: {res}")
+            final_output.append(f"Error fetching data: {res}")
+        else:
+            final_output.append(str(res))
+            
+    return "\n".join(final_output)
