@@ -1,5 +1,5 @@
 {
-    "ticker": "NVDA",
+    "ticker": "AAPL",
     "date": "2025-12-24",
     "selected_indicators": [
         "close_50_sma",
@@ -17,107 +17,107 @@
     ],
     "market_overview": {
         "trend_direction": "Bullish",
-        "momentum_state": "Strong",
+        "momentum_state": "Weak",
         "volatility_level": "Moderate",
         "volume_condition": "Neutral"
     },
     "indicator_analysis": [
         {
             "indicator": "close_50_sma",
-            "indicator_full_name": "50-day Simple Moving Average",
-            "signal": "Price at $189.21 above 50 SMA at $185.67, indicating medium-term bullish trend",
-            "implication": "Bullish support level established, potential buying opportunity on pullbacks"
+            "indicator_full_name": "50-Day Simple Moving Average",
+            "signal": "Price at $272.36 above 50 SMA at $270.43, showing bullish medium-term trend",
+            "implication": "Uptrend intact but recent consolidation suggests potential pullback"
         },
         {
             "indicator": "close_200_sma",
-            "indicator_full_name": "200-day Simple Moving Average",
-            "signal": "Price significantly above 200 SMA at $158.31, confirming long-term uptrend",
-            "implication": "Strong bullish foundation, major support far below current levels"
+            "indicator_full_name": "200-Day Simple Moving Average",
+            "signal": "Price well above 200 SMA at $229.94, confirming long-term bullish structure",
+            "implication": "Strong long-term uptrend with significant support far below current levels"
         },
         {
             "indicator": "close_10_ema",
-            "indicator_full_name": "10-day Exponential Moving Average",
-            "signal": "Price above 10 EMA at $180.99, short-term momentum positive",
-            "implication": "Immediate bullish momentum, watch for EMA as dynamic support"
+            "indicator_full_name": "10-Day Exponential Moving Average",
+            "signal": "Price at $272.36 below 10 EMA at $273.99, showing short-term weakness",
+            "implication": "Near-term momentum turning bearish, watch for potential trend reversal"
         },
         {
             "indicator": "macd",
             "indicator_full_name": "Moving Average Convergence Divergence",
-            "signal": "MACD line at -1.07, negative but improving from recent lows",
-            "implication": "Momentum recovering from bearish phase, potential bullish crossover forming"
+            "signal": "MACD at 0.37 declining from recent highs, showing weakening momentum",
+            "implication": "Bullish momentum fading, potential for bearish crossover ahead"
         },
         {
             "indicator": "macds",
             "indicator_full_name": "MACD Signal Line",
-            "signal": "Signal line at -2.06, declining less steeply than MACD",
-            "implication": "Bearish momentum slowing, approaching potential bullish crossover"
+            "signal": "Signal line at 1.73, MACD below signal line since Dec 5",
+            "implication": "Bearish crossover confirmed, momentum shift to downside"
         },
         {
             "indicator": "macdh",
             "indicator_full_name": "MACD Histogram",
-            "signal": "Histogram positive at 0.99, first positive reading in recent period",
-            "implication": "Bullish momentum building, potential trend reversal confirmation"
+            "signal": "Histogram negative at -1.36 and declining, showing bearish momentum acceleration",
+            "implication": "Increasing bearish pressure, momentum deteriorating"
         },
         {
             "indicator": "rsi",
             "indicator_full_name": "Relative Strength Index",
-            "signal": "RSI at 57.62, neutral territory approaching overbought threshold",
-            "implication": "Moderate bullish momentum, room for further upside before overbought conditions"
+            "signal": "RSI at 47.03, neutral territory after declining from overbought levels",
+            "implication": "Momentum cooling off from overbought conditions, room for further decline"
         },
         {
             "indicator": "boll",
             "indicator_full_name": "Bollinger Middle Band",
-            "signal": "Middle band at $180.25, price trading above indicating bullish bias",
-            "implication": "Price above mean suggests continued upward pressure"
+            "signal": "Price at $272.36 below middle band at $277.31, trading in lower half of Bollinger Bands",
+            "implication": "Short-term bearish pressure, testing support levels"
         },
         {
             "indicator": "boll_ub",
             "indicator_full_name": "Bollinger Upper Band",
-            "signal": "Upper band at $188.76, price near resistance level",
-            "implication": "Approaching overbought territory, potential for consolidation or pullback"
+            "signal": "Upper band at $285.45, price well below upper resistance",
+            "implication": "No overbought pressure, room for upside if momentum returns"
         },
         {
             "indicator": "boll_lb",
             "indicator_full_name": "Bollinger Lower Band",
-            "signal": "Lower band at $171.74, providing significant support level",
-            "implication": "Strong downside protection established, risk limited to ~9% from current price"
+            "signal": "Lower band at $269.17, price just above lower support",
+            "implication": "Testing key support level, break below could signal further decline"
         },
         {
             "indicator": "atr",
             "indicator_full_name": "Average True Range",
-            "signal": "ATR at 6.04, indicating moderate daily volatility",
-            "implication": "Normal volatility environment, suitable for standard position sizing"
+            "signal": "ATR at 4.74, moderate volatility trending lower",
+            "implication": "Decreasing volatility suggests consolidation phase, watch for breakout"
         },
         {
             "indicator": "vwma",
             "indicator_full_name": "Volume Weighted Moving Average",
-            "signal": "VWMA at $180.17, below current price but rising",
-            "implication": "Volume-supported price action, institutional accumulation likely occurring"
+            "signal": "Price at $272.36 below VWMA at $275.21, showing distribution on recent volume",
+            "implication": "Volume-weighted trend turning bearish, institutional selling pressure"
         }
     ],
     "price_action_summary": {
-        "recent_high_low": "Trading near recent highs from October peak of $212.19, well above November low of $170.94",
+        "recent_high_low": "Trading near recent lows after failing to break above $280 resistance",
         "support_levels": [
-            "$180.99 (10 EMA)",
-            "$185.67 (50 SMA)",
-            "$171.74 (Bollinger Lower Band)",
-            "$158.31 (200 SMA)"
+            "$269.17 (Bollinger Lower Band)",
+            "$270.43 (50 SMA)",
+            "$266.25 (Nov 20 low)"
         ],
         "resistance_levels": [
-            "$188.76 (Bollinger Upper Band)",
-            "$195-200 (psychological resistance)",
-            "$212.19 (October high)"
+            "$273.99 (10 EMA)",
+            "$277.31 (Bollinger Middle)",
+            "$280.70 (Dec 4 high)"
         ],
-        "short_term_behavior": "Price breaking above recent consolidation, showing bullish momentum with improving technical indicators"
+        "short_term_behavior": "Consolidating in a bearish pattern after failed breakout attempt, testing key support levels"
     },
     "market_sentiment": {
-        "sentiment_label": "Bullish"
+        "sentiment_label": "Bearish"
     },
     "key_risks": [
-        "RSI approaching overbought levels near 60",
-        "Price near Bollinger upper band resistance",
-        "MACD still negative despite improving",
-        "Potential profit-taking near psychological $190 level"
+        "MACD bearish crossover confirmed with negative histogram",
+        "Price below key short-term moving averages (10 EMA)",
+        "Testing lower Bollinger Band support level",
+        "Volume-weighted trend showing distribution",
+        "RSI declining from overbought territory"
     ],
-    "short_term_outlook": "Bullish with improving momentum; expect continued upside toward $195-200 resistance zone, with pullbacks to $180-185 support area providing buying opportunities"
+    "short_term_outlook": "Bearish short-term outlook with price testing key support levels; break below $269 could accelerate decline toward $266, while recovery above $274 needed to restore bullish momentum"
 }
