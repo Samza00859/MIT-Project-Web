@@ -2,7 +2,23 @@
 
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
-import { format } from "date-fns";
+
+// Helper function to format date
+function formatDate(dateString: string): string {
+    try {
+        const date = new Date(dateString);
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = months[date.getMonth()];
+        const day = date.getDate();
+        const year = date.getFullYear();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const seconds = date.getSeconds().toString().padStart(2, '0');
+        return `${month} ${day}, ${year} ${hours}:${minutes}:${seconds}`;
+    } catch {
+        return dateString;
+    }
+}
 
 interface ReportResult {
     id: number;
@@ -264,7 +280,7 @@ export default function HistoryPage() {
                                     <div className="font-bold text-lg">{item.ticker}</div>
                                     <div className="text-sm opacity-60">{item.analysis_date}</div>
                                     <div className="text-[10px] opacity-40 mt-2">
-                                        {format(new Date(item.timestamp), "MMM d, yyyy HH:mm:ss")}
+                                        {formatDate(item.timestamp)}
                                     </div>
                                 </button>
                             ))

@@ -6,6 +6,7 @@ import Sidebar from "../components/Sidebar";
 import DebugPanel from "../components/DebugPanel";
 import ReportSections from "../components/ReportSections";
 import TelegramConnect from "../components/TelegramConnect";
+import { useGeneration } from "../context/GenerationContext";
 
 // --- Constants & Types ---
 
@@ -266,18 +267,32 @@ function summarizeReport(reportText: string | any, decision: string) {
 // --- Components ---
 
 export default function Home() {
-  // State
+  // Get global generation context
+  const {
+    isRunning,
+    teamState,
+    reportSections,
+    decision,
+    finalReportData,
+    debugLogs,
+    wsStatus,
+    wsUrl,
+    msgCount,
+    errorCount,
+    lastUpdate,
+    lastType,
+    startGeneration,
+    stopGeneration: stopPipeline,
+    addDebugLog,
+    setReportSections,
+    setFinalReportData,
+  } = useGeneration();
+
+  // Local State (UI-specific)
   const [ticker, setTicker] = useState("SPY");
   const [analysisDate, setAnalysisDate] = useState("");
   const [researchDepth, setResearchDepth] = useState(3);
   const [reportLength, setReportLength] = useState<"summary report" | "full report">("summary report");
-  const [isRunning, setIsRunning] = useState(false);
-  const [teamState, setTeamState] = useState(deepClone(TEAM_TEMPLATE));
-  const [reportSections, setReportSections] = useState<
-    { key: string; label: string; text: string }[]
-  >([]);
-  const [decision, setDecision] = useState("Awaiting run");
-  const [finalReportData, setFinalReportData] = useState<any>(null);
   const [copyFeedback, setCopyFeedback] = useState("Copy report");
   const [progress, setProgress] = useState(0);
   const [teamProgress, setTeamProgress] = useState({
@@ -289,17 +304,6 @@ export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   // Debug State
   const [isDebugCollapsed, setIsDebugCollapsed] = useState(false);
-  const [debugLogs, setDebugLogs] = useState<
-    { time: string; type: string; content: string }[]
-  >([]);
-  const [wsStatus, setWsStatus] = useState<
-    "connected" | "connecting" | "disconnected"
-  >("disconnected");
-  const [wsUrl, setWsUrl] = useState("");
-  const [msgCount, setMsgCount] = useState(0);
-  const [errorCount, setErrorCount] = useState(0);
-  const [lastUpdate, setLastUpdate] = useState<string | null>(null);
-  const [lastType, setLastType] = useState<string | null>(null);
 
   const [marketData, setMarketData] = useState<any>(null);
   const [logoError, setLogoError] = useState(false);
@@ -407,7 +411,6 @@ export default function Home() {
   };
 
 
-  const wsRef = useRef<WebSocket | null>(null);
   const debugLogRef = useRef<HTMLDivElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
 
@@ -471,217 +474,27 @@ export default function Home() {
     }
   }, [finalReportData, reportLength]);
 
-  // WebSocket Logic
-  const addDebugLog = useCallback(
-    (type: string, content: string, isError = false) => {
-      const time = new Date().toLocaleTimeString();
-      setDebugLogs((prev) => {
-        const newLogs = [...prev, { time, type, content: String(content) }];
-        if (newLogs.length > 50) newLogs.shift();
-        return newLogs;
-      });
-      setMsgCount((prev) => prev + 1);
-      setLastUpdate(new Date().toISOString());
-      setLastType(type);
-      if (isError) setErrorCount((prev) => prev + 1);
-    },
-    []
-  );
-
-  // WebSocket Connection Effect
-  useEffect(() => {
-    let isMounted = true;
-    let reconnectTimeout: NodeJS.Timeout;
-
-    const connectWebSocket = () => {
-      if (!isMounted) return;
-
-      let url;
-      if (
-        typeof window !== "undefined" &&
-        (window.location.protocol === "file:" || window.location.hostname === "")
-      ) {
-        url = "ws://localhost:8000/ws";
-      } else if (typeof window !== "undefined") {
-        const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        const wsHost = window.location.hostname;
-        const wsPort = "8000";
-        url = `${wsProtocol}//${wsHost}:${wsPort}/ws`;
-      } else {
-        url = "ws://localhost:8000/ws";
-      }
-
-      setWsUrl(url);
-      setWsStatus("connecting");
-
-      const ws = new WebSocket(url);
-      wsRef.current = ws;
-
-      ws.onopen = () => {
-        if (!isMounted) {
-          ws.close();
-          return;
-        }
-        setWsStatus("connected");
-        addDebugLog("system", "WebSocket connected", false);
-      };
-
-      ws.onmessage = (event) => {
-        if (!isMounted) return;
-        const message = JSON.parse(event.data);
-        const { type, data } = message;
-
-        addDebugLog(
-          type,
-          JSON.stringify(data).substring(0, 200),
-          type === "error"
-        );
-
-        switch (type) {
-          case "status":
-            if (data.agents) {
-              setTeamState((prev) => {
-                const newState = deepClone(prev);
-                Object.entries(data.agents).forEach(([agentName, status]) => {
-                  const mapping = AGENT_TO_TEAM_MAP[agentName];
-                  if (mapping) {
-                    const [teamKey, frontendName] = mapping;
-                    const member = newState[teamKey].find(
-                      (m) => m.name === frontendName
-                    );
-                    if (member) member.status = status as string;
-                  }
-                });
-                return newState;
-              });
-            }
-            break;
-
-          case "report":
-            break;
-
-          case "complete":
-            if (data.final_state) {
-              setFinalReportData(data.final_state);
-            }
-
-            let finalDecision = data.decision;
-            if (!finalDecision && data.final_state?.final_trade_decision) {
-              const decisionContent = data.final_state.final_trade_decision;
-              const textToCheck = typeof decisionContent === 'string'
-                ? decisionContent
-                : JSON.stringify(decisionContent);
-              finalDecision = extractDecision(textToCheck);
-            }
-            if (finalDecision) {
-              setDecision(finalDecision);
-            }
-
-            setTeamState((prev) => {
-              const newState = deepClone(prev);
-              Object.keys(newState).forEach((key) => {
-                newState[key as keyof typeof TEAM_TEMPLATE].forEach((m) => {
-                  m.status = "completed";
-                });
-              });
-              return newState;
-            });
-
-            setIsRunning(false);
-            break;
-
-          case "error":
-            addDebugLog("error", data.message, true);
-            setReportSections((prev) => [
-              ...prev,
-              {
-                key: "error",
-                label: "Error",
-                text: `Error: ${data.message}`,
-              },
-            ]);
-            setIsRunning(false);
-            break;
-        }
-      };
-
-      ws.onerror = () => {
-        if (!isMounted) return;
-        console.warn("WebSocket connection error. Retrying...");
-        ws.close(); // Trigger onclose
-      };
-
-      ws.onclose = () => {
-        if (!isMounted) return;
-        setWsStatus("disconnected");
-        // Retry connection after 3 seconds
-        reconnectTimeout = setTimeout(() => {
-          connectWebSocket();
-        }, 3000);
-      };
-    };
-
-    connectWebSocket();
-
-    return () => {
-      isMounted = false;
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-      clearTimeout(reconnectTimeout);
-    };
-  }, [addDebugLog]);
-
+  // Create runPipeline function that uses global context
   const runPipeline = useCallback(() => {
     if (isRunning) return;
 
-    // Check connection first
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      alert("WebSocket is not connected. Please refresh or check backend.");
+    if (wsStatus !== "connected") {
+      alert("WebSocket is not connected. Please wait and try again.");
       return;
     }
 
-    setIsRunning(true);
-    setTeamState(deepClone(TEAM_TEMPLATE));
-    setReportSections([]);
-    setDecision("Awaiting run");
-    setDebugLogs([]);
-    setMsgCount(0);
-    setErrorCount(0);
-    setFinalReportData(null); // Clear previous data
-
-    const request = {
-      action: "start_analysis",
-      request: {
-        ticker: ticker,
-        analysis_date: analysisDate,
-        analysts: ANALYSTS_DATA.map((a) => a.value),
-        research_depth: researchDepth,
-        llm_provider: "deepseek",
-        backend_url: "https://api.deepseek.com",
-        shallow_thinker: SHALLOW_AGENTS.deepseek[0][1],
-        deep_thinker: DEEP_AGENTS.deepseek[0][1],
-        report_length: reportLength,
-      },
-    };
-
-    try {
-      wsRef.current.send(JSON.stringify(request));
-      addDebugLog("request", `Starting analysis for ${ticker}`, false);
-    } catch (err: any) {
-      console.error("Send error:", err);
-      setIsRunning(false);
-      addDebugLog("error", "Failed to send request", true);
-    }
-  }, [isRunning, ticker, analysisDate, researchDepth, reportLength, addDebugLog]);
-
-  const stopPipeline = useCallback(() => {
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
-
-    wsRef.current.send(JSON.stringify({ action: "stop" }));
-    addDebugLog("system", "Stopping analysis...", true);
-    setIsRunning(false);
-  }, [addDebugLog]);
+    startGeneration({
+      ticker,
+      analysisDate,
+      analysts: ANALYSTS_DATA.map((a) => a.value),
+      researchDepth,
+      llmProvider: "deepseek",
+      backendUrl: "https://api.deepseek.com",
+      shallowThinker: SHALLOW_AGENTS.deepseek[0][1],
+      deepThinker: DEEP_AGENTS.deepseek[0][1],
+      reportLength,
+    });
+  }, [isRunning, wsStatus, startGeneration, ticker, analysisDate, researchDepth, reportLength]);
 
   // Handlers
   const handleCopyReport = async () => {

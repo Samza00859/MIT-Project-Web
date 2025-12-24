@@ -1,33 +1,8 @@
 {
-    "sentiment_verdict": "Bearish",
-    "social_volume": "Elevated volume with heavy options trading activity and recession discussions",
-    "dominant_narrative": "Markets are facing recession fears with deteriorating economic data, including concerns about corporate bankruptcies reaching 15-year highs and labor market weakness, while the S&P 500 struggles to break through resistance levels near record highs.",
-    "top_topics": [
-        {
-            "topic": "Recession Concerns",
-            "sentiment": "Negative",
-            "analysis_snippet": "Multiple analysts and traders are expressing concerns about an impending recession, citing collapsing labor markets and rising corporate bankruptcies."
-        },
-        {
-            "topic": "Technical Resistance Levels",
-            "sentiment": "Mixed",
-            "analysis_snippet": "The S&P 500 is stuck below key resistance levels with discussions about triple top reversal patterns and distribution at highs."
-        },
-        {
-            "topic": "Federal Reserve Policy Impact",
-            "sentiment": "Mixed",
-            "analysis_snippet": "Traders are debating whether recent Fed rate cuts will support markets or if monetary easing cannot save overvalued assets."
-        },
-        {
-            "topic": "Options Trading Activity",
-            "sentiment": "Mixed",
-            "analysis_snippet": "Heavy institutional options volume in SPY with traders taking both bullish and bearish positions, including significant put buying."
-        },
-        {
-            "topic": "AI Bubble Concerns",
-            "sentiment": "Negative",
-            "analysis_snippet": "Growing skepticism about AI spending not generating proportional returns, with warnings that the AI bubble may be bursting."
-        }
-    ],
-    "psychology": "Fear Uncertainty and Doubt about economic fundamentals combined with defensive positioning and risk aversion"
+    "sentiment_score": 50,
+    "sentiment_verdict": "Error",
+    "social_volume_analysis": "Parsing error occurred.",
+    "dominant_narrative": "Error processing data.",
+    "top_discussion_topics": [],
+    "retail_psychology_assessment": "Error occurred during analysis."
 }
