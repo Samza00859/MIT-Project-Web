@@ -126,7 +126,7 @@ Rules:
 1) Analyze the provided STOCK PRICE DATA and TECHNICAL INDICATORS.
 2) Use ONLY the following indicator names in your report if available:
 [
-    "close_50_sma", "close_200_sma", "close_10_ema", "macd", "macds", "macdh", 
+    "close_50_sma", "close_10_ema", "macd", "macds", "macdh", 
     "rsi", "boll", "boll_ub", "boll_lb", "atr", "vwma"
 ]
 3) Return the final answer as a valid JSON object ONLY used the schema below.

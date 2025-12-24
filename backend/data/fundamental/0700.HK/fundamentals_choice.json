@@ -13,7 +13,7 @@
   },
   "final_payload": {
     "overview": {
-      "marketCap": 5470034501939.0,
+      "marketCap": 5442932762045.0,
       "sharesOutstanding": null,
       "peRatio": null,
       "currency": "HKD",
@@ -38,5 +38,5 @@
       "eps": null
     }
   },
-  "timestamp": "2025-12-23T02:46:26.968897+00:00"
+  "timestamp": "2025-12-23T08:04:10.578815+00:00"
 }

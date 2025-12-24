@@ -13,3 +13,20 @@ TradingView Score: 273
 
 🏆 Best Source: YFINANCE
 
+
+🌐 Social Media News: 
+Bluesky news fetched for 0700.HK: 9 posts found.
+Subreddit news fetched for 0700.HK: 0 posts found.
+
+📰 News :
+Fetched 0 news items for 0700.HK from Finnhub.
+Fetched 0 news items for 0700.HK from Reddit.
+Fetched 10 news items for 0700.HK from YFinance.
+Fetched 0 news items for 0700.HK from Alpha Vantage.
+
+🌏 Global News: 
+Reddit global news have : 40 posts.
+Yfinance global news have : 47 posts.
+Finnhub global news have : 50 posts.
+
+Fetched fundamentals for 0700.HK: YF=13, FH=1, AV=0 fields.
