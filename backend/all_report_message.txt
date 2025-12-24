@@ -13,21 +13,3 @@ TradingView Score: 139
 
 🏆 Best Source: TRADINGVIEW
 
-
-🌐 Social Media News: 
-Bluesky news fetched for KBANK: 26 posts found.
-Mastodon news fetched for KBANK: 29 posts found.
-Subreddit news fetched for KBANK: 0 posts found.
-
-📰 News :
-Fetched 0 news items for KBANK from Finnhub.
-Fetched 0 news items for KBANK from Reddit.
-Fetched 0 news items for KBANK from YFinance.
-Fetched 0 news items for KBANK from Alpha Vantage.
-
-🌏 Global News: 
-Reddit global news have : 40 posts.
-Yfinance global news have : 47 posts.
-Finnhub global news have : 50 posts.
-
-Fetched fundamentals for KBANK: YF=0, FH=1, AV=0 fields.

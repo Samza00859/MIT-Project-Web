@@ -56,7 +56,7 @@ class AnalysisRequest(BaseModel):
     analysts: List[str]  # List of analyst types: ["market", "social", "news", "fundamentals"]
     research_depth: int  # 1, 3, or 5
     llm_provider: str  # "openai", "anthropic", "google", etc.
-    backend_url: str
+    backend_url: str or None    
     shallow_thinker: str
     deep_thinker: str
     report_length: Optional[str] = "summary"
