@@ -1,15 +1,15 @@
 🏷️ Stock Data Source Comparison Result:
 
-===== TOTAL RECORDS CHECK (0700.HK - HK) =====
-YFinance (0700.HK):      245
-TwelveData (0700):    0
-TradingView (HKEX:700):   245
+===== TOTAL RECORDS CHECK (KBANK - TH) =====
+YFinance (KBANK.BK):      242
+TwelveData (KBANK):    0
+TradingView (SET:KBANK):   243
 
 
 ===== SIMILARITY SCORE =====
-YFinance Score: 273
+YFinance Score: 139
 TwelveData Score: 0
-TradingView Score: 273
+TradingView Score: 139
 
-🏆 Best Source: YFINANCE
+🏆 Best Source: TRADINGVIEW
 

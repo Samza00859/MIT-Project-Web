@@ -1,5 +1,66 @@
 [
   {
+    "id": "71ca0b31-035b-3bd8-822b-0e2943f63563",
+    "content": {
+      "id": "71ca0b31-035b-3bd8-822b-0e2943f63563",
+      "contentType": "STORY",
+      "title": "Analysis-Global investors turn to Chinese AI as Wall Street fears bubble",
+      "description": "",
+      "summary": "Foreigners see China closing ‌the tech gap with the U.S. as Beijing steps up support for AI chipmakers, spurring bets on Chinese companies just as worries grow over lofty valuations on U.S.-listed AI stocks. U.K.-based asset manager Ruffer, for example, said it has \"deliberately limited ‌exposure\" to the Magnificent Seven - the U.S. tech giants - and is looking to add positions in Alibaba for a bigger exposure to China's AI theme. \"While the U.S. remains the leader in frontier AI, China is rapidly narrowing the gap,\" said Gemma Cairns-Smith, Investment Specialist at Ruffer.",
+      "pubDate": "2025-12-23T07:28:06Z",
+      "displayTime": "2025-12-23T07:28:06Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/reuters-finance.com/1ee9617647cb62f2a0e84c86450d5095",
+        "originalWidth": 800,
+        "originalHeight": 533,
+        "caption": "FILE PHOTO: Global investors turn to Chinese AI as Wall Street fears bubble",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/0V69DNeAN91Bj1MySHmmOA--~B/aD01MzM7dz04MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters-finance.com/1ee9617647cb62f2a0e84c86450d5095",
+            "width": 800,
+            "height": 533,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/l2D_BV62j8SqUZauE3eWwg--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters-finance.com/1ee9617647cb62f2a0e84c86450d5095",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Reuters",
+        "url": "http://www.reuters.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://finance.yahoo.com/news/analysis-global-investors-turn-chinese-072806140.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/analysis-global-investors-turn-chinese-072806140.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
     "id": "a049b4fc-5975-3f86-8760-86712435d332",
     "content": {
       "id": "a049b4fc-5975-3f86-8760-86712435d332",
@@ -527,67 +588,6 @@
       },
       "clickThroughUrl": {
         "url": "https://finance.yahoo.com/news/does-tencent-ai-reshuffle-nvidia-011335267.html",
-        "site": "finance",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "metadata": {
-        "editorsPick": false
-      },
-      "finance": {
-        "premiumFinance": {
-          "isPremiumNews": false,
-          "isPremiumFreeNews": false
-        }
-      },
-      "storyline": null
-    }
-  },
-  {
-    "id": "52a85d82-aab6-3a5e-a317-18af8613611e",
-    "content": {
-      "id": "52a85d82-aab6-3a5e-a317-18af8613611e",
-      "contentType": "STORY",
-      "title": "The Zacks Analyst Blog Tencent, Bilibili, Baidu, Alibaba and JD.com",
-      "description": "",
-      "summary": "China's shift to looser policy and rising tech momentum set the stage for a 2026 rebound, with Tencent among top U.S.-listed plays.",
-      "pubDate": "2025-12-17T09:38:00Z",
-      "displayTime": "2025-12-17T09:38:00Z",
-      "isHosted": true,
-      "bypassModal": false,
-      "previewUrl": null,
-      "thumbnail": {
-        "originalUrl": "https://media.zenfs.com/en/zacks.com/6aeef3c46a6c7ea6b556882abdd6f761",
-        "originalWidth": 635,
-        "originalHeight": 400,
-        "caption": "",
-        "resolutions": [
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/EmTWvQ4srpUTIJ6nkpmmGQ--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/6aeef3c46a6c7ea6b556882abdd6f761",
-            "width": 635,
-            "height": 400,
-            "tag": "original"
-          },
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/q8ihoTYNJNFJ.YIeBGzdvA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/6aeef3c46a6c7ea6b556882abdd6f761",
-            "width": 170,
-            "height": 128,
-            "tag": "170x128"
-          }
-        ]
-      },
-      "provider": {
-        "displayName": "Zacks",
-        "url": "http://www.zacks.com/"
-      },
-      "canonicalUrl": {
-        "url": "https://finance.yahoo.com/news/zacks-analyst-blog-tencent-bilibili-093800697.html",
-        "site": "finance",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "clickThroughUrl": {
-        "url": "https://finance.yahoo.com/news/zacks-analyst-blog-tencent-bilibili-093800697.html",
         "site": "finance",
         "region": "US",
         "lang": "en-US"

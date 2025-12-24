@@ -179,6 +179,9 @@ def auto_detect_market(symbol):
     if _check_ticker_exists(symbol):
         print(f"   👉 Found: US/Global Stock")
         return "US"
+
+    # 5. Fallback: ลองเช็กตลาดไทย (.BK) กรณีไม่ได้ใส่ suffix
+    # เช่น user พิมพ์ "KBANK" แล้วหาใน US ไม่เจอ
     if _check_ticker_exists(f"{symbol}.BK"):
         print(f"   👉 Found: Thai Stock (.BK)")
         return "TH"

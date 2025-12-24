@@ -1,49 +1,35 @@
 {
-    "executive_summary": "Apple faces a mixed outlook with strong iPhone 17 demand and AI product pipeline for 2026 offset by significant regulatory fines in Italy and Brazil, alongside ongoing insider selling by executives including CEO Tim Cook.",
+    "executive_summary": "The primary driver for KBANK is the global macro environment, where strong US economic growth (4.3% Q3 GDP) and record-high gold prices signal robust risk appetite and potential for higher global interest rates, which could pressure emerging market financials like Thai banks.",
     "market_sentiment_verdict": "Neutral",
     "global_macro_context": {
-        "macro_summary": "Global markets are ending 2025 with strong momentum, as evidenced by world stocks poised to outperform the S&P 500. The U.S. economy grew at a robust 4.3% in Q3, its fastest pace in two years, boosting investor confidence. However, geopolitical tensions persist, including U.S. sanctions relief offers to a Putin ally and a military plane crash in Libya, while the Korean Won and Japanese Yen strengthen on policymakers' warnings against excessive weakness."
+        "macro_summary": "US Q3 GDP surged 4.3%, the highest in two years, signaling strong economic resilience. The Korean Won and Japanese Yen are strengthening on central bank warnings against excessive weakness, indicating potential for tighter monetary policy in Asia. Geopolitical tensions persist with US-Venezuela oil conflicts and a US troop deployment to the Caribbean, while copper and gold prices hit record highs on supply and tariff concerns."
     },
     "top_news_developments": [
         {
-            "headline": "Apple to allow third-party app stores in Brazil to settle iOS case with regulator",
-            "source": "Reuters",
-            "date": "2025-12-23T21:19:35+00:00",
-            "sentiment": "Negative",
-            "implication": "This settlement and potential fine represent a significant regulatory concession that could pressure App Store revenue and set a precedent in other markets."
-        },
-        {
-            "headline": "Apple Fined $115 Million in Italy Over App Tracking Policy",
-            "source": "Yahoo",
-            "date": "2025-12-22T12:34:00+00:00",
-            "sentiment": "Negative",
-            "implication": "The substantial antitrust fine directly impacts earnings and highlights ongoing regulatory scrutiny in Europe over Apple's business practices."
-        },
-        {
-            "headline": "Lead times across the iPhone 17 series are moderating: analyst",
-            "source": "Yahoo",
-            "date": "2025-12-23T17:12:30+00:00",
-            "sentiment": "Positive",
-            "implication": "Easing supply constraints for the flagship product indicate healthy inventory management and support steady revenue momentum."
-        },
-        {
-            "headline": "Apple Targets 2026 Launch For AI Smart Glasses, Camera-Equipped AirPods",
-            "source": "Benzinga",
-            "date": "2025-12-22T02:07:42+00:00",
-            "sentiment": "Positive",
-            "implication": "Expansion of the AI hardware ecosystem into new wearable categories represents a significant long-term growth opportunity beyond the iPhone."
-        },
-        {
-            "headline": "Apple CEO Tim Cook Buys $3 Million of Nike Stock",
-            "source": "Barrons.com",
-            "date": "2025-12-24T00:05:00+00:00",
+            "headline": "U.S. economy grows by 4.3% in third quarter, much more than expected, delayed report shows",
+            "source": "CNBC",
+            "date": "2025-12-23T13:43:53+00:00",
             "sentiment": "Neutral",
-            "implication": "While not directly related to AAPL, this significant personal investment by the CEO alongside ongoing AAPL insider selling may draw investor attention."
+            "implication": "Strong US growth may delay Fed rate cuts, supporting a strong USD and pressuring emerging market currencies and capital flows, which could affect KBANK's funding costs and asset quality."
+        },
+        {
+            "headline": "Korean Won, Japanese Yen Strengthen on Policymakers’ Warnings Against Excessive Weakness",
+            "source": "The Wall Street Journal",
+            "date": "2025-12-24T03:02:00+00:00",
+            "sentiment": "Neutral",
+            "implication": "Asian central bank intervention to support currencies could signal a broader regional shift towards tighter monetary policy, potentially increasing interest rate pressures for Thai banks like KBANK."
+        },
+        {
+            "headline": "Gold and silver reach fresh highs for second day running — and could keep climbing",
+            "source": "CNBC",
+            "date": "2025-12-23T14:52:01+00:00",
+            "sentiment": "Positive",
+            "implication": "Record gold prices reflect strong safe-haven demand and inflation hedging, which could boost wealth management and trading revenues for KBANK's capital markets and brokerage segments."
         }
     ],
     "key_risks": [
-        "Escalating regulatory pressure and fines in key international markets (Italy, Brazil) challenging the App Store's closed ecosystem and profitability.",
-        "Persistent insider selling by executives, including CEO Tim Cook, potentially signaling internal concerns about valuation or near-term prospects.",
-        "Execution risk on the promised 2026 AI product launches (smart glasses, AirPods) needed to reinvigorate growth narratives beyond the mature iPhone."
+        "Stronger-than-expected US GDP growth reduces the likelihood of near-term Fed rate cuts, potentially leading to sustained USD strength and capital outflows from emerging markets like Thailand, pressuring KBANK's liquidity and loan growth.",
+        "Regional central bank actions to support currencies (Won, Yen) could prompt the Bank of Thailand to adopt a more hawkish stance, increasing KBANK's cost of funds and squeezing net interest margins.",
+        "Geopolitical instability (US-Venezuela tensions, Libya plane crash) and supply-driven commodity inflation (copper, oil) could disrupt global trade and increase economic uncertainty, negatively impacting Thailand's export-dependent economy and KBANK's corporate loan portfolio."
     ]
 }

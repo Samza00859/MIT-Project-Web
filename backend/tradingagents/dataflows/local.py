@@ -1905,10 +1905,16 @@ def _is_valid_ticker(symbol: str) -> bool:
     """Check if ticker exists via yfinance fast_info (lightweight check)"""
     try:
         t = yf.Ticker(symbol)
-        # If it has market cap or previous close, it likely exists
-        return t.fast_info.market_cap is not None or t.fast_info.previous_close is not None
+        # Force a fetch of minimal data
+        _ = t.fast_info.market_cap
+        return True
     except:
-        return False
+        # Fallback: Check if we can get history?
+        try:
+            h = t.history(period="1d")
+            return not h.empty
+        except:
+            return False
 
 def auto_resolve_symbol(symbol: str) -> str:
     """
@@ -1934,30 +1940,54 @@ def auto_resolve_symbol(symbol: str) -> str:
         # Fallback to HK (.HK) or just return raw
         return s
 
-    # 3. Text Symbol (US or Thai)
-    # 3.1 Try pure symbol (US/Global) first
+    # 3. Known Thai Stock Pattern (Common 3-6 chars, not standard US dict word often)
+    # Heuristic: Try adding .BK FIRST if checking against Thai market is desired priority, 
+    # OR try Thai .BK fallback aggressively.
+    
+    # Check explicitly if plain symbol works well in US
+    # But many Thai stocks like 'CPALL' might not exist in US, so check US first.
     if _is_valid_ticker(s):
+        # Even if valid in US, if it's a known Thai bluechip, we might prefer .BK? 
+        # For now, stick to standard logic: US/Global first.
         return s
     
     # 3.2 Try Thai Suffix (.BK)
     if _is_valid_ticker(f"{s}.BK"):
         return f"{s}.BK"
     
-    # Return original if resolution fails
-    return s
+    # 3.3 Default Fallback for potential Thai stocks not yet validated?
+    # If it looks like a Thai ticker (up to 10 chars, typically 3-6), we can default to .BK
+    # to let the fetchers try.
+    # Ex: KBANK -> KBANK.BK (if KBANK US doesn't exist)
+    return f"{s}.BK" if len(s) >= 3 else s
 
 # =========================
 # FETCHERS
 # =========================
 
 # --- YFinance ---
+# --- YFinance ---
 def _most_recent_col_frame(df) -> Optional[Tuple[str, Dict[str, float]]]:
     try:
         if df is None or getattr(df, "empty", True): return None
+        # Ensure we have columns
+        if len(df.columns) == 0: return None
+        
         col0 = df.columns[0]
         series = df[col0]
-        return str(col0), {str(k): _try_float(v) for k, v in series.items()}
-    except: return None
+        
+        # Safe conversion
+        data_dict = {}
+        for k, v in series.items():
+            try:
+                data_dict[str(k)] = _try_float(v)
+            except:
+                pass
+                
+        return str(col0), data_dict
+    except Exception as e:
+        print(f"⚠️ YF DataFrame Parse Error: {e}")
+        return None
 
 def fetch_yfinance(symbol: str) -> Dict[str, Dict]:
     t = yf.Ticker(symbol)
@@ -1983,24 +2013,29 @@ def fetch_yfinance(symbol: str) -> Dict[str, Dict]:
     bs, cf, inc = {}, {}, {}
     
     # Balance Sheet
-    bs_raw = _most_recent_col_frame(getattr(t, "balance_sheet", None))
-    if bs_raw:
-        r = bs_raw[1]
-        bs = {
-            "totalAssets": r.get("Total Assets"),
-            "totalLiabilities": r.get("Total Liab") or r.get("Total Liabilities Net Minority Interest"),
-            "shareholderEquity": r.get("Total Stockholder Equity") or r.get("Total Equity Gross Minority Interest")
-        }
+    try:
+        # Ticker object might return differnt formats or timezone-aware checks failing
+        bs_raw = _most_recent_col_frame(getattr(t, "balance_sheet", None))
+        if bs_raw:
+            r = bs_raw[1]
+            bs = {
+                "totalAssets": r.get("Total Assets"),
+                "totalLiabilities": r.get("Total Liab") or r.get("Total Liabilities Net Minority Interest"),
+                "shareholderEquity": r.get("Total Stockholder Equity") or r.get("Total Equity Gross Minority Interest")
+            }
+    except Exception as e: print(f"YF BS Error: {e}")
 
     # Cash Flow
-    cf_raw = _most_recent_col_frame(getattr(t, "cashflow", None))
-    if cf_raw:
-        r = cf_raw[1]
-        op = r.get("Total Cash From Operating Activities") or r.get("Operating Cash Flow")
-        cap = r.get("Capital Expenditures")
-        fcf = r.get("Free Cash Flow")
-        if fcf is None and op is not None and cap is not None: fcf = op - cap
-        cf = {"operatingCashFlow": op, "freeCashFlow": fcf, "capitalExpenditures": cap}
+    try:
+        cf_raw = _most_recent_col_frame(getattr(t, "cashflow", None))
+        if cf_raw:
+            r = cf_raw[1]
+            op = r.get("Total Cash From Operating Activities") or r.get("Operating Cash Flow")
+            cap = r.get("Capital Expenditures")
+            fcf = r.get("Free Cash Flow")
+            if fcf is None and op is not None and cap is not None: fcf = op - cap
+            cf = {"operatingCashFlow": op, "freeCashFlow": fcf, "capitalExpenditures": cap}
+    except Exception as e: print(f"YF CF Error: {e}")
 
     # Income
     inc_raw = _most_recent_col_frame(getattr(t, "financials", None))
