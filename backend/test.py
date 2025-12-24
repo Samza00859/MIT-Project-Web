@@ -41,7 +41,7 @@ async def main():
     try:
         graph = TradingAgentsGraph(selected_analysts=analysts, debug=False)
         
-        ticker = "0700.HK"
+        ticker = "PTT"
         trade_date = "2025-11-30"
 
         print(f"🚀 Propagating for {ticker} on {trade_date}...")

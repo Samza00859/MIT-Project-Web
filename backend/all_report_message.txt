@@ -1,32 +1,33 @@
 🏷️ Stock Data Source Comparison Result:
 
-===== TOTAL RECORDS CHECK (0700.HK - HK) =====
-YFinance (0700.HK):      245
-TwelveData (0700):    0
-TradingView (HKEX:700):   245
+===== TOTAL RECORDS CHECK (KBANK - TH) =====
+YFinance (KBANK.BK):      242
+TwelveData (KBANK):    0
+TradingView (SET:KBANK):   243
 
 
 ===== SIMILARITY SCORE =====
-YFinance Score: 273
+YFinance Score: 139
 TwelveData Score: 0
-TradingView Score: 273
+TradingView Score: 139
 
-🏆 Best Source: YFINANCE
+🏆 Best Source: TRADINGVIEW
 
 
 🌐 Social Media News: 
-Bluesky news fetched for 0700.HK: 9 posts found.
-Subreddit news fetched for 0700.HK: 0 posts found.
+Bluesky news fetched for KBANK: 26 posts found.
+Mastodon news fetched for KBANK: 29 posts found.
+Subreddit news fetched for KBANK: 0 posts found.
 
 📰 News :
-Fetched 0 news items for 0700.HK from Finnhub.
-Fetched 0 news items for 0700.HK from Reddit.
-Fetched 10 news items for 0700.HK from YFinance.
-Fetched 0 news items for 0700.HK from Alpha Vantage.
+Fetched 0 news items for KBANK from Finnhub.
+Fetched 0 news items for KBANK from Reddit.
+Fetched 0 news items for KBANK from YFinance.
+Fetched 0 news items for KBANK from Alpha Vantage.
 
 🌏 Global News: 
 Reddit global news have : 40 posts.
 Yfinance global news have : 47 posts.
 Finnhub global news have : 50 posts.
 
-Fetched fundamentals for 0700.HK: YF=13, FH=1, AV=0 fields.
+Fetched fundamentals for KBANK: YF=0, FH=1, AV=0 fields.
