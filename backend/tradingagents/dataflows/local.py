@@ -1907,12 +1907,18 @@ def _is_valid_ticker(symbol: str) -> bool:
     try:
         t = yf.Ticker(symbol)
         # Force a fetch of minimal data
-        _ = t.fast_info.market_cap
+        mc = t.fast_info.market_cap
+        
+        # If market_cap is None, it might be invalid or delisted. Check history to be sure.
+        if mc is None:
+             h = t.history(period="5d")
+             return not h.empty
+
         return True
     except:
         # Fallback: Check if we can get history?
         try:
-            h = t.history(period="1d")
+            h = t.history(period="5d")
             return not h.empty
         except:
             return False
@@ -2237,4 +2243,227 @@ async def pick_fundamental_source(symbol: str) -> Dict:
     if jsonl_path: save_jsonl_line(result, jsonl_path)
 
     print(f"✅ Data saved for {resolved_symbol}. Winner: {result['chosen_source']}")
+    return result
+
+# =========================
+# 10-YEAR HISTORICAL LOGIC
+# =========================
+
+def _safe_date_str(d):
+    try:
+        if isinstance(d, (pd.Timestamp, datetime)):
+            return d.strftime("%Y-%m-%d")
+        return str(d)[:10]
+    except: return str(d)
+
+def fetch_yfinance_10y(symbol: str) -> Dict[str, Dict]:
+    """Fetch all available historical data from YFinance"""
+    t = yf.Ticker(symbol)
+    
+    # Overview (static)
+    ov = {}
+    try:
+        fi = t.fast_info
+        info = t.get_info()
+        ov = {
+            "marketCap": _try_float(getattr(fi, "market_cap", None)),
+            "sharesOutstanding": _try_float(getattr(fi, "shares_outstanding", None)),
+            "peRatio": _try_float(getattr(fi, "trailing_pe", None)),
+            "currency": getattr(fi, "currency", None),
+            "exchange": getattr(fi, "exchange", None),
+            "name": info.get("shortName") or info.get("longName"),
+            "sector": info.get("sector"),
+            "industry": info.get("industry")
+        }
+    except: pass
+
+    # Helper to convert DF to Dict of Date -> Data
+    def _parse_df(df):
+        out = {}
+        if df is None or getattr(df, "empty", True): return out
+        
+        # Iterate columns (Dates)
+        for col in df.columns:
+            date_key = _safe_date_str(col)
+            # Convert series to dict, filter Nones
+            series_dict = df[col].to_dict()
+            clean = {k: _try_float(v) for k,v in series_dict.items() if _try_float(v) is not None}
+            if clean:
+                out[date_key] = clean
+        return out
+
+    bs = _parse_df(getattr(t, "balance_sheet", None))
+    cf = _parse_df(getattr(t, "cashflow", None))
+    inc = _parse_df(getattr(t, "financials", None))
+
+    return {"overview": ov, "balancesheet": bs, "cashflow": cf, "incomestatement": inc}
+
+def fetch_alphavantage_10y(symbol: str) -> Dict[str, Dict]:
+    if not ALPHAVANTAGE_API_KEY: return {}
+    
+    def _get(func):
+        try:
+            url = "https://www.alphavantage.co/query"
+            r = requests.get(url, params={"function": func, "symbol": symbol, "apikey": ALPHAVANTAGE_API_KEY}, timeout=REQUEST_TIMEOUT)
+            if r.status_code == 200:
+                d = r.json()
+                if "Note" not in d and "Error Message" not in d: return d
+        except: pass
+        return {}
+
+    ov_raw = _get("OVERVIEW")
+    ov = {
+        "name": ov_raw.get("Name"), "currency": ov_raw.get("Currency"),
+        "marketCap": _try_float(ov_raw.get("MarketCapitalization")),
+        "peRatio": _try_float(ov_raw.get("PERatio"))
+    }
+
+    def _parse_reps(func, mapper):
+        raw = _get(func)
+        reports = raw.get("annualReports", [])
+        out = {}
+        for r in reports:
+            # fiscalDateEnding is the key
+            d = r.get("fiscalDateEnding")
+            if not d: continue
+            
+            clean = {k: _try_float(r.get(v)) for k, v in mapper.items()}
+            out[d] = clean
+        return out
+
+    bs = _parse_reps("BALANCE_SHEET", {"totalAssets": "totalAssets", "totalLiabilities": "totalLiabilities", "shareholderEquity": "totalShareholderEquity"})
+    cf = _parse_reps("CASH_FLOW", {"operatingCashFlow": "operatingCashflow", "capitalExpenditures": "capitalExpenditures", "freeCashFlow": "freeCashFlow"}) # logic compute fcf separate if needed
+    inc = _parse_reps("INCOME_STATEMENT", {"totalRevenue": "totalRevenue", "netIncome": "netIncome", "eps": "reportedEPS"})
+
+    return {"overview": ov, "balancesheet": bs, "cashflow": cf, "incomestatement": inc}
+
+def fetch_finnhub_10y(symbol: str) -> Dict[str, Dict]:
+    if not FINNHUB_API_KEY: return {}
+    
+    def _get(path, params):
+        try:
+            params["token"] = FINNHUB_API_KEY
+            r = requests.get(f"https://finnhub.io/api/v1/{path}", params=params, timeout=REQUEST_TIMEOUT)
+            return r.json() if r.status_code == 200 else {}
+        except: return {}
+
+    prof = _get("stock/profile2", {"symbol": symbol})
+    ov = {
+        "name": prof.get("name"), "currency": prof.get("currency"),
+        "marketCap": _try_float(prof.get("marketCapitalization", 0)) * 1_000_000
+    }
+    
+    # Financials
+    # freq='annual' for 10 years history usually
+    rep = _get("stock/financials-reported", {"symbol": symbol, "freq": "annual"})
+    data = rep.get("data", [])
+    
+    bs, cf, inc = {}, {}, {}
+    
+    def _find_val(lst, keys):
+        for item in lst:
+            if item.get("concept") in keys or item.get("label") in keys:
+                return _try_float(item.get("value"))
+        return None
+        
+    for entry in data:
+        date_key = entry.get("endDate") or f"{entry.get('year')}-12-31" # fallback
+        if not date_key: continue
+        
+        report = entry.get("report", {})
+        
+        # BS
+        bs_clean = {
+            "totalAssets": _find_val(report.get("bs", []), ["TotalAssets", "Assets"]),
+            "totalLiabilities": _find_val(report.get("bs", []), ["Liabilities", "TotalLiabilities"]),
+            "shareholderEquity": _find_val(report.get("bs", []), ["StockholdersEquity", "Equity"])
+        }
+        if any(v is not None for v in bs_clean.values()):
+            bs[date_key] = bs_clean
+
+        # CF
+        cf_clean = {
+            "operatingCashFlow": _find_val(report.get("cf", []), ["NetCashProvidedByUsedInOperatingActivities"]),
+            "capitalExpenditures": _find_val(report.get("cf", []), ["PaymentsToAcquirePropertyPlantAndEquipment"]),    
+        }
+        if any(v is not None for v in cf_clean.values()):
+            cf[date_key] = cf_clean
+
+        # INC
+        inc_clean = {
+            "totalRevenue": _find_val(report.get("ic", []), ["Revenues", "SalesRevenueNet", "RevenuefromContractwithCustomerExcludingAssessedTax"]),
+            "netIncome": _find_val(report.get("ic", []), ["NetIncomeLoss", "ProfitLoss"]),
+        }
+        if any(v is not None for v in inc_clean.values()):
+            inc[date_key] = inc_clean
+
+    return {"overview": ov, "balancesheet": bs, "cashflow": cf, "incomestatement": inc}
+
+async def fetch_all_fundamentals_10y(symbol: str) -> Dict:
+    results = await asyncio.gather(
+        asyncio.to_thread(fetch_yfinance_10y, symbol),
+        asyncio.to_thread(fetch_finnhub_10y, symbol),
+        asyncio.to_thread(fetch_alphavantage_10y, symbol)
+    )
+    y, f, a = results
+    return {"symbol": symbol, "raw": {"yfinance": y, "finnhub": f, "alphavantage": a}}
+
+def decide_source_by_history(fetched: Dict, target_years=10) -> Dict:
+    raw = fetched["raw"]
+    srcs = ["yfinance", "finnhub", "alphavantage"]
+    scores = {s: 0 for s in srcs}
+    details = {s: {} for s in srcs}
+    
+    sections = ["balancesheet", "cashflow", "incomestatement"]
+    
+    for s in srcs:
+        dataset = raw.get(s, {})
+        # Count unique years across all sections
+        years_seen = set()
+        for sec in sections:
+            sec_data = dataset.get(sec, {})
+            # sec_data is Dict[DateStr, ValuesDict]
+            for d in sec_data.keys():
+                years_seen.add(d[:4]) # Just the year part
+        
+        count = len(years_seen)
+        scores[s] = count
+        details[s]["years_count"] = count
+        details[s]["years"] = sorted(list(years_seen))
+    
+    # Pick Winner
+    # 1. Max years
+    max_years = max(scores.values())
+    candidates = [s for s, sc in scores.items() if sc == max_years]
+    
+    winner = candidates[0]
+    # Tie-breaker: Preference similar to original
+    for p in PREFERRED_ORDER:
+        if p in candidates:
+            winner = p
+            break
+            
+    return {
+        "symbol": fetched["symbol"],
+        "chosen_source": winner,
+        "years_found": scores[winner],
+        "available_years": details[winner]["years"],
+        "all_scores": scores,
+        "final_payload": raw.get(winner),
+        "raw": raw,
+        "timestamp": _now_iso()
+    }
+
+async def pick_fundamental_source_10years(symbol: str) -> Dict:
+    resolved_symbol = auto_resolve_symbol(symbol)
+    print(f"Resolved to: {resolved_symbol} (10 Years Mode)")
+
+    fetched = await fetch_all_fundamentals_10y(resolved_symbol)
+    result = decide_source_by_history(fetched)
+    
+    # Save
+    _ensure_dir_for(f"data/fundamental/{resolved_symbol}/")
+    save_json(result, f"data/fundamental/{resolved_symbol}/fundamentals_10y_choice.json")
+    
+    print(f"✅ 10-Year Data saved for {resolved_symbol}. Winner: {result['chosen_source']} ({result['years_found']} years)")
     return result
