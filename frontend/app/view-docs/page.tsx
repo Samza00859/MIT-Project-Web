@@ -224,7 +224,7 @@ function Tooltip({ text, children, isDarkMode }: { text: string; children: React
     const [show, setShow] = useState(false);
     return (
         <span className="relative inline-block group">
-            <span 
+            <span
                 className="underline decoration-dotted cursor-help"
                 onMouseEnter={() => setShow(true)}
                 onMouseLeave={() => setShow(false)}
@@ -232,13 +232,11 @@ function Tooltip({ text, children, isDarkMode }: { text: string; children: React
                 {children}
             </span>
             {show && (
-                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 px-3 py-2 rounded-lg text-xs max-w-xs shadow-lg ${
-                    isDarkMode ? 'bg-gray-800 text-white border border-gray-700' : 'bg-gray-900 text-white border border-gray-600'
-                }`}>
+                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 px-3 py-2 rounded-lg text-xs max-w-xs shadow-lg ${isDarkMode ? 'bg-gray-800 text-white border border-gray-700' : 'bg-gray-900 text-white border border-gray-600'
+                    }`}>
                     {text}
-                    <div className={`absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-l-transparent border-r-transparent border-b-transparent ${
-                        isDarkMode ? 'border-t-gray-800' : 'border-t-gray-900'
-                    }`} />
+                    <div className={`absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-l-transparent border-r-transparent border-b-transparent ${isDarkMode ? 'border-t-gray-800' : 'border-t-gray-900'
+                        }`} />
                 </div>
             )}
         </span>
@@ -352,17 +350,17 @@ export default function ViewDocsPage() {
                         if (element) {
                             const rect = element.getBoundingClientRect();
                             const { offsetTop, offsetHeight } = element;
-                            
+
                             // Check if section is in viewport (active section)
                             if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
                                 newActiveSection = section.id;
                             }
-                            
+
                             // Check if section is focused (centered in viewport)
                             const elementTop = rect.top + window.scrollY;
                             const elementCenter = elementTop + offsetHeight / 2;
                             const viewportCenter = window.scrollY + viewportHeight / 2;
-                            
+
                             if (Math.abs(elementCenter - viewportCenter) < viewportHeight * 0.3 && rect.top < viewportHeight && rect.bottom > 0) {
                                 newFocusedSection = section.id;
                                 element.classList.add('section-focused');
@@ -488,288 +486,276 @@ export default function ViewDocsPage() {
                 }
             `}</style>
             <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? "bg-[#1a1f2e] text-[#f8fbff]" : "bg-white text-[#1a202c]"}`}>
-            {/* ================= LEFT SIDEBAR (Global) ================= */}
-            <Sidebar
-                activeId="docs"
-                isDarkMode={isDarkMode}
-                toggleTheme={toggleTheme}
-            />
+                {/* ================= LEFT SIDEBAR (Global) ================= */}
+                <Sidebar
+                    activeId="docs"
+                    isDarkMode={isDarkMode}
+                    toggleTheme={toggleTheme}
+                />
 
-            {/* ================= MIDDLE SIDEBAR (Navigation Tree) ================= */}
-            <ViewDocsSidebar
-                isDarkMode={isDarkMode}
-                activeSection={activeSection}
-                expandedCategories={expandedCategories}
-                readingMode={readingMode}
-                onToggleCategory={toggleCategory}
-                onSelectItem={scrollToSection}
-                onToggleReadingMode={() => setReadingMode(!readingMode)}
-            />
+                {/* ================= MIDDLE SIDEBAR (Navigation Tree) ================= */}
+                <ViewDocsSidebar
+                    isDarkMode={isDarkMode}
+                    activeSection={activeSection}
+                    expandedCategories={expandedCategories}
+                    readingMode={readingMode}
+                    onToggleCategory={toggleCategory}
+                    onSelectItem={scrollToSection}
+                    onToggleReadingMode={() => setReadingMode(!readingMode)}
+                />
 
-            {/* ================= MAIN CONTENT ================= */}
-            <main className={`flex-1 flex flex-col relative min-h-screen min-w-0 overflow-y-auto ${
-                isDarkMode
-                    ? "bg-gradient-to-br from-[#1e2332] via-[#232837] to-[#1e2332]"
-                    : "bg-white"
-            }`}>
-                {/* Header with Download Button */}
-                <div className={`sticky top-0 backdrop-blur-sm pt-8 pb-6 px-12 z-30 border-b ${
-                    isDarkMode
-                        ? "bg-gradient-to-b from-[#1e2332]/95 to-[#232837]/95 border-zinc-600/40"
-                        : "bg-white border-gray-300"
-                }`}>
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <h1 className={`text-3xl font-bold mb-2 tracking-tight ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                                View Docs
-                            </h1>
-                            <p className={`text-base ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>
-                                Document & Tutorials & Agent
-                            </p>
+                {/* ================= MAIN CONTENT ================= */}
+                <main className={`flex-1 flex flex-col relative min-h-screen min-w-0 overflow-y-auto ${isDarkMode
+                        ? "bg-gradient-to-br from-[#1e2332] via-[#232837] to-[#1e2332]"
+                        : "bg-white"
+                    }`}>
+                    {/* Header with Download Button */}
+                    <div className={`sticky top-0 backdrop-blur-sm pt-8 pb-6 px-12 z-30 border-b ${isDarkMode
+                            ? "bg-gradient-to-b from-[#1e2332]/95 to-[#232837]/95 border-zinc-600/40"
+                            : "bg-white border-gray-300"
+                        }`}>
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h1 className={`text-3xl font-bold mb-2 tracking-tight ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                    View Docs
+                                </h1>
+                                <p className={`text-base ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>
+                                    Document & Tutorials & Agent
+                                </p>
+                            </div>
+                            <a
+                                href="https://arxiv.org/pdf/2412.20138"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 bg-[#00e33d] hover:bg-[#00c936] text-black px-4 py-2.5 rounded-lg font-semibold transition-colors text-sm shadow-lg shadow-green-500/20"
+                            >
+                                <Download size={16} />
+                                Download Document
+                            </a>
                         </div>
-                        <a
-                            href="https://arxiv.org/pdf/2412.20138"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 bg-[#00e33d] hover:bg-[#00c936] text-black px-4 py-2.5 rounded-lg font-semibold transition-colors text-sm shadow-lg shadow-green-500/20"
-                        >
-                            <Download size={16} />
-                            Download Document
-                        </a>
-                    </div>
-                </div>
-
-                {/* Content Area */}
-                <div className={`px-8 md:px-12 w-full max-w-[1600px] pb-40 pt-8 mx-auto ${readingMode ? "reading-mode" : ""}`}>
-
-                    {/* ================= Document Sections ================= */}
-                    <div className="mb-8">
-                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${
-                            isDarkMode
-                                ? "text-white border-zinc-600"
-                                : "text-gray-900 border-gray-300"
-                        }`}>
-                            Document
-                        </h2>
                     </div>
 
-                    <div className="flex flex-col gap-16 mb-24">
-                        {DOCUMENT_SECTIONS.map((section, index) => (
-                            <section
-                                key={section.id}
-                                id={section.id}
-                                className={`scroll-mt-40 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out ${focusedSection === section.id ? "section-focused" : ""}`}
-                                style={{ transitionDelay: `${index * 100}ms` }}
-                            >
-                                <h3 className={`text-xl font-bold mb-6 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                                    {section.title}
-                                </h3>
-                                <div className={`text-base ${isDarkMode ? "text-zinc-300" : "text-black"}`}>
-                                    {section.id === 'introduction' ? (
-                                        <>
-                                            <CalloutBox type="tip" isDarkMode={isDarkMode}>
-                                                <strong>TradingAgents</strong> uses a multi-agent architecture where specialized AI agents collaborate to make trading decisions, similar to how professional trading firms operate.
-                                            </CalloutBox>
-                                            <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
-                                                {section.content}
-                                            </div>
-                                        </>
-                                    ) : section.id === 'role-specialization' ? (
-                                        <div className="space-y-4">
-                                            <CalloutBox type="info" isDarkMode={isDarkMode}>
-                                                Each agent type focuses on a specific aspect of market analysis, ensuring comprehensive coverage of all market dimensions.
-                                            </CalloutBox>
-                                            <p>
-                                                The framework assigns specialized roles to LLM agents, ensuring expert-level analysis across all market dimensions:
-                                            </p>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                                                <div className={`p-4 rounded-lg border ${
-                                                    isDarkMode
-                                                        ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-gray-50 border-gray-400"
-                                                }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-cyan-600"}`}>Fundamental Analysts</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>Analyze company financial health, earnings reports, and macroeconomic indicators to determine long-term value.</p>
-                                                </div>
-                                                <div className={`p-4 rounded-lg border ${
-                                                    isDarkMode
-                                                        ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-gray-50 border-gray-400"
-                                                }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-cyan-600"}`}>Technical Analysts</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>Study price action, trends, and volume patterns to identify optimal entry and exit points.</p>
-                                                </div>
-                                                <div className={`p-4 rounded-lg border ${
-                                                    isDarkMode
-                                                        ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-gray-50 border-gray-400"
-                                                }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-cyan-600"}`}>Sentiment Analysts</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>Process news, social media, and market chatter to gauge market psychology and potential volatility.</p>
-                                                </div>
-                                                <div className={`p-4 rounded-lg border ${
-                                                    isDarkMode
-                                                        ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-gray-50 border-gray-400"
-                                                }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-cyan-600"}`}>Risk Management</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>Monitor portfolio exposure and set strict limits to preserve capital and manage downside risk.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ) : section.id === 'agent-workflow' ? (
-                                        <>
-                                            <CalloutBox type="info" isDarkMode={isDarkMode}>
-                                                The workflow follows a hierarchical decision-making process, similar to how investment committees operate in professional trading firms.
-                                            </CalloutBox>
-                                            <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
-                                                {section.content}
-                                            </div>
-                                        </>
-                                    ) : section.id === 'related-work' ? (
-                                        <>
-                                            <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
-                                                {section.content}
-                                            </div>
-                                            <CalloutBox type="note" isDarkMode={isDarkMode}>
-                                                The <strong>TradingAgents Approach</strong> distinguishes itself by implementing true collaboration through structured debates, unlike traditional frameworks where agents work in isolation.
-                                            </CalloutBox>
-                                        </>
-                                    ) : (
-                                        <ContentWithCallouts content={section.content} isDarkMode={isDarkMode} />
-                                    )}
-                                </div>
-                            </section>
-                        ))}
-                    </div>
+                    {/* Content Area */}
+                    <div className={`px-8 md:px-12 w-full max-w-[1600px] pb-40 pt-8 mx-auto ${readingMode ? "reading-mode" : ""}`}>
 
-                    {/* ================= Tutorials Sections ================= */}
-                    <div 
-                        className="mb-8 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out"
-                        id="tutorials-header"
-                    >
-                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${
-                            isDarkMode
-                                ? "text-white border-zinc-600"
-                                : "text-gray-900 border-gray-300"
-                        }`}>
-                            Tutorials
-                        </h2>
-                    </div>
+                        {/* ================= Document Sections ================= */}
+                        <div className="mb-8">
+                            <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode
+                                    ? "text-white border-zinc-600"
+                                    : "text-gray-900 border-gray-300"
+                                }`}>
+                                Document
+                            </h2>
+                        </div>
 
-                    <div className="flex flex-col gap-16 mb-24">
-                        {TUTORIAL_SECTIONS.map((section, index) => (
-                            <section
-                                key={section.id}
-                                id={section.id}
-                                className={`scroll-mt-40 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out ${focusedSection === section.id ? "section-focused" : ""}`}
-                                style={{ transitionDelay: `${(index + 1) * 100}ms` }}
-                            >
-                                <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                                    <span className={`font-mono ${isDarkMode ? "text-cyan-500" : "text-cyan-600"}`}>{index + 1}.</span> {section.title}
-                                </h3>
-                                <div className="space-y-4">
-                                    {section.steps.map((step, i) => {
-                                        const [title, desc] = step.split(': ');
-                                        return (
-                                            <div key={i} className="flex gap-4 group">
-                                                <div className={`flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center font-bold text-sm ${
-                                                    isDarkMode
-                                                        ? "bg-zinc-700/50 border-zinc-600 text-zinc-200"
-                                                        : "bg-gray-300 border-gray-500 text-gray-900"
-                                                }`}>
-                                                    {i + 1}
-                                                </div>
-                                                <div className={`flex-1 p-4 rounded-xl border ${
-                                                    isDarkMode
-                                                        ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-white border-gray-400"
-                                                }`}>
-                                                    <h4 className={`font-bold mb-1 ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>{title}</h4>
-                                                    <p className={`text-sm leading-relaxed ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>
-                                                        {desc || title}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </section>
-                        ))}
-                    </div>
-
-                    {/* ================= Our Agent Sections ================= */}
-                    <div 
-                        className="mb-8 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out"
-                        id="agents-header"
-                    >
-                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${
-                            isDarkMode
-                                ? "text-white border-zinc-600"
-                                : "text-gray-900 border-gray-300"
-                        }`}>
-                            Our Agents
-                        </h2>
-                    </div>
-
-                    <div className="flex flex-col gap-20">
-                        {AGENT_TEAMS.map((team, teamIndex) => (
-                            <section
-                                key={team.id}
-                                id={team.id}
-                                className={`scroll-mt-40 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out ${focusedSection === team.id ? "section-focused" : ""}`}
-                                style={{ transitionDelay: `${(teamIndex + 1) * 150}ms` }}
-                            >
-                                <div className="mb-8">
-                                    <h3 className={`text-xl font-bold mb-2 flex items-center gap-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                                        {team.title}
+                        <div className="flex flex-col gap-16 mb-24">
+                            {DOCUMENT_SECTIONS.map((section, index) => (
+                                <section
+                                    key={section.id}
+                                    id={section.id}
+                                    className={`scroll-mt-40 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out ${focusedSection === section.id ? "section-focused" : ""}`}
+                                    style={{ transitionDelay: `${index * 100}ms` }}
+                                >
+                                    <h3 className={`text-xl font-bold mb-6 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                        {section.title}
                                     </h3>
-                                    <p className={`text-base leading-relaxed border-l-2 pl-4 max-w-4xl ${
-                                        isDarkMode
-                                            ? "text-zinc-300 border-zinc-600"
-                                            : "text-gray-800 border-gray-500"
-                                    }`}>
-                                        {team.description}
-                                    </p>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                                    {team.agents.map((agent) => (
-                                        <div key={agent.id} className={`border rounded-xl p-6 transition-colors relative overflow-hidden group h-full ${
-                                            isDarkMode
-                                                ? "bg-zinc-800/40 border-zinc-700/60 hover:border-zinc-600"
-                                                : "bg-white border-gray-400 hover:border-gray-500"
-                                        }`}>
-                                            <div className="flex items-center gap-3 mb-3 relative z-10">
-                                                <div className={`p-2 rounded-lg border ${
-                                                    isDarkMode
-                                                        ? "bg-zinc-800/50 border-zinc-600"
-                                                        : "bg-gray-100 border-gray-500"
-                                                }`}>
-                                                    {agent.icon}
+                                    <div className={`text-base ${isDarkMode ? "text-zinc-300" : "text-black"}`}>
+                                        {section.id === 'introduction' ? (
+                                            <>
+                                                <CalloutBox type="tip" isDarkMode={isDarkMode}>
+                                                    <strong>TradingAgents</strong> uses a multi-agent architecture where specialized AI agents collaborate to make trading decisions, similar to how professional trading firms operate.
+                                                </CalloutBox>
+                                                <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
+                                                    {section.content}
                                                 </div>
-                                                <div>
-                                                    <h4 className={`font-bold text-base ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                                                        {agent.title}
-                                                    </h4>
-                                                    <p className={`text-[11px] uppercase tracking-wider font-bold ${isDarkMode ? "text-cyan-500" : "text-cyan-600"}`}>
-                                                        {agent.role}
-                                                    </p>
+                                            </>
+                                        ) : section.id === 'role-specialization' ? (
+                                            <div className="space-y-4">
+                                                <CalloutBox type="info" isDarkMode={isDarkMode}>
+                                                    Each agent type focuses on a specific aspect of market analysis, ensuring comprehensive coverage of all market dimensions.
+                                                </CalloutBox>
+                                                <p>
+                                                    The framework assigns specialized roles to LLM agents, ensuring expert-level analysis across all market dimensions:
+                                                </p>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                                                    <div className={`p-4 rounded-lg border ${isDarkMode
+                                                            ? "bg-zinc-800/40 border-zinc-700/60"
+                                                            : "bg-gray-50 border-gray-400"
+                                                        }`}>
+                                                        <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-cyan-600"}`}>Fundamental Analysts</h3>
+                                                        <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>Analyze company financial health, earnings reports, and macroeconomic indicators to determine long-term value.</p>
+                                                    </div>
+                                                    <div className={`p-4 rounded-lg border ${isDarkMode
+                                                            ? "bg-zinc-800/40 border-zinc-700/60"
+                                                            : "bg-gray-50 border-gray-400"
+                                                        }`}>
+                                                        <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-cyan-600"}`}>Technical Analysts</h3>
+                                                        <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>Study price action, trends, and volume patterns to identify optimal entry and exit points.</p>
+                                                    </div>
+                                                    <div className={`p-4 rounded-lg border ${isDarkMode
+                                                            ? "bg-zinc-800/40 border-zinc-700/60"
+                                                            : "bg-gray-50 border-gray-400"
+                                                        }`}>
+                                                        <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-cyan-600"}`}>Sentiment Analysts</h3>
+                                                        <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>Process news, social media, and market chatter to gauge market psychology and potential volatility.</p>
+                                                    </div>
+                                                    <div className={`p-4 rounded-lg border ${isDarkMode
+                                                            ? "bg-zinc-800/40 border-zinc-700/60"
+                                                            : "bg-gray-50 border-gray-400"
+                                                        }`}>
+                                                        <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-cyan-600"}`}>Risk Management</h3>
+                                                        <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>Monitor portfolio exposure and set strict limits to preserve capital and manage downside risk.</p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <p className={`text-sm leading-relaxed relative z-10 ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>
-                                                {agent.content}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-                        ))}
-                    </div>
+                                        ) : section.id === 'agent-workflow' ? (
+                                            <>
+                                                <CalloutBox type="info" isDarkMode={isDarkMode}>
+                                                    The workflow follows a hierarchical decision-making process, similar to how investment committees operate in professional trading firms.
+                                                </CalloutBox>
+                                                <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
+                                                    {section.content}
+                                                </div>
+                                            </>
+                                        ) : section.id === 'related-work' ? (
+                                            <>
+                                                <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
+                                                    {section.content}
+                                                </div>
+                                                <CalloutBox type="note" isDarkMode={isDarkMode}>
+                                                    The <strong>TradingAgents Approach</strong> distinguishes itself by implementing true collaboration through structured debates, unlike traditional frameworks where agents work in isolation.
+                                                </CalloutBox>
+                                            </>
+                                        ) : (
+                                            <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
+                                                {section.content}
+                                            </div>
+                                        )}
+                                    </div>
+                                </section>
+                            ))}
+                        </div>
 
-                </div>
-            </main>
-        </div>
+                        {/* ================= Tutorials Sections ================= */}
+                        <div
+                            className="mb-8 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out"
+                            id="tutorials-header"
+                        >
+                            <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode
+                                    ? "text-white border-zinc-600"
+                                    : "text-gray-900 border-gray-300"
+                                }`}>
+                                Tutorials
+                            </h2>
+                        </div>
+
+                        <div className="flex flex-col gap-16 mb-24">
+                            {TUTORIAL_SECTIONS.map((section, index) => (
+                                <section
+                                    key={section.id}
+                                    id={section.id}
+                                    className={`scroll-mt-40 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out ${focusedSection === section.id ? "section-focused" : ""}`}
+                                    style={{ transitionDelay: `${(index + 1) * 100}ms` }}
+                                >
+                                    <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                        <span className={`font-mono ${isDarkMode ? "text-cyan-500" : "text-cyan-600"}`}>{index + 1}.</span> {section.title}
+                                    </h3>
+                                    <div className="space-y-4">
+                                        {section.steps.map((step, i) => {
+                                            const [title, desc] = step.split(': ');
+                                            return (
+                                                <div key={i} className="flex gap-4 group">
+                                                    <div className={`flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center font-bold text-sm ${isDarkMode
+                                                            ? "bg-zinc-700/50 border-zinc-600 text-zinc-200"
+                                                            : "bg-gray-300 border-gray-500 text-gray-900"
+                                                        }`}>
+                                                        {i + 1}
+                                                    </div>
+                                                    <div className={`flex-1 p-4 rounded-xl border ${isDarkMode
+                                                            ? "bg-zinc-800/40 border-zinc-700/60"
+                                                            : "bg-white border-gray-400"
+                                                        }`}>
+                                                        <h4 className={`font-bold mb-1 ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>{title}</h4>
+                                                        <p className={`text-sm leading-relaxed ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>
+                                                            {desc || title}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </section>
+                            ))}
+                        </div>
+
+                        {/* ================= Our Agent Sections ================= */}
+                        <div
+                            className="mb-8 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out"
+                            id="agents-header"
+                        >
+                            <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode
+                                    ? "text-white border-zinc-600"
+                                    : "text-gray-900 border-gray-300"
+                                }`}>
+                                Our Agents
+                            </h2>
+                        </div>
+
+                        <div className="flex flex-col gap-20">
+                            {AGENT_TEAMS.map((team, teamIndex) => (
+                                <section
+                                    key={team.id}
+                                    id={team.id}
+                                    className={`scroll-mt-40 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out ${focusedSection === team.id ? "section-focused" : ""}`}
+                                    style={{ transitionDelay: `${(teamIndex + 1) * 150}ms` }}
+                                >
+                                    <div className="mb-8">
+                                        <h3 className={`text-xl font-bold mb-2 flex items-center gap-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                            {team.title}
+                                        </h3>
+                                        <p className={`text-base leading-relaxed border-l-2 pl-4 max-w-4xl ${isDarkMode
+                                                ? "text-zinc-300 border-zinc-600"
+                                                : "text-gray-800 border-gray-500"
+                                            }`}>
+                                            {team.description}
+                                        </p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                                        {team.agents.map((agent) => (
+                                            <div key={agent.id} className={`border rounded-xl p-6 transition-colors relative overflow-hidden group h-full ${isDarkMode
+                                                    ? "bg-zinc-800/40 border-zinc-700/60 hover:border-zinc-600"
+                                                    : "bg-white border-gray-400 hover:border-gray-500"
+                                                }`}>
+                                                <div className="flex items-center gap-3 mb-3 relative z-10">
+                                                    <div className={`p-2 rounded-lg border ${isDarkMode
+                                                            ? "bg-zinc-800/50 border-zinc-600"
+                                                            : "bg-gray-100 border-gray-500"
+                                                        }`}>
+                                                        {agent.icon}
+                                                    </div>
+                                                    <div>
+                                                        <h4 className={`font-bold text-base ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                                            {agent.title}
+                                                        </h4>
+                                                        <p className={`text-[11px] uppercase tracking-wider font-bold ${isDarkMode ? "text-cyan-500" : "text-cyan-600"}`}>
+                                                            {agent.role}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <p className={`text-sm leading-relaxed relative z-10 ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>
+                                                    {agent.content}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+                            ))}
+                        </div>
+
+                    </div>
+                </main>
+            </div>
         </>
     );
 }
