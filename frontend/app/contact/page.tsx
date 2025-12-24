@@ -3,55 +3,101 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
+import ContactContent from "@/components/ContactContent";
 
 export default function ContactPage() {
     const [isDarkMode, setIsDarkMode] = useState(true);
+    const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
 
     const toggleTheme = () => {
         setIsDarkMode(!isDarkMode);
     };
 
-    const contacts = [
-        {
-            name: "NAME: ____________________",
-            company: "COMPANY: ____________________",
-            position: "POSITION: ____________________",
-            email: "Email",
-            phone: "Phone",
-            other: "Other contact",
-        },
-        {
-            name: "NAME: ____________________",
-            company: "COMPANY: ____________________",
-            position: "POSITION: ____________________",
-            email: "Email",
-            phone: "Phone",
-            other: "Other contact",
-        },
-        {
-            name: "NAME: ____________________",
-            company: "COMPANY: ____________________",
-            position: "POSITION: ____________________",
-            email: "Email",
-            phone: "Phone",
-            other: "Other contact",
-        },
-    ];
+    const toggleCard = (index: number) => {
+        const newExpanded = new Set(expandedCards);
+        if (newExpanded.has(index)) {
+            newExpanded.delete(index);
+        } else {
+            newExpanded.add(index);
+        }
+        setExpandedCards(newExpanded);
+    };
 
     return (
-        <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? "bg-[#111317] text-[#f8fbff]" : "bg-[#f0f2f5] text-[#1a202c]"}`}>
-            {/* Navigation Bar */}
-            <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6">
-                <div className="flex items-center gap-2">
-                    {/* Logo Placeholder */}
-                </div>
-                <div className="flex gap-4 text-sm font-medium tracking-wide">
-                    <Link href="/view-docs" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
-                        }`}>View Docs</Link>
-                    <Link href="/contact" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
-                        }`}>Contact</Link>
-                </div>
-            </nav>
+        <div className={`flex min-h-screen w-full font-['Inter','Montserrat',sans-serif] transition-colors duration-300 relative overflow-hidden ${isDarkMode ? "bg-[#0d1117] text-[#e8eefc]" : "bg-[#eef2f7] text-[#0f172a]"}`}>
+            {/* Data Stream Background Depth Layer */}
+            {isDarkMode && (
+                <>
+                    <div className="pointer-events-none absolute inset-0 data-stream-layer" />
+                    <div className="pointer-events-none absolute inset-0 data-stream-grid" />
+                    <div className="pointer-events-none absolute inset-0 data-stream-lines" />
+                    <style jsx>{`
+                        .data-stream-layer {
+                            background: 
+                                radial-gradient(circle at 20% 30%, rgba(45, 244, 198, 0.08) 0%, transparent 50%),
+                                radial-gradient(circle at 80% 70%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+                                radial-gradient(circle at 50% 50%, rgba(94, 92, 255, 0.06) 0%, transparent 60%);
+                            background-size: 400% 400%;
+                            animation: dataStreamMove 25s ease-in-out infinite;
+                            opacity: 0.5;
+                        }
+                        .data-stream-grid {
+                            background-image: 
+                                repeating-linear-gradient(
+                                    0deg,
+                                    transparent,
+                                    transparent 98px,
+                                    rgba(45, 244, 198, 0.03) 98px,
+                                    rgba(45, 244, 198, 0.03) 100px
+                                ),
+                                repeating-linear-gradient(
+                                    90deg,
+                                    transparent,
+                                    transparent 98px,
+                                    rgba(56, 189, 248, 0.03) 98px,
+                                    rgba(56, 189, 248, 0.03) 100px
+                                );
+                            animation: dataStreamGridMove 40s linear infinite;
+                            opacity: 0.3;
+                        }
+                        .data-stream-lines {
+                            background-image: 
+                                linear-gradient(45deg, transparent 30%, rgba(45, 244, 198, 0.1) 50%, transparent 70%),
+                                linear-gradient(-45deg, transparent 30%, rgba(56, 189, 248, 0.1) 50%, transparent 70%);
+                            background-size: 300% 300%;
+                            animation: dataStreamLines 15s ease-in-out infinite;
+                            opacity: 0.4;
+                        }
+                        @keyframes dataStreamMove {
+                            0%, 100% {
+                                background-position: 0% 0%, 0% 0%, 0% 0%;
+                            }
+                            33% {
+                                background-position: 100% 50%, 50% 100%, 50% 50%;
+                            }
+                            66% {
+                                background-position: 50% 100%, 100% 50%, 100% 0%;
+                            }
+                        }
+                        @keyframes dataStreamGridMove {
+                            0% {
+                                transform: translate(0, 0);
+                            }
+                            100% {
+                                transform: translate(100px, 100px);
+                            }
+                        }
+                        @keyframes dataStreamLines {
+                            0%, 100% {
+                                background-position: 0% 0%, 100% 100%;
+                            }
+                            50% {
+                                background-position: 100% 100%, 0% 0%;
+                            }
+                        }
+                    `}</style>
+                </>
+            )}
 
             {/* Sidebar */}
             <Sidebar
@@ -61,66 +107,18 @@ export default function ContactPage() {
                 navItems={[
                     { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
                     { id: "generate", icon: "🌐", label: "Generate", href: "/" },
+                    { id: "history", icon: "📜", label: "History", href: "/history" },
                     { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
                     { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
                 ]}
             />
 
             {/* Main Content */}
-            <main className="flex-1 p-8 md:p-12 lg:p-16 pt-20">
-                <header className="mb-8">
-                    <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>Contact Us</h1>
-                    <p className={`text-sm md:text-base ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                        Get in touch with our team
-                    </p>
-                </header>
-
-                <section className="flex flex-col gap-6">
-                    {contacts.map((contact, index) => (
-                        <article
-                            key={index}
-                            className={`group flex flex-col gap-6 rounded-[20px] p-8 shadow-sm transition-colors duration-300 ${isDarkMode ? "bg-[#1e2330]" : "bg-white border border-gray-200"
-                                }`}
-                        >
-                            {/* Top Section: Profile & Info */}
-                            <div className="flex flex-col gap-6 md:flex-row md:items-center">
-                                <div className={`h-24 w-24 flex-shrink-0 rounded-full ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`}></div>
-                                <div className={`flex flex-col gap-2 text-sm tracking-wide ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                                    <p>{contact.name}</p>
-                                    <p>{contact.company}</p>
-                                    <p>{contact.position}</p>
-                                </div>
-                            </div>
-
-                            {/* Bottom Section: Contact Details (Dropdown) */}
-                            <div className="max-h-0 overflow-hidden opacity-0 transition-all duration-500 ease-in-out group-hover:max-h-[500px] group-hover:opacity-100">
-                                <div className="grid grid-cols-1 gap-4 pt-4 md:grid-cols-3">
-                                    {[
-                                        { label: contact.email, value: "____________________" },
-                                        { label: contact.phone, value: "____________________" },
-                                        { label: contact.other, value: "____________________" },
-                                    ].map((detail, idx) => (
-                                        <div
-                                            key={idx}
-                                            className={`flex flex-col gap-2 rounded-xl p-4 ${isDarkMode
-                                                ? "bg-[#151a25] border border-white/5"
-                                                : "bg-gray-50 border border-gray-200"
-                                                }`}
-                                        >
-                                            <span className={`text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                                                {detail.label}
-                                            </span>
-                                            <span className={`text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                                                {detail.value}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </article>
-                    ))}
-                </section>
-            </main>
+            <ContactContent
+                isDarkMode={isDarkMode}
+                expandedCards={expandedCards}
+                onToggleCard={toggleCard}
+            />
         </div>
     );
 }

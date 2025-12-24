@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import Logo from "@/image/Logo.png";
 import { jsPDF } from "jspdf";
 import Sidebar from "../components/Sidebar";
 import DebugPanel from "../components/DebugPanel";
@@ -319,7 +321,7 @@ function summarizeReport(reportText: string | any, decision: string) {
 
 export default function Home() {
   // State
-  const [ticker, setTicker] = useState("SPY");
+  const [ticker, setTicker] = useState("");
   const [selectedMarket, setSelectedMarket] = useState("US");
   const [analysisDate, setAnalysisDate] = useState("");
   const [researchDepth, setResearchDepth] = useState(3);
@@ -365,6 +367,28 @@ export default function Home() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMarketSelector, setShowMarketSelector] = useState(false); // New Dropdown State
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Generate stars once for the night sky effect
+  const stars = React.useMemo(() => {
+    return Array.from({ length: 150 }).map((_, i) => {
+      const size = Math.random() * 2 + 0.5;
+      const left = Math.random() * 100;
+      const top = Math.random() * 100;
+      const delay = Math.random() * 3;
+      const duration = Math.random() * 3 + 2;
+      const opacity = Math.random() * 0.8 + 0.2;
+      
+      return {
+        id: i,
+        size,
+        left,
+        top,
+        delay,
+        duration,
+        opacity,
+      };
+    });
+  }, []);
 
   // Fetch Full Ticker List from Backend
   const fetchMarketTickers = async (market: string) => {
@@ -1200,17 +1224,62 @@ export default function Home() {
   };
 
   return (
-    <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? "bg-[#070a13] text-[#f8fbff]" : "bg-[#f0f2f5] text-[#1a202c]"}`}>
+    <div
+      className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative overflow-hidden ${
+        isDarkMode
+          ? "bg-[#020617] text-[#f8fbff]"
+          : "bg-[#f5f7fb] text-[#0f172a]"
+      }`}
+    >
+      {/* Starry Night Sky Effect */}
+      {isDarkMode && (
+        <>
+          <div className="fixed inset-0 pointer-events-none z-0">
+            {stars.map((star) => (
+              <div
+                key={star.id}
+                className="absolute rounded-full bg-white"
+                style={{
+                  width: `${star.size}px`,
+                  height: `${star.size}px`,
+                  left: `${star.left}%`,
+                  top: `${star.top}%`,
+                  opacity: star.opacity,
+                  animation: `twinkle ${star.duration}s ease-in-out infinite`,
+                  animationDelay: `${star.delay}s`,
+                  boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, 0.8)`,
+                }}
+              />
+            ))}
+          </div>
+          <style jsx>{`
+            @keyframes twinkle {
+              0%, 100% {
+                opacity: 0.2;
+                transform: scale(1);
+              }
+              50% {
+                opacity: 1;
+                transform: scale(1.2);
+              }
+            }
+          `}</style>
+        </>
+      )}
+
       {/* Navigation Bar */}
-      <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6">
-        <div className="flex items-center gap-2">
-          {/* Logo Placeholder */}
-        </div>
-        <div className="flex gap-4 text-sm font-medium tracking-wide">
-          <Link href="/docs" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
-            }`}>View Docs</Link>
-          <Link href="/contact-public" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
-            }`}>Contact</Link>
+      <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-start px-8 py-6">
+        <div className="flex items-center gap-3">
+          <div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-black/70 ring-2 ring-[#2df4c6]/60 shadow-[0_0_18px_rgba(45,244,198,0.45)] overflow-hidden">
+            <Image
+              src={Logo}
+              alt="Trading Agents Logo"
+              width={44}
+              height={44}
+              className="object-contain"
+              priority
+            />
+          </div>
         </div>
       </nav>
 
@@ -1219,12 +1288,19 @@ export default function Home() {
         activeId="generate"
         isDarkMode={isDarkMode}
         toggleTheme={toggleTheme}
+        navItems={[
+          { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
+          { id: "generate", icon: "🌐", label: "Generate", href: "/" },
+          { id: "history", icon: "📜", label: "History", href: "/history" },
+          { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
+          { id: "docs", icon: "📄", label: "View Docs", href: "/generate/docs" },
+        ]}
       >
         <DebugPanel wsStatus={wsStatus} isDarkMode={isDarkMode} />
       </Sidebar>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col gap-8 px-4 py-6 md:px-9 md:py-8 md:pb-12 pt-20">
+      <main className="flex-1 flex flex-col gap-8 px-4 py-6 md:px-9 md:py-8 md:pb-12 pt-20 relative z-10">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-[0.85rem] uppercase tracking-widest text-[#8b94ad]">
@@ -1492,10 +1568,10 @@ export default function Home() {
           {isRunning ? (
             <button
               onClick={stopPipeline}
-              className="flex w-full flex-row items-center justify-center gap-3 rounded-[16px] border-2 border-white/20 bg-[#ff4d6d] py-4 text-xl font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#ff3355] hover:shadow-[0_10px_25px_rgba(255,77,109,0.35)]"
+              className="flex w-full flex-row items-center justify-center gap-2 rounded-[16px] border-2 border-white/20 bg-[#ff4d6d] py-2.5 text-lg font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#ff3355] hover:shadow-[0_10px_25px_rgba(255,77,109,0.35)]"
             >
-              <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-transparent">
-                <div className="h-2.5 w-2.5 rounded-[1px] bg-white" />
+              <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-transparent">
+                <div className="h-2 w-2 rounded-[1px] bg-white" />
               </div>
               <span>Stop Generating</span>
             </button>
@@ -1503,11 +1579,10 @@ export default function Home() {
             <button
               onClick={runPipeline}
               disabled={wsStatus !== "connected"}
-              className="flex w-full flex-row items-center justify-center gap-3 rounded-[16px] border-2 border-white/20 bg-[#00c05e] py-4 text-xl font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)] disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale"
+              className="flex w-full flex-row items-center justify-center gap-1.5 rounded-[12px] border-2 border-white/20 bg-[#00c05e] py-2 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)] disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"/>
               </svg>
               <span>Generate</span>
             </button>

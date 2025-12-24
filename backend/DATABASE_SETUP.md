@@ -126,3 +126,7 @@ DATABASE_URL=postgresql+asyncpg://user:password@remote-host:5432/trading_db
 - ใช้ `check_database.py` เพื่อตรวจสอบก่อนเริ่ม server
 
 
+
+
+
+

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import {
     Download, ChevronRight, ChevronDown,
@@ -10,6 +11,7 @@ import {
     BrainCircuit, Activity, Zap
 } from 'lucide-react';
 
+// --- Navigation Data Structure ---
 interface NavSubItem {
     id: string;
     title: string;
@@ -22,19 +24,19 @@ interface NavCategory {
 }
 
 const NAV_STRUCTURE: NavCategory[] = [
-        {
-            id: 'document',
-            title: 'Document',
+    {
+        id: 'document',
+        title: 'Document',
         items: [
             { id: 'introduction', title: 'Introduction' },
             { id: 'related-work', title: 'Related Work' },
             { id: 'role-specialization', title: 'TradingAgents: Role Specialization' },
             { id: 'agent-workflow', title: 'TradingAgents: Agent Workflow' },
         ]
-        },
-        {
-            id: 'tutorials',
-            title: 'Tutorials',
+    },
+    {
+        id: 'tutorials',
+        title: 'Tutorials',
         items: [
             { id: 'start-analysis', title: 'Starting an analysis' },
             { id: 'understanding-reports', title: 'Understanding Report' },
@@ -55,6 +57,7 @@ const NAV_STRUCTURE: NavCategory[] = [
     }
 ];
 
+// --- 1. Document Content ---
 const DOCUMENT_SECTIONS = [
     {
         id: 'introduction',
@@ -104,19 +107,19 @@ const DOCUMENT_SECTIONS = [
                     The framework assigns specialized roles to LLM agents, ensuring expert-level analysis across all market dimensions:
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                    <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-700">
+                    <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
                         <h3 className="font-bold text-cyan-400 mb-2">Fundamental Analysts</h3>
                         <p className="text-sm">Analyze company financial health, earnings reports, and macroeconomic indicators to determine long-term value.</p>
                     </div>
-                    <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-700">
+                    <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
                         <h3 className="font-bold text-cyan-400 mb-2">Technical Analysts</h3>
                         <p className="text-sm">Study price action, trends, and volume patterns to identify optimal entry and exit points.</p>
                     </div>
-                    <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-700">
+                    <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
                         <h3 className="font-bold text-cyan-400 mb-2">Sentiment Analysts</h3>
                         <p className="text-sm">Process news, social media, and market chatter to gauge market psychology and potential volatility.</p>
                     </div>
-                    <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-700">
+                    <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
                         <h3 className="font-bold text-cyan-400 mb-2">Risk Management</h3>
                         <p className="text-sm">Monitor portfolio exposure and set strict limits to preserve capital and manage downside risk.</p>
                     </div>
@@ -151,6 +154,7 @@ const DOCUMENT_SECTIONS = [
     },
 ];
 
+// --- 2. Tutorials Content ---
 const TUTORIAL_SECTIONS = [
     {
         id: 'start-analysis',
@@ -192,6 +196,7 @@ const TUTORIAL_SECTIONS = [
     },
 ];
 
+// --- 3. Our Agent Content ---
 const AGENT_TEAMS = [
     {
         id: 'analyst-team',
@@ -241,6 +246,7 @@ const AGENT_TEAMS = [
     }
 ];
 
+// --- Navigation Item Component ---
 function NavMenuItem({
     category,
     isExpanded,
@@ -256,34 +262,37 @@ function NavMenuItem({
 }) {
     return (
         <div className="mb-2">
+            {/* Category Header */}
             <div
-                className="flex items-center gap-2 py-2 px-2 rounded-lg cursor-pointer text-white font-semibold text-sm hover:text-cyan-400 hover:bg-cyan-500/10 transition-all duration-200"
+                className="flex items-center gap-2 py-2 cursor-pointer text-white font-semibold text-sm hover:text-zinc-300 transition-colors"
                 onClick={onToggle}
             >
                 {isExpanded ? (
-                    <ChevronDown size={14} className="text-cyan-400" />
+                    <ChevronDown size={14} className="text-zinc-500" />
                 ) : (
-                    <ChevronRight size={14} className="text-zinc-400" />
+                    <ChevronRight size={14} className="text-zinc-500" />
                 )}
                 <span>{category.title}</span>
             </div>
 
+            {/* Sub Items */}
             {isExpanded && (
-                <div className="relative ml-2 pl-4 border-l border-cyan-500/30">
+                <div className="relative ml-2 pl-4 border-l border-zinc-700">
                     {category.items.map((item) => (
                         <div
                             key={item.id}
-                            className={`relative py-2 px-2 rounded-lg text-sm cursor-pointer transition-all duration-200 select-none
+                            className={`relative py-2 text-sm cursor-pointer transition-colors duration-200 select-none
                                 ${activeSection === item.id
-                                    ? 'text-cyan-400 font-semibold bg-cyan-500/15'
-                                    : 'text-zinc-400 hover:text-cyan-300 hover:bg-cyan-500/5'
+                                    ? 'text-white font-semibold'
+                                    : 'text-zinc-500 hover:text-zinc-300'
                                 }`}
                             onClick={() => onSelectItem(item.id)}
                         >
+                            {/* Active Indicator */}
                             {activeSection === item.id && (
-                                <div className="absolute -left-[17px] top-1/2 -translate-y-1/2 w-[3px] h-6 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.6)]"></div>
+                                <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-white rounded-full transition-opacity duration-200"></div>
                             )}
-                            {item.title}
+                            <span className="relative z-10">{item.title}</span>
                         </div>
                     ))}
                 </div>
@@ -292,7 +301,7 @@ function NavMenuItem({
     );
 }
 
-export default function DocsPage() {
+export default function GenerateDocsPage() {
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [activeSection, setActiveSection] = useState('introduction');
     const [expandedCategories, setExpandedCategories] = useState<string[]>(['document', 'tutorials', 'our-agent']);
@@ -309,6 +318,7 @@ export default function DocsPage() {
         );
     };
 
+    // Scroll Spy
     useEffect(() => {
         const handleScroll = () => {
             const scrollPosition = window.scrollY + 250;
@@ -333,56 +343,6 @@ export default function DocsPage() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Intersection Observer for scroll animations
-    useEffect(() => {
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px 0px -100px 0px',
-            threshold: 0.1
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    // Add class directly to element for animation
-                    entry.target.classList.add('animate-in');
-                    entry.target.classList.remove('animate-out');
-                } else {
-                    // Remove animation class when out of viewport to allow re-animation
-                    entry.target.classList.remove('animate-in');
-                    entry.target.classList.add('animate-out');
-                }
-            });
-        }, observerOptions);
-
-        // Observe all sections
-        const allSections = [
-            ...DOCUMENT_SECTIONS,
-            ...TUTORIAL_SECTIONS,
-            ...AGENT_TEAMS
-        ];
-
-        allSections.forEach((section) => {
-            const element = document.getElementById(section.id);
-            if (element) {
-                observer.observe(element);
-            }
-        });
-
-        // Also observe section headers
-        const headers = ['tutorials-header', 'agents-header'];
-        headers.forEach((id) => {
-            const element = document.getElementById(id);
-            if (element) {
-                observer.observe(element);
-            }
-        });
-
-        return () => {
-            observer.disconnect();
-        };
-    }, []);
-
     const scrollToSection = (id: string) => {
         const element = document.getElementById(id);
         if (element) {
@@ -395,69 +355,29 @@ export default function DocsPage() {
     };
 
     return (
-        <>
-            <style jsx>{`
-                .animate-in {
-                    opacity: 1 !important;
-                    transform: translateY(0) !important;
-                }
-                .animate-out {
-                    opacity: 0;
-                    transform: translateY(2rem);
-                }
-            `}</style>
-            <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative ${
-                isDarkMode
-                    ? "bg-gradient-to-br from-[#1a1f2e] via-[#1e2332] to-[#232837] text-[#f8fbff]"
-                    : "bg-gradient-to-br from-[#ecfeff] via-[#f8fafc] to-[#e0f2fe] text-[#0f172a]"
-            }`}>
-            {/* Navigation Bar */}
-            <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-center px-8 py-6 backdrop-blur-sm bg-black/5">
-                <div className="flex items-center gap-4 text-sm font-medium tracking-wide">
-                    {/* Home */}
-                    <Link
-                        href="/introduction"
-                        className={`rounded-full px-6 py-2 transition-all hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_10px_30px_rgba(15,23,42,0.55)] ${
-                            isDarkMode
-                                ? "bg-white/5 text-white hover:bg-white/10 border border-white/10"
-                                : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
-                        }`}
-                    >
-                        Home
-                    </Link>
-                    {/* View Docs (active) */}
-                    <Link
-                        href="/docs"
-                        className={`rounded-full px-6 py-2 transition-all hover:-translate-y-0.5 hover:scale-105 ${
-                            isDarkMode
-                                ? "bg-[#2df4c6] text-black border border-[#2df4c6] shadow-[0_16px_40px_rgba(45,244,198,0.4)] hover:shadow-[0_20px_50px_rgba(45,244,198,0.55)]"
-                                : "bg-[#0fbf93] text-white border border-[#0fbf93] shadow-[0_14px_36px_rgba(15,191,147,0.45)] hover:shadow-[0_18px_48px_rgba(15,191,147,0.6)]"
-                        }`}
-                    >
-                        View Docs
-                    </Link>
-                    {/* Contact */}
-                    <Link
-                        href="/contact-public"
-                        className={`rounded-full px-6 py-2 transition-all hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_10px_30px_rgba(15,23,42,0.55)] ${
-                            isDarkMode
-                                ? "bg-white/5 text-white hover:bg-white/10 border border-white/10"
-                                : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
-                        }`}
-                    >
-                        Contact
-                    </Link>
-                </div>
-            </nav>
+        <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? "bg-[#161616] text-[#f8fbff]" : "bg-[#f0f2f5] text-[#1a202c]"}`}>
+            {/* ================= LEFT SIDEBAR (Global) ================= */}
+            <Sidebar
+                activeId="docs"
+                isDarkMode={isDarkMode}
+                toggleTheme={toggleTheme}
+                navItems={[
+                    { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
+                    { id: "generate", icon: "🌐", label: "Generate", href: "/" },
+                    { id: "history", icon: "📜", label: "History", href: "/history" },
+                    { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
+                    { id: "docs", icon: "📄", label: "View Docs", href: "/generate/docs" },
+                ]}
+            />
 
-            {/* Left navigation panel */}
-            <aside className="sticky top-20 h-screen w-[280px] shrink-0 bg-gradient-to-b from-zinc-900/80 via-zinc-900/70 to-zinc-900/80 flex flex-col pt-8 px-6 border-r border-zinc-700/60 hidden md:flex z-40 overflow-y-auto backdrop-blur-xl custom-scrollbar">
-                <div className="bg-gradient-to-r from-cyan-500/15 via-cyan-500/5 to-transparent border-l-4 border-cyan-400/60 rounded-r-lg px-4 py-3.5 mb-6 -mx-6 pl-10 shadow-[0_4px_12px_rgba(34,211,238,0.15)]">
-                    <h2 className="text-lg font-bold tracking-tight bg-gradient-to-r from-white via-cyan-100 to-cyan-200 bg-clip-text text-transparent">
-                        TradingAgent Multi Agent
-                    </h2>
-                </div>
+            {/* ================= MIDDLE SIDEBAR (Navigation Tree) ================= */}
+            <aside className="sticky top-0 h-screen w-[280px] shrink-0 bg-[#1a1a1a] flex flex-col pt-8 px-6 border-r border-zinc-800/50 hidden md:flex z-40 overflow-y-auto custom-scrollbar">
+                {/* Header */}
+                <h2 className="text-lg font-bold text-white mb-6 tracking-tight">
+                    TradingAgent Multi Agent
+                </h2>
 
+                {/* Navigation Tree */}
                 <nav className="flex flex-col pb-20">
                     {NAV_STRUCTURE.map((category) => (
                         <NavMenuItem
@@ -472,17 +392,19 @@ export default function DocsPage() {
                 </nav>
             </aside>
 
-            <main className="flex-1 flex flex-col relative min-h-screen min-w-0 overflow-y-auto">
-                <div className="sticky top-0 bg-zinc-900/50 backdrop-blur-xl pt-24 pb-6 px-12 z-30 border-b border-zinc-700/40">
+            {/* ================= MAIN CONTENT ================= */}
+            <main className="flex-1 flex flex-col bg-[#161616] relative min-h-screen min-w-0 overflow-y-auto">
+                {/* Header with Download Button */}
+                <div className="sticky top-0 bg-[#161616]/95 backdrop-blur-sm pt-8 pb-6 px-12 z-30 border-b border-zinc-800/30">
                     <div className="flex justify-between items-start">
                         <div>
                             <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
-                            View Docs
-                        </h1>
+                                View Docs
+                            </h1>
                             <p className="text-zinc-400 text-base">
                                 Document & Tutorials & Agent
                             </p>
-                    </div>
+                        </div>
                         <a
                             href="https://arxiv.org/pdf/2412.20138"
                             target="_blank"
@@ -492,48 +414,49 @@ export default function DocsPage() {
                             <Download size={16} />
                             Download Document
                         </a>
-                                        </div>
-                                    </div>
+                    </div>
+                </div>
 
-                <div className="px-8 md:px-12 w-full max-w-[1600px] pb-40 pt-10 mx-auto">
+                {/* Content Area */}
+                <div className="px-8 md:px-12 w-full max-w-[1600px] pb-40 pt-8 mx-auto">
 
+                    {/* ================= Document Sections ================= */}
                     <div className="mb-8">
                         <h2 className="text-2xl font-bold text-white tracking-tight border-b border-zinc-700 pb-4">
                             Document
                         </h2>
                     </div>
 
-                    <div className="flex flex-col gap-12 mb-24">
-                        {DOCUMENT_SECTIONS.map((section, index) => (
+                    <div className="flex flex-col gap-16 mb-24">
+                        {DOCUMENT_SECTIONS.map((section) => (
                             <section
                                 key={section.id}
                                 id={section.id}
-                                className="scroll-mt-40 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out"
-                                style={{ transitionDelay: `${index * 100}ms` }}
+                                className="scroll-mt-40"
                             >
                                 <h3 className="text-xl font-bold text-white mb-6">
-                                        {section.title}
-                                    </h3>
-                                <div className="text-base text-zinc-300 leading-relaxed bg-zinc-900/30 border border-zinc-700/60 rounded-2xl p-6 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+                                    {section.title}
+                                </h3>
+                                <div className="text-base text-zinc-400">
                                     {section.id === 'role-specialization' ? (
                                         <div className="space-y-4">
                                             <p>
                                                 The framework assigns specialized roles to LLM agents, ensuring expert-level analysis across all market dimensions:
                                             </p>
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                                                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-700">
+                                                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
                                                     <h3 className="font-bold text-cyan-400 mb-2">Fundamental Analysts</h3>
                                                     <p className="text-sm">Analyze company financial health, earnings reports, and macroeconomic indicators to determine long-term value.</p>
                                                 </div>
-                                                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-700">
+                                                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
                                                     <h3 className="font-bold text-cyan-400 mb-2">Technical Analysts</h3>
                                                     <p className="text-sm">Study price action, trends, and volume patterns to identify optimal entry and exit points.</p>
                                                 </div>
-                                                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-700">
+                                                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
                                                     <h3 className="font-bold text-cyan-400 mb-2">Sentiment Analysts</h3>
                                                     <p className="text-sm">Process news, social media, and market chatter to gauge market psychology and potential volatility.</p>
                                                 </div>
-                                                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-700">
+                                                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
                                                     <h3 className="font-bold text-cyan-400 mb-2">Risk Management</h3>
                                                     <p className="text-sm">Monitor portfolio exposure and set strict limits to preserve capital and manage downside risk.</p>
                                                 </div>
@@ -542,27 +465,24 @@ export default function DocsPage() {
                                     ) : (
                                         section.content
                                     )}
-                                    </div>
+                                </div>
                             </section>
-                            ))}
-                        </div>
+                        ))}
+                    </div>
 
-                    <div 
-                        className="mb-8 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out"
-                        id="tutorials-header"
-                    >
+                    {/* ================= Tutorials Sections ================= */}
+                    <div className="mb-8" id="tutorials-header">
                         <h2 className="text-2xl font-bold text-white tracking-tight border-b border-zinc-700 pb-4">
                             Tutorials
                         </h2>
                     </div>
 
-                    <div className="flex flex-col gap-12 mb-24">
+                    <div className="flex flex-col gap-16 mb-24">
                         {TUTORIAL_SECTIONS.map((section, index) => (
                             <section
                                 key={section.id}
                                 id={section.id}
-                                className="scroll-mt-40 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out"
-                                style={{ transitionDelay: `${(index + 1) * 100}ms` }}
+                                className="scroll-mt-40"
                             >
                                 <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                                     <span className="text-cyan-500 font-mono">{index + 1}.</span> {section.title}
@@ -575,12 +495,12 @@ export default function DocsPage() {
                                                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400 font-bold text-sm">
                                                     {i + 1}
                                                 </div>
-                                                <div className="flex-1 bg-zinc-900/30 p-4 rounded-xl border border-zinc-700/60 shadow-[0_10px_30px_rgba(0,0,0,0.4)]">
-                                                    <h4 className="font-bold text-gray-100 mb-1">{title}</h4>
-                                                    <p className="text-zinc-300 text-sm leading-relaxed">
+                                                <div className="flex-1 bg-zinc-900/50 p-4 rounded-xl border border-zinc-800/50">
+                                                    <h4 className="font-bold text-gray-200 mb-1">{title}</h4>
+                                                    <p className="text-zinc-400 text-sm leading-relaxed">
                                                         {desc || title}
                                                     </p>
-                                    </div>
+                                                </div>
                                             </div>
                                         );
                                     })}
@@ -589,27 +509,24 @@ export default function DocsPage() {
                         ))}
                     </div>
 
-                    <div 
-                        className="mb-8 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out"
-                        id="agents-header"
-                    >
+                    {/* ================= Our Agent Sections ================= */}
+                    <div className="mb-8" id="agents-header">
                         <h2 className="text-2xl font-bold text-white tracking-tight border-b border-zinc-700 pb-4">
                             Our Agents
                         </h2>
-                                </div>
+                    </div>
 
-                    <div className="flex flex-col gap-16">
-                        {AGENT_TEAMS.map((team, teamIndex) => (
+                    <div className="flex flex-col gap-20">
+                        {AGENT_TEAMS.map((team) => (
                             <section
                                 key={team.id}
                                 id={team.id}
-                                className="scroll-mt-40 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out"
-                                style={{ transitionDelay: `${(teamIndex + 1) * 150}ms` }}
+                                className="scroll-mt-40"
                             >
                                 <div className="mb-8">
                                     <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-3">
                                         {team.title}
-                                </h3>
+                                    </h3>
                                     <p className="text-zinc-400 text-base leading-relaxed border-l-2 border-zinc-700 pl-4 max-w-4xl">
                                         {team.description}
                                     </p>
@@ -617,9 +534,9 @@ export default function DocsPage() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                                     {team.agents.map((agent) => (
-                                        <div key={agent.id} className="bg-zinc-900/40 border border-zinc-700 rounded-2xl p-6 hover:border-zinc-600 transition-colors relative overflow-hidden group h-full shadow-[0_16px_40px_rgba(0,0,0,0.45)]">
+                                        <div key={agent.id} className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-6 hover:border-zinc-700 transition-colors relative overflow-hidden group h-full">
                                             <div className="flex items-center gap-3 mb-3 relative z-10">
-                                                <div className="p-2 bg-zinc-900/80 rounded-lg border border-zinc-700">
+                                                <div className="p-2 bg-zinc-900 rounded-lg border border-zinc-700">
                                                     {agent.icon}
                                                 </div>
                                                 <div>
@@ -629,9 +546,9 @@ export default function DocsPage() {
                                                     <p className="text-cyan-500 text-[11px] uppercase tracking-wider font-bold">
                                                         {agent.role}
                                                     </p>
-                            </div>
-                        </div>
-                                            <p className="text-zinc-300 text-sm leading-relaxed relative z-10">
+                                                </div>
+                                            </div>
+                                            <p className="text-zinc-400 text-sm leading-relaxed relative z-10">
                                                 {agent.content}
                                             </p>
                                         </div>
@@ -644,22 +561,6 @@ export default function DocsPage() {
                 </div>
             </main>
         </div>
-        </>
     );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

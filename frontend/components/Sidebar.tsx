@@ -2,8 +2,8 @@
 
 import React, { ReactNode } from "react";
 import Link from "next/link";
-
 import Image from "next/image";
+import Logo from "@/image/Logo.png";
 
 interface NavItem {
     id: string;
@@ -139,7 +139,10 @@ export default function Sidebar({
             <aside
                 className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col gap-8 border-r transition-all duration-300 ease-in-out md:sticky md:translate-x-0 overflow-y-auto overflow-x-hidden ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
                     } ${isCollapsed ? "w-20 px-2 py-8" : "w-[280px] px-6 py-8"
-                    } ${isDarkMode ? "border-white/5 bg-[#0c111f]" : "border-gray-200 bg-white"}`}
+                    } ${isDarkMode
+                        ? "border-white/5 bg-gradient-to-b from-[#0f1216] to-[#141922]"
+                        : "border-gray-200 bg-white"
+                    }`}
             >
                 {/* Collapse Button (Desktop Only or inside drawer) */}
                 <button
@@ -171,28 +174,29 @@ export default function Sidebar({
                     </svg>
                 </button>
 
-                <div className={`flex items-center gap-3 ${isCollapsed ? "justify-center" : ""}`}>
-                    <div className="relative flex h-12 w-12 items-center justify-center flex-shrink-0">
+                <div className={`flex items-center ${isCollapsed ? "justify-center" : "justify-center"} ${isCollapsed ? "py-2" : "py-2"}`}>
+                    <div
+                        className={`relative flex items-center justify-center flex-shrink-0 transition-all duration-200 rounded-2xl overflow-hidden ${
+                            isCollapsed ? "h-12 w-12" : "h-20 w-full max-w-[240px]"
+                        } ${
+                            isDarkMode
+                                ? ""
+                                : "bg-[#020617] shadow-[0_12px_35px_rgba(15,23,42,0.25)] border border-gray-200/60"
+                        }`}
+                    >
                         <Image
-                            src="/Logo.png"
+                            src={Logo}
                             alt="TradingAgents Logo"
-                            width={48}
-                            height={48}
-                            className="rounded-full object-cover"
+                            width={240}
+                            height={80}
+                            className="object-contain w-full h-full"
+                            priority
                         />
                     </div>
-                    {!isCollapsed && (
-                        <div className="overflow-hidden whitespace-nowrap">
-                            <p
-                                className={`font-semibold tracking-wide ${isDarkMode ? "text-white" : "text-gray-900"
-                                    }`}
-                            >
-                                TradingAgents
-                            </p>
-                            <p className="text-sm text-[#8b94ad]">LLM Trading Lab</p>
-                        </div>
-                    )}
                 </div>
+
+                {/* Divider Line */}
+                <div className={`border-t ${isDarkMode ? "border-white/10" : "border-gray-200"} ${isCollapsed ? "mx-2" : "mx-4"}`} />
 
                 <nav className="flex flex-col gap-2.5">
                     {(navItems || [
@@ -200,7 +204,7 @@ export default function Sidebar({
                         { id: "generate", icon: "🌐", label: "Generate", href: "/" },
                         { id: "history", icon: "📜", label: "History", href: "/history" },
                         { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
-                        { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
+                        { id: "docs", icon: "📄", label: "View Docs", href: "/docs" },
                     ]).map((item) => (
                         <Link
                             key={item.id}

@@ -94,3 +94,7 @@ npm run dev
 - ตรวจสอบว่า App อยู่ในสถานะ Active
 
 
+
+
+
+

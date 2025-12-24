@@ -1,18 +1,69 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
 import Image from "next/image";
+import Logo from "@/image/Logo.png";
 
 export default function IntroductionPage() {
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [mounted, setMounted] = useState(false);
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [stars, setStars] = useState<Array<{ x: number; y: number; size: number; opacity: number; delay: number; duration: number }>>([]);
+    const cursorTrailRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
     useEffect(() => {
         setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+    }, [isDarkMode]);
+
+    // Generate stars
+    useEffect(() => {
+        const generateStars = () => {
+            const starCount = 150;
+            const newStars = [];
+            for (let i = 0; i < starCount; i++) {
+                newStars.push({
+                    x: Math.random() * 100,
+                    y: Math.random() * 100,
+                    size: Math.random() * 2 + 0.5,
+                    opacity: Math.random() * 0.8 + 0.2,
+                    delay: Math.random() * 3,
+                    duration: 2 + Math.random() * 2,
+                });
+            }
+            setStars(newStars);
+        };
+        generateStars();
+    }, []);
+
+    // Mouse movement effect
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            setMousePosition({ x: e.clientX, y: e.clientY });
+            
+            // Create cursor trail particles
+            if (cursorTrailRef.current) {
+                const particle = document.createElement('div');
+                particle.className = 'cursor-particle';
+                particle.style.left = `${e.clientX}px`;
+                particle.style.top = `${e.clientY}px`;
+                cursorTrailRef.current.appendChild(particle);
+                
+                // Remove particle after animation
+                setTimeout(() => {
+                    particle.remove();
+                }, 1000);
+            }
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
 
     const toggleTheme = () => {
@@ -20,20 +71,111 @@ export default function IntroductionPage() {
     };
 
     return (
-        <div
-            className={`min-h-screen w-full transition-colors duration-500 ${isDarkMode ? "bg-[#111111] text-white" : "bg-[#f0f0f0] text-gray-900"
-                } font-sans overflow-hidden relative`}
-        >
+        <div className={`min-h-screen w-full font-sans overflow-hidden relative bg-gradient-to-b from-[#050811] via-[#050811] to-[#101522] ${isDarkMode ? 'text-white' : 'text-[#0f172a] bg-[#f4f6f5]'}`}>
             {/* Animated Background Pattern */}
-            <div className="absolute inset-0 opacity-5">
-                <div className="absolute inset-0" style={{
-                    backgroundImage: `radial-gradient(circle at 20% 50%, #2df4c6 0%, transparent 50%),
-                                    radial-gradient(circle at 80% 80%, #2df4c6 0%, transparent 50%),
-                                    radial-gradient(circle at 40% 20%, #2df4c6 0%, transparent 50%)`,
-                    backgroundSize: '200% 200%',
-                    animation: 'gradient 15s ease infinite'
-                }}></div>
+            <div className="pointer-events-none absolute inset-0 opacity-40">
+                <div
+                    className="absolute inset-[-40%] bg-[radial-gradient(circle_at_10%_20%,rgba(45,244,198,0.10),transparent_55%),radial-gradient(circle_at_80%_0,rgba(56,189,248,0.10),transparent_55%),radial-gradient(circle_at_50%_100%,rgba(94,92,255,0.18),transparent_60%)] animate-[gradient_18s_ease_infinite]"
+                />
             </div>
+
+            {/* Night Star Field */}
+            {isDarkMode && (
+                <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                    {stars.map((star, index) => (
+                        <div
+                            key={index}
+                            className="star"
+                            style={{
+                                left: `${star.x}%`,
+                                top: `${star.y}%`,
+                                width: `${star.size}px`,
+                                height: `${star.size}px`,
+                                opacity: star.opacity,
+                                animationDelay: `${star.delay}s`,
+                                animationDuration: `${star.duration}s`,
+                            }}
+                        />
+                    ))}
+                </div>
+            )}
+
+            {/* Cursor Trail Container */}
+            <div ref={cursorTrailRef} className="cursor-trail-container" />
+
+            {/* Cursor Glow Effect */}
+            {isDarkMode && (
+                <div
+                    className="cursor-glow"
+                    style={{
+                        left: `${mousePosition.x}px`,
+                        top: `${mousePosition.y}px`,
+                    }}
+                />
+            )}
+
+            {/* Wave Animation Background - Light Mode Only */}
+            {!isDarkMode && (
+                <div className="wave-background-container pointer-events-none absolute inset-0 overflow-hidden">
+                    {/* Cursor-following wave layers */}
+                    <div 
+                        className="wave-layer wave-layer-1"
+                        style={{
+                            left: `${mousePosition.x}px`,
+                            top: `${mousePosition.y}px`,
+                        }}
+                    />
+                    <div 
+                        className="wave-layer wave-layer-2"
+                        style={{
+                            left: `${mousePosition.x}px`,
+                            top: `${mousePosition.y}px`,
+                        }}
+                    />
+                    <div 
+                        className="wave-layer wave-layer-3"
+                        style={{
+                            left: `${mousePosition.x}px`,
+                            top: `${mousePosition.y}px`,
+                        }}
+                    />
+                    {/* Animated wave SVG */}
+                    <svg className="wave-svg absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="waveGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="rgba(255, 237, 153, 0.15)" />
+                                <stop offset="50%" stopColor="rgba(255, 220, 100, 0.22)" />
+                                <stop offset="100%" stopColor="rgba(255, 237, 153, 0.15)" />
+                            </linearGradient>
+                            <linearGradient id="waveGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="rgba(255, 220, 100, 0.12)" />
+                                <stop offset="50%" stopColor="rgba(255, 237, 153, 0.18)" />
+                                <stop offset="100%" stopColor="rgba(255, 220, 100, 0.12)" />
+                            </linearGradient>
+                            <linearGradient id="waveGradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="rgba(255, 237, 153, 0.1)" />
+                                <stop offset="50%" stopColor="rgba(255, 220, 100, 0.15)" />
+                                <stop offset="100%" stopColor="rgba(255, 237, 153, 0.1)" />
+                            </linearGradient>
+                        </defs>
+                        <path 
+                            className="wave-path wave-path-1"
+                            fill="url(#waveGradient1)"
+                            d="M0,96L48,112C96,128,192,160,288,165.3C384,171,480,149,576,133.3C672,117,768,107,864,112C960,117,1056,139,1152,149.3C1248,160,1344,160,1392,160L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+                        />
+                        <path 
+                            className="wave-path wave-path-2"
+                            fill="url(#waveGradient2)"
+                            d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,208C672,213,768,203,864,197.3C960,192,1056,192,1152,186.7C1248,181,1344,171,1392,165.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+                        />
+                        <path 
+                            className="wave-path wave-path-3"
+                            fill="url(#waveGradient3)"
+                            d="M0,160L48,170.7C96,181,192,203,288,208C384,213,480,203,576,197.3C672,192,768,192,864,186.7C960,181,1056,171,1152,165.3C1248,160,1344,160,1392,160L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+                        />
+                    </svg>
+                </div>
+            )}
             <style jsx>{`
                 @keyframes gradient {
                     0%, 100% { background-position: 0% 50%; }
@@ -51,6 +193,11 @@ export default function IntroductionPage() {
                     0%, 100% { transform: translateY(0); }
                     50% { transform: translateY(-10px); }
                 }
+                @keyframes floatX {
+                    0%   { transform: translateX(-6px); }
+                    50%  { transform: translateX(6px); }
+                    100% { transform: translateX(-6px); }
+                }
                 .animate-spin-slow {
                     animation: spin-slow 12s linear infinite;
                 }
@@ -60,6 +207,257 @@ export default function IntroductionPage() {
                 .animate-bounce-slow {
                     animation: bounce-slow 3s ease-in-out infinite;
                 }
+                .feature-column {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
+                    align-items: stretch;
+                    width: 100%;
+                    position: relative;
+                }
+                .float-block {
+                    min-width: 240px;
+                    max-width: 280px;
+                    padding: 14px 22px;
+                    background: rgba(255, 255, 255, 0.06);
+                    border-radius: 16px;
+                    color: #fff;
+                    cursor: pointer;
+                    animation: floatX 5s ease-in-out infinite;
+                    transition: background 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.14);
+                    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+                    text-align: center;
+                }
+                .float-block:hover {
+                    background: rgba(0, 255, 200, 0.18);
+                    transform: scale(1.05) !important;
+                }
+                .float-block.left {
+                    align-self: flex-start;
+                    margin-left: -20px;
+                    margin-right: auto;
+                }
+                .float-block.right {
+                    align-self: flex-end;
+                    margin-left: auto;
+                    margin-right: -20px;
+                    animation-direction: reverse;
+                }
+                .float-block:nth-child(odd) {
+                    animation-delay: 0.6s;
+                }
+                .float-block:nth-child(even) {
+                    animation-delay: 1.2s;
+                }
+                /* =========================
+                   LIGHT MODE
+                ========================= */
+                body[data-theme="light"] {
+                    background: #f4f6f5;
+                    color: #0f172a;
+                }
+                body[data-theme="light"] h1,
+                body[data-theme="light"] h2 {
+                    color: #10e5b5;
+                }
+                body[data-theme="light"] .bg-gradient-to-r {
+                    background-image: linear-gradient(to right, #10e5b5, #0dc59f);
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                }
+                :global(body[data-theme="light"]) .float-block {
+                    background: rgba(0, 0, 0, 0.06) !important;
+                    color: #000000 !important;
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+                    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+                    transition: background 0.3s ease, transform 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+                }
+                :global(body[data-theme="light"]) .float-block:hover {
+                    background: rgba(16, 229, 181, 0.18) !important;
+                    color: #000000 !important;
+                }
+                body[data-theme="light"] .subtitle {
+                    color: #475569;
+                }
+                /* Wave Animation - Light Mode Only */
+                .wave-background-container {
+                    z-index: 0;
+                }
+                .wave-layer {
+                    position: absolute;
+                    width: 500px;
+                    height: 500px;
+                    border-radius: 50%;
+                    background: radial-gradient(circle, rgba(255, 237, 153, 0.25), rgba(255, 220, 100, 0.15), transparent 70%);
+                    transform: translate(-50%, -50%);
+                    pointer-events: none;
+                    transition: transform 0.2s ease-out;
+                    filter: blur(60px);
+                    mix-blend-mode: multiply;
+                }
+                .wave-layer-1 {
+                    animation: wavePulse1 4s ease-in-out infinite;
+                    width: 600px;
+                    height: 600px;
+                }
+                .wave-layer-2 {
+                    animation: wavePulse2 5s ease-in-out infinite 0.5s;
+                    opacity: 0.7;
+                    width: 450px;
+                    height: 450px;
+                }
+                .wave-layer-3 {
+                    animation: wavePulse3 6s ease-in-out infinite 1s;
+                    opacity: 0.5;
+                    width: 350px;
+                    height: 350px;
+                }
+                .wave-svg {
+                    opacity: 0.5;
+                    z-index: 1;
+                }
+                .wave-path {
+                    transform-origin: center;
+                }
+                .wave-path-1 {
+                    animation: waveMove1 12s ease-in-out infinite;
+                }
+                .wave-path-2 {
+                    animation: waveMove2 15s ease-in-out infinite 2s;
+                }
+                .wave-path-3 {
+                    animation: waveMove3 18s ease-in-out infinite 4s;
+                }
+                @keyframes wavePulse1 {
+                    0%, 100% {
+                        transform: translate(-50%, -50%) scale(1);
+                        opacity: 0.6;
+                    }
+                    50% {
+                        transform: translate(-50%, -50%) scale(1.3);
+                        opacity: 0.8;
+                    }
+                }
+                @keyframes wavePulse2 {
+                    0%, 100% {
+                        transform: translate(-50%, -50%) scale(1);
+                        opacity: 0.5;
+                    }
+                    50% {
+                        transform: translate(-50%, -50%) scale(1.2);
+                        opacity: 0.7;
+                    }
+                }
+                @keyframes wavePulse3 {
+                    0%, 100% {
+                        transform: translate(-50%, -50%) scale(1);
+                        opacity: 0.4;
+                    }
+                    50% {
+                        transform: translate(-50%, -50%) scale(1.15);
+                        opacity: 0.6;
+                    }
+                }
+                @keyframes waveMove1 {
+                    0%, 100% {
+                        transform: translateX(0) translateY(0);
+                    }
+                    25% {
+                        transform: translateX(30px) translateY(-15px);
+                    }
+                    50% {
+                        transform: translateX(0) translateY(-30px);
+                    }
+                    75% {
+                        transform: translateX(-30px) translateY(-15px);
+                    }
+                }
+                @keyframes waveMove2 {
+                    0%, 100% {
+                        transform: translateX(0) translateY(0);
+                    }
+                    25% {
+                        transform: translateX(-25px) translateY(15px);
+                    }
+                    50% {
+                        transform: translateX(0) translateY(25px);
+                    }
+                    75% {
+                        transform: translateX(25px) translateY(15px);
+                    }
+                }
+                @keyframes waveMove3 {
+                    0%, 100% {
+                        transform: translateX(0) translateY(0);
+                    }
+                    25% {
+                        transform: translateX(20px) translateY(10px);
+                    }
+                    50% {
+                        transform: translateX(0) translateY(20px);
+                    }
+                    75% {
+                        transform: translateX(-20px) translateY(10px);
+                    }
+                }
+                /* Star animations */
+                @keyframes twinkle {
+                    0%, 100% { opacity: 0.2; transform: scale(1); }
+                    50% { opacity: 1; transform: scale(1.2); }
+                }
+                .star {
+                    position: absolute;
+                    background: white;
+                    border-radius: 50%;
+                    animation: twinkle 3s ease-in-out infinite;
+                }
+                /* Cursor trail particles */
+                .cursor-particle {
+                    position: fixed;
+                    width: 4px;
+                    height: 4px;
+                    background: radial-gradient(circle, rgba(45, 244, 198, 0.8), rgba(45, 244, 198, 0));
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 9999;
+                    transform: translate(-50%, -50%);
+                    animation: particleFade 1s ease-out forwards;
+                }
+                @keyframes particleFade {
+                    0% {
+                        opacity: 1;
+                        transform: translate(-50%, -50%) scale(1);
+                    }
+                    100% {
+                        opacity: 0;
+                        transform: translate(-50%, -50%) scale(0) translateY(-20px);
+                    }
+                }
+                /* Cursor glow effect */
+                .cursor-glow {
+                    position: fixed;
+                    width: 300px;
+                    height: 300px;
+                    background: radial-gradient(circle, rgba(45, 244, 198, 0.1), transparent 70%);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 9998;
+                    transform: translate(-50%, -50%);
+                    transition: opacity 0.3s ease;
+                }
+                .cursor-trail-container {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    z-index: 9999;
+                    overflow: hidden;
+                }
             `}</style>
             {/* Navigation Bar */}
             <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6">
@@ -67,67 +465,46 @@ export default function IntroductionPage() {
                     {/* Logo Placeholder */}
                 </div>
                 <div className="flex gap-4 text-sm font-medium tracking-wide">
-                    <Link href="/docs" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
+                    <Link href="/docs" className={`rounded-full px-7 py-2.5 text-base transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
                         }`}>View Docs</Link>
-                    <Link href="/contact-public" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
+                    <Link href="/contact-public" className={`rounded-full px-7 py-2.5 text-base transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
                         }`}>Contact</Link>
                 </div>
             </nav>
 
-            <div className="grid h-screen w-full grid-cols-1 lg:grid-cols-[30%_70%]">
+            <div className="relative z-10 grid h-screen w-full grid-cols-1 lg:grid-cols-[30%_70%]">
                 {/* Left Section */}
-                <div className={`relative flex flex-col justify-center px-6 lg:px-8 ${isDarkMode ? "bg-[#111111]" : "bg-[#f0f0f0]"}`}>
-                    <div className="mx-auto w-full max-w-sm flex flex-col justify-center h-full items-center">
+                <div className={`relative flex flex-col justify-start px-6 pt-16 pb-16 lg:px-10 ${isDarkMode
+                    ? "bg-gradient-to-b from-[#0f1216]/80 to-[#141922]/90 backdrop-blur-xl"
+                    : "bg-[#f0f0f0]"
+                    }`}>
+                    <div className="mx-auto w-full max-w-sm flex flex-col h-full items-stretch">
                         {/* Header */}
-                        <div className={`mb-12 text-center transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-                            <h1 className="text-4xl font-bold tracking-tight md:text-5xl bg-gradient-to-r from-[#2df4c6] to-[#26dcb2] bg-clip-text text-transparent animate-pulse">
+                        <div className={`mb-10 text-center transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3'}`}>
+                            <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl bg-gradient-to-r from-[#2df4c6] to-[#26dcb2] bg-clip-text text-transparent">
                                 Trading Agents
                             </h1>
-                            <p className={`mt-2 text-lg transition-all duration-1000 delay-200 ${isDarkMode ? "text-gray-500" : "text-gray-600"} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                            <p className={`subtitle mt-3 text-sm md:text-base leading-relaxed transition-all duration-700 ease-out delay-150 ${isDarkMode ? 'text-slate-300/80' : 'text-[#475569]'} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
                                 Multi-Agents LLM Financial Trading
                             </p>
                         </div>
 
-                        {/* Feature Bubbles */}
-                        <div className="relative flex flex-col gap-4 py-8 w-full">
-                            {/* Bubble 1 - Left */}
-                            <div className={`w-fit rounded-full border px-6 py-2 text-sm font-medium shadow-lg transition-all duration-500 hover:scale-110 hover:shadow-[#2df4c6]/50 hover:shadow-xl self-start ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'} ${isDarkMode ? "border-gray-700 bg-[#1a1a1a] text-white hover:border-[#2df4c6]" : "border-gray-300 bg-white text-gray-900 hover:border-[#2df4c6]"
-                                }`} style={{ transitionDelay: '300ms' }}>
-                                AI Market Analysis
-                            </div>
-
-                            {/* Bubble 2 - Right */}
-                            <div className={`w-fit rounded-full border px-6 py-2 text-sm font-medium shadow-lg transition-all duration-500 hover:scale-110 hover:shadow-[#2df4c6]/50 hover:shadow-xl self-end ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'} ${isDarkMode ? "border-gray-700 bg-[#1a1a1a] text-white hover:border-[#2df4c6]" : "border-gray-300 bg-white text-gray-900 hover:border-[#2df4c6]"
-                                }`} style={{ transitionDelay: '400ms' }}>
-                                Autonomous Execution
-                            </div>
-
-                            {/* Bubble 3 - Left */}
-                            <div className={`w-fit rounded-full border px-6 py-2 text-sm font-medium shadow-lg transition-all duration-500 hover:scale-110 hover:shadow-[#2df4c6]/50 hover:shadow-xl self-start ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'} ${isDarkMode ? "border-gray-700 bg-[#1a1a1a] text-white hover:border-[#2df4c6]" : "border-gray-300 bg-white text-gray-900 hover:border-[#2df4c6]"
-                                }`} style={{ transitionDelay: '500ms' }}>
-                                Risk Management
-                            </div>
-
-                            {/* Bubble 4 - Right */}
-                            <div className={`w-fit rounded-full border px-6 py-2 text-sm font-medium shadow-lg transition-all duration-500 hover:scale-110 hover:shadow-[#2df4c6]/50 hover:shadow-xl self-end ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'} ${isDarkMode ? "border-gray-700 bg-[#1a1a1a] text-white hover:border-[#2df4c6]" : "border-gray-300 bg-white text-gray-900 hover:border-[#2df4c6]"
-                                }`} style={{ transitionDelay: '600ms' }}>
-                                Backtesting Engine
-                            </div>
-
-                            {/* Bubble 5 - Left */}
-                            <div className={`w-fit rounded-full border px-6 py-2 text-sm font-medium shadow-lg transition-all duration-500 hover:scale-110 hover:shadow-[#2df4c6]/50 hover:shadow-xl self-start ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'} ${isDarkMode ? "border-gray-700 bg-[#1a1a1a] text-white hover:border-[#2df4c6]" : "border-gray-300 bg-white text-gray-900 hover:border-[#2df4c6]"
-                                }`} style={{ transitionDelay: '700ms' }}>
-                                Supported Markets
-                            </div>
+                        {/* Feature floating list */}
+                        <div className="feature-column py-6 w-full overflow-visible">
+                            <div className="float-block left" style={!isDarkMode ? { color: '#000000' } : {}}>AI Market Analysis</div>
+                            <div className="float-block right" style={!isDarkMode ? { color: '#000000' } : {}}>Autonomous Execution</div>
+                            <div className="float-block left" style={!isDarkMode ? { color: '#000000' } : {}}>Risk Management</div>
+                            <div className="float-block right" style={!isDarkMode ? { color: '#000000' } : {}}>Backtesting Engine</div>
+                            <div className="float-block left" style={!isDarkMode ? { color: '#000000' } : {}}>Supported Markets</div>
                         </div>
 
                         {/* Action Buttons */}
-                        <div className={`mt-12 flex flex-col gap-4 w-full max-w-xs items-center transition-all duration-1000 delay-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                            <Link href="/Auth/register" className="flex items-center justify-center rounded-full bg-[#2df4c6] px-8 py-3 text-sm font-bold text-black shadow-[0_0_20px_rgba(45,244,198,0.3)] transition-all duration-300 hover:bg-[#26dcb2] hover:shadow-[0_0_30px_rgba(45,244,198,0.5)] hover:scale-105 w-full relative overflow-hidden group">
+                        <div className={`mt-14 flex flex-col gap-3 items-center transition-all duration-700 ease-out delay-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+                            <Link href="/Auth/register" className="group relative flex w-56 items-center justify-center rounded-full bg-gradient-to-r from-[#2df4c6] to-[#26f0ff] px-8 py-3 text-sm font-semibold text-black shadow-[0_0_24px_rgba(45,244,198,0.45)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(45,244,198,0.75)]">
                                 <span className="relative z-10">Register</span>
-                                <span className="absolute inset-0 bg-gradient-to-r from-[#26dcb2] to-[#2df4c6] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-[#40f9c9] to-[#4bfbff] opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
                             </Link>
-                            <Link href="/Auth/login" className="flex items-center justify-center rounded-full bg-[white] px-8 py-3 text-sm font-bold text-black shadow-[0_0_20px_rgba(45,244,198,0.3)] transition-all duration-300 hover:bg-gray-50 hover:shadow-[0_0_30px_rgba(45,244,198,0.5)] hover:scale-105 w-full border-2 border-transparent hover:border-[#2df4c6]">
+                            <Link href="/Auth/login" className={`flex w-56 items-center justify-center rounded-full border px-8 py-3 text-sm font-semibold backdrop-blur-xl transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_0_32px_rgba(45,244,198,0.45)] ${isDarkMode ? 'border-white/15 bg-white/5 text-white hover:border-[#2df4c6] hover:bg-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.45)]' : 'border-gray-300 bg-white/80 text-[#0f172a] hover:border-[#10e5b5] hover:bg-white shadow-[0_16px_40px_rgba(0,0,0,0.1)]'}`}>
                                 Login
                             </Link>
                         </div>
@@ -146,38 +523,30 @@ export default function IntroductionPage() {
                 </div>
 
                 {/* Right Section */}
-                <div className={`relative flex flex-col items-center justify-center px-12 text-center lg:px-20 ${isDarkMode ? "bg-[#0c0c0c]" : "bg-[#e5e5e5]"
+                <div className={`relative flex flex-col items-center justify-center px-8 py-20 text-center lg:px-20 ${isDarkMode ? "bg-transparent" : "bg-[#e5e5e5]"
                     }`}>
-                    {/* Circular Graphic */}
-                    <div className={`relative mb-12 flex h-64 w-64 items-center justify-center transition-all duration-1000 ${mounted ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}>
-                        {/* Outer Glow */}
-                        <div className="absolute inset-0 animate-pulse rounded-full bg-[#2df4c6] opacity-20 blur-3xl"></div>
-                        <div className="absolute inset-0 animate-ping rounded-full bg-[#2df4c6] opacity-10"></div>
-
-                        {/* Rotating Rings */}
-                        <div className="absolute h-full w-full rounded-full border border-[#2df4c6]/30 animate-spin-slow"></div>
-                        <div className="absolute h-[80%] w-[80%] rounded-full border border-[#2df4c6]/50 animate-spin-slow-reverse" style={{ animationDuration: '8s' }}></div>
-                        <div className="absolute h-[60%] w-[60%] rounded-full border border-[#2df4c6]/70"></div>
-
-                        {/* Center Icon/Chart */}
-                        <div className="relative z-10 flex h-32 w-32 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm overflow-hidden hover:scale-110 transition-transform duration-300 animate-bounce-slow">
+                    {/* Logo with subtle glow accent */}
+                    <div className={`relative mb-10 flex items-center justify-center transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                        <div className="pointer-events-none absolute -inset-x-16 -inset-y-8 rounded-[32px] bg-gradient-to-r from-[#2df4c6]/10 via-transparent to-[#26dcb2]/10 blur-3xl" />
+                        <div className="relative rounded-[28px] bg-[#040b10]/90 px-8 py-5 shadow-[0_32px_80px_rgba(0,0,0,0.8)] ring-1 ring-white/5">
                             <Image
-                                src="/Logo.png"
+                                src={Logo}
                                 alt="Trading Agents Logo"
-                                width={200}
-                                height={200}
-                                className="object-contain"
+                                width={480}
+                                height={180}
+                                className="h-auto w-full max-w-[480px] object-contain"
+                                priority
                             />
                         </div>
                     </div>
 
                     {/* Hero Text */}
-                    <h2 className={`mb-6 text-3xl font-bold leading-relaxed md:text-4xl transition-all duration-1000 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} text-balance`}>
+                    <h2 className={`mb-5 max-w-2xl text-2xl font-semibold leading-snug md:text-3xl lg:text-4xl transition-all duration-700 ease-out delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} text-balance`}>
                         Elevate Your Trading with Intelligent AI<br />
                         <span className="bg-gradient-to-r from-[#2df4c6] to-[#26dcb2] bg-clip-text text-transparent">Multi-Agents LLM Financial Trading</span>
                     </h2>
 
-                    <p className={`max-w-lg text-lg leading-relaxed transition-all duration-1000 delay-500 text-balance ${isDarkMode ? "text-gray-400" : "text-gray-600"} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                    <p className={`max-w-xl text-sm md:text-base leading-relaxed transition-all duration-700 ease-out delay-300 ${isDarkMode ? 'text-slate-300/85' : 'text-[#475569]'} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} text-balance`}>
                         Discover Trading Agents that never stop evolving with Multi-Agents LLM Financial Trading architecture.
                         Our system is not just an ordinary bot, but a network of intelligent Agents that communicate,
                         exchange information, and learn from millions of trading experiences. The collaborative work of these AIs
