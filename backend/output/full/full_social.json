@@ -1,23 +1,7 @@
 {
     "sentiment_verdict": "Neutral",
-    "social_volume": "Low volume with promotional and news-driven posts.",
-    "dominant_narrative": "The narrative is dominated by corporate announcements of partnerships, CSR activities, and promotions, with no significant retail investor discussion or price-related sentiment observed in the data for the period.",
-    "top_topics": [
-        {
-            "topic": "Corporate Social Responsibility Initiative",
-            "sentiment": "Positive",
-            "analysis_snippet": "Positive reception for KBank Private Banking's fundraising to build a flood-resistant emergency room."
-        },
-        {
-            "topic": "Green Energy Partnership",
-            "sentiment": "Positive",
-            "analysis_snippet": "Supportive view of KBank's collaboration with real estate and energy firms to promote solar income via the GreenPass platform."
-        },
-        {
-            "topic": "Digital Payments and Promotions",
-            "sentiment": "Positive",
-            "analysis_snippet": "Interest in cashback promotions and new credit card benefits aimed at consumer spending."
-        }
-    ],
-    "psychology": "Apathy towards stock performance, with attention focused on corporate news and consumer benefits."
+    "social_volume": "No social media data available for the specified period.",
+    "dominant_narrative": "No discernible narrative from social media due to a lack of data.",
+    "top_topics": [],
+    "psychology": "No crowd psychology indicators available."
 }

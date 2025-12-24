@@ -1,13 +1,14 @@
 {
-    "ticker": "KBANK",
-    "date": "2025-12-24",
+    "ticker": "KBANK.BK",
+    "date": "2025-12-23",
     "selected_indicators": [
         "close_50_sma",
+        "close_200_sma",
         "close_10_ema",
+        "rsi",
         "macd",
         "macds",
         "macdh",
-        "rsi",
         "boll",
         "boll_ub",
         "boll_lb",
@@ -23,49 +24,55 @@
     "indicator_analysis": [
         {
             "indicator": "close_50_sma",
-            "indicator_full_name": "50-Day Simple Moving Average",
-            "signal": "Price (192.5) is above the 50-day SMA (184.75), indicating a sustained uptrend.",
-            "implication": "Bullish trend confirmation; the stock is in a medium-term uptrend."
+            "indicator_full_name": "50-day Simple Moving Average",
+            "signal": "Price (192.5) is above the 50-day SMA (184.23).",
+            "implication": "Indicates a bullish medium-term trend."
+        },
+        {
+            "indicator": "close_200_sma",
+            "indicator_full_name": "200-day Simple Moving Average",
+            "signal": "Price (192.5) is significantly above the 200-day SMA (165.84).",
+            "implication": "Confirms a strong long-term bullish trend."
         },
         {
             "indicator": "close_10_ema",
-            "indicator_full_name": "10-Day Exponential Moving Average",
-            "signal": "Price (192.5) is above the 10-day EMA (192.44), but the EMA is flattening.",
-            "implication": "Short-term trend is positive but losing momentum; watch for a potential crossover."
-        },
-        {
-            "indicator": "macd",
-            "indicator_full_name": "Moving Average Convergence Divergence",
-            "signal": "MACD line (2.56) is above the signal line (2.86), but the histogram (MACDH) is negative at -0.30.",
-            "implication": "Bearish momentum divergence; the uptrend is weakening and may be nearing a reversal."
+            "indicator_full_name": "10-day Exponential Moving Average",
+            "signal": "Price (192.5) is above the 10-day EMA (192.43), but the EMA is flattening.",
+            "implication": "Short-term trend is positive but losing momentum."
         },
         {
             "indicator": "rsi",
             "indicator_full_name": "Relative Strength Index",
-            "signal": "RSI is at 58.06, which is in the neutral zone, slightly leaning towards bullish but not overbought.",
-            "implication": "No extreme overbought or oversold conditions; room for price movement in either direction."
+            "signal": "RSI is at 60.61, down from recent highs above 80.",
+            "implication": "Momentum has cooled from overbought levels, now in neutral territory."
+        },
+        {
+            "indicator": "macd",
+            "indicator_full_name": "Moving Average Convergence Divergence",
+            "signal": "MACD line (2.73) is above the signal line (2.93), but the histogram (MACDH) is negative at -0.20.",
+            "implication": "Bullish momentum is weakening, suggesting a potential slowdown or consolidation."
         },
         {
             "indicator": "boll",
             "indicator_full_name": "Bollinger Bands",
-            "signal": "Price (192.5) is trading near the middle band (191.03), between the upper (196.13) and lower (185.92) bands.",
-            "implication": "Price is in a consolidation phase within the bands; a breakout above or below is needed for a new directional move."
+            "signal": "Price is near the middle band (190.8), having retreated from the upper band (196.03).",
+            "implication": "Price is in a neutral zone within the bands, suggesting a pause in the recent uptrend."
         },
         {
             "indicator": "atr",
             "indicator_full_name": "Average True Range",
-            "signal": "ATR is 2.82, indicating moderate daily price volatility.",
-            "implication": "Moderate volatility suggests typical price swings; suitable for trend-following strategies with defined stops."
+            "signal": "ATR is at 2.86, down from recent highs above 3.8.",
+            "implication": "Daily price volatility has decreased to a moderate level."
         },
         {
             "indicator": "vwma",
             "indicator_full_name": "Volume Weighted Moving Average",
-            "signal": "Price (192.5) is slightly above the VWMA (191.35), indicating buying pressure on volume.",
-            "implication": "Recent price gains are supported by volume, suggesting genuine buying interest."
+            "signal": "Price (192.5) is above the VWMA (191.10).",
+            "implication": "Recent price action is supported by volume, a positive sign."
         }
     ],
     "price_action_summary": {
-        "recent_high_low": "Price is near the recent high of 197.0 (from 2025-12-18) but has pulled back to the 192.5 level.",
+        "recent_high_low": "Price is below the recent high of 197.0 (Dec 18) but well above the recent low near 163.0 (Sep).",
         "support_levels": [
             "190.5",
             "188.0",
@@ -76,15 +83,15 @@
             "197.0",
             "200.0"
         ],
-        "short_term_behavior": "Consolidating after a sharp rally; price is choppy with lower highs and higher lows, indicating indecision."
+        "short_term_behavior": "Price is consolidating after a sharp rally from October to November, showing indecision near the 192.5 level."
     },
     "market_sentiment": {
         "sentiment_label": "Bullish"
     },
     "key_risks": [
-        "MACD histogram is negative, signaling weakening bullish momentum.",
-        "Price is consolidating near the middle Bollinger Band, which could precede a breakdown.",
-        "RSI is neutral, providing no clear directional bias, increasing uncertainty."
+        "Momentum indicators (RSI, MACD) show weakening bullish strength.",
+        "Price is consolidating and may test lower support levels if selling pressure increases.",
+        "Volume data from the provided CSV shows declining volume in recent sessions, which can precede a trend change."
     ],
-    "short_term_outlook": "The stock remains in a bullish trend but shows signs of weakening momentum and consolidation. A break above 197.0 resistance could renew the uptrend, while a drop below 190.5 support may trigger a deeper correction. Caution is advised in the near term."
+    "short_term_outlook": "The stock is in a bullish trend but showing signs of short-term fatigue and consolidation. A break above 195.5 resistance is needed to resume the uptrend, while a break below 190.5 could lead to a deeper pullback towards 188 support."
 }

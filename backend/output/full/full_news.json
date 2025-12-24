@@ -1,35 +1,42 @@
 {
-    "executive_summary": "The primary driver for KBANK is the global macro environment, where strong US economic growth (4.3% Q3 GDP) and record-high gold prices signal robust risk appetite and potential for higher global interest rates, which could pressure emerging market financials like Thai banks.",
+    "executive_summary": "Kasikornbank's stock outlook is primarily driven by Thailand's strong currency (Baht) attracting foreign fund inflows, offsetting headwinds from a slowing domestic economy and global rate uncertainty.",
     "market_sentiment_verdict": "Neutral",
     "global_macro_context": {
-        "macro_summary": "US Q3 GDP surged 4.3%, the highest in two years, signaling strong economic resilience. The Korean Won and Japanese Yen are strengthening on central bank warnings against excessive weakness, indicating potential for tighter monetary policy in Asia. Geopolitical tensions persist with US-Venezuela oil conflicts and a US troop deployment to the Caribbean, while copper and gold prices hit record highs on supply and tariff concerns."
+        "macro_summary": "Global markets are rising on hopes for central bank rate cuts, providing a supportive backdrop. However, the U.S. dollar is showing signs of recovery, and geopolitical tensions (e.g., Russia-China, Ukraine) and trade frictions (U.S. criticism of India/EU) persist. For Thailand specifically, the Thai Baht is the strongest currency in Asia, driving foreign fund inflows into the local stock market, which is a key positive macro factor for KBANK."
     },
     "top_news_developments": [
         {
-            "headline": "U.S. economy grows by 4.3% in third quarter, much more than expected, delayed report shows",
-            "source": "CNBC",
-            "date": "2025-12-23T13:43:53+00:00",
-            "sentiment": "Neutral",
-            "implication": "Strong US growth may delay Fed rate cuts, supporting a strong USD and pressuring emerging market currencies and capital flows, which could affect KBANK's funding costs and asset quality."
-        },
-        {
-            "headline": "Korean Won, Japanese Yen Strengthen on Policymakers’ Warnings Against Excessive Weakness",
-            "source": "The Wall Street Journal",
-            "date": "2025-12-24T03:02:00+00:00",
-            "sentiment": "Neutral",
-            "implication": "Asian central bank intervention to support currencies could signal a broader regional shift towards tighter monetary policy, potentially increasing interest rate pressures for Thai banks like KBANK."
-        },
-        {
-            "headline": "Gold and silver reach fresh highs for second day running — and could keep climbing",
-            "source": "CNBC",
-            "date": "2025-12-23T14:52:01+00:00",
+            "headline": "HILITE: บาทแข็งเบอร์ 1 เอเชีย!! โบรกฯชี้ฉุดรีเทิร์นหุ้นนอกติดลบ แต่หุ้นไทยรับอานิสงส์ Fund Flow ไหลเข้า",
+            "source": "Ryt9",
+            "date": "2025-12-22",
             "sentiment": "Positive",
-            "implication": "Record gold prices reflect strong safe-haven demand and inflation hedging, which could boost wealth management and trading revenues for KBANK's capital markets and brokerage segments."
+            "implication": "Strong Baht attracting foreign fund flows into Thai stocks is a direct positive for bank stocks like KBANK due to increased market liquidity and asset values."
+        },
+        {
+            "headline": "Kasikornbank turns to AI, prudent lending as Thailand's economy slows, chief exec says",
+            "source": "Reuters",
+            "date": "2025-11-13",
+            "sentiment": "Neutral",
+            "implication": "Strategic focus on AI and credit discipline mitigates risks from a slowing economy but does not provide a near-term growth catalyst."
+        },
+        {
+            "headline": "Delayed US data expected to show solid growth in 3rd quarter",
+            "source": "AFP",
+            "date": "2025-12-23",
+            "sentiment": "Neutral",
+            "implication": "Strong U.S. GDP data supports global risk sentiment but may delay Fed rate cuts, keeping pressure on emerging market currencies and funding costs."
+        },
+        {
+            "headline": "Markets mostly rise as rate cut hopes bring Christmas cheer",
+            "source": "AFP",
+            "date": "2025-12-23",
+            "sentiment": "Positive",
+            "implication": "Broad global market optimism on potential rate cuts supports risk assets, including emerging market equities like Thai banks."
         }
     ],
     "key_risks": [
-        "Stronger-than-expected US GDP growth reduces the likelihood of near-term Fed rate cuts, potentially leading to sustained USD strength and capital outflows from emerging markets like Thailand, pressuring KBANK's liquidity and loan growth.",
-        "Regional central bank actions to support currencies (Won, Yen) could prompt the Bank of Thailand to adopt a more hawkish stance, increasing KBANK's cost of funds and squeezing net interest margins.",
-        "Geopolitical instability (US-Venezuela tensions, Libya plane crash) and supply-driven commodity inflation (copper, oil) could disrupt global trade and increase economic uncertainty, negatively impacting Thailand's export-dependent economy and KBANK's corporate loan portfolio."
+        "Slowing Thai domestic economy pressures loan growth and could increase credit costs for KBANK.",
+        "Global monetary policy uncertainty (timing of Fed cuts) could reverse supportive fund flows into Thailand.",
+        "Persistent geopolitical and trade tensions could dampen regional economic activity and investor sentiment."
     ]
 }
