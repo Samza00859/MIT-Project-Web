@@ -62,6 +62,16 @@ export interface GenerationContextType {
     finalReportData: any;
     decision: string;
 
+    // Form State (persisted across navigation)
+    ticker: string;
+    setTicker: React.Dispatch<React.SetStateAction<string>>;
+    analysisDate: string;
+    setAnalysisDate: React.Dispatch<React.SetStateAction<string>>;
+    researchDepth: number;
+    setResearchDepth: React.Dispatch<React.SetStateAction<number>>;
+    reportLength: "summary report" | "full report";
+    setReportLength: React.Dispatch<React.SetStateAction<"summary report" | "full report">>;
+
     // Debug State
     debugLogs: DebugLog[];
     msgCount: number;
@@ -157,6 +167,15 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
     const [reportSections, setReportSections] = useState<ReportSection[]>([]);
     const [finalReportData, setFinalReportData] = useState<any>(null);
     const [decision, setDecision] = useState("Awaiting run");
+
+    // Form State (persisted across navigation)
+    const [ticker, setTicker] = useState("SPY");
+    const [analysisDate, setAnalysisDate] = useState(() => {
+        // Initialize with current date
+        return new Date().toISOString().split("T")[0];
+    });
+    const [researchDepth, setResearchDepth] = useState(3);
+    const [reportLength, setReportLength] = useState<"summary report" | "full report">("summary report");
 
     // Debug State
     const [debugLogs, setDebugLogs] = useState<DebugLog[]>([]);
@@ -445,6 +464,16 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
         reportSections,
         finalReportData,
         decision,
+
+        // Form State
+        ticker,
+        setTicker,
+        analysisDate,
+        setAnalysisDate,
+        researchDepth,
+        setResearchDepth,
+        reportLength,
+        setReportLength,
 
         // Debug State
         debugLogs,

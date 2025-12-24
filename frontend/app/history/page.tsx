@@ -272,7 +272,9 @@ export default function HistoryPage() {
                                         <span className="font-bold text-xs tracking-widest opacity-70">ID #{item.id}</span>
                                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${item.status === "success"
                                             ? "bg-[#2df4c6]/20 text-[#2df4c6]"
-                                            : "bg-red-500/20 text-red-400"
+                                            : item.status === "executing"
+                                                ? "bg-yellow-500/20 text-yellow-400"
+                                                : "bg-red-500/20 text-red-400"
                                             }`}>
                                             {item.status}
                                         </span>
@@ -296,7 +298,12 @@ export default function HistoryPage() {
                                 <div>
                                     <div className="flex items-center gap-3 mb-2">
                                         <h1 className="text-4xl font-bold">{selectedItem.ticker}</h1>
-                                        <span className={`px-3 py-1 rounded-full text-sm font-bold ${selectedItem.status === "success" ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-red-500/10 text-red-500"}`}>
+                                        <span className={`px-3 py-1 rounded-full text-sm font-bold ${selectedItem.status === "success"
+                                                ? "bg-[#2df4c6]/20 text-[#2df4c6]"
+                                                : selectedItem.status === "executing"
+                                                    ? "bg-yellow-500/20 text-yellow-400"
+                                                    : "bg-red-500/10 text-red-500"
+                                            }`}>
                                             {selectedItem.status.toUpperCase()}
                                         </span>
                                     </div>
@@ -318,10 +325,31 @@ export default function HistoryPage() {
                                 </div>
                             </header>
 
-                            {selectedItem.status === "error" ? (
+                            {selectedItem.status === "error" || selectedItem.status === "cancelled" ? (
                                 <div className="p-8 rounded-[20px] bg-red-500/5 border border-red-500/20 text-red-400">
-                                    <h3 className="text-xl font-bold mb-4">Analysis Failed</h3>
-                                    <p className="bg-black/20 p-4 rounded-xl font-mono text-sm">{selectedItem.error_message}</p>
+                                    <h3 className="text-xl font-bold mb-4">
+                                        {selectedItem.status === "cancelled" ? "Analysis Cancelled" : "Analysis Failed"}
+                                    </h3>
+                                    <p className="bg-black/20 p-4 rounded-xl font-mono text-sm">
+                                        {selectedItem.error_message || (selectedItem.status === "cancelled" ? "This analysis was cancelled before completion." : "Unknown error")}
+                                    </p>
+                                </div>
+                            ) : selectedItem.status === "executing" ? (
+                                <div className="p-8 rounded-[20px] bg-yellow-500/5 border border-yellow-500/20 text-yellow-400">
+                                    <h3 className="text-xl font-bold mb-4 flex items-center gap-3">
+                                        <div className="w-5 h-5 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+                                        Analysis In Progress
+                                    </h3>
+                                    <p className="opacity-70">
+                                        This analysis is still running or was interrupted. Reports will appear here once the analysis completes successfully.
+                                    </p>
+                                </div>
+                            ) : selectedItem.reports.length === 0 ? (
+                                <div className="p-8 rounded-[20px] bg-gray-500/5 border border-gray-500/20 text-gray-400">
+                                    <h3 className="text-xl font-bold mb-4">No Reports Available</h3>
+                                    <p className="opacity-70">
+                                        This analysis completed but no reports were saved. This may indicate an issue during the summarization process.
+                                    </p>
                                 </div>
                             ) : (
                                 <div className="space-y-8">

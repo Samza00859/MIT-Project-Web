@@ -1,8 +1,33 @@
 {
-    "sentiment_score": 50,
-    "sentiment_verdict": "Error",
-    "social_volume_analysis": "Parsing error occurred.",
-    "dominant_narrative": "Error processing data.",
-    "top_discussion_topics": [],
-    "retail_psychology_assessment": "Error occurred during analysis."
+    "sentiment_verdict": "Bullish",
+    "social_volume": "Elevated due to technical recovery, insider selling news, and China market developments",
+    "dominant_narrative": "NVIDIA is experiencing a technical recovery after a 20% pullback, with renewed optimism around potential China market access in early 2026. Institutional options activity remains extremely high, indicating continued professional interest despite insider selling concerns.",
+    "top_topics": [
+        {
+            "topic": "Insider Selling Activity",
+            "sentiment": "Mixed",
+            "analysis_snippet": "Concerns about board member selling $40 million in shares are balanced by views that this is normal profit-taking rather than a fundamental issue."
+        },
+        {
+            "topic": "Technical Recovery and Price Targets",
+            "sentiment": "Positive",
+            "analysis_snippet": "The stock has reclaimed $184 after a significant pullback, with analysts targeting $190 as the next resistance level and longer-term targets around $240-$252."
+        },
+        {
+            "topic": "China Market Access",
+            "sentiment": "Positive",
+            "analysis_snippet": "Reports indicate NVDA may resume H200 AI chip shipments to China before Lunar New Year, potentially reopening a significant revenue stream."
+        },
+        {
+            "topic": "Institutional Options Activity",
+            "sentiment": "Positive",
+            "analysis_snippet": "NVDA consistently leads institutional options volume, showing continued strong professional interest and positioning for future moves."
+        },
+        {
+            "topic": "Valuation and Competition Concerns",
+            "sentiment": "Mixed",
+            "analysis_snippet": "Some discussions question whether NVDA's upside is becoming more incremental, while others debate NVDA vs AMD for 2026 value."
+        }
+    ],
+    "psychology": "Fear Of Missing Out mixed with cautious optimism as the stock recovers from recent declines"
 }

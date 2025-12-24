@@ -716,6 +716,20 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
 
     except asyncio.CancelledError:
         logger.info(f"🛑 Analysis for {request.ticker} was cancelled.")
+        # Update database status to cancelled
+        if execution_id:
+            try:
+                async with AsyncSessionLocal() as db:
+                    stmt = select(ExecutionHistory).where(ExecutionHistory.id == execution_id)
+                    res = await db.execute(stmt)
+                    db_history = res.scalar_one_or_none()
+                    if db_history:
+                        db_history.status = "cancelled"
+                        db_history.error_message = "Analysis was cancelled by user"
+                        await db.commit()
+                        logger.info(f"💾 Updated history {execution_id} with cancelled status.")
+            except Exception as db_cancel_err:
+                logger.error(f"❌ Failed to update history status on cancel: {db_cancel_err}")
         await send_update(websocket, "error", {"message": "Analysis cancelled."})
         raise
 

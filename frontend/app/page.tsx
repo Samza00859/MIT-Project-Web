@@ -286,13 +286,18 @@ export default function Home() {
     addDebugLog,
     setReportSections,
     setFinalReportData,
+    // Form State (persisted from context)
+    ticker,
+    setTicker,
+    analysisDate,
+    setAnalysisDate,
+    researchDepth,
+    setResearchDepth,
+    reportLength,
+    setReportLength,
   } = useGeneration();
 
-  // Local State (UI-specific)
-  const [ticker, setTicker] = useState("SPY");
-  const [analysisDate, setAnalysisDate] = useState("");
-  const [researchDepth, setResearchDepth] = useState(3);
-  const [reportLength, setReportLength] = useState<"summary report" | "full report">("summary report");
+  // Local State (UI-specific only)
   const [copyFeedback, setCopyFeedback] = useState("Copy report");
   const [progress, setProgress] = useState(0);
   const [teamProgress, setTeamProgress] = useState({
@@ -308,6 +313,13 @@ export default function Home() {
   const [marketData, setMarketData] = useState<any>(null);
   const [logoError, setLogoError] = useState(false);
   const [logoSrc, setLogoSrc] = useState("");
+
+  // Trigger to refetch market data when component mounts
+  const [mountKey, setMountKey] = useState(0);
+  useEffect(() => {
+    // Increment mountKey to trigger market data fetch on each mount
+    setMountKey(prev => prev + 1);
+  }, []);
 
   // Fetch Market Data Effect
   useEffect(() => {
@@ -340,7 +352,7 @@ export default function Home() {
       const timeout = setTimeout(fetchMarketData, 500);
       return () => clearTimeout(timeout);
     }
-  }, [ticker]);
+  }, [ticker, mountKey]); // Added mountKey to trigger refetch on mount
 
   // Helper to format large numbers
   const formatVolume = (num: number) => {
