@@ -326,6 +326,14 @@ function summarizeReport(reportText: string | any, decision: string) {
 export default function Home() {
   // Get global generation context
   const {
+    // Generation State
+    isRunning,
+    teamState,
+    reportSections: contextReportSections,
+    decision: contextDecision,
+    finalReportData: contextFinalReportData,
+    progress: contextProgress,
+    // Debug State
     debugLogs,
     wsStatus,
     wsUrl,
@@ -333,28 +341,23 @@ export default function Home() {
     errorCount,
     lastUpdate,
     lastType,
+    // Actions
     startGeneration,
     stopGeneration: stopPipeline,
     addDebugLog,
+    // Setters
+    setReportSections: setContextReportSections,
+    setFinalReportData: setContextFinalReportData,
     // Form State (persisted from context)
   } = useGeneration();
 
   // Local State (UI-specific only)
-  // State
   const [ticker, setTicker] = useState("SPY");
   const [selectedMarket, setSelectedMarket] = useState("US");
   const [analysisDate, setAnalysisDate] = useState("");
   const [researchDepth, setResearchDepth] = useState(3);
   const [reportLength, setReportLength] = useState<"summary report" | "full report">("summary report");
-  const [isRunning, setIsRunning] = useState(false);
-  const [teamState, setTeamState] = useState(deepClone(TEAM_TEMPLATE));
-  const [reportSections, setReportSections] = useState<
-    { key: string; label: string; text: string }[]
-  >([]);
-  const [decision, setDecision] = useState("Awaiting run");
-  const [finalReportData, setFinalReportData] = useState<any>(null);
   const [copyFeedback, setCopyFeedback] = useState("Copy report");
-  const [progress, setProgress] = useState(0);
   const [teamProgress, setTeamProgress] = useState({
     analyst: 0,
     research: 0,
@@ -362,7 +365,6 @@ export default function Home() {
     risk: 0,
   });
   const [isDarkMode, setIsDarkMode] = useState(true);
-  // Debug State
   const [isDebugCollapsed, setIsDebugCollapsed] = useState(false);
 
   const [marketData, setMarketData] = useState<any>(null);
@@ -640,7 +642,7 @@ export default function Home() {
 
   // Effect: Update Report Sections when data or mode changes
   useEffect(() => {
-    if (!finalReportData) return;
+    if (!contextFinalReportData) return;
 
     const finalSections: {
       key: string;
@@ -649,7 +651,7 @@ export default function Home() {
     }[] = [];
 
     REPORT_ORDER.forEach((key) => {
-      const content = finalReportData[key];
+      const content = contextFinalReportData[key];
       if (content && SECTION_MAP[key]) {
         const entry = SECTION_MAP[key];
         const isSummary = entry.label.includes("(Summary)");
@@ -682,9 +684,9 @@ export default function Home() {
     });
 
     if (finalSections.length > 0) {
-      setReportSections(finalSections);
+      setContextReportSections(finalSections);
     }
-  }, [finalReportData, reportLength]);
+  }, [contextFinalReportData, reportLength, setContextReportSections]);
 
   // Create runPipeline function that uses global context
   const runPipeline = useCallback(() => {
@@ -710,7 +712,7 @@ export default function Home() {
 
   // Handlers
   const handleCopyReport = async () => {
-    const fullText = reportSections
+    const fullText = contextReportSections
       .map((s) => `${s.label}\n${s.text}`)
       .join("\n\n");
     if (!fullText) return;
@@ -981,17 +983,19 @@ export default function Home() {
 
     // 2. Recommendation Section
     // (สมมติว่า decision อยู่ใน props หรือ state ของ component นี้)
-    if (decision) {
-      checkPageBreak(40);
-      doc.setFontSize(12);
+    if (contextDecision) {
+      yPosition += lineHeight * 1.5;
       doc.setFont("Sarabun", "bold");
-      doc.setTextColor(0, 0, 0);
-      doc.text(`Recommendation: ${decision}`, margin, yPosition);
-      yPosition += 30;
+      doc.setFontSize(14);
+      doc.setTextColor(0, 200, 0);
+      doc.text(`Recommendation: ${contextDecision}`, margin, yPosition);
+      yPosition += lineHeight * 2;
     }
 
-    // 3. Loop Sections
-    reportSections.forEach((section: any) => {
+    // 4. Render Report Sections
+    doc.setFont("Sarabun", "normal");
+    doc.setFontSize(11);
+    contextReportSections.forEach((section: any) => {
       checkPageBreak(60);
 
       // Section Header Background
@@ -1037,10 +1041,10 @@ export default function Home() {
     if (d.includes("buy")) return "buy";
     if (d.includes("sell")) return "sell";
     if (d.includes("reduce")) return "reduce";
-    return "neutral";
+    return "text-gray-500";
   };
 
-  const recVariant = getRecommendationVariant(decision);
+  const recVariant = getRecommendationVariant(contextDecision);
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
@@ -1460,11 +1464,11 @@ export default function Home() {
 
         {/* Report Panel */}
         <ReportSections
-          reportSections={reportSections}
+          reportSections={contextReportSections}
           isDarkMode={isDarkMode}
           ticker={ticker}
           analysisDate={analysisDate}
-          decision={decision}
+          decision={contextDecision}
           copyFeedback={copyFeedback}
           setCopyFeedback={setCopyFeedback}
           handleCopyReport={handleCopyReport}
@@ -1518,7 +1522,7 @@ export default function Home() {
               className={`text-2xl ${recVariant === "buy" ? "text-[#2df4c6]" : "text-[#ff4d6d]"
                 }`}
             >
-              {decision}
+              {contextDecision}
             </strong>
           </div>
         </section>
