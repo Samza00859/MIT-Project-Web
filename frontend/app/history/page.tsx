@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import Sidebar from "../../components/Sidebar";
+import { useGeneration } from "../../context/GenerationContext";
 
 // Helper function to format date
 function formatDate(dateString: string): string {
@@ -293,6 +294,9 @@ export default function HistoryPage() {
     const [loading, setLoading] = useState(true);
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [viewMode, setViewMode] = useState<"summary" | "detailed">("detailed");
+
+    // Get generation state from context
+    const { isRunning, currentTicker, teamState, progress } = useGeneration();
 
     useEffect(() => {
         fetchHistory();
@@ -719,37 +723,92 @@ export default function HistoryPage() {
                         {loading ? (
                             <div className="p-6 text-center animate-pulse">Loading...</div>
                         ) : (
-                            history.map((item) => (
-                                <button
-                                    key={item.id}
-                                    onClick={() => setSelectedItem(item)}
-                                    className={`w-full text-left p-4 border-b transition-all ${selectedItem?.id === item.id
-                                        ? (isDarkMode ? "bg-[#2df4c6]/10 border-l-4 border-l-[#2df4c6]" : "bg-[#2df4c6]/10 border-l-4 border-l-[#2df4c6]")
-                                        : (isDarkMode ? "border-white/5 hover:bg-white/5" : "border-gray-100 hover:bg-gray-50")
-                                        }`}
-                                >
-                                    <div className="flex justify-between items-start mb-1">
-                                        <span className="font-bold text-xs tracking-widest opacity-70">ID #{item.id}</span>
-                                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${item.status === "success"
-                                            ? "bg-[#2df4c6]/20 text-[#2df4c6]"
-                                            : (item.status === "executing" && item.reports.length === 0)
-                                                ? "bg-red-500/20 text-red-400"
-                                                : item.status === "executing"
-                                                    ? "bg-yellow-500/20 text-yellow-400"
-                                                    : "bg-red-500/20 text-red-400"
-                                            }`}>
-                                            {item.status === "executing" && item.reports.length === 0
-                                                ? "INCOMPLETE"
-                                                : item.status}
-                                        </span>
+                            <>
+                                {/* Currently Running Generation Card */}
+                                {isRunning && currentTicker && (
+                                    <div
+                                        className={`w-full text-left p-4 border-b border-l-4 border-l-[#2df4c6] ${isDarkMode ? "bg-[#2df4c6]/5 border-white/10" : "bg-[#2df4c6]/5 border-gray-100"}`}
+                                    >
+                                        <div className="flex justify-between items-start mb-1">
+                                            <span className="font-bold text-xs tracking-widest opacity-70 flex items-center gap-2">
+                                                <span className="relative flex h-2 w-2">
+                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2df4c6] opacity-75"></span>
+                                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#2df4c6]"></span>
+                                                </span>
+                                                GENERATING...
+                                            </span>
+                                            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-[#2df4c6]/20 text-[#2df4c6] animate-pulse">
+                                                IN PROGRESS
+                                            </span>
+                                        </div>
+                                        <div className="font-bold text-lg text-[#2df4c6]">{currentTicker}</div>
+                                        <div className="text-sm opacity-60">Analysis in progress...</div>
+
+                                        {/* Progress indicator */}
+                                        <div className="mt-3 flex flex-wrap gap-1">
+                                            {Object.entries(teamState).map(([teamName, members]) => {
+                                                const completed = members.filter((m: { name: string; status: string }) => m.status === "completed").length;
+                                                const total = members.length;
+                                                const isActive = members.some((m: { name: string; status: string }) => m.status === "working");
+                                                return (
+                                                    <span
+                                                        key={teamName}
+                                                        className={`text-[9px] px-1.5 py-0.5 rounded ${isActive
+                                                            ? "bg-yellow-500/20 text-yellow-400 animate-pulse"
+                                                            : completed === total && completed > 0
+                                                                ? "bg-[#2df4c6]/20 text-[#2df4c6]"
+                                                                : "bg-white/10 text-gray-400"
+                                                            }`}
+                                                    >
+                                                        {teamName.charAt(0).toUpperCase() + teamName.slice(1)}: {completed}/{total}
+                                                    </span>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <div className="text-[10px] opacity-40 mt-2 flex items-center gap-1">
+                                            <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Processing...
+                                        </div>
                                     </div>
-                                    <div className="font-bold text-lg">{item.ticker}</div>
-                                    <div className="text-sm opacity-60">{item.analysis_date}</div>
-                                    <div className="text-[10px] opacity-40 mt-2">
-                                        {formatDate(item.timestamp)}
-                                    </div>
-                                </button>
-                            ))
+                                )}
+
+                                {/* History Items */}
+                                {history.map((item) => (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => setSelectedItem(item)}
+                                        className={`w-full text-left p-4 border-b transition-all ${selectedItem?.id === item.id
+                                            ? (isDarkMode ? "bg-[#2df4c6]/10 border-l-4 border-l-[#2df4c6]" : "bg-[#2df4c6]/10 border-l-4 border-l-[#2df4c6]")
+                                            : (isDarkMode ? "border-white/5 hover:bg-white/5" : "border-gray-100 hover:bg-gray-50")
+                                            }`}
+                                    >
+                                        <div className="flex justify-between items-start mb-1">
+                                            <span className="font-bold text-xs tracking-widest opacity-70">ID #{item.id}</span>
+                                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${item.status === "success"
+                                                ? "bg-[#2df4c6]/20 text-[#2df4c6]"
+                                                : (item.status === "executing" && item.reports.length === 0)
+                                                    ? "bg-red-500/20 text-red-400"
+                                                    : item.status === "executing"
+                                                        ? "bg-yellow-500/20 text-yellow-400"
+                                                        : "bg-red-500/20 text-red-400"
+                                                }`}>
+                                                {item.status === "executing" && item.reports.length === 0
+                                                    ? "INCOMPLETE"
+                                                    : item.status}
+                                            </span>
+                                        </div>
+                                        <div className="font-bold text-lg">{item.ticker}</div>
+                                        <div className="text-sm opacity-60">{item.analysis_date}</div>
+                                        <div className="text-[10px] opacity-40 mt-2">
+                                            {formatDate(item.timestamp)}
+                                        </div>
+                                    </button>
+                                ))}
+                            </>
                         )}
                     </div>
                 </div>
