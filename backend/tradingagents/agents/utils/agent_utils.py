@@ -11,14 +11,16 @@ from tradingagents.agents.utils.fundamental_data_tools import (
     get_fundamentals,
     get_balance_sheet,
     get_cashflow,
-    get_income_statement
+    get_income_statement,
+    get_all_fundamentals_batch
 )
 from tradingagents.agents.utils.news_data_tools import (
     get_news,
     get_insider_sentiment,
     get_insider_transactions,
     get_global_news,
-    get_social
+    get_social,
+    get_all_news_batch
 )
 
 def create_msg_delete():

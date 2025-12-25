@@ -1,8 +1,10 @@
 from langchain_core.tools import tool
 from typing import Annotated
 from tradingagents.dataflows.interface import route_to_vendor
+import inspect
 
-@tool
+
+# @tool
 def get_news(
     ticker: Annotated[str, "Ticker symbol"],
     start_date: Annotated[str, "Start date in yyyy-mm-dd format"],
@@ -17,7 +19,7 @@ def get_news(
     # print("\n\n\nFINISH DEBUG:get_news")
     return route_to_vendor("get_news", ticker, start_date, end_date)
 
-@tool
+# @tool
 def get_global_news(
     curr_date: Annotated[str, "Current date in yyyy-mm-dd format"],
     look_back_days: Annotated[int, "Number of days to look back"] = 7,
@@ -67,8 +69,8 @@ def get_insider_transactions(
     """
     return route_to_vendor("get_insider_transactions", ticker, curr_date)
 
-@tool
-def get_social(
+# @tool
+async def get_social(
     ticker: Annotated[str, "ticker symbol"],
 ) -> str:
     """
@@ -83,4 +85,61 @@ def get_social(
     # print("\n\n\nDEBUG:get_social")
     # print(route_to_vendor("get_social", ticker))
     # print("\n\n\nFINISH DEBUG:get_social")
-    return route_to_vendor("get_social", ticker)
+    res = route_to_vendor("get_social", ticker)
+
+    if inspect.isawaitable(res):
+        return await res
+    return res
+
+
+import asyncio
+
+
+
+async def get_all_news_batch(ticker: str, start_date: str, end_date: str) -> str:
+    """
+    Fetch both company-specific news and global macro news in parallel.
+    Uses asyncio for concurrent execution.
+    """
+    print(f"📰 News Analyst: Pre-fetching data for {ticker}...")
+    
+    # Define tasks to run in thread pool to avoid blocking the event loop
+    # get_news takes (ticker, start_date, end_date)
+    task_company = asyncio.to_thread(get_news, ticker, start_date, end_date)
+    
+    # get_global_news takes (curr_date, look_back_days=7)
+    # We pass arguments positionally or via kwargs in to_thread? 
+    # asyncio.to_thread(func, *args, **kwargs) is available in Python 3.9+
+    task_global = asyncio.to_thread(get_global_news, curr_date=end_date, look_back_days=7)
+
+    results = await asyncio.gather(task_company, task_global, return_exceptions=True)
+    
+    company_news = results[0]
+    global_news = results[1]
+
+    # Handle exceptions
+    if isinstance(company_news, Exception):
+        company_news = f"Error fetching company news: {company_news}"
+    
+    if isinstance(global_news, Exception):
+        global_news = f"Error fetching global news: {global_news}"
+
+    combined_report = f"""
+    === GLOBAL MACRO NEWS ===
+    {global_news}
+
+    === COMPANY SPECIFIC NEWS ({ticker}) ===
+    {company_news}
+    """
+    
+    return combined_report
+
+async def fetch_social_data(ticker: str) -> str:
+    """
+    Fetch social media data.
+    """
+    print(f"💬 Social Analyst: Pre-fetching data for {ticker}...")
+    try:
+        return await get_social(ticker)
+    except Exception as e:
+        return f"Error fetching social data: {e}"

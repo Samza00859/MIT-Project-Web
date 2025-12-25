@@ -55,13 +55,15 @@ const NavMenuItem = React.memo(function NavMenuItem({
     isExpanded,
     onToggle,
     activeSection,
-    onSelectItem
+    onSelectItem,
+    isDarkMode
 }: {
     category: NavCategory;
     isExpanded: boolean;
     onToggle: () => void;
     activeSection: string;
     onSelectItem: (id: string) => void;
+    isDarkMode: boolean;
 }) {
     const isItemActive = useMemo(() => {
         return category.items.some(item => item.id === activeSection);
@@ -71,14 +73,18 @@ const NavMenuItem = React.memo(function NavMenuItem({
         <div className="mb-2">
             {/* Category Header */}
             <div
-                className="flex items-center gap-2 py-2 px-2 rounded-lg cursor-pointer font-semibold text-sm text-white hover:text-cyan-400 hover:bg-cyan-500/10"
+                className={`flex items-center gap-2 py-2 px-2 rounded-lg cursor-pointer font-semibold text-sm transition-colors ${
+                    isDarkMode
+                        ? 'text-white hover:text-cyan-400 hover:bg-cyan-500/10'
+                        : 'text-gray-900 hover:text-[#d97706] hover:bg-[#f59e0b]/10'
+                }`}
                 onClick={onToggle}
             >
                 <div>
                     {isExpanded ? (
-                        <ChevronDown size={14} className="text-cyan-400" />
+                        <ChevronDown size={14} className={isDarkMode ? "text-cyan-400" : "text-[#d97706]"} />
                     ) : (
-                        <ChevronRight size={14} className="text-zinc-400" />
+                        <ChevronRight size={14} className={isDarkMode ? "text-zinc-400" : "text-gray-600"} />
                     )}
                 </div>
                 <span>{category.title}</span>
@@ -86,16 +92,20 @@ const NavMenuItem = React.memo(function NavMenuItem({
 
             {/* Sub Items */}
             {isExpanded && (
-                <div className="relative ml-2 pl-4 border-l border-cyan-500/30">
+                <div className={`relative ml-2 pl-4 border-l ${isDarkMode ? 'border-cyan-500/30' : 'border-[#f59e0b]/30'}`}>
                     {category.items.map((item) => {
                         const isActive = activeSection === item.id;
                         return (
                             <div
                                 key={item.id}
-                                className={`relative py-2 px-2 -ml-4 rounded-lg text-sm cursor-pointer select-none ${
+                                className={`relative py-2 px-2 -ml-4 rounded-lg text-sm cursor-pointer select-none transition-colors ${
                                     isActive
-                                        ? 'text-cyan-400 font-semibold bg-cyan-500/15 border border-cyan-400/40'
-                                        : 'text-zinc-400 hover:text-cyan-300 hover:bg-cyan-500/5'
+                                        ? isDarkMode
+                                            ? 'text-cyan-400 font-semibold bg-cyan-500/15 border border-cyan-400/40'
+                                            : 'text-[#d97706] font-semibold bg-[#f59e0b]/15 border border-[#f59e0b]/40'
+                                        : isDarkMode
+                                            ? 'text-zinc-400 hover:text-cyan-300 hover:bg-cyan-500/5'
+                                            : 'text-gray-700 hover:text-[#d97706] hover:bg-[#f59e0b]/5'
                                 }`}
                                 onClick={() => onSelectItem(item.id)}
                             >
@@ -114,6 +124,7 @@ interface ViewDocsSidebarProps {
     expandedCategories: string[];
     onToggleCategory: (categoryId: string) => void;
     onSelectItem: (id: string) => void;
+    isDarkMode?: boolean;
 }
 
 export default function ViewDocsSidebar({
@@ -121,15 +132,16 @@ export default function ViewDocsSidebar({
     expandedCategories,
     onToggleCategory,
     onSelectItem,
+    isDarkMode = true,
 }: ViewDocsSidebarProps) {
     // Memoize categories to prevent unnecessary re-renders
     const memoizedCategories = useMemo(() => NAV_STRUCTURE, []);
 
     return (
-        <aside className="sticky top-0 w-[280px] shrink-0 flex flex-col pt-20 px-6 border-r hidden md:flex z-40 h-[calc(100vh-0px)] overflow-y-auto backdrop-blur-xl custom-scrollbar bg-[#020617]/80 border-white/10">
+        <aside className={`sticky top-0 w-[280px] shrink-0 flex flex-col pt-20 px-6 border-r hidden md:flex z-40 h-[calc(100vh-0px)] overflow-y-auto backdrop-blur-xl custom-scrollbar ${isDarkMode ? 'bg-[#020617]/80 border-white/10' : 'bg-white/80 border-[#fbbf24]/20'}`}>
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold tracking-tight text-white">
+                <h2 className={`text-lg font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     TradingAgent Multi Agent
                 </h2>
             </div>
@@ -144,6 +156,7 @@ export default function ViewDocsSidebar({
                         onToggle={() => onToggleCategory(category.id)}
                         activeSection={activeSection}
                         onSelectItem={onSelectItem}
+                        isDarkMode={isDarkMode}
                     />
                 ))}
             </nav>

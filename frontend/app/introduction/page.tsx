@@ -71,12 +71,26 @@ export default function IntroductionPage() {
     };
 
     return (
-        <div className={`min-h-screen w-full font-sans overflow-hidden relative bg-gradient-to-b from-[#050811] via-[#050811] to-[#101522] ${isDarkMode ? 'text-white' : 'text-[#0f172a] bg-[#f4f6f5]'}`}>
+        <div className={`min-h-screen w-full font-sans overflow-hidden relative ${isDarkMode ? 'bg-gradient-to-b from-[#050811] via-[#050811] to-[#101522] text-white' : 'bg-gradient-to-b from-[#e0f2fe] via-[#fef3c7] to-[#fce7f3] text-[#0f172a]'}`}>
             {/* Animated Background Pattern */}
-            <div className="pointer-events-none absolute inset-0 opacity-40">
-                <div
-                    className="absolute inset-[-40%] bg-[radial-gradient(circle_at_10%_20%,rgba(45,244,198,0.10),transparent_55%),radial-gradient(circle_at_80%_0,rgba(56,189,248,0.10),transparent_55%),radial-gradient(circle_at_50%_100%,rgba(94,92,255,0.18),transparent_60%)] animate-[gradient_18s_ease_infinite]"
-                />
+            <div className="pointer-events-none absolute inset-0">
+                {isDarkMode ? (
+                    <div
+                        className="absolute inset-[-40%] bg-[radial-gradient(circle_at_10%_20%,rgba(45,244,198,0.10),transparent_55%),radial-gradient(circle_at_80%_0,rgba(56,189,248,0.10),transparent_55%),radial-gradient(circle_at_50%_100%,rgba(94,92,255,0.18),transparent_60%)] animate-[gradient_18s_ease_infinite] opacity-40"
+                    />
+                ) : (
+                    <>
+                        {/* Sun/Morning Sky Effect */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-[#fef3c7]/60 via-[#fce7f3]/40 to-[#e0f2fe]/50" />
+                        <div 
+                            className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,237,153,0.4),rgba(255,200,87,0.2),transparent_70%)] rounded-full blur-3xl animate-[sunrise_20s_ease_infinite]"
+                            style={{ transform: 'translate(-50%, -20%)' }}
+                        />
+                        <div
+                            className="absolute inset-[-40%] bg-[radial-gradient(circle_at_20%_30%,rgba(255,237,153,0.25),transparent_50%),radial-gradient(circle_at_80%_10%,rgba(255,200,87,0.20),transparent_50%),radial-gradient(circle_at_50%_80%,rgba(251,191,36,0.15),transparent_60%),radial-gradient(circle_at_10%_70%,rgba(249,168,212,0.18),transparent_55%)] animate-[gradient_18s_ease_infinite] opacity-60"
+                        />
+                    </>
+                )}
             </div>
 
             {/* Night Star Field */}
@@ -104,15 +118,13 @@ export default function IntroductionPage() {
             <div ref={cursorTrailRef} className="cursor-trail-container" />
 
             {/* Cursor Glow Effect */}
-            {isDarkMode && (
-                <div
-                    className="cursor-glow"
-                    style={{
-                        left: `${mousePosition.x}px`,
-                        top: `${mousePosition.y}px`,
-                    }}
-                />
-            )}
+            <div
+                className={`cursor-glow ${isDarkMode ? 'cursor-glow-dark' : 'cursor-glow-light'}`}
+                style={{
+                    left: `${mousePosition.x}px`,
+                    top: `${mousePosition.y}px`,
+                }}
+            />
 
             {/* Wave Animation Background - Light Mode Only */}
             {!isDarkMode && (
@@ -180,6 +192,16 @@ export default function IntroductionPage() {
                 @keyframes gradient {
                     0%, 100% { background-position: 0% 50%; }
                     50% { background-position: 100% 50%; }
+                }
+                @keyframes sunrise {
+                    0%, 100% { 
+                        transform: translate(-50%, -20%) scale(1);
+                        opacity: 0.6;
+                    }
+                    50% { 
+                        transform: translate(-50%, -15%) scale(1.1);
+                        opacity: 0.8;
+                    }
                 }
                 @keyframes spin-slow {
                     from { transform: rotate(0deg); }
@@ -269,15 +291,18 @@ export default function IntroductionPage() {
                     -webkit-text-fill-color: transparent;
                 }
                 :global(body[data-theme="light"]) .float-block {
-                    background: rgba(0, 0, 0, 0.06) !important;
-                    color: #000000 !important;
-                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-                    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-                    transition: background 0.3s ease, transform 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+                    background: rgba(255, 255, 255, 0.85) !important;
+                    color: #0f172a !important;
+                    box-shadow: 0 10px 28px rgba(251, 191, 36, 0.2), 0 4px 12px rgba(249, 168, 212, 0.15);
+                    border: 1px solid rgba(251, 191, 36, 0.3) !important;
+                    transition: background 0.3s ease, transform 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+                    backdrop-filter: blur(10px);
                 }
                 :global(body[data-theme="light"]) .float-block:hover {
-                    background: rgba(16, 229, 181, 0.18) !important;
-                    color: #000000 !important;
+                    background: rgba(255, 237, 153, 0.4) !important;
+                    color: #0f172a !important;
+                    border-color: rgba(251, 191, 36, 0.5) !important;
+                    box-shadow: 0 12px 32px rgba(251, 191, 36, 0.3), 0 6px 16px rgba(249, 168, 212, 0.2) !important;
                 }
                 body[data-theme="light"] .subtitle {
                     color: #475569;
@@ -419,12 +444,17 @@ export default function IntroductionPage() {
                     position: fixed;
                     width: 4px;
                     height: 4px;
-                    background: radial-gradient(circle, rgba(45, 244, 198, 0.8), rgba(45, 244, 198, 0));
                     border-radius: 50%;
                     pointer-events: none;
                     z-index: 9999;
                     transform: translate(-50%, -50%);
                     animation: particleFade 1s ease-out forwards;
+                }
+                body[data-theme="dark"] .cursor-particle {
+                    background: radial-gradient(circle, rgba(45, 244, 198, 0.8), rgba(45, 244, 198, 0));
+                }
+                body[data-theme="light"] .cursor-particle {
+                    background: radial-gradient(circle, rgba(251, 191, 36, 0.8), rgba(249, 168, 212, 0.6), transparent);
                 }
                 @keyframes particleFade {
                     0% {
@@ -441,12 +471,17 @@ export default function IntroductionPage() {
                     position: fixed;
                     width: 300px;
                     height: 300px;
-                    background: radial-gradient(circle, rgba(45, 244, 198, 0.1), transparent 70%);
                     border-radius: 50%;
                     pointer-events: none;
                     z-index: 9998;
                     transform: translate(-50%, -50%);
                     transition: opacity 0.3s ease;
+                }
+                .cursor-glow-dark {
+                    background: radial-gradient(circle, rgba(45, 244, 198, 0.1), transparent 70%);
+                }
+                .cursor-glow-light {
+                    background: radial-gradient(circle, rgba(251, 191, 36, 0.2), rgba(249, 168, 212, 0.15), transparent 70%);
                 }
                 .cursor-trail-container {
                     position: fixed;
@@ -465,9 +500,9 @@ export default function IntroductionPage() {
                     {/* Logo Placeholder */}
                 </div>
                 <div className="flex gap-4 text-sm font-medium tracking-wide">
-                    <Link href="/docs" className={`rounded-full px-7 py-2.5 text-base transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
+                    <Link href="/docs" className={`rounded-full px-7 py-2.5 text-base transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525] border border-transparent shadow-lg" : "bg-white/90 backdrop-blur-xl text-gray-900 hover:bg-white shadow-lg border border-[#fbbf24]/30 hover:border-[#fbbf24]/50 hover:shadow-[0_0_20px_rgba(251,191,36,0.25)]"
                         }`}>View Docs</Link>
-                    <Link href="/contact-public" className={`rounded-full px-7 py-2.5 text-base transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
+                    <Link href="/contact-public" className={`rounded-full px-7 py-2.5 text-base transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525] border border-transparent shadow-lg" : "bg-white/90 backdrop-blur-xl text-gray-900 hover:bg-white shadow-lg border border-[#fbbf24]/30 hover:border-[#fbbf24]/50 hover:shadow-[0_0_20px_rgba(251,191,36,0.25)]"
                         }`}>Contact</Link>
                 </div>
             </nav>
@@ -476,15 +511,15 @@ export default function IntroductionPage() {
                 {/* Left Section */}
                 <div className={`relative flex flex-col justify-start px-6 pt-16 pb-16 lg:px-10 ${isDarkMode
                     ? "bg-gradient-to-b from-[#0f1216]/40 to-[#141922]/50 backdrop-blur-2xl"
-                    : "bg-[#f0f0f0]/80 backdrop-blur-2xl"
+                    : "bg-gradient-to-b from-white/70 to-white/50 backdrop-blur-2xl border-r border-[#fbbf24]/20"
                     }`}>
                     <div className="mx-auto w-full max-w-sm flex flex-col h-full items-stretch">
                         {/* Header */}
                         <div className={`mb-10 text-center transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3'}`}>
-                            <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl bg-gradient-to-r from-[#2df4c6] to-[#26dcb2] bg-clip-text text-transparent">
+                            <h1 className={`text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6] to-[#26dcb2] bg-clip-text text-transparent' : 'bg-gradient-to-r from-[#d97706] via-[#ea580c] to-[#db2777] bg-clip-text text-transparent'}`}>
                                 Trading Agents
                             </h1>
-                            <p className={`subtitle mt-3 text-sm md:text-base leading-relaxed transition-all duration-700 ease-out delay-150 ${isDarkMode ? 'text-slate-300/80' : 'text-[#475569]'} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+                            <p className={`subtitle mt-3 text-sm md:text-base leading-relaxed transition-all duration-700 ease-out delay-150 ${isDarkMode ? 'text-slate-300/80' : 'text-slate-800'} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
                                 Multi-Agents LLM Financial Trading
                             </p>
                         </div>
@@ -500,12 +535,13 @@ export default function IntroductionPage() {
 
                         {/* Action Buttons */}
                         <div className={`mt-14 flex flex-col gap-3 items-center transition-all duration-700 ease-out delay-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
-                            <Link href="/Auth/register" className="group relative flex w-56 items-center justify-center rounded-full bg-gradient-to-r from-[#2df4c6] to-[#26f0ff] px-8 py-3 text-sm font-semibold text-black shadow-[0_0_24px_rgba(45,244,198,0.45)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(45,244,198,0.75)]">
+                            <Link href="/Auth/register" className={`group relative flex w-64 items-center justify-center rounded-full px-12 py-4 text-base font-semibold transition-all duration-200 ease-out hover:-translate-y-0.5 ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6] to-[#26f0ff] text-black shadow-[0_0_24px_rgba(45,244,198,0.45)] hover:shadow-[0_0_40px_rgba(45,244,198,0.75)]' : 'bg-gradient-to-r from-[#f59e0b] to-[#ec4899] text-white shadow-[0_0_24px_rgba(245,158,11,0.5)] hover:shadow-[0_0_40px_rgba(245,158,11,0.7),0_0_60px_rgba(236,72,153,0.4)]'}`}>
                                 <span className="relative z-10">Register</span>
-                                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-[#40f9c9] to-[#4bfbff] opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+                                <span className={`absolute inset-0 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 ${isDarkMode ? 'bg-gradient-to-r from-[#40f9c9] to-[#4bfbff]' : 'bg-gradient-to-r from-[#fbbf24] to-[#f472b6]'}`} />
                             </Link>
-                            <Link href="/Auth/login" className={`flex w-56 items-center justify-center rounded-full border px-8 py-3 text-sm font-semibold backdrop-blur-xl transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_0_32px_rgba(45,244,198,0.45)] ${isDarkMode ? 'border-white/15 bg-white/5 text-white hover:border-[#2df4c6] hover:bg-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.45)]' : 'border-gray-300 bg-white/80 text-[#0f172a] hover:border-[#10e5b5] hover:bg-white shadow-[0_16px_40px_rgba(0,0,0,0.1)]'}`}>
-                                Login
+                            <Link href="/Auth/login" className={`group relative flex w-64 items-center justify-center rounded-full border-2 px-12 py-4 text-base font-semibold backdrop-blur-xl transition-all duration-200 ease-out hover:-translate-y-0.5 ${isDarkMode ? 'border-[#2df4c6]/60 bg-[#2df4c6]/10 text-white hover:border-[#2df4c6] hover:bg-[#2df4c6]/20 shadow-[0_0_24px_rgba(45,244,198,0.4)] hover:shadow-[0_0_40px_rgba(45,244,198,0.6)]' : 'border-[#f59e0b]/80 bg-[#f59e0b]/20 text-slate-800 hover:border-[#f59e0b] hover:bg-[#f59e0b]/30 shadow-[0_0_24px_rgba(245,158,11,0.4)] hover:shadow-[0_0_40px_rgba(245,158,11,0.6),0_0_60px_rgba(236,72,153,0.3)]'}`}>
+                                <span className="relative z-10">Login</span>
+                                <span className={`absolute inset-0 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6]/20 to-[#26f0ff]/20' : 'bg-gradient-to-r from-[#fbbf24]/25 to-[#f472b6]/20'}`} />
                             </Link>
                         </div>
                     </div>
@@ -514,8 +550,8 @@ export default function IntroductionPage() {
                     <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
                         <label className="relative inline-flex cursor-pointer items-center">
                             <input type="checkbox" checked={!isDarkMode} onChange={toggleTheme} className="peer sr-only" />
-                            <div className="peer h-6 w-11 rounded-full bg-gray-700 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#2df4c6]"></div>
-                            <span className={`ml-3 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
+                            <div className={`peer h-6 w-11 rounded-full after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none peer-focus:ring-2 ${isDarkMode ? 'bg-gray-700 after:border-gray-300 after:bg-white peer-checked:bg-gray-300 peer-checked:after:border-white peer-focus:ring-[#2df4c6]' : 'bg-[#fbbf24]/30 after:border-[#fbbf24]/50 after:bg-white peer-checked:bg-[#fbbf24] peer-checked:after:border-white peer-focus:ring-[#fbbf24]'}`}></div>
+                            <span className={`ml-3 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-slate-700"}`}>
                                 {isDarkMode ? "Dark Mode" : "Light Mode"}
                             </span>
                         </label>
@@ -523,12 +559,12 @@ export default function IntroductionPage() {
                 </div>
 
                 {/* Right Section */}
-                <div className={`relative flex flex-col items-center justify-center px-8 py-20 text-center lg:px-20 ${isDarkMode ? "bg-transparent" : "bg-[#e5e5e5]"
+                <div className={`relative flex flex-col items-center justify-center px-8 py-20 text-center lg:px-20 ${isDarkMode ? "bg-transparent" : "bg-gradient-to-br from-white/40 to-[#fef3c7]/30"
                     }`}>
                     {/* Logo with subtle glow accent */}
                     <div className={`relative mb-10 flex items-center justify-center transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                        <div className="pointer-events-none absolute -inset-x-16 -inset-y-8 rounded-[32px] bg-gradient-to-r from-[#2df4c6]/10 via-transparent to-[#26dcb2]/10 blur-3xl" />
-                        <div className="relative rounded-[28px] bg-[#040b10]/90 px-8 py-5 shadow-[0_32px_80px_rgba(0,0,0,0.8)] ring-1 ring-white/5">
+                        <div className={`pointer-events-none absolute -inset-x-16 -inset-y-8 rounded-[32px] blur-3xl ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6]/10 via-transparent to-[#26dcb2]/10' : 'bg-gradient-to-r from-[#fbbf24]/20 via-transparent to-[#f97316]/15'}`} />
+                        <div className={`relative rounded-[28px] px-8 py-5 ${isDarkMode ? 'bg-[#040b10]/90 shadow-[0_32px_80px_rgba(0,0,0,0.8)] ring-1 ring-white/5' : 'bg-[#040b10]/95 backdrop-blur-xl shadow-[0_32px_80px_rgba(0,0,0,0.4),0_16px_40px_rgba(251,191,36,0.2)] ring-2 ring-[#fbbf24]/30'}`}>
                             <Image
                                 src={Logo}
                                 alt="Trading Agents Logo"
@@ -543,10 +579,10 @@ export default function IntroductionPage() {
                     {/* Hero Text */}
                     <h2 className={`mb-5 max-w-2xl text-2xl font-semibold leading-snug md:text-3xl lg:text-4xl transition-all duration-700 ease-out delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} text-balance`}>
                         Elevate Your Trading with Intelligent AI<br />
-                        <span className="bg-gradient-to-r from-[#2df4c6] to-[#26dcb2] bg-clip-text text-transparent">Multi-Agents LLM Financial Trading</span>
+                        <span className={`bg-clip-text text-transparent ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6] to-[#26dcb2]' : 'bg-gradient-to-r from-[#d97706] via-[#ea580c] to-[#db2777]'}`}>Multi-Agents LLM Financial Trading</span>
                     </h2>
 
-                    <p className={`max-w-xl text-sm md:text-base leading-relaxed transition-all duration-700 ease-out delay-300 ${isDarkMode ? 'text-slate-300/85' : 'text-[#475569]'} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} text-balance`}>
+                    <p className={`max-w-xl text-sm md:text-base leading-relaxed transition-all duration-700 ease-out delay-300 ${isDarkMode ? 'text-slate-300/85' : 'text-slate-700/90'} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} text-balance`}>
                         Discover Trading Agents that never stop evolving with Multi-Agents LLM Financial Trading architecture.
                         Our system is not just an ordinary bot, but a network of intelligent Agents that communicate,
                         exchange information, and learn from millions of trading experiences. The collaborative work of these AIs

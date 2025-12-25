@@ -207,7 +207,7 @@ function Tooltip({ text, children, isDarkMode }: { text: string; children: React
     const [show, setShow] = useState(false);
     return (
         <span className="relative inline-block group">
-            <span 
+            <span
                 className="underline decoration-dotted cursor-help"
                 onMouseEnter={() => setShow(true)}
                 onMouseLeave={() => setShow(false)}
@@ -215,13 +215,11 @@ function Tooltip({ text, children, isDarkMode }: { text: string; children: React
                 {children}
             </span>
             {show && (
-                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 px-3 py-2 rounded-lg text-xs max-w-xs shadow-lg ${
-                    isDarkMode ? 'bg-gray-800 text-white border border-gray-700' : 'bg-gray-900 text-white border border-gray-600'
-                }`}>
+                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 px-3 py-2 rounded-lg text-xs max-w-xs shadow-lg ${isDarkMode ? 'bg-gray-800 text-white border border-gray-700' : 'bg-gray-900 text-white border border-gray-600'
+                    }`}>
                     {text}
-                    <div className={`absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-l-transparent border-r-transparent border-b-transparent ${
-                        isDarkMode ? 'border-t-gray-800' : 'border-t-gray-900'
-                    }`} />
+                    <div className={`absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-l-transparent border-r-transparent border-b-transparent ${isDarkMode ? 'border-t-gray-800' : 'border-t-gray-900'
+                        }`} />
                 </div>
             )}
         </span>
@@ -314,17 +312,17 @@ export default function ViewDocsPage() {
                         if (element) {
                             const rect = element.getBoundingClientRect();
                             const { offsetTop, offsetHeight } = element;
-                            
+
                             // Check if section is in viewport (active section)
                             if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
                                 newActiveSection = section.id;
                             }
-                            
+
                             // Check if section is focused (centered in viewport)
                             const elementTop = rect.top + window.scrollY;
                             const elementCenter = elementTop + offsetHeight / 2;
                             const viewportCenter = window.scrollY + viewportHeight / 2;
-                            
+
                             if (Math.abs(elementCenter - viewportCenter) < viewportHeight * 0.3 && rect.top < viewportHeight && rect.bottom > 0) {
                                 newFocusedSection = section.id;
                             }
@@ -364,6 +362,78 @@ export default function ViewDocsPage() {
         }
     };
 
+    // Create document sections with proper classes based on theme
+    const documentSectionsWithTheme = useMemo(() => {
+        return DOCUMENT_SECTIONS.map(section => {
+            if (section.id === 'introduction') {
+                return {
+                    ...section,
+                    content: (
+                        <div className={`space-y-4 leading-relaxed ${isDarkMode ? 'text-zinc-300' : 'text-gray-900'}`}>
+                            <p>
+                                Significant progress has been made in automated problem-solving using societies of agents powered by <Tooltip text="Large Language Models - advanced AI systems that can understand and generate human-like text" isDarkMode={isDarkMode}><strong className={isDarkMode ? "text-white" : "text-gray-900"}>LLMs</strong></Tooltip>. While single-agent systems handle specific tasks well, complex financial markets require collaborative dynamics similar to real-world trading firms.
+                            </p>
+                            <p>
+                                <strong className={isDarkMode ? "text-white" : "text-gray-900"}>TradingAgents</strong> proposes a novel stock trading framework inspired by professional trading firms, featuring LLM-powered agents in specialized roles. By simulating a dynamic, collaborative trading environment, this framework aims to replicate the multi-faceted decision-making process of successful investment houses.
+                            </p>
+                            <p>
+                                This comprehensive multi-agent system moves beyond simple data gathering, integrating diverse perspectives from fundamental analysis to technical indicators, debating insights, and synthesizing them into informed trading decisions.
+                            </p>
+                        </div>
+                    )
+                };
+            } else if (section.id === 'related-work') {
+                return {
+                    ...section,
+                    content: (
+                        <div className={`space-y-4 leading-relaxed ${isDarkMode ? 'text-zinc-300' : 'text-gray-900'}`}>
+                            <p>
+                                In the domain of financial trading, efforts have historically focused on quantitative models and, more recently, single-agent LLM systems.
+                            </p>
+                            <ul className="list-disc pl-5 space-y-2">
+                                <li>
+                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Single-Agent Systems:</strong> Often limited to handling specific, isolated tasks such as sentiment analysis of news headlines or pattern recognition in price charts.
+                                </li>
+                                <li>
+                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Traditional Multi-Agent Frameworks:</strong> Previous attempts have largely operated independently, with agents gathering data in silos without true collaborative synthesis.
+                                </li>
+                                <li>
+                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>TradingAgents Approach:</strong> Unlike predecessors, this framework emphasizes the <em>collaborative dynamics</em> found in institutional firms. It introduces structured debates and hierarchical decision-making, allowing agents to challenge and refine each other's insights before a trade is executed.
+                                </li>
+                            </ul>
+                        </div>
+                    )
+                };
+            } else if (section.id === 'agent-workflow') {
+                return {
+                    ...section,
+                    content: (
+                        <div className={`space-y-4 leading-relaxed ${isDarkMode ? 'text-zinc-300' : 'text-gray-900'}`}>
+                            <p>
+                                The decision-making process follows a structured workflow designed to mimic an investment committee:
+                            </p>
+                            <ol className="list-decimal pl-5 space-y-3">
+                                <li>
+                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Data Gathering:</strong> Individual specialists (Fundamental, Technical, Sentiment) independently gather data and form initial hypotheses.
+                                </li>
+                                <li>
+                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Bull & Bear Debate:</strong> Dedicated <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Bull</strong> and <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Bear</strong> researcher agents assess market conditions from opposing viewpoints, challenging assumptions to uncover blind spots.
+                                </li>
+                                <li>
+                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Synthesis:</strong> Traders synthesize the diverse insights from the debate and analyst reports, weighing conflicting evidence.
+                                </li>
+                                <li>
+                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Execution:</strong> Informed decisions are made, with final checks by the Risk Management team to ensure alignment with portfolio constraints before execution.
+                                </li>
+                            </ol>
+                        </div>
+                    )
+                };
+            }
+            return section;
+        });
+    }, [isDarkMode]);
+
     return (
         <>
             <style jsx>{`
@@ -390,6 +460,144 @@ export default function ViewDocsPage() {
                     color: #000000 !important;
                     font-style: italic;
                 }
+                /* Override text colors in light mode for all content - High specificity */
+                body[data-theme="light"] .text-zinc-300,
+                body[data-theme="light"] .text-white:not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main .text-zinc-300,
+                body[data-theme="light"] main .text-white:not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main div .text-zinc-300,
+                body[data-theme="light"] main div .text-white:not(.bg-clip-text):not(.text-transparent) {
+                    color: #000000 !important;
+                }
+                body[data-theme="light"] section .text-zinc-300,
+                body[data-theme="light"] section .text-white:not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] section p,
+                body[data-theme="light"] section li,
+                body[data-theme="light"] section strong,
+                body[data-theme="light"] section em,
+                body[data-theme="light"] section ol,
+                body[data-theme="light"] section ul,
+                body[data-theme="light"] section div,
+                body[data-theme="light"] section span,
+                body[data-theme="light"] main section .text-zinc-300,
+                body[data-theme="light"] main section .text-white:not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main section p,
+                body[data-theme="light"] main section li,
+                body[data-theme="light"] main section strong,
+                body[data-theme="light"] main section em,
+                body[data-theme="light"] main section div,
+                body[data-theme="light"] main section span,
+                body[data-theme="light"] main section div .text-zinc-300,
+                body[data-theme="light"] main section div .text-white:not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main section div p,
+                body[data-theme="light"] main section div li,
+                body[data-theme="light"] main section div strong,
+                body[data-theme="light"] main section div em,
+                body[data-theme="light"] main section div ol,
+                body[data-theme="light"] main section div ul {
+                    color: #000000 !important;
+                }
+                body[data-theme="light"] section strong,
+                body[data-theme="light"] main section strong,
+                body[data-theme="light"] main section div strong {
+                    color: #000000 !important;
+                    font-weight: 600;
+                }
+                /* Global override for all text in light mode within main content */
+                body[data-theme="light"] main section[id] div[class*="space-y"] p,
+                body[data-theme="light"] main section[id] div[class*="space-y"] li,
+                body[data-theme="light"] main section[id] div[class*="space-y"] strong,
+                body[data-theme="light"] main section[id] div[class*="space-y"] em,
+                body[data-theme="light"] main section[id] div[class*="space-y"] ol,
+                body[data-theme="light"] main section[id] div[class*="space-y"] ul,
+                body[data-theme="light"] main section[id] div[class*="space-y"] div,
+                body[data-theme="light"] main section[id] div[class*="space-y"] span {
+                    color: #000000 !important;
+                }
+                body[data-theme="light"] main section[id] div[class*="space-y"] strong {
+                    color: #000000 !important;
+                    font-weight: 600;
+                }
+                /* Ultimate override for text content in light mode - exclude headings */
+                body[data-theme="light"] main section[id] div[class*="space-y"] *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main section[id] div[class*="leading-relaxed"] *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main section[id] div.text-zinc-300 *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main section[id] div.text-zinc-300,
+                body[data-theme="light"] main section[id] p.text-zinc-300,
+                body[data-theme="light"] main section[id] li.text-zinc-300,
+                body[data-theme="light"] main section[id] strong.text-white,
+                body[data-theme="light"] main section[id] span.text-white:not(.bg-clip-text):not(.text-transparent) {
+                    color: #000000 !important;
+                }
+                body[data-theme="light"] main section[id] div[class*="space-y"] strong,
+                body[data-theme="light"] main section[id] div[class*="leading-relaxed"] strong,
+                body[data-theme="light"] main section[id] div.text-zinc-300 strong,
+                body[data-theme="light"] main section[id] p strong,
+                body[data-theme="light"] main section[id] li strong {
+                    color: #000000 !important;
+                    font-weight: 600;
+                }
+                /* Force all text in document sections to be black in light mode */
+                body[data-theme="light"] main section#introduction *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main section#related-work *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main section#agent-workflow *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main section#introduction .text-zinc-300,
+                body[data-theme="light"] main section#introduction .text-white:not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main section#related-work .text-zinc-300,
+                body[data-theme="light"] main section#related-work .text-white:not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main section#agent-workflow .text-zinc-300,
+                body[data-theme="light"] main section#agent-workflow .text-white:not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main section#introduction div.text-zinc-300,
+                body[data-theme="light"] main section#introduction p.text-zinc-300,
+                body[data-theme="light"] main section#introduction li.text-zinc-300,
+                body[data-theme="light"] main section#related-work div.text-zinc-300,
+                body[data-theme="light"] main section#related-work p.text-zinc-300,
+                body[data-theme="light"] main section#related-work li.text-zinc-300,
+                body[data-theme="light"] main section#agent-workflow div.text-zinc-300,
+                body[data-theme="light"] main section#agent-workflow p.text-zinc-300,
+                body[data-theme="light"] main section#agent-workflow li.text-zinc-300 {
+                    color: #000000 !important;
+                }
+                body[data-theme="light"] main section#introduction strong,
+                body[data-theme="light"] main section#introduction strong.text-white,
+                body[data-theme="light"] main section#related-work strong,
+                body[data-theme="light"] main section#related-work strong.text-white,
+                body[data-theme="light"] main section#agent-workflow strong,
+                body[data-theme="light"] main section#agent-workflow strong.text-white {
+                    color: #000000 !important;
+                    font-weight: 600;
+                }
+                /* Ultimate override with maximum specificity */
+                body[data-theme="light"] main section[id] div.light-mode-content .text-zinc-300,
+                body[data-theme="light"] main section[id] div.light-mode-content .text-white:not(.bg-clip-text):not(.text-transparent),
+                body[data-theme="light"] main section[id] div.light-mode-content p,
+                body[data-theme="light"] main section[id] div.light-mode-content li,
+                body[data-theme="light"] main section[id] div.light-mode-content strong,
+                body[data-theme="light"] main section[id] div.light-mode-content em,
+                body[data-theme="light"] main section[id] div.light-mode-content div,
+                body[data-theme="light"] main section[id] div.light-mode-content span,
+                body[data-theme="light"] main section[id] div.light-mode-content ol,
+                body[data-theme="light"] main section[id] div.light-mode-content ul {
+                    color: #000000 !important;
+                }
+                body[data-theme="light"] main section[id] div.light-mode-content strong {
+                    color: #000000 !important;
+                    font-weight: 600;
+                }
+                /* Maximum specificity override for all text classes in light mode */
+                body[data-theme="light"] main section[id] [class*="text-zinc-300"],
+                body[data-theme="light"] main section[id] [class*="text-white"]:not([class*="bg-clip-text"]):not([class*="text-transparent"]),
+                body[data-theme="light"] main section[id] div[class*="text-zinc-300"],
+                body[data-theme="light"] main section[id] p[class*="text-zinc-300"],
+                body[data-theme="light"] main section[id] li[class*="text-zinc-300"],
+                body[data-theme="light"] main section[id] strong[class*="text-white"]:not([class*="bg-clip-text"]):not([class*="text-transparent"]),
+                body[data-theme="light"] main section[id] span[class*="text-white"]:not([class*="bg-clip-text"]):not([class*="text-transparent"]) {
+                    color: #000000 !important;
+                }
+                body[data-theme="light"] main section[id] strong[class*="text-white"]:not([class*="bg-clip-text"]):not([class*="text-transparent"]) {
+                    color: #000000 !important;
+                    font-weight: 600;
+                }
                 .reading-mode {
                     max-width: 65ch;
                     margin: 0 auto;
@@ -409,10 +617,24 @@ export default function ViewDocsPage() {
                         transform: scale(1.2);
                     }
                 }
+                @keyframes sunrise {
+                    0%, 100% { 
+                        transform: translate(-50%, -20%) scale(1);
+                        opacity: 0.6;
+                    }
+                    50% { 
+                        transform: translate(-50%, -15%) scale(1.1);
+                        opacity: 0.8;
+                    }
+                }
+                @keyframes gradient {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    50% { transform: translate(-2%, -2%) scale(1.05); }
+                }
             `}</style>
-            <div className="flex min-h-screen w-full font-sans transition-colors duration-300 relative bg-[#020617] text-[#f8fbff] overflow-hidden">
+            <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative overflow-hidden ${isDarkMode ? 'bg-[#020617] text-[#f8fbff]' : 'bg-gradient-to-br from-[#e0f2fe] via-[#fef3c7] to-[#fce7f3] text-[#1a202c]'}`}>
             {/* Starry Night Sky Effect (matching home page) - only render on client */}
-            {mounted && (
+            {mounted && isDarkMode && (
                 <div className="fixed inset-0 pointer-events-none z-0">
                     {stars.map((star) => (
                         <div
@@ -431,6 +653,20 @@ export default function ViewDocsPage() {
                             }}
                         />
                     ))}
+                </div>
+            )}
+            
+            {/* Morning Sky Effect for Light Mode */}
+            {mounted && !isDarkMode && (
+                <div className="fixed inset-0 pointer-events-none z-0">
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#fef3c7]/60 via-[#fce7f3]/40 to-[#e0f2fe]/50" />
+                    <div 
+                        className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-[radial-gradient(circle,rgba(255,237,153,0.35),rgba(255,200,87,0.25),transparent_70%)] rounded-full blur-3xl animate-[sunrise_20s_ease_infinite]"
+                        style={{ transform: 'translate(-50%, -20%)' }}
+                    />
+                    <div
+                        className="absolute inset-[-40%] bg-[radial-gradient(circle_at_20%_30%,rgba(255,237,153,0.20),transparent_50%),radial-gradient(circle_at_80%_10%,rgba(255,200,87,0.18),transparent_50%),radial-gradient(circle_at_50%_80%,rgba(251,191,36,0.12),transparent_60%),radial-gradient(circle_at_10%_70%,rgba(249,168,212,0.15),transparent_55%)] animate-[gradient_20s_ease_infinite] opacity-50"
+                    />
                 </div>
             )}
 
@@ -454,16 +690,17 @@ export default function ViewDocsPage() {
                 expandedCategories={expandedCategories}
                 onToggleCategory={toggleCategory}
                 onSelectItem={scrollToSection}
+                isDarkMode={isDarkMode}
             />
 
             <main className="flex-1 flex flex-col relative min-h-screen min-w-0 overflow-y-auto z-10 bg-transparent">
-                <div className="sticky top-0 bg-[#020617]/95 backdrop-blur-xl z-30 border-b border-white/5 px-12 py-8">
+                <div className={`sticky top-0 backdrop-blur-xl z-30 border-b px-12 py-8 ${isDarkMode ? 'bg-[#020617]/95 border-white/5' : 'bg-white/80 border-[#fbbf24]/20'}`}>
                     <div className="flex justify-between items-start">
                         <div>
-                            <h1 className="text-3xl font-bold text-[#f8fbff] mb-2 tracking-tight">
+                            <h1 className={`text-3xl font-bold mb-2 tracking-tight ${isDarkMode ? 'text-[#f8fbff]' : 'text-gray-900'}`}>
                                 View Docs
                             </h1>
-                            <p className="text-[#f8fbff]/80 text-base">
+                            <p className={`text-base ${isDarkMode ? 'text-[#f8fbff]/80' : 'text-gray-700'}`}>
                                 Document & Tutorials & Agent
                             </p>
                         </div>
@@ -471,7 +708,7 @@ export default function ViewDocsPage() {
                             href="https://arxiv.org/pdf/2412.20138"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 bg-[#00e33d] hover:bg-[#00c936] text-black px-4 py-2.5 rounded-lg font-semibold text-sm shadow-lg shadow-green-500/20"
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm shadow-lg transition-all hover:scale-105 ${isDarkMode ? 'bg-[#00e33d] hover:bg-[#00c936] text-black shadow-green-500/20' : 'bg-gradient-to-r from-[#f59e0b] to-[#ec4899] text-white shadow-[0_8px_24px_rgba(245,158,11,0.3)] hover:shadow-[0_12px_32px_rgba(245,158,11,0.4)]'}`}
                         >
                             <Download size={16} />
                             Download Document
@@ -483,22 +720,22 @@ export default function ViewDocsPage() {
 
                     {/* ================= Document Sections ================= */}
                     <div className="mb-8">
-                        <h2 className="text-2xl font-bold text-[#f8fbff] tracking-tight border-b border-white/10 pb-4">
+                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode ? 'text-[#f8fbff] border-white/10' : 'text-gray-900 border-[#fbbf24]/30'}`}>
                             Document
                         </h2>
                     </div>
 
                     <div className="flex flex-col gap-16 mb-24">
-                        {DOCUMENT_SECTIONS.map((section, index) => (
+                        {documentSectionsWithTheme.map((section, index) => (
                             <section
                                 key={section.id}
                                 id={section.id}
                                 className="scroll-mt-40"
                             >
-                                <h3 className="text-xl font-bold text-[#f8fbff] mb-6">
+                                <h3 className={`text-xl font-bold mb-6 ${isDarkMode ? 'text-[#f8fbff]' : 'text-gray-900'}`}>
                                     {section.title}
                                 </h3>
-                                <div className="text-base text-[#f8fbff]/90 leading-relaxed">
+                                <div className={`text-base leading-relaxed ${isDarkMode ? 'text-[#f8fbff]/90' : 'text-gray-800'} ${!isDarkMode ? 'light-mode-content' : ''}`}>
                                     {section.id === 'introduction' ? (
                                         section.content
                                     ) : section.id === 'role-specialization' ? (
@@ -507,37 +744,37 @@ export default function ViewDocsPage() {
                                                 The framework assigns specialized roles to LLM agents, ensuring expert-level analysis across all market dimensions:
                                             </p>
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                                                <div className={`p-4 rounded-lg border ${
+                                                <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${
                                                     isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-gray-50 border-gray-400"
+                                                        : "bg-white/80 backdrop-blur-sm border-[#fbbf24]/30 hover:border-[#f59e0b]/50 shadow-sm"
                                                 }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-cyan-600"}`}>Fundamental Analysts</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>Analyze company financial health, earnings reports, and macroeconomic indicators to determine long-term value.</p>
+                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#d97706]"}`}>Fundamental Analysts</h3>
+                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-700"}`}>Analyze company financial health, earnings reports, and macroeconomic indicators to determine long-term value.</p>
                                                 </div>
-                                                <div className={`p-4 rounded-lg border ${
+                                                <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${
                                                     isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-gray-50 border-gray-400"
+                                                        : "bg-white/80 backdrop-blur-sm border-[#fbbf24]/30 hover:border-[#f59e0b]/50 shadow-sm"
                                                 }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-cyan-600"}`}>Technical Analysts</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>Study price action, trends, and volume patterns to identify optimal entry and exit points.</p>
+                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#d97706]"}`}>Technical Analysts</h3>
+                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-700"}`}>Study price action, trends, and volume patterns to identify optimal entry and exit points.</p>
                                                 </div>
-                                                <div className={`p-4 rounded-lg border ${
+                                                <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${
                                                     isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-gray-50 border-gray-400"
+                                                        : "bg-white/80 backdrop-blur-sm border-[#fbbf24]/30 hover:border-[#f59e0b]/50 shadow-sm"
                                                 }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-cyan-600"}`}>Sentiment Analysts</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>Process news, social media, and market chatter to gauge market psychology and potential volatility.</p>
+                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#d97706]"}`}>Sentiment Analysts</h3>
+                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-700"}`}>Process news, social media, and market chatter to gauge market psychology and potential volatility.</p>
                                                 </div>
-                                                <div className={`p-4 rounded-lg border ${
+                                                <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${
                                                     isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-gray-50 border-gray-400"
+                                                        : "bg-white/80 backdrop-blur-sm border-[#fbbf24]/30 hover:border-[#f59e0b]/50 shadow-sm"
                                                 }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-cyan-600"}`}>Risk Management</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>Monitor portfolio exposure and set strict limits to preserve capital and manage downside risk.</p>
+                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#d97706]"}`}>Risk Management</h3>
+                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-700"}`}>Monitor portfolio exposure and set strict limits to preserve capital and manage downside risk.</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -556,7 +793,7 @@ export default function ViewDocsPage() {
                         className="mb-8"
                         id="tutorials-header"
                     >
-                        <h2 className="text-2xl font-bold text-[#f8fbff] tracking-tight border-b border-white/10 pb-4">
+                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode ? 'text-[#f8fbff] border-white/10' : 'text-gray-900 border-[#fbbf24]/30'}`}>
                             Tutorials
                         </h2>
                     </div>
@@ -568,28 +805,28 @@ export default function ViewDocsPage() {
                                 id={section.id}
                                 className="scroll-mt-40"
                             >
-                                <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-[#f8fbff]" : "text-[#0f172a]"}`}>
-                                    <span className={`font-mono ${isDarkMode ? "text-cyan-500" : "text-cyan-600"}`}>{index + 1}.</span> {section.title}
+                                <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-[#f8fbff]" : "text-gray-900"}`}>
+                                    <span className={`font-mono ${isDarkMode ? "text-cyan-500" : "text-[#d97706]"}`}>{index + 1}.</span> {section.title}
                                 </h3>
                                 <div className="space-y-4">
                                     {section.steps.map((step, i) => {
                                         const [title, desc] = step.split(': ');
                                         return (
                                             <div key={i} className="flex gap-4 group">
-                                                <div className={`flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center font-bold text-sm ${
+                                                <div className={`flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center font-bold text-sm transition-all group-hover:scale-110 ${
                                                     isDarkMode
                                                         ? "bg-zinc-700/50 border-zinc-600 text-zinc-200"
-                                                        : "bg-gray-300 border-gray-500 text-gray-900"
+                                                        : "bg-[#fbbf24]/20 border-[#f59e0b]/40 text-[#d97706]"
                                                 }`}>
                                                     {i + 1}
                                                 </div>
-                                                <div className={`flex-1 p-4 rounded-xl border ${
+                                                <div className={`flex-1 p-4 rounded-xl border transition-all hover:scale-[1.02] hover:shadow-lg ${
                                                     isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-white border-gray-400"
+                                                        : "bg-white/80 backdrop-blur-sm border-[#fbbf24]/30 hover:border-[#f59e0b]/50 shadow-sm"
                                                 }`}>
                                                     <h4 className={`font-bold mb-1 ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>{title}</h4>
-                                                    <p className={`text-sm leading-relaxed ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>
+                                                    <p className={`text-sm leading-relaxed ${isDarkMode ? "text-zinc-300" : "text-gray-700"}`}>
                                                         {desc || title}
                                                     </p>
                                                 </div>
@@ -609,7 +846,7 @@ export default function ViewDocsPage() {
                         <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${
                             isDarkMode
                                 ? "text-[#f8fbff] border-white/10"
-                                : "text-[#0f172a] border-gray-300"
+                                : "text-gray-900 border-[#fbbf24]/30"
                         }`}>
                             Our Agents
                         </h2>
@@ -623,13 +860,13 @@ export default function ViewDocsPage() {
                                 className="scroll-mt-40"
                             >
                                 <div className="mb-8">
-                                    <h3 className={`text-xl font-bold mb-2 flex items-center gap-3 ${isDarkMode ? "text-[#f8fbff]" : "text-[#0f172a]"}`}>
+                                    <h3 className={`text-xl font-bold mb-2 flex items-center gap-3 ${isDarkMode ? "text-[#f8fbff]" : "text-gray-900"}`}>
                                         {team.title}
                                     </h3>
                                     <p className={`text-base leading-relaxed border-l-2 pl-4 max-w-4xl ${
                                         isDarkMode
                                             ? "text-[#f8fbff]/80 border-white/10"
-                                            : "text-[#0f172a]/80 border-gray-300"
+                                            : "text-gray-700 border-[#fbbf24]/30"
                                     }`}>
                                         {team.description}
                                     </p>
@@ -637,41 +874,41 @@ export default function ViewDocsPage() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                                     {team.agents.map((agent) => (
-                                        <div key={agent.id} className={`border rounded-xl p-6 relative overflow-hidden group h-full ${
+                                        <div key={agent.id} className={`border rounded-xl p-6 relative overflow-hidden group h-full transition-all hover:scale-105 hover:shadow-lg ${
                                             isDarkMode
                                                 ? "bg-zinc-800/40 border-zinc-700/60 hover:border-zinc-600"
-                                                : "bg-white border-gray-400 hover:border-gray-500"
+                                                : "bg-white/80 backdrop-blur-sm border-[#fbbf24]/30 hover:border-[#f59e0b]/50 shadow-sm"
                                         }`}>
                                             <div className="flex items-center gap-3 mb-3 relative z-10">
-                                                <div className={`p-2 rounded-lg border ${
+                                                <div className={`p-2 rounded-lg border transition-all group-hover:scale-110 ${
                                                     isDarkMode
                                                         ? "bg-zinc-800/50 border-zinc-600"
-                                                        : "bg-gray-100 border-gray-500"
-                                                }`}>
-                                                    {agent.icon}
+                                                        : "bg-[#fbbf24]/20 border-[#f59e0b]/40"
+                                                        }`}>
+                                                        {agent.icon}
+                                                    </div>
+                                                    <div>
+                                                        <h4 className={`font-bold text-base ${isDarkMode ? "text-[#f8fbff]" : "text-gray-900"}`}>
+                                                            {agent.title}
+                                                        </h4>
+                                                        <p className={`text-[11px] uppercase tracking-wider font-bold ${isDarkMode ? "text-cyan-500" : "text-[#d97706]"}`}>
+                                                            {agent.role}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h4 className={`font-bold text-base ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                                                        {agent.title}
-                                                    </h4>
-                                                    <p className={`text-[11px] uppercase tracking-wider font-bold ${isDarkMode ? "text-cyan-500" : "text-cyan-600"}`}>
-                                                        {agent.role}
-                                                    </p>
-                                                </div>
+                                                <p className={`text-sm leading-relaxed relative z-10 ${isDarkMode ? "text-[#f8fbff]/80" : "text-gray-700"}`}>
+                                                    {agent.content}
+                                                </p>
                                             </div>
-                                            <p className={`text-sm leading-relaxed relative z-10 ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>
-                                                {agent.content}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-                        ))}
-                    </div>
+                                        ))}
+                                    </div>
+                                </section>
+                            ))}
+                        </div>
 
-                </div>
-            </main>
-        </div>
+                    </div>
+                </main>
+            </div>
         </>
     );
 }

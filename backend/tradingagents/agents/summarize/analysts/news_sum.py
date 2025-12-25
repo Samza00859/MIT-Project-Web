@@ -1,13 +1,14 @@
 import openai, os
+from openai import AsyncOpenAI
 
 # ควรสร้าง Client นอกฟังก์ชัน หรือใช้ Singleton เพื่อไม่ให้สร้าง connection ใหม่ทุกครั้งที่เรียก
-client = openai.OpenAI(
-    api_key=os.getenv("TYPHOON_API_KEY").strip('"') if os.getenv("TYPHOON_API_KEY") else None,
+client = AsyncOpenAI(
+    api_key=os.getenv("TYPHOON_API_KEY"),
     base_url="https://api.opentyphoon.ai/v1"
 )
 
 def create_summarizer_news():
-    def news_summarizer(state) -> dict:
+    async def news_summarizer(state) -> dict:
         
         # ดึงรายงานเดิมมา
         news_report = state.get("news_report")
@@ -39,7 +40,7 @@ def create_summarizer_news():
         4. Conclude with the primary **Implication** for the stock/market (e.g., "Expect volatility ahead of the ruling").
         """
         try:
-            response = client.chat.completions.create(
+            response = await client.chat.completions.create(
                 model="typhoon-v2.1-12b-instruct",
                 messages=[
                     {"role": "system", "content": system_prompt},

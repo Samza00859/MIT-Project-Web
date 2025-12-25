@@ -31,4 +31,9 @@ async def get_db():
     async with AsyncSessionLocal() as session:
         yield session
 
-# ลบ async def init_db() ออก - ไม่ต้องใช้แล้วเพราะมี Alembic
+async def init_db():
+    """Create all tables if they don't exist"""
+    from database.models import Base as ModelsBase
+    async with engine.begin() as conn:
+        await conn.run_sync(ModelsBase.metadata.create_all)
+    print("✅ Database tables created/verified")

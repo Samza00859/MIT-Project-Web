@@ -26,7 +26,7 @@ class SocialMediaReport(BaseModel):
 def create_social_media_analyst(llm):
     parser = JsonOutputParser(pydantic_object=SocialMediaReport)
 
-    def social_media_analyst_node(state):
+    async def social_media_analyst_node(state):
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
 
@@ -37,15 +37,19 @@ def create_social_media_analyst(llm):
         except Exception:
             start_date = "2024-01-01"
 
-        tools = [get_social]
+        print(f"💬 Social Analyst: Fetching data for {ticker}...")
+        social_data = await get_social(ticker)
 
         # ===================== SYSTEM MESSAGE ======================
         system_message = f"""
             Act as a Senior Social Media & Sentiment Analyst. Gauge the market pulse for **{ticker}** from **{start_date} to {current_date}**.
 
+            **SOCIAL MEDIA DATA:**
+            {social_data}
+
             **YOUR WORKFLOW:**
-            1. Call `get_social` to gather public discussions (Reddit, Twitter, forums).
-            2. Call `get_news` to cross-check sentiment against real events.
+            1. Analyze the provided `SOCIAL MEDIA DATA` (Reddit, Bluesky, Mastodon, etc.).
+            2. Cross-check against known market context.
             3. Synthesize the findings into the required JSON format.
 
             **STRICT FORMATTING RULES:**
@@ -71,8 +75,7 @@ def create_social_media_analyst(llm):
             (
                 "system",
                 "You are a helpful AI assistant, collaborating with other assistants. "
-                "Use the provided tools to progress towards answering the question. "
-                "You have access to the following tools: {tool_names}. \n\n"
+                "Use the provided data to progress towards answering the question. \n\n"
                 "{system_message}\n\n"
                 "For your reference, the current date is {current_date}. "
                 "The company we want to look at is {ticker}. "
@@ -83,14 +86,14 @@ def create_social_media_analyst(llm):
 
         prompt = prompt.partial(
             system_message=system_message,
-            tool_names=", ".join([tool.name for tool in tools]),
             current_date=current_date,
             ticker=ticker,
             start_date=start_date
         )
 
         # ===================== CHAIN ======================
-        chain = prompt | llm.bind_tools(tools)
+        # No tools needed as data is injected
+        chain = prompt | llm
 
         # Execute
         result = chain.invoke(state["messages"])
@@ -157,7 +160,14 @@ def create_social_media_analyst(llm):
         
         # If still None (tool_calls present), create waiting structure
         if report_dict is None:
-            report_dict = {"status": "waiting_for_tool_response"}
+            report_dict = {
+                "sentiment_score": 50,
+                "sentiment_verdict": "Error",
+                "social_volume_analysis": "Parsing failed.",
+                "dominant_narrative": "Could not parse response.",
+                "top_discussion_topics": [],
+                "retail_psychology_assessment": "Parsing error."
+            }
 
         # Convert dict to JSON string
         report_json = json.dumps(report_dict, indent=4, ensure_ascii=False)

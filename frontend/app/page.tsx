@@ -9,6 +9,8 @@ import Sidebar from "../components/Sidebar";
 import DebugPanel from "../components/DebugPanel";
 import ReportSections from "../components/ReportSections";
 import { buildApiUrl, buildWsUrl, mapFetchError } from "@/lib/api";
+import TelegramConnect from "../components/TelegramConnect";
+import { useGeneration } from "../context/GenerationContext";
 
 // --- Constants & Types ---
 
@@ -41,12 +43,18 @@ const SHALLOW_AGENTS = {
   deepseek: [
     ["DeepSeek Chat", "deepseek-chat"],
   ],
+  google: [
+    ["google", "gemini-2.5-flash-lite"],
+  ]
 };
 
 const DEEP_AGENTS = {
   deepseek: [
     ["DeepSeek Reasoner", "deepseek-reasoner"],
   ],
+  google: [
+    ["google", "gemini-2.5-flash"],
+  ]
 };
 
 const TEAM_TEMPLATE = {
@@ -320,6 +328,14 @@ function summarizeReport(reportText: string | any, decision: string) {
 // --- Components ---
 
 export default function Home() {
+  // Get global generation context
+  const {
+    startGeneration,
+    stopGeneration: stopPipeline,
+    // Form State (persisted from context)
+  } = useGeneration();
+
+  // Local State (UI-specific only)
   // State
   const [ticker, setTicker] = useState("");
   const [selectedMarket, setSelectedMarket] = useState("US");
@@ -361,6 +377,12 @@ export default function Home() {
   const [logoError, setLogoError] = useState(false);
   const [logoSrc, setLogoSrc] = useState("");
 
+  // Trigger to refetch market data when component mounts
+  const [mountKey, setMountKey] = useState(0);
+  useEffect(() => {
+    // Increment mountKey to trigger market data fetch on each mount
+    setMountKey(prev => prev + 1);
+  }, []);
   // Ticker Search State
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [marketTickers, setMarketTickers] = useState<any[]>([]); // Cache for backend list
@@ -555,7 +577,7 @@ export default function Home() {
         clearTimeout(retryTimeout);
       };
     }
-  }, [ticker]);
+  }, [ticker, mountKey]); // Added mountKey to trigger refetch on mount
 
   // Helper to format large numbers
   const formatVolume = (num: number) => {
@@ -905,59 +927,23 @@ export default function Home() {
   const runPipeline = useCallback(() => {
     if (isRunning) return;
 
-    // Check connection first
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      alert("WebSocket is not connected. Please refresh or check backend.");
+    if (wsStatus !== "connected") {
+      alert("WebSocket is not connected. Please wait and try again.");
       return;
     }
 
-    setIsRunning(true);
-    setTeamState(deepClone(TEAM_TEMPLATE));
-    setReportSections([]);
-    setDecision("Awaiting run");
-    setDebugLogs([]);
-    setMsgCount(0);
-    setErrorCount(0);
-    setFinalReportData(null); // Clear previous data
-
-    const request = {
-      action: "start_analysis",
-      request: {
-        ticker: ticker,
-        analysis_date: analysisDate,
-        analysts: ANALYSTS_DATA.map((a) => a.value),
-        research_depth: researchDepth,
-        llm_provider: "deepseek",
-        backend_url: "https://api.deepseek.com",
-        shallow_thinker: SHALLOW_AGENTS.deepseek[0][1],
-        deep_thinker: DEEP_AGENTS.deepseek[0][1],
-        report_length: reportLength,
-      },
-    };
-
-    try {
-      wsRef.current.send(JSON.stringify(request));
-      addDebugLog("request", `Starting analysis for ${ticker}`, false);
-    } catch (err: any) {
-      console.error("Send error:", err);
-      setIsRunning(false);
-      addDebugLog("error", "Failed to send request", true);
-    }
-  }, [isRunning, ticker, analysisDate, researchDepth, reportLength, addDebugLog]);
-
-  const stopPipeline = useCallback(() => {
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
-
-    wsRef.current.send(JSON.stringify({ action: "stop" }));
-    addDebugLog("system", "Stopping analysis...", true);
-    setIsRunning(false);
-
-    // Reset Dashboard State
-    setTeamState(deepClone(TEAM_TEMPLATE));
-    setReportSections([]);
-    setDecision("Awaiting run");
-    setFinalReportData(null);
-  }, [addDebugLog]);
+    startGeneration({
+      ticker,
+      analysisDate,
+      analysts: ANALYSTS_DATA.map((a) => a.value),
+      researchDepth,
+      llmProvider: "google",
+      backendUrl: "http://localhost:8000",
+      shallowThinker: SHALLOW_AGENTS.google[0][1],
+      deepThinker: DEEP_AGENTS.google[0][1],
+      reportLength,
+    });
+  }, [isRunning, wsStatus, startGeneration, ticker, analysisDate, researchDepth, reportLength]);
 
   // Handlers
   const handleCopyReport = async () => {
@@ -975,9 +961,45 @@ export default function Home() {
     }
   };
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     // 1. Setup Document
     const doc = new jsPDF({ unit: "pt", format: "a4" });
+
+    // Load Fonts Implementation
+    const loadFont = async (url: string): Promise<string> => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          // Remove data:application/octet-stream;base64, prefix
+          const base64data = (reader.result as string).split(",")[1];
+          resolve(base64data);
+        };
+        reader.readAsDataURL(blob);
+      });
+    };
+
+    try {
+      const [sarabunRegular, sarabunBold, maishan] = await Promise.all([
+        loadFont("/fonts/Sarabun-Regular.ttf"),
+        loadFont("/fonts/Sarabun-Bold.ttf"),
+        loadFont("/fonts/Maishan.ttf"),
+      ]);
+
+      doc.addFileToVFS("Sarabun-Regular.ttf", sarabunRegular);
+      doc.addFont("Sarabun-Regular.ttf", "Sarabun", "normal");
+
+      doc.addFileToVFS("Sarabun-Bold.ttf", sarabunBold);
+      doc.addFont("Sarabun-Bold.ttf", "Sarabun", "bold");
+
+      doc.addFileToVFS("Maishan.ttf", maishan);
+      doc.addFont("Maishan.ttf", "Maishan", "normal");
+    } catch (error) {
+      console.error("Error loading fonts:", error);
+      // Fallback to standard fonts if loading fails
+    }
+
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 40;
@@ -997,7 +1019,8 @@ export default function Home() {
     const drawPageFooter = (pageNumber: number) => {
       const str = `Page ${pageNumber}`;
       doc.setFontSize(8);
-      doc.setFont("helvetica", "normal");
+      // Determine font for footer (numbers are safe in Sarabun)
+      doc.setFont("Sarabun", "normal");
       doc.setTextColor(150, 150, 150);
       doc.text(str, pageWidth / 2, pageHeight - 20, { align: 'center' });
       doc.text("Generated by TradingAgents", pageWidth - margin, pageHeight - 20, { align: 'right' });
@@ -1010,17 +1033,39 @@ export default function Home() {
         yPosition = margin + 20;
         // Reset style after new page
         doc.setTextColor(0, 0, 0);
-        doc.setFont("helvetica", "normal");
         return true;
       }
       return false;
     };
 
-    // ฟังก์ชันพิมพ์ข้อความแบบรองรับการตัดบรรทัดอัตโนมัติ
+    // ฟังก์ชันพิมพ์ข้อความแบบรองรับการตัดบรรทัดอัตโนมัติ และเปลี่ยน Font ตามภาษา
     const addText = (text: string, fontSize = 10, isBold = false, indent = 0, color: [number, number, number] = [50, 50, 50]) => {
       doc.setFontSize(fontSize);
-      doc.setFont("helvetica", isBold ? "bold" : "normal");
       doc.setTextColor(color[0], color[1], color[2]);
+
+      // Simple language detection
+      // Check for Thai characters
+      const hasThai = /[\u0E00-\u0E7F]/.test(text);
+      // Check for Chinese characters
+      const hasChinese = /[\u4E00-\u9FFF]/.test(text);
+
+      let currentFont = "Sarabun"; // Default to Sarabun (covers Eng + Thai)
+      if (hasChinese && !hasThai) {
+        currentFont = "Maishan";
+      } else if (hasChinese && hasThai) {
+        // Mixed content: Sarabun might not show Chinese well, Maishan might not show Thai well.
+        // Prioritize Thai (Sarabun) as it is likely the primary non-English context for this user,
+        // OR default to Sarabun. Ideally we split text, but for simplicity:
+        currentFont = "Sarabun";
+      }
+
+      // Check if we requested bold but the font doesn't support it (Maishan might only have normal)
+      let currentStyle = isBold ? "bold" : "normal";
+      if (currentFont === "Maishan") {
+        currentStyle = "normal"; // Assuming Maishan only has normal
+      }
+
+      doc.setFont(currentFont, currentStyle);
 
       const lines = doc.splitTextToSize(text, maxWidth - indent);
 
@@ -1029,7 +1074,7 @@ export default function Home() {
         if (pageBreakTriggered) {
           // Re-apply style if page break happened
           doc.setFontSize(fontSize);
-          doc.setFont("helvetica", isBold ? "bold" : "normal");
+          doc.setFont(currentFont, currentStyle);
           doc.setTextColor(color[0], color[1], color[2]);
         }
 
@@ -1103,15 +1148,29 @@ export default function Home() {
             if (isShortText) {
               // Case 2: Short Text -> Inline Style (หัวข้อและเนื้อหาอยู่บรรทัดเดียวกัน)
               doc.setFontSize(10);
-              doc.setFont("helvetica", "bold");
+              doc.setFont("Sarabun", "bold");
               doc.setTextColor(50, 50, 50); // Key สีเทาเข้ม
               const keyWidth = doc.getTextWidth(label + ": ");
 
+              // Detect value language for inline text
+              const hasThai = /[\u0E00-\u0E7F]/.test(strVal);
+              const hasChinese = /[\u4E00-\u9FFF]/.test(strVal);
+              let valFont = "Sarabun";
+              if (hasChinese && !hasThai) valFont = "Maishan";
+
+              // Check width with correct font
+              doc.setFont(valFont, "normal");
+              const valWidth = doc.getTextWidth(strVal);
+
               // เช็คว่าพื้นที่พอมั้ย
-              if (margin + indent + keyWidth + doc.getTextWidth(strVal) < maxWidth) {
+              if (margin + indent + keyWidth + valWidth < maxWidth) {
+                // Draw Label
+                doc.setFont("Sarabun", "bold");
+                doc.setTextColor(50, 50, 50);
                 doc.text(label + ": ", margin + indent, yPosition);
 
-                doc.setFont("helvetica", "normal");
+                // Draw Value
+                doc.setFont(valFont, "normal");
                 doc.setTextColor(0, 0, 0); // Value สีดำ
                 doc.text(strVal, margin + indent + keyWidth, yPosition);
                 yPosition += lineHeight;
@@ -1139,14 +1198,14 @@ export default function Home() {
 
     // 1. Main Header
     doc.setFontSize(18);
-    doc.setFont("helvetica", "bold");
+    doc.setFont("Sarabun", "bold");
     doc.setTextColor(0, 51, 102); // Navy Blue
     doc.text(`TradingAgents Report: ${ticker}`, margin, yPosition);
     yPosition += 20;
 
     // Sub-header
     doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
+    doc.setFont("Sarabun", "normal");
     doc.setTextColor(100, 100, 100); // Gray
     doc.text(`Analysis Date: ${analysisDate}`, margin, yPosition);
     yPosition += 25;
@@ -1162,7 +1221,7 @@ export default function Home() {
     if (decision) {
       checkPageBreak(40);
       doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
+      doc.setFont("Sarabun", "bold");
       doc.setTextColor(0, 0, 0);
       doc.text(`Recommendation: ${decision}`, margin, yPosition);
       yPosition += 30;
@@ -1178,10 +1237,11 @@ export default function Home() {
 
       // Section Title
       doc.setFontSize(13);
-      doc.setFont("helvetica", "bold");
+      doc.setFont("Sarabun", "bold");
       doc.setTextColor(0, 0, 0);
       doc.text(section.label, margin + 8, yPosition + 5);
       yPosition += 30;
+
 
       // Prepare Content
       let contentData: any = section.text;
@@ -1228,10 +1288,10 @@ export default function Home() {
       className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative overflow-hidden ${
         isDarkMode
           ? "bg-[#020617] text-[#f8fbff]"
-          : "bg-[#f5f7fb] text-[#0f172a]"
+          : "bg-gradient-to-br from-[#e0f2fe] via-[#fef3c7] to-[#fce7f3] text-[#0f172a]"
       }`}
     >
-      {/* Starry Night Sky Effect */}
+      {/* Starry Night Sky Effect - Dark Mode */}
       {isDarkMode && (
         <>
           <div className="fixed inset-0 pointer-events-none z-0">
@@ -1261,6 +1321,36 @@ export default function Home() {
               50% {
                 opacity: 1;
                 transform: scale(1.2);
+              }
+            }
+          `}</style>
+        </>
+      )}
+
+      {/* Morning Sky Background - Light Mode */}
+      {!isDarkMode && (
+        <>
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#fef3c7]/60 via-[#fce7f3]/40 to-[#e0f2fe]/50" />
+          <div 
+            className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,237,153,0.4),rgba(255,200,87,0.2),transparent_70%)] rounded-full blur-3xl animate-[sunrise_20s_ease_infinite]"
+            style={{ transform: 'translate(-50%, -20%)' }}
+          />
+          <div
+            className="pointer-events-none absolute inset-[-40%] bg-[radial-gradient(circle_at_20%_30%,rgba(255,237,153,0.25),transparent_50%),radial-gradient(circle_at_80%_10%,rgba(255,200,87,0.20),transparent_50%),radial-gradient(circle_at_50%_80%,rgba(251,191,36,0.15),transparent_60%),radial-gradient(circle_at_10%_70%,rgba(249,168,212,0.18),transparent_55%)] animate-[gradient_18s_ease_infinite] opacity-60"
+          />
+          <style jsx>{`
+            @keyframes gradient {
+              0%, 100% { background-position: 0% 50%; }
+              50% { background-position: 100% 50%; }
+            }
+            @keyframes sunrise {
+              0%, 100% { 
+                transform: translate(-50%, -20%) scale(1);
+                opacity: 0.6;
+              }
+              50% { 
+                transform: translate(-50%, -15%) scale(1.1);
+                opacity: 0.8;
               }
             }
           `}</style>
@@ -1303,10 +1393,10 @@ export default function Home() {
       <main className="flex-1 flex flex-col gap-8 px-4 py-6 md:px-9 md:py-8 md:pb-12 pt-20 relative z-10">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-[0.85rem] uppercase tracking-widest text-[#8b94ad]">
+            <p className={`text-[0.85rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
               Trading workflow
             </p>
-            <h1 className="text-2xl font-semibold">Generate</h1>
+            <h1 className={`text-2xl font-semibold ${isDarkMode ? "" : "text-gray-900"}`}>Generate</h1>
           </div>
         </header>
 
@@ -1318,19 +1408,19 @@ export default function Home() {
 
         {/* Step Grid */}
         <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
-          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
+          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#f59e0b]/30 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(245,158,11,0.1)]"}`}>
             <header>
-              <p className="text-[0.7rem] uppercase tracking-widest text-[#8b94ad]">
+              <p className={`text-[0.7rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
                 Step 1
               </p>
-              <h2 className="text-lg font-semibold">Ticker Symbol</h2>
+              <h2 className={`text-lg font-semibold ${isDarkMode ? "" : "text-gray-900"}`}>Ticker Symbol</h2>
             </header>
-            <div className="flex flex-col gap-1.5 text-[0.85rem] text-[#8b94ad]">
+            <div className={`flex flex-col gap-1.5 text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-700"}`}>
               <span>Select Market & Ticker</span>
               <div className="flex gap-2">
                 {/* Custom Market Select Dropdown */}
                 <div
-                  className="relative"
+                  className="relative z-[100]"
                   onBlur={(e) => {
                     // Close dropdown if focus leaves the container
                     if (!e.currentTarget.contains(e.relatedTarget)) {
@@ -1341,7 +1431,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setShowMarketSelector(!showMarketSelector)}
-                    className={`flex items-center gap-2 h-full rounded-xl border px-3 py-2.5 transition-colors cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] hover:bg-white/5" : "border-gray-200 bg-gray-50 hover:bg-gray-100"}`}
+                    className={`flex items-center gap-2 h-full rounded-xl border px-3 py-2.5 transition-colors cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] hover:bg-white/5" : "border-[#f59e0b]/30 bg-white/80 hover:bg-white hover:border-[#f59e0b]/50"}`}
                   >
                     {MARKET_INFO[selectedMarket]?.icon || <span>?</span>}
                     <svg className={`w-3 h-3 text-gray-400 transition-transform ${showMarketSelector ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1351,7 +1441,7 @@ export default function Home() {
 
                   {/* Market Dropdown Menu */}
                   {showMarketSelector && (
-                    <div className={`absolute left-0 top-full z-[60] mt-1 w-48 rounded-xl border shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100 ${isDarkMode ? "bg-[#1a2133] border-white/10" : "bg-white border-gray-100"}`}>
+                    <div className={`absolute left-0 top-full z-[100] mt-1 w-48 rounded-xl border shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100 ${isDarkMode ? "bg-[#1a2133] border-white/10" : "bg-white/95 backdrop-blur-sm border-[#f59e0b]/30 shadow-[0_8px_24px_rgba(245,158,11,0.15)]"}`}>
                       {Object.entries(MARKET_INFO).map(([key, info]) => (
                         <button
                           key={key}
@@ -1360,7 +1450,7 @@ export default function Home() {
                             setSelectedMarket(key);
                             setShowMarketSelector(false);
                           }}
-                          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${key === selectedMarket ? (isDarkMode ? "bg-white/10 text-white" : "bg-blue-50 text-blue-600") : (isDarkMode ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-gray-50")}`}
+                          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${key === selectedMarket ? (isDarkMode ? "bg-white/10 text-white" : "bg-[#f59e0b]/15 text-[#d97706]") : (isDarkMode ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-[#f59e0b]/5")}`}
                         >
                           {info.icon}
                           <span className="font-medium">{info.label}</span>
@@ -1372,7 +1462,7 @@ export default function Home() {
                 </div>
 
                 {/* Ticker Input */}
-                <div className="relative flex-1">
+                <div className="relative flex-1 z-[100]">
                   <input
                     type="text"
                     autoComplete="off"
@@ -1387,7 +1477,7 @@ export default function Home() {
                       }
                     }}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    className={`w-full min-w-[120px] rounded-xl border pl-3 pr-8 py-2.5 cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff]" : "border-gray-200 bg-gray-50 text-gray-900"}`}
+                    className={`w-full min-w-[120px] rounded-xl border pl-3 pr-8 py-2.5 cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff]" : "border-[#f59e0b]/30 bg-white/80 text-gray-900"}`}
                   />
                   {/* Chevron Icon */}
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
@@ -1396,22 +1486,22 @@ export default function Home() {
 
                   {/* Suggestions Dropdown */}
                   {showSuggestions && suggestions.length > 0 && (
-                    <ul className={`absolute left-0 top-full z-50 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-gray-200 bg-white"}`}>
+                    <ul className={`absolute left-0 top-full z-[100] mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-[#f59e0b]/30 bg-white/95 backdrop-blur-sm shadow-[0_8px_24px_rgba(245,158,11,0.15)]"}`}>
                       {/* Optional Header for List */}
-                      <li className={`px-4 py-2 text-[10px] uppercase tracking-wider font-semibold opacity-50 ${isDarkMode ? "bg-white/5" : "bg-gray-100"}`}>
+                      <li className={`px-4 py-2 text-[10px] uppercase tracking-wider font-semibold ${isDarkMode ? "bg-white/5 text-gray-400 opacity-50" : "bg-[#f59e0b]/10 text-gray-600"}`}>
                         {ticker.length < 2 ? "Popular Recommendations" : "Search Results"}
                       </li>
                       {suggestions.map((item, idx) => (
                         <li
                           key={idx}
                           onClick={() => selectSuggestion(item.symbol)}
-                          className={`cursor-pointer px-4 py-2 text-sm flex justify-between items-center transition-colors ${isDarkMode ? "hover:bg-white/5 text-gray-200" : "hover:bg-gray-50 text-gray-700"}`}
+                          className={`cursor-pointer px-4 py-2 text-sm flex justify-between items-center transition-colors ${isDarkMode ? "hover:bg-white/5 text-gray-200" : "hover:bg-[#f59e0b]/10 text-gray-800"}`}
                         >
                           <div>
-                            <span className="font-bold">{item.symbol}</span>
-                            <span className="ml-2 text-xs opacity-70">{item.name}</span>
+                            <span className={`font-bold ${isDarkMode ? "" : "text-gray-900"}`}>{item.symbol}</span>
+                            <span className={`ml-2 text-xs ${isDarkMode ? "opacity-70" : "text-gray-600"}`}>{item.name}</span>
                           </div>
-                          <span className="text-[10px] opacity-50 border rounded px-1">{item.exchange}</span>
+                          <span className={`text-[10px] border rounded px-1 ${isDarkMode ? "opacity-50" : "border-[#f59e0b]/30 text-gray-600 bg-white/50"}`}>{item.exchange}</span>
                         </li>
                       ))}
                     </ul>
@@ -1421,15 +1511,15 @@ export default function Home() {
             </div>
           </article>
 
-          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
+          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#f59e0b]/30 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(245,158,11,0.1)]"}`}>
             <header>
-              <p className="text-[0.7rem] uppercase tracking-widest text-[#8b94ad]">
+              <p className={`text-[0.7rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
                 Step 2
               </p>
-              <h2 className="text-lg font-semibold">Analysis Date</h2>
+              <h2 className={`text-lg font-semibold ${isDarkMode ? "" : "text-gray-900"}`}>Analysis Date</h2>
             </header>
             <div className="flex items-end gap-3">
-              <label className="flex flex-1 flex-col gap-1.5 text-[0.85rem] text-[#8b94ad]">
+              <label className={`flex flex-1 flex-col gap-1.5 text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-700"}`}>
                 <span>Select Date (DD-MM-YYYY)</span>
                 <div className="relative w-full">
                   {/* Visual Input (DD/MM/YYYY) */}
@@ -1440,7 +1530,7 @@ export default function Home() {
                     onClick={() => dateInputRef.current?.showPicker()}
                     className={`w-full cursor-pointer rounded-xl border px-3 py-2.5 shadow-inner outline-none transition-all ${isDarkMode
                       ? "border-white/10 bg-[#1a2133] text-[#f8fbff] placeholder-gray-600 focus:border-[#2df4c6]/50"
-                      : "border-gray-200 bg-gray-50 text-gray-900 focus:border-[#2df4c6]"
+                      : "border-[#f59e0b]/30 bg-white/80 text-gray-900 focus:border-[#f59e0b]"
                       }`}
                   />
                   {/* Hidden Actual Date Input */}
@@ -1457,7 +1547,7 @@ export default function Home() {
                 onClick={() => dateInputRef.current?.showPicker()}
                 className={`flex h-[46px] w-[46px] flex-shrink-0 items-center justify-center rounded-xl border-2 transition-all hover:scale-105 active:scale-95 ${isDarkMode
                   ? "border-[#2df4c6]/30 bg-[#2df4c6]/10 text-[#2df4c6] hover:bg-[#2df4c6]/20 hover:shadow-[0_0_15px_rgba(45,244,198,0.3)]"
-                  : "border-[#2df4c6] bg-[#2df4c6]/10 text-[#00c05e]"
+                  : "border-[#f59e0b]/50 bg-[#f59e0b]/15 text-[#d97706] hover:bg-[#f59e0b]/25 hover:shadow-[0_0_15px_rgba(245,158,11,0.3)]"
                   }`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1473,7 +1563,7 @@ export default function Home() {
 
 
           {/* Live Market Data Card */}
-          <article className={`relative flex flex-col overflow-hidden rounded-[20px] border p-5 h-[210px] transition-all duration-300 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
+          <article className={`relative flex flex-col overflow-hidden rounded-[20px] border p-5 h-[210px] transition-all duration-300 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#f59e0b]/30 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(245,158,11,0.1)]"}`}>
             {/* Header */}
             <div className="relative z-10 flex items-start justify-between">
               <div className="flex items-center gap-2">
@@ -1481,11 +1571,11 @@ export default function Home() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2df4c6] opacity-75"></span>
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#2df4c6]"></span>
                 </span>
-                <span className="text-[0.7rem] font-bold uppercase tracking-widest text-[#2df4c6]">
+                <span className={`text-[0.7rem] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#2df4c6]" : "text-[#d97706]"}`}>
                   Live Market Data
                 </span>
               </div>
-              <span className={`rounded-lg border px-2 py-1 text-[0.65rem] font-semibold uppercase ${isDarkMode ? "border-white/10 text-[#8b94ad]" : "border-gray-200 text-gray-500"}`}>
+              <span className={`rounded-lg border px-2 py-1 text-[0.65rem] font-semibold uppercase ${isDarkMode ? "border-white/10 text-[#8b94ad]" : "border-[#f59e0b]/30 bg-white/80 text-gray-700"}`}>
                 {marketData?.sector || "Loading..."}
               </span>
             </div>
@@ -1516,9 +1606,9 @@ export default function Home() {
               </div>
               <div className="mt-2 min-h-[40px]">
                 {marketData ? (
-                  <span className="text-4xl font-bold tracking-tight text-[#2df4c6]">${marketData.price?.toFixed(2)}</span>
+                  <span className={`text-4xl font-bold tracking-tight ${isDarkMode ? "text-[#2df4c6]" : "text-[#d97706]"}`}>${marketData.price?.toFixed(2)}</span>
                 ) : (
-                  <span className="animate-pulse text-2xl font-bold opacity-50">Loading...</span>
+                  <span className={`animate-pulse text-2xl font-bold opacity-50 ${isDarkMode ? "" : "text-gray-700"}`}>Loading...</span>
                 )}
               </div>
             </div>
@@ -1527,7 +1617,10 @@ export default function Home() {
             <div className="relative z-10 mt-4 flex items-center justify-between">
               {marketData && (
                 <div className="flex items-center gap-3">
-                  <span className={`flex items-center rounded-md px-2 py-1 text-xs font-bold ${marketData.change >= 0 ? "bg-[#2df4c6]/10 text-[#2df4c6]" : "bg-[#ff4d6d]/10 text-[#ff4d6d]"}`}>
+                  <span className={`flex items-center rounded-md px-2 py-1 text-xs font-bold ${marketData.change >= 0 
+                    ? isDarkMode ? "bg-[#2df4c6]/10 text-[#2df4c6]" : "bg-[#f59e0b]/15 text-[#d97706]"
+                    : "bg-[#ff4d6d]/10 text-[#ff4d6d]"
+                  }`}>
                     {marketData.change >= 0 ? "↑" : "↓"} {marketData.change > 0 ? "+" : ""}{marketData.percentChange}%
                   </span>
                   <span className="text-xs text-[#8b94ad]">
@@ -1579,7 +1672,11 @@ export default function Home() {
             <button
               onClick={runPipeline}
               disabled={wsStatus !== "connected"}
-              className="flex w-full flex-row items-center justify-center gap-1.5 rounded-[12px] border-2 border-white/20 bg-[#00c05e] py-2 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)] disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale"
+              className={`flex w-full flex-row items-center justify-center gap-1.5 rounded-[12px] border-2 py-2 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale ${
+                isDarkMode
+                  ? "border-white/20 bg-[#00c05e] hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)]"
+                  : "border-[#f59e0b]/50 bg-gradient-to-r from-[#f59e0b] to-[#ec4899] hover:from-[#fbbf24] hover:to-[#f472b6] hover:shadow-[0_10px_25px_rgba(245,158,11,0.4)]"
+              }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="5 3 19 12 5 21 5 3"/>
@@ -1590,11 +1687,11 @@ export default function Home() {
         </section>
 
         {/* Teams Grid */}
-        <section className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5">
+        <section className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5 relative z-0">
           {TEAM_KEYS.map((teamKey, index) => {
             const members = teamState[teamKey];
             const completedCount = members.filter(
-              (m) => m.status === "completed"
+              (m: { status: string; }) => m.status === "completed"
             ).length;
             const progress = Math.round(
               (completedCount / members.length) * 100
@@ -1633,25 +1730,27 @@ export default function Home() {
             return (
               <article
                 key={teamKey}
-                className={`flex flex-col gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}
+                className={`flex flex-col gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#f59e0b]/30 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(245,158,11,0.1)]"}`}
               >
                 <header className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-[0.85rem] text-[#8b94ad]">
+                    <p className={`text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-700"}`}>
                       {headerTitle}
                     </p>
-                    <span className="text-[0.85rem] text-[#8b94ad]">
+                    <span className={`text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
                       {headerSub}
                     </span>
                   </div>
                   <div
                     className="relative grid h-20 w-20 flex-shrink-0 place-items-center rounded-full"
                     style={{
-                      background: `conic-gradient(#2df4c6 ${(progress / 100) * 360}deg, rgba(255,255,255,0.05) 0deg)`,
+                      background: isDarkMode 
+                        ? `conic-gradient(#2df4c6 ${(progress / 100) * 360}deg, rgba(255,255,255,0.05) 0deg)`
+                        : `conic-gradient(#f59e0b ${(progress / 100) * 360}deg, rgba(255,255,255,0.3) 0deg)`,
                       transition: "background 1s ease-out",
                     }}
                   >
-                    <div className={`absolute inset-[10px] rounded-full ${isDarkMode ? "bg-[#111726]" : "bg-white"}`}></div>
+                    <div className={`absolute inset-[10px] rounded-full ${isDarkMode ? "bg-[#111726]" : "bg-white/80"}`}></div>
                     <span className="relative font-semibold">{progress}%</span>
                   </div>
                 </header>
@@ -1662,17 +1761,17 @@ export default function Home() {
 
                     if (member.status === "completed") {
                       if (showGreenCompletion) {
-                        statusColorClass = "bg-[#2df4c6]/10 text-[#2df4c6]";
+                        statusColorClass = isDarkMode ? "bg-[#2df4c6]/10 text-[#2df4c6]" : "bg-[#f59e0b]/15 text-[#d97706]";
                       } else {
                         statusLabel = "Completed";
                         statusColorClass = isDarkMode
                           ? "bg-green-600/10 text-green-600"
-                          : "bg-green-600 text-green-600";
+                          : "bg-green-600/15 text-green-700";
                       }
                     } else if (member.status === "pending") {
-                      statusColorClass = "bg-[#f9a826]/10 text-[#f9a826]";
+                      statusColorClass = isDarkMode ? "bg-[#f9a826]/10 text-[#f9a826]" : "bg-[#f59e0b]/15 text-[#d97706]";
                     } else if (member.status === "in_progress") {
-                      statusColorClass = "bg-[#3db8ff]/10 text-[#3db8ff]";
+                      statusColorClass = isDarkMode ? "bg-[#3db8ff]/10 text-[#3db8ff]" : "bg-[#f59e0b]/20 text-[#d97706]";
                     } else {
                       statusColorClass = "bg-[#ff4d6d]/10 text-[#ff4d6d]";
                     }
@@ -1680,9 +1779,9 @@ export default function Home() {
                     return (
                       <li
                         key={idx}
-                        className="flex flex-wrap items-center justify-between gap-y-1 text-sm text-[#8b94ad]"
+                        className={`flex flex-wrap items-center justify-between gap-y-1 text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-gray-700"}`}
                       >
-                        <span>{member.name}</span>
+                        <span className={isDarkMode ? "" : "text-gray-800"}>{member.name}</span>
                         <span
                           className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs capitalize ${statusColorClass}`}
                         >
@@ -1719,27 +1818,27 @@ export default function Home() {
         />
 
         {/* Summary Panel */}
-        <section className={`flex flex-col lg:flex-row items-center justify-between gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
+        <section className={`flex flex-col lg:flex-row items-center justify-between gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#f59e0b]/30 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(245,158,11,0.1)]"}`}>
           <div className="w-full lg:w-auto">
             <p className="mb-2">Summary</p>
             <div className="flex flex-wrap gap-6">
               <div>
-                <span className="block text-[0.85rem] text-[#8b94ad]">
+                <span className={`block text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
                   Symbol
                 </span>
-                <strong className="text-xl">{ticker}</strong>
+                <strong className={`text-xl ${isDarkMode ? "" : "text-gray-900"}`}>{ticker}</strong>
               </div>
               <div>
-                <span className="block text-[0.85rem] text-[#8b94ad]">
+                <span className={`block text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
                   Date
                 </span>
-                <strong className="text-xl">{analysisDate}</strong>
+                <strong className={`text-xl ${isDarkMode ? "" : "text-gray-900"}`}>{analysisDate}</strong>
               </div>
               <div>
-                <span className="block text-[0.85rem] text-[#8b94ad]">
+                <span className={`block text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
                   Research depth
                 </span>
-                <strong className="text-xl">
+                <strong className={`text-xl ${isDarkMode ? "" : "text-gray-900"}`}>
                   {
                     RESEARCH_DEPTH_OPTIONS.find(
                       (o) => o.value === researchDepth
@@ -1751,15 +1850,17 @@ export default function Home() {
           </div>
           <div
             className={`rounded-2xl border px-8 py-4 text-center ${recVariant === "buy"
-              ? "border-[#2df4c6]/40 bg-[#2df4c6]/10"
+              ? isDarkMode ? "border-[#2df4c6]/40 bg-[#2df4c6]/10" : "border-[#f59e0b]/40 bg-[#f59e0b]/15"
               : recVariant === "sell" || recVariant === "reduce"
                 ? "border-[#ff4d6d]/40 bg-[#ff4d6d]/10"
                 : "border-[#ff4d6d]/40 bg-[#ff4d6d]/10"
               }`}
           >
-            <span className="block text-[#8b94ad]">Recommendation</span>
+            <span className={`block ${isDarkMode ? "text-[#8b94ad]" : "text-gray-700"}`}>Recommendation</span>
             <strong
-              className={`text-2xl ${recVariant === "buy" ? "text-[#2df4c6]" : "text-[#ff4d6d]"
+              className={`text-2xl ${recVariant === "buy" 
+                ? isDarkMode ? "text-[#2df4c6]" : "text-[#d97706]"
+                : "text-[#ff4d6d]"
                 }`}
             >
               {decision}

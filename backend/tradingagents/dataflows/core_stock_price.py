@@ -180,6 +180,12 @@ def auto_detect_market(symbol):
         print(f"   👉 Found: US/Global Stock")
         return "US"
 
+    # 5. Fallback: ลองเช็กตลาดไทย (.BK) กรณีไม่ได้ใส่ suffix
+    # เช่น user พิมพ์ "KBANK" แล้วหาใน US ไม่เจอ
+    if _check_ticker_exists(f"{symbol}.BK"):
+        print(f"   👉 Found: Thai Stock (.BK)")
+        return "TH"
+
     print(f"   ⚠️ Not found, defaulting to US")
     return "US"
 
@@ -312,7 +318,7 @@ def compare_stock_providers(symbol, start_date, end_date, market=None):
 # ✅ MAIN TOOL DEFINITION (For Agent)
 # ==========================================
 
-@tool
+# @tool
 def get_stock_data(
     symbol: Annotated[str, "Ticker symbol of the company, e.g. AAPL, TSM"],
     start_date: Annotated[str, "Start date in yyyy-mm-dd format"],

@@ -24,8 +24,8 @@ export default function ContactPage() {
     };
 
     return (
-        <div className={`flex min-h-screen w-full font-['Inter','Montserrat',sans-serif] transition-colors duration-300 relative overflow-hidden ${isDarkMode ? "bg-[#0d1117] text-[#e8eefc]" : "bg-[#eef2f7] text-[#0f172a]"}`}>
-            {/* Data Stream Background Depth Layer */}
+        <div className={`flex min-h-screen w-full font-['Inter','Montserrat',sans-serif] transition-colors duration-300 relative overflow-hidden ${isDarkMode ? "bg-[#0d1117] text-[#e8eefc]" : "bg-gradient-to-br from-[#e0f2fe] via-[#fef3c7] to-[#fce7f3] text-[#0f172a]"}`}>
+            {/* Data Stream Background Depth Layer - Dark Mode */}
             {isDarkMode && (
                 <>
                     <div className="pointer-events-none absolute inset-0 data-stream-layer" />
@@ -93,6 +93,36 @@ export default function ContactPage() {
                             }
                             50% {
                                 background-position: 100% 100%, 0% 0%;
+                            }
+                        }
+                    `}</style>
+                </>
+            )}
+            
+            {/* Morning Sky Background - Light Mode */}
+            {!isDarkMode && (
+                <>
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#fef3c7]/60 via-[#fce7f3]/40 to-[#e0f2fe]/50" />
+                    <div 
+                        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,237,153,0.4),rgba(255,200,87,0.2),transparent_70%)] rounded-full blur-3xl animate-[sunrise_20s_ease_infinite]"
+                        style={{ transform: 'translate(-50%, -20%)' }}
+                    />
+                    <div
+                        className="pointer-events-none absolute inset-[-40%] bg-[radial-gradient(circle_at_20%_30%,rgba(255,237,153,0.25),transparent_50%),radial-gradient(circle_at_80%_10%,rgba(255,200,87,0.20),transparent_50%),radial-gradient(circle_at_50%_80%,rgba(251,191,36,0.15),transparent_60%),radial-gradient(circle_at_10%_70%,rgba(249,168,212,0.18),transparent_55%)] animate-[gradient_18s_ease_infinite] opacity-60"
+                    />
+                    <style jsx>{`
+                        @keyframes gradient {
+                            0%, 100% { background-position: 0% 50%; }
+                            50% { background-position: 100% 50%; }
+                        }
+                        @keyframes sunrise {
+                            0%, 100% { 
+                                transform: translate(-50%, -20%) scale(1);
+                                opacity: 0.6;
+                            }
+                            50% { 
+                                transform: translate(-50%, -15%) scale(1.1);
+                                opacity: 0.8;
                             }
                         }
                     `}</style>
