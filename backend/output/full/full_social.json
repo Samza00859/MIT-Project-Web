@@ -1,28 +1,8 @@
 {
-    "sentiment_verdict": "Neutral",
-    "social_volume": "Moderate",
-    "dominant_narrative": "Discussions around NIO primarily revolve around its electric vehicle technology, market expansion, and product launches. Mentions of its safety systems, battery swap technology, and new models like the Onvo L60 and Firefly indicate ongoing interest in its innovation and market presence. There are also mentions of its expansion into new European markets and its performance in China.",
-    "top_topics": [
-        {
-            "topic": "NIO's Intelligent Safety System and Autonomous Driving",
-            "sentiment": "Positive",
-            "analysis_snippet": "Positive mentions highlight the effectiveness of NIO's intelligent safety system in detecting obstacles and avoiding dangers."
-        },
-        {
-            "topic": "NIO's Battery Swap Technology and Expansion",
-            "sentiment": "Positive",
-            "analysis_snippet": "Discussions indicate positive sentiment towards NIO's battery swap technology, with mentions of testing and record-breaking swap events, alongside expansion of swap stations."
-        },
-        {
-            "topic": "NIO's New Model Launches and Market Presence",
-            "sentiment": "Positive",
-            "analysis_snippet": "Positive sentiment surrounds the launch of new models like the Onvo L60 Violet Limited Edition and the Firefly, as well as news of NIO's arrival in Hungary and its strong sales performance in China."
-        },
-        {
-            "topic": "NIO's Technological Advancements and Partnerships",
-            "sentiment": "Positive",
-            "analysis_snippet": "Mentions of NIO's proprietary intelligent driving chip and partnerships, such as with CATL, suggest a positive outlook on its technological development and strategic alliances."
-        }
-    ],
-    "psychology": "Mixed, with elements of cautious optimism regarding technological advancements and market expansion, balanced by awareness of the competitive EV landscape."
+    "sentiment_score": 50,
+    "sentiment_verdict": "Neutral (Data Unavailable)",
+    "social_volume_analysis": "Unable to retrieve social media data.",
+    "dominant_narrative": "No clear narrative identified.",
+    "top_discussion_topics": [],
+    "retail_psychology_assessment": "Insufficient data for psychological assessment."
 }

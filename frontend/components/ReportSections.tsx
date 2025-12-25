@@ -337,15 +337,17 @@ export default function ReportSections({
                     >
                         {copyFeedback}
                     </button>
-                    <button
-                        onClick={handleDownloadPdf}
-                        className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium text-[#2df4c6] transition-all hover:bg-[#2df4c6]/10 ${isDarkMode
-                            ? "border-white/20 bg-transparent"
-                            : "border-gray-200 bg-gray-50"
-                            }`}
-                    >
-                        Download PDF
-                    </button>
+                    {reportSections.length > 0 && !isRunning && !reportSections.some(s => s.key === "error") && (
+                        <button
+                            onClick={handleDownloadPdf}
+                            className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium text-[#2df4c6] transition-all hover:bg-[#2df4c6]/10 ${isDarkMode
+                                ? "border-white/20 bg-transparent"
+                                : "border-gray-200 bg-gray-50"
+                                }`}
+                        >
+                            Download PDF
+                        </button>
+                    )}
 
                     {/* Compact Telegram Button */}
                     <TelegramConnect variant="header-button" />

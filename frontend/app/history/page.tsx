@@ -737,7 +737,7 @@ export default function HistoryPage() {
                                                 </span>
                                                 GENERATING...
                                             </span>
-                                            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-[#2df4c6]/20 text-[#2df4c6] animate-pulse">
+                                            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-yellow-500/20 text-yellow-400 animate-pulse">
                                                 IN PROGRESS
                                             </span>
                                         </div>
@@ -838,7 +838,7 @@ export default function HistoryPage() {
                                 </div>
                                 <div className="flex items-center gap-3">
                                     {/* Download PDF Button */}
-                                    {selectedItem.reports.length > 0 && (
+                                    {selectedItem.reports.length > 0 && selectedItem.status === "success" && (
                                         <button
                                             onClick={() => handleDownloadPdf(selectedItem)}
                                             className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${isDarkMode
@@ -853,20 +853,22 @@ export default function HistoryPage() {
                                     )}
 
                                     {/* View Mode Toggle */}
-                                    <div className={`flex rounded-full border p-1 ${isDarkMode ? "border-white/10 bg-white/5" : "border-gray-200 bg-gray-100"}`}>
-                                        <button
-                                            onClick={() => setViewMode("summary")}
-                                            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "summary" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
-                                        >
-                                            Summary report
-                                        </button>
-                                        <button
-                                            onClick={() => setViewMode("detailed")}
-                                            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "detailed" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
-                                        >
-                                            Full report
-                                        </button>
-                                    </div>
+                                    {selectedItem.status === "success" && (
+                                        <div className={`flex rounded-full border p-1 ${isDarkMode ? "border-white/10 bg-white/5" : "border-gray-200 bg-gray-100"}`}>
+                                            <button
+                                                onClick={() => setViewMode("summary")}
+                                                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "summary" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
+                                            >
+                                                Summary report
+                                            </button>
+                                            <button
+                                                onClick={() => setViewMode("detailed")}
+                                                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "detailed" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
+                                            >
+                                                Full report
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </header>
 
