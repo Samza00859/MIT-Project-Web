@@ -1,14 +1,13 @@
 {
-    "ticker": "KBANK.BK",
-    "date": "2025-12-23",
+    "ticker": "NIO",
+    "date": "2025-12-22",
     "selected_indicators": [
         "close_50_sma",
-        "close_200_sma",
         "close_10_ema",
-        "rsi",
         "macd",
         "macds",
         "macdh",
+        "rsi",
         "boll",
         "boll_ub",
         "boll_lb",
@@ -16,7 +15,7 @@
         "vwma"
     ],
     "market_overview": {
-        "trend_direction": "Bullish",
+        "trend_direction": "Bearish",
         "momentum_state": "Weak",
         "volatility_level": "Moderate",
         "volume_condition": "Neutral"
@@ -24,74 +23,90 @@
     "indicator_analysis": [
         {
             "indicator": "close_50_sma",
-            "indicator_full_name": "50-day Simple Moving Average",
-            "signal": "Price (192.5) is above the 50-day SMA (184.23).",
-            "implication": "Indicates a bullish medium-term trend."
-        },
-        {
-            "indicator": "close_200_sma",
-            "indicator_full_name": "200-day Simple Moving Average",
-            "signal": "Price (192.5) is significantly above the 200-day SMA (165.84).",
-            "implication": "Confirms a strong long-term bullish trend."
+            "indicator_full_name": "50-Day Simple Moving Average",
+            "signal": "Current price (5.00) is below the 50-day SMA (6.07).",
+            "implication": "This indicates a bearish short-to-medium term trend."
         },
         {
             "indicator": "close_10_ema",
-            "indicator_full_name": "10-day Exponential Moving Average",
-            "signal": "Price (192.5) is above the 10-day EMA (192.43), but the EMA is flattening.",
-            "implication": "Short-term trend is positive but losing momentum."
-        },
-        {
-            "indicator": "rsi",
-            "indicator_full_name": "Relative Strength Index",
-            "signal": "RSI is at 60.61, down from recent highs above 80.",
-            "implication": "Momentum has cooled from overbought levels, now in neutral territory."
+            "indicator_full_name": "10-Day Exponential Moving Average",
+            "signal": "Current price (5.00) is below the 10-day EMA (5.02).",
+            "implication": "This suggests short-term bearish momentum."
         },
         {
             "indicator": "macd",
             "indicator_full_name": "Moving Average Convergence Divergence",
-            "signal": "MACD line (2.73) is above the signal line (2.93), but the histogram (MACDH) is negative at -0.20.",
-            "implication": "Bullish momentum is weakening, suggesting a potential slowdown or consolidation."
+            "signal": "MACD (-0.31) is below its signal line (-0.37) and both are negative.",
+            "implication": "This indicates bearish momentum."
+        },
+        {
+            "indicator": "macds",
+            "indicator_full_name": "MACD Signal Line",
+            "signal": "MACD signal line is at -0.37.",
+            "implication": "Confirms the bearish sentiment indicated by the MACD."
+        },
+        {
+            "indicator": "macdh",
+            "indicator_full_name": "MACD Histogram",
+            "signal": "MACD histogram is positive (0.05), but decreasing.",
+            "implication": "Suggests weakening bearish momentum, but still in bearish territory."
+        },
+        {
+            "indicator": "rsi",
+            "indicator_full_name": "Relative Strength Index",
+            "signal": "RSI is at 48.76, below the neutral 50 level.",
+            "implication": "Indicates a lack of strong buying pressure and a slightly bearish sentiment."
         },
         {
             "indicator": "boll",
-            "indicator_full_name": "Bollinger Bands",
-            "signal": "Price is near the middle band (190.8), having retreated from the upper band (196.03).",
-            "implication": "Price is in a neutral zone within the bands, suggesting a pause in the recent uptrend."
+            "indicator_full_name": "Bollinger Bands Middle Line",
+            "signal": "Current price (5.00) is below the middle Bollinger Band (5.12).",
+            "implication": "Suggests the price is in the lower half of its recent trading range, leaning bearish."
+        },
+        {
+            "indicator": "boll_ub",
+            "indicator_full_name": "Bollinger Bands Upper Band",
+            "signal": "Upper Bollinger Band is at 5.61.",
+            "implication": "Provides an upper boundary for price movement."
+        },
+        {
+            "indicator": "boll_lb",
+            "indicator_full_name": "Bollinger Bands Lower Band",
+            "signal": "Lower Bollinger Band is at 4.63.",
+            "implication": "Provides a lower boundary for price movement. The current price is above the lower band."
         },
         {
             "indicator": "atr",
             "indicator_full_name": "Average True Range",
-            "signal": "ATR is at 2.86, down from recent highs above 3.8.",
-            "implication": "Daily price volatility has decreased to a moderate level."
+            "signal": "ATR is at 0.17.",
+            "implication": "Indicates relatively low volatility in the recent past."
         },
         {
             "indicator": "vwma",
             "indicator_full_name": "Volume Weighted Moving Average",
-            "signal": "Price (192.5) is above the VWMA (191.10).",
-            "implication": "Recent price action is supported by volume, a positive sign."
+            "signal": "Current price (5.00) is below the VWMA (5.16).",
+            "implication": "Suggests selling pressure when considering volume."
         }
     ],
     "price_action_summary": {
-        "recent_high_low": "Price is below the recent high of 197.0 (Dec 18) but well above the recent low near 163.0 (Sep).",
+        "recent_high_low": "The current price is near the lower end of its recent trading range, closer to the 52-week low.",
         "support_levels": [
-            "190.5",
-            "188.0",
-            "185.5"
+            "4.63 (Lower Bollinger Band)",
+            "4.99 (Previous low on 2025-12-15)"
         ],
         "resistance_levels": [
-            "195.5",
-            "197.0",
-            "200.0"
+            "5.18 (Previous high on 2025-12-01)",
+            "5.61 (Upper Bollinger Band)"
         ],
-        "short_term_behavior": "Price is consolidating after a sharp rally from October to November, showing indecision near the 192.5 level."
+        "short_term_behavior": "The price has been in a downtrend, with recent price action showing weakness and trading below key moving averages."
     },
     "market_sentiment": {
-        "sentiment_label": "Bullish"
+        "sentiment_label": "Bearish"
     },
     "key_risks": [
-        "Momentum indicators (RSI, MACD) show weakening bullish strength.",
-        "Price is consolidating and may test lower support levels if selling pressure increases.",
-        "Volume data from the provided CSV shows declining volume in recent sessions, which can precede a trend change."
+        "Continued downward pressure below the 50-day SMA.",
+        "Failure to hold support levels around 4.63.",
+        "Negative MACD crossover persisting."
     ],
-    "short_term_outlook": "The stock is in a bullish trend but showing signs of short-term fatigue and consolidation. A break above 195.5 resistance is needed to resume the uptrend, while a break below 190.5 could lead to a deeper pullback towards 188 support."
+    "short_term_outlook": "The short-term outlook for NIO is bearish, with indicators suggesting further downside potential unless key resistance levels are overcome."
 }

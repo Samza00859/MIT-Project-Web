@@ -71,6 +71,16 @@ export interface GenerationContextType {
     setResearchDepth: React.Dispatch<React.SetStateAction<number>>;
     reportLength: "summary report" | "full report";
     setReportLength: React.Dispatch<React.SetStateAction<"summary report" | "full report">>;
+    selectedMarket: string;
+    setSelectedMarket: React.Dispatch<React.SetStateAction<string>>;
+
+    // Market Data State (persisted across navigation)
+    marketData: any;
+    setMarketData: React.Dispatch<React.SetStateAction<any>>;
+    logoSrc: string;
+    setLogoSrc: React.Dispatch<React.SetStateAction<string>>;
+    logoError: boolean;
+    setLogoError: React.Dispatch<React.SetStateAction<boolean>>;
 
     // Debug State
     debugLogs: DebugLog[];
@@ -176,6 +186,12 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
     });
     const [researchDepth, setResearchDepth] = useState(3);
     const [reportLength, setReportLength] = useState<"summary report" | "full report">("summary report");
+    const [selectedMarket, setSelectedMarket] = useState("US");
+
+    // Market Data State (persisted across navigation)
+    const [marketData, setMarketData] = useState<any>(null);
+    const [logoSrc, setLogoSrc] = useState("");
+    const [logoError, setLogoError] = useState(false);
 
     // Debug State
     const [debugLogs, setDebugLogs] = useState<DebugLog[]>([]);
@@ -474,6 +490,16 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
         setResearchDepth,
         reportLength,
         setReportLength,
+        selectedMarket,
+        setSelectedMarket,
+
+        // Market Data State
+        marketData,
+        setMarketData,
+        logoSrc,
+        setLogoSrc,
+        logoError,
+        setLogoError,
 
         // Debug State
         debugLogs,

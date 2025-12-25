@@ -349,14 +349,26 @@ export default function Home() {
     setReportSections: setContextReportSections,
     setFinalReportData: setContextFinalReportData,
     // Form State (persisted from context)
+    ticker,
+    setTicker,
+    analysisDate,
+    setAnalysisDate,
+    researchDepth,
+    setResearchDepth,
+    reportLength,
+    setReportLength,
+    selectedMarket,
+    setSelectedMarket,
+    // Market Data State (persisted from context)
+    marketData,
+    setMarketData,
+    logoSrc,
+    setLogoSrc,
+    logoError,
+    setLogoError,
   } = useGeneration();
 
   // Local State (UI-specific only)
-  const [ticker, setTicker] = useState("SPY");
-  const [selectedMarket, setSelectedMarket] = useState("US");
-  const [analysisDate, setAnalysisDate] = useState("");
-  const [researchDepth, setResearchDepth] = useState(3);
-  const [reportLength, setReportLength] = useState<"summary report" | "full report">("summary report");
   const [copyFeedback, setCopyFeedback] = useState("Copy report");
   const [teamProgress, setTeamProgress] = useState({
     analyst: 0,
@@ -367,16 +379,9 @@ export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isDebugCollapsed, setIsDebugCollapsed] = useState(false);
 
-  const [marketData, setMarketData] = useState<any>(null);
-  const [logoError, setLogoError] = useState(false);
-  const [logoSrc, setLogoSrc] = useState("");
+  // Track last fetched ticker to avoid refetching same data
+  const lastFetchedTickerRef = useRef<string>("");
 
-  // Trigger to refetch market data when component mounts
-  const [mountKey, setMountKey] = useState(0);
-  useEffect(() => {
-    // Increment mountKey to trigger market data fetch on each mount
-    setMountKey(prev => prev + 1);
-  }, []);
   // Ticker Search State
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [marketTickers, setMarketTickers] = useState<any[]>([]); // Cache for backend list
@@ -474,10 +479,15 @@ export default function Home() {
     setSuggestions([]);
   };
 
-  // Fetch Market Data Effect
+  // Fetch Market Data Effect - only fetch when ticker changes
   useEffect(() => {
     let isMounted = true;
     let retryTimeout: NodeJS.Timeout;
+
+    // Skip fetch if ticker hasn't changed and we already have data
+    if (marketData && lastFetchedTickerRef.current === ticker) {
+      return;
+    }
 
     const fetchMarketData = async (retries = 2) => {
       if (!isMounted) return;
@@ -490,8 +500,8 @@ export default function Home() {
           apiUrl = `${protocol}//${host}:8000`;
         }
 
-        // Only clear data on initial attempt
-        if (retries === 2) {
+        // Only clear data on initial attempt when ticker changed
+        if (retries === 2 && lastFetchedTickerRef.current !== ticker) {
           setMarketData(null); // Reset while loading
           setLogoError(false); // Reset logo error
           setLogoSrc(""); // Reset logo source
@@ -509,6 +519,7 @@ export default function Home() {
           const data = await res.json();
           if (isMounted) {
             setMarketData(data);
+            lastFetchedTickerRef.current = ticker;
 
             // Smarter Logo Logic:
             // 1. Try provided logo_url
@@ -555,7 +566,7 @@ export default function Home() {
         clearTimeout(retryTimeout);
       };
     }
-  }, [ticker, mountKey]); // Added mountKey to trigger refetch on mount
+  }, [ticker, marketData, setMarketData, setLogoError, setLogoSrc]);
 
   // Helper to format large numbers
   const formatVolume = (num: number) => {
@@ -628,10 +639,7 @@ export default function Home() {
   const debugLogRef = useRef<HTMLDivElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize Date
-  useEffect(() => {
-    setAnalysisDate(toISODate());
-  }, []);
+  // Note: Date is now initialized in GenerationContext, no need to initialize here
 
   // Auto-scroll debug logs
   useEffect(() => {
@@ -1250,7 +1258,7 @@ export default function Home() {
             {/* Main Info */}
             <div className="relative z-10 mt-4 flex flex-col gap-1">
               <div className="flex items-center gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-full overflow-hidden flex-shrink-0 ${isDarkMode ? "bg-white text-black" : "bg-black text-white"}`}>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full overflow-hidden flex-shrink-0 ${isDarkMode ? "bg-white text-black" : "bg-white text-gray-700 shadow-md border border-gray-200"}`}>
                   {logoSrc && !logoError ? (
                     <img
                       src={logoSrc}
