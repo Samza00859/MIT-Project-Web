@@ -264,7 +264,7 @@ function NavMenuItem({
         <div className="mb-2">
             {/* Category Header */}
             <div
-                className="flex items-center gap-2 py-2 cursor-pointer text-white font-semibold text-sm hover:text-zinc-300 transition-colors"
+                className="flex items-center gap-2 py-2 cursor-pointer text-white font-semibold text-sm hover:text-zinc-300"
                 onClick={onToggle}
             >
                 {isExpanded ? (
@@ -281,7 +281,7 @@ function NavMenuItem({
                     {category.items.map((item) => (
                         <div
                             key={item.id}
-                            className={`relative py-2 text-sm cursor-pointer transition-colors duration-200 select-none
+                            className={`relative py-2 text-sm cursor-pointer select-none
                                 ${activeSection === item.id
                                     ? 'text-white font-semibold'
                                     : 'text-zinc-500 hover:text-zinc-300'
@@ -290,7 +290,7 @@ function NavMenuItem({
                         >
                             {/* Active Indicator */}
                             {activeSection === item.id && (
-                                <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-white rounded-full transition-opacity duration-200"></div>
+                                <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-white rounded-full"></div>
                             )}
                             <span className="relative z-10">{item.title}</span>
                         </div>
@@ -348,14 +348,14 @@ export default function GenerateDocsPage() {
         if (element) {
             window.scrollTo({
                 top: element.offsetTop - 120,
-                behavior: 'smooth'
+                behavior: 'auto'
             });
             setActiveSection(id);
         }
     };
 
     return (
-        <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? "bg-[#161616] text-[#f8fbff]" : "bg-[#f0f2f5] text-[#1a202c]"}`}>
+        <div className={`flex min-h-screen w-full font-sans ${isDarkMode ? "bg-[#161616] text-[#f8fbff]" : "bg-[#f0f2f5] text-[#1a202c]"}`}>
             {/* ================= LEFT SIDEBAR (Global) ================= */}
             <Sidebar
                 activeId="docs"
@@ -366,7 +366,7 @@ export default function GenerateDocsPage() {
                     { id: "generate", icon: "🌐", label: "Generate", href: "/" },
                     { id: "history", icon: "📜", label: "History", href: "/history" },
                     { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
-                    { id: "docs", icon: "📄", label: "View Docs", href: "/generate/docs" },
+                    { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
                 ]}
             />
 
@@ -409,7 +409,7 @@ export default function GenerateDocsPage() {
                             href="https://arxiv.org/pdf/2412.20138"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 bg-[#00e33d] hover:bg-[#00c936] text-black px-4 py-2.5 rounded-lg font-semibold transition-colors text-sm shadow-lg shadow-green-500/20"
+                            className="flex items-center gap-2 bg-[#00e33d] hover:bg-[#00c936] text-black px-4 py-2.5 rounded-lg font-semibold text-sm shadow-lg shadow-green-500/20"
                         >
                             <Download size={16} />
                             Download Document
@@ -534,7 +534,7 @@ export default function GenerateDocsPage() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                                     {team.agents.map((agent) => (
-                                        <div key={agent.id} className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-6 hover:border-zinc-700 transition-colors relative overflow-hidden group h-full">
+                                        <div key={agent.id} className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-6 hover:border-zinc-700 relative overflow-hidden group h-full">
                                             <div className="flex items-center gap-3 mb-3 relative z-10">
                                                 <div className="p-2 bg-zinc-900 rounded-lg border border-zinc-700">
                                                     {agent.icon}

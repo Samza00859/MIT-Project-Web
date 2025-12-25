@@ -18,6 +18,7 @@ interface SidebarProps {
     toggleTheme: () => void;
     children?: ReactNode;
     navItems?: NavItem[];
+    hideThemeToggle?: boolean;
 }
 
 export default function Sidebar({
@@ -26,6 +27,7 @@ export default function Sidebar({
     toggleTheme,
     children,
     navItems,
+    hideThemeToggle = false,
 }: SidebarProps) {
     const [isCollapsed, setIsCollapsed] = React.useState(false);
     const [isMobileOpen, setIsMobileOpen] = React.useState(false);
@@ -204,7 +206,7 @@ export default function Sidebar({
                         { id: "generate", icon: "🌐", label: "Generate", href: "/" },
                         { id: "history", icon: "📜", label: "History", href: "/history" },
                         { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
-                        { id: "docs", icon: "📄", label: "View Docs", href: "/docs" },
+                        { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
                     ]).map((item) => (
                         <Link
                             key={item.id}
@@ -239,18 +241,20 @@ export default function Sidebar({
                     </button>
                 </nav>
 
-                <div className={`mt-auto flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm text-[#8b94ad]`}>
-                    {!isCollapsed && <span>{isDarkMode ? "Dark mode" : "Light mode"}</span>}
-                    <label className="relative inline-block h-5 w-10 cursor-pointer flex-shrink-0">
-                        <input
-                            type="checkbox"
-                            checked={!isDarkMode}
-                            onChange={toggleTheme}
-                            className="peer sr-only"
-                        />
-                        <span className="absolute inset-0 rounded-full bg-[#394054] transition-all before:absolute before:bottom-[2px] before:left-[2px] before:h-4 before:w-4 before:rounded-full before:bg-white before:transition-all peer-checked:bg-[#00d18f] peer-checked:before:translate-x-5"></span>
-                    </label>
-                </div>
+                {!hideThemeToggle && (
+                    <div className={`mt-auto flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm text-[#8b94ad]`}>
+                        {!isCollapsed && <span>{isDarkMode ? "Dark mode" : "Light mode"}</span>}
+                        <label className="relative inline-block h-5 w-10 cursor-pointer flex-shrink-0">
+                            <input
+                                type="checkbox"
+                                checked={!isDarkMode}
+                                onChange={toggleTheme}
+                                className="peer sr-only"
+                            />
+                            <span className="absolute inset-0 rounded-full bg-[#394054] transition-all before:absolute before:bottom-[2px] before:left-[2px] before:h-4 before:w-4 before:rounded-full before:bg-white before:transition-all peer-checked:bg-[#00d18f] peer-checked:before:translate-x-5"></span>
+                        </label>
+                    </div>
+                )}
 
                 {children && (
                     <div className={`mt-6 border-t border-white/5 pt-4 text-[0.85rem] ${isCollapsed ? "hidden" : "block"}`}>

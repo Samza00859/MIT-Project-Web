@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ChevronRight, ChevronDown, Eye } from 'lucide-react';
+import { ChevronRight, ChevronDown } from 'lucide-react';
 
 // --- Navigation Data Structure ---
 interface NavSubItem {
@@ -55,15 +55,13 @@ const NavMenuItem = React.memo(function NavMenuItem({
     isExpanded,
     onToggle,
     activeSection,
-    onSelectItem,
-    isDarkMode
+    onSelectItem
 }: {
     category: NavCategory;
     isExpanded: boolean;
     onToggle: () => void;
     activeSection: string;
     onSelectItem: (id: string) => void;
-    isDarkMode: boolean;
 }) {
     const isItemActive = useMemo(() => {
         return category.items.some(item => item.id === activeSection);
@@ -73,18 +71,14 @@ const NavMenuItem = React.memo(function NavMenuItem({
         <div className="mb-2">
             {/* Category Header */}
             <div
-                className={`flex items-center gap-2 py-2 px-2 rounded-lg cursor-pointer font-semibold text-sm transition-colors duration-150 ${
-                    isDarkMode
-                        ? "text-white hover:text-cyan-400 hover:bg-cyan-500/10"
-                        : "text-gray-800 hover:text-cyan-600 hover:bg-cyan-50"
-                }`}
+                className="flex items-center gap-2 py-2 px-2 rounded-lg cursor-pointer font-semibold text-sm text-white hover:text-cyan-400 hover:bg-cyan-500/10"
                 onClick={onToggle}
             >
-                <div className="transition-transform duration-200">
+                <div>
                     {isExpanded ? (
-                        <ChevronDown size={14} className={isDarkMode ? "text-cyan-400" : "text-cyan-600"} />
+                        <ChevronDown size={14} className="text-cyan-400" />
                     ) : (
-                        <ChevronRight size={14} className={isDarkMode ? "text-zinc-400" : "text-gray-500"} />
+                        <ChevronRight size={14} className="text-zinc-400" />
                     )}
                 </div>
                 <span>{category.title}</span>
@@ -92,21 +86,17 @@ const NavMenuItem = React.memo(function NavMenuItem({
 
             {/* Sub Items */}
             {isExpanded && (
-                <div className={`relative ml-2 pl-4 border-l transition-opacity duration-200 ${isDarkMode ? "border-cyan-500/30" : "border-cyan-400/40"}`}>
+                <div className="relative ml-2 pl-4 border-l border-cyan-500/30">
                     {category.items.map((item) => {
                         const isActive = activeSection === item.id;
                         return (
                             <div
                                 key={item.id}
-                                className={`relative py-2 px-2 -ml-4 rounded-lg text-sm cursor-pointer transition-colors duration-150 select-none
-                                    ${isActive
-                                        ? isDarkMode
-                                            ? 'text-cyan-400 font-semibold bg-cyan-500/15 border border-cyan-400/40'
-                                            : 'text-cyan-600 font-semibold bg-cyan-100 border border-cyan-400'
-                                        : isDarkMode
-                                            ? 'text-zinc-400 hover:text-cyan-300 hover:bg-cyan-500/5'
-                                            : 'text-gray-800 hover:text-cyan-600 hover:bg-cyan-50'
-                                    }`}
+                                className={`relative py-2 px-2 -ml-4 rounded-lg text-sm cursor-pointer select-none ${
+                                    isActive
+                                        ? 'text-cyan-400 font-semibold bg-cyan-500/15 border border-cyan-400/40'
+                                        : 'text-zinc-400 hover:text-cyan-300 hover:bg-cyan-500/5'
+                                }`}
                                 onClick={() => onSelectItem(item.id)}
                             >
                                 {item.title}
@@ -120,50 +110,28 @@ const NavMenuItem = React.memo(function NavMenuItem({
 });
 
 interface ViewDocsSidebarProps {
-    isDarkMode: boolean;
     activeSection: string;
     expandedCategories: string[];
-    readingMode: boolean;
     onToggleCategory: (categoryId: string) => void;
     onSelectItem: (id: string) => void;
-    onToggleReadingMode: () => void;
 }
 
 export default function ViewDocsSidebar({
-    isDarkMode,
     activeSection,
     expandedCategories,
-    readingMode,
     onToggleCategory,
     onSelectItem,
-    onToggleReadingMode,
 }: ViewDocsSidebarProps) {
     // Memoize categories to prevent unnecessary re-renders
     const memoizedCategories = useMemo(() => NAV_STRUCTURE, []);
 
     return (
-        <aside className={`sticky top-0 h-screen w-[280px] shrink-0 flex flex-col pt-8 px-6 border-r hidden md:flex z-40 overflow-y-auto backdrop-blur-xl custom-scrollbar ${
-            isDarkMode
-                ? "bg-gradient-to-b from-[#1e2330] via-[#232837] to-[#1e2330] border-zinc-600/50"
-                : "bg-white border-gray-300"
-        }`}>
+        <aside className="sticky top-0 w-[280px] shrink-0 flex flex-col pt-20 px-6 border-r hidden md:flex z-40 h-[calc(100vh-0px)] overflow-y-auto backdrop-blur-xl custom-scrollbar bg-[#020617]/80 border-white/10">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-                <h2 className={`text-lg font-bold tracking-tight ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                <h2 className="text-lg font-bold tracking-tight text-white">
                     TradingAgent Multi Agent
                 </h2>
-                {/* Reading Mode Toggle */}
-                <button
-                    onClick={onToggleReadingMode}
-                    className={`p-2 rounded-lg transition-colors duration-150 ${
-                        readingMode
-                            ? isDarkMode ? "bg-cyan-500/20 text-cyan-400" : "bg-cyan-100 text-cyan-600"
-                            : isDarkMode ? "text-gray-400 hover:bg-white/5" : "text-gray-500 hover:bg-gray-100"
-                    }`}
-                    title="Reading Mode"
-                >
-                    <Eye size={18} />
-                </button>
             </div>
 
             {/* Navigation Tree */}
@@ -176,7 +144,6 @@ export default function ViewDocsSidebar({
                         onToggle={() => onToggleCategory(category.id)}
                         activeSection={activeSection}
                         onSelectItem={onSelectItem}
-                        isDarkMode={isDarkMode}
                     />
                 ))}
             </nav>

@@ -1293,7 +1293,7 @@ export default function Home() {
           { id: "generate", icon: "🌐", label: "Generate", href: "/" },
           { id: "history", icon: "📜", label: "History", href: "/history" },
           { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
-          { id: "docs", icon: "📄", label: "View Docs", href: "/generate/docs" },
+          { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
         ]}
       >
         <DebugPanel wsStatus={wsStatus} isDarkMode={isDarkMode} />

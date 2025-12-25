@@ -475,8 +475,8 @@ export default function IntroductionPage() {
             <div className="relative z-10 grid h-screen w-full grid-cols-1 lg:grid-cols-[30%_70%]">
                 {/* Left Section */}
                 <div className={`relative flex flex-col justify-start px-6 pt-16 pb-16 lg:px-10 ${isDarkMode
-                    ? "bg-gradient-to-b from-[#0f1216]/80 to-[#141922]/90 backdrop-blur-xl"
-                    : "bg-[#f0f0f0]"
+                    ? "bg-gradient-to-b from-[#0f1216]/40 to-[#141922]/50 backdrop-blur-2xl"
+                    : "bg-[#f0f0f0]/80 backdrop-blur-2xl"
                     }`}>
                     <div className="mx-auto w-full max-w-sm flex flex-col h-full items-stretch">
                         {/* Header */}

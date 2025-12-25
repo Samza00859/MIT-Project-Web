@@ -48,7 +48,7 @@ export default function DashboardContactPage() {
                     { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
                     { id: "generate", icon: "🌐", label: "Generate", href: "/" },
                     { id: "contact", icon: "📬", label: "Contact", href: "/dashboard/contact" },
-                    { id: "docs", icon: "📄", label: "View Docs", href: "/dashboard/view-docs" },
+                    { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
                 ]}
             />
             <main className="flex-1 p-8 md:p-12 lg:p-16">

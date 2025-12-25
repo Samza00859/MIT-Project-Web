@@ -1,15 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import Sidebar from "../../components/Sidebar";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import ViewDocsSidebar from "../../components/ViewDocsSidebar";
-import Link from "next/link";
+import Sidebar from "../../components/Sidebar";
 import {
     Download,
     BarChart, BookOpen, Newspaper, Globe,
     TrendingUp, TrendingDown, ArrowLeftRight,
     Flame, Shield, Scale, Gavel, Users,
-    BrainCircuit, Activity, Zap, Info, HelpCircle
+    BrainCircuit, Activity, Zap, HelpCircle
 } from 'lucide-react';
 
 // --- 1. Document Content ---
@@ -202,22 +201,6 @@ const AGENT_TEAMS = [
 ];
 
 
-// Callout Box Component
-function CalloutBox({ type = 'info', children, isDarkMode }: { type?: 'info' | 'warning' | 'tip' | 'note'; children: React.ReactNode; isDarkMode: boolean }) {
-    const colors = {
-        info: { bg: isDarkMode ? 'bg-cyan-500/10' : 'bg-cyan-50', border: isDarkMode ? 'border-cyan-500/30' : 'border-cyan-300', text: isDarkMode ? 'text-cyan-400' : 'text-cyan-700', icon: 'text-cyan-500' },
-        warning: { bg: isDarkMode ? 'bg-yellow-500/10' : 'bg-yellow-50', border: isDarkMode ? 'border-yellow-500/30' : 'border-yellow-300', text: isDarkMode ? 'text-yellow-400' : 'text-yellow-700', icon: 'text-yellow-500' },
-        tip: { bg: isDarkMode ? 'bg-green-500/10' : 'bg-green-50', border: isDarkMode ? 'border-green-500/30' : 'border-green-300', text: isDarkMode ? 'text-green-400' : 'text-green-700', icon: 'text-green-500' },
-        note: { bg: isDarkMode ? 'bg-purple-500/10' : 'bg-purple-50', border: isDarkMode ? 'border-purple-500/30' : 'border-purple-300', text: isDarkMode ? 'text-purple-400' : 'text-purple-700', icon: 'text-purple-500' }
-    };
-    const color = colors[type];
-    return (
-        <div className={`rounded-xl border-l-4 ${color.bg} ${color.border} p-4 my-4 flex gap-3`}>
-            <Info size={20} className={`${color.icon} flex-shrink-0 mt-0.5`} />
-            <div className={`flex-1 ${color.text} text-sm leading-relaxed`}>{children}</div>
-        </div>
-    );
-}
 
 // Tooltip Component for Explain-on-Hover
 function Tooltip({ text, children, isDarkMode }: { text: string; children: React.ReactNode; isDarkMode: boolean }) {
@@ -249,8 +232,30 @@ export default function ViewDocsPage() {
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [activeSection, setActiveSection] = useState('introduction');
     const [expandedCategories, setExpandedCategories] = useState<string[]>(['document', 'tutorials', 'our-agent']);
-    const [readingMode, setReadingMode] = useState(false);
     const [focusedSection, setFocusedSection] = useState<string | null>(null);
+    const [mounted, setMounted] = useState(false);
+
+    // Generate stars once for the night sky effect (matching home page)
+    const stars = useMemo(() => {
+        return Array.from({ length: 150 }).map((_, i) => {
+            const size = Math.random() * 2 + 0.5;
+            const left = Math.random() * 100;
+            const top = Math.random() * 100;
+            const delay = Math.random() * 3;
+            const duration = Math.random() * 3 + 2;
+            const opacity = Math.random() * 0.8 + 0.2;
+            
+            return {
+                id: i,
+                size,
+                left,
+                top,
+                delay,
+                duration,
+                opacity,
+            };
+        });
+    }, []);
 
     const toggleTheme = () => {
         setIsDarkMode(!isDarkMode);
@@ -261,6 +266,10 @@ export default function ViewDocsPage() {
         document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
     }, [isDarkMode]);
 
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     const toggleCategory = (categoryId: string) => {
         setExpandedCategories(prev =>
             prev.includes(categoryId)
@@ -269,53 +278,6 @@ export default function ViewDocsPage() {
         );
     };
 
-    // Intersection Observer for scroll animations
-    useEffect(() => {
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px 0px -100px 0px',
-            threshold: 0.1
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-in');
-                    entry.target.classList.remove('animate-out');
-                } else {
-                    entry.target.classList.remove('animate-in');
-                    entry.target.classList.add('animate-out');
-                }
-            });
-        }, observerOptions);
-
-        // Observe all sections
-        const allSections = [
-            ...DOCUMENT_SECTIONS,
-            ...TUTORIAL_SECTIONS,
-            ...AGENT_TEAMS
-        ];
-
-        allSections.forEach((section) => {
-            const element = document.getElementById(section.id);
-            if (element) {
-                observer.observe(element);
-            }
-        });
-
-        // Also observe section headers
-        const headers = ['tutorials-header', 'agents-header'];
-        headers.forEach((id) => {
-            const element = document.getElementById(id);
-            if (element) {
-                observer.observe(element);
-            }
-        });
-
-        return () => {
-            observer.disconnect();
-        };
-    }, []);
 
     // Enhanced Scroll Spy with Focus Detection (Throttled)
     const activeSectionRef = useRef(activeSection);
@@ -365,9 +327,6 @@ export default function ViewDocsPage() {
                             
                             if (Math.abs(elementCenter - viewportCenter) < viewportHeight * 0.3 && rect.top < viewportHeight && rect.bottom > 0) {
                                 newFocusedSection = section.id;
-                                element.classList.add('section-focused');
-                            } else {
-                                element.classList.remove('section-focused');
                             }
                         }
                     }
@@ -399,7 +358,7 @@ export default function ViewDocsPage() {
         if (element) {
             window.scrollTo({
                 top: element.offsetTop - 120,
-                behavior: 'smooth'
+                behavior: 'auto'
             });
             setActiveSection(id);
         }
@@ -408,14 +367,6 @@ export default function ViewDocsPage() {
     return (
         <>
             <style jsx>{`
-                .animate-in {
-                    opacity: 1 !important;
-                    transform: translateY(0) !important;
-                }
-                .animate-out {
-                    opacity: 0;
-                    transform: translateY(2rem);
-                }
                 .light-mode-content,
                 .light-mode-content *,
                 .light-mode-content p,
@@ -439,44 +390,6 @@ export default function ViewDocsPage() {
                     color: #000000 !important;
                     font-style: italic;
                 }
-                .section-focused {
-                    position: relative;
-                    padding-left: 1.5rem;
-                    transition: padding-left 0.3s ease;
-                }
-                .section-focused::before {
-                    content: '';
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    bottom: 0;
-                    width: 3px;
-                    background: linear-gradient(to bottom, rgba(45, 244, 198, 0.8), rgba(56, 189, 248, 0.8));
-                    border-radius: 2px;
-                    animation: focusPulse 2s ease-in-out infinite;
-                    box-shadow: 0 0 10px rgba(45, 244, 198, 0.5);
-                }
-                body[data-theme="light"] .section-focused::before {
-                    background: linear-gradient(to bottom, rgba(6, 182, 212, 0.8), rgba(14, 165, 233, 0.8));
-                    box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
-                    animation: focusPulseLight 2s ease-in-out infinite;
-                }
-                @keyframes focusPulse {
-                    0%, 100% { opacity: 0.6; transform: scaleY(1); box-shadow: 0 0 10px rgba(45, 244, 198, 0.5); }
-                    50% { opacity: 1; transform: scaleY(1.02); box-shadow: 0 0 20px rgba(45, 244, 198, 0.8); }
-                }
-                @keyframes focusPulseLight {
-                    0%, 100% { opacity: 0.6; transform: scaleY(1); box-shadow: 0 0 10px rgba(6, 182, 212, 0.4); }
-                    50% { opacity: 1; transform: scaleY(1.02); box-shadow: 0 0 20px rgba(6, 182, 212, 0.6); }
-                }
-                @media (max-width: 768px) {
-                    .section-focused {
-                        padding-left: 1rem;
-                    }
-                    .section-focused::before {
-                        width: 2px;
-                    }
-                }
                 .reading-mode {
                     max-width: 65ch;
                     margin: 0 auto;
@@ -486,44 +399,71 @@ export default function ViewDocsPage() {
                 .reading-mode section {
                     margin-bottom: 3rem;
                 }
+                @keyframes twinkle {
+                    0%, 100% {
+                        opacity: 0.2;
+                        transform: scale(1);
+                    }
+                    50% {
+                        opacity: 1;
+                        transform: scale(1.2);
+                    }
+                }
             `}</style>
-            <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? "bg-[#1a1f2e] text-[#f8fbff]" : "bg-white text-[#1a202c]"}`}>
-            {/* ================= LEFT SIDEBAR (Global) ================= */}
+            <div className="flex min-h-screen w-full font-sans transition-colors duration-300 relative bg-[#020617] text-[#f8fbff] overflow-hidden">
+            {/* Starry Night Sky Effect (matching home page) - only render on client */}
+            {mounted && (
+                <div className="fixed inset-0 pointer-events-none z-0">
+                    {stars.map((star) => (
+                        <div
+                            key={star.id}
+                            className="absolute rounded-full"
+                            style={{
+                                width: `${star.size}px`,
+                                height: `${star.size}px`,
+                                left: `${star.left}%`,
+                                top: `${star.top}%`,
+                                backgroundColor: 'rgb(255, 255, 255)',
+                                opacity: star.opacity,
+                                animation: `twinkle ${star.duration}s ease-in-out infinite`,
+                                animationDelay: `${star.delay}s`,
+                                boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, 0.8)`,
+                            }}
+                        />
+                    ))}
+                </div>
+            )}
+
+            {/* Main Sidebar for navigation to other pages */}
             <Sidebar
                 activeId="docs"
                 isDarkMode={isDarkMode}
                 toggleTheme={toggleTheme}
+                navItems={[
+                    { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
+                    { id: "generate", icon: "🌐", label: "Generate", href: "/" },
+                    { id: "history", icon: "📜", label: "History", href: "/history" },
+                    { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
+                    { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
+                ]}
             />
 
-            {/* ================= MIDDLE SIDEBAR (Navigation Tree) ================= */}
+            {/* Docs-specific sidebar for internal navigation */}
             <ViewDocsSidebar
-                isDarkMode={isDarkMode}
                 activeSection={activeSection}
                 expandedCategories={expandedCategories}
-                readingMode={readingMode}
                 onToggleCategory={toggleCategory}
                 onSelectItem={scrollToSection}
-                onToggleReadingMode={() => setReadingMode(!readingMode)}
             />
 
-            {/* ================= MAIN CONTENT ================= */}
-            <main className={`flex-1 flex flex-col relative min-h-screen min-w-0 overflow-y-auto ${
-                isDarkMode
-                    ? "bg-gradient-to-br from-[#1e2332] via-[#232837] to-[#1e2332]"
-                    : "bg-white"
-            }`}>
-                {/* Header with Download Button */}
-                <div className={`sticky top-0 backdrop-blur-sm pt-8 pb-6 px-12 z-30 border-b ${
-                    isDarkMode
-                        ? "bg-gradient-to-b from-[#1e2332]/95 to-[#232837]/95 border-zinc-600/40"
-                        : "bg-white border-gray-300"
-                }`}>
+            <main className="flex-1 flex flex-col relative min-h-screen min-w-0 overflow-y-auto z-10 bg-transparent">
+                <div className="sticky top-0 bg-[#020617]/95 backdrop-blur-xl z-30 border-b border-white/5 px-12 py-8">
                     <div className="flex justify-between items-start">
                         <div>
-                            <h1 className={`text-3xl font-bold mb-2 tracking-tight ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                            <h1 className="text-3xl font-bold text-[#f8fbff] mb-2 tracking-tight">
                                 View Docs
                             </h1>
-                            <p className={`text-base ${isDarkMode ? "text-zinc-300" : "text-gray-800"}`}>
+                            <p className="text-[#f8fbff]/80 text-base">
                                 Document & Tutorials & Agent
                             </p>
                         </div>
@@ -531,7 +471,7 @@ export default function ViewDocsPage() {
                             href="https://arxiv.org/pdf/2412.20138"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 bg-[#00e33d] hover:bg-[#00c936] text-black px-4 py-2.5 rounded-lg font-semibold transition-colors text-sm shadow-lg shadow-green-500/20"
+                            className="flex items-center gap-2 bg-[#00e33d] hover:bg-[#00c936] text-black px-4 py-2.5 rounded-lg font-semibold text-sm shadow-lg shadow-green-500/20"
                         >
                             <Download size={16} />
                             Download Document
@@ -539,16 +479,11 @@ export default function ViewDocsPage() {
                     </div>
                 </div>
 
-                {/* Content Area */}
-                <div className={`px-8 md:px-12 w-full max-w-[1600px] pb-40 pt-8 mx-auto ${readingMode ? "reading-mode" : ""}`}>
+                <div className="px-8 md:px-12 w-full max-w-[1600px] pb-40 pt-10 mx-auto bg-transparent">
 
                     {/* ================= Document Sections ================= */}
                     <div className="mb-8">
-                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${
-                            isDarkMode
-                                ? "text-white border-zinc-600"
-                                : "text-gray-900 border-gray-300"
-                        }`}>
+                        <h2 className="text-2xl font-bold text-[#f8fbff] tracking-tight border-b border-white/10 pb-4">
                             Document
                         </h2>
                     </div>
@@ -558,27 +493,16 @@ export default function ViewDocsPage() {
                             <section
                                 key={section.id}
                                 id={section.id}
-                                className={`scroll-mt-40 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out ${focusedSection === section.id ? "section-focused" : ""}`}
-                                style={{ transitionDelay: `${index * 100}ms` }}
+                                className="scroll-mt-40"
                             >
-                                <h3 className={`text-xl font-bold mb-6 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                <h3 className="text-xl font-bold text-[#f8fbff] mb-6">
                                     {section.title}
                                 </h3>
-                                <div className={`text-base ${isDarkMode ? "text-zinc-300" : "text-black"}`}>
+                                <div className="text-base text-[#f8fbff]/90 leading-relaxed">
                                     {section.id === 'introduction' ? (
-                                        <>
-                                            <CalloutBox type="tip" isDarkMode={isDarkMode}>
-                                                <strong>TradingAgents</strong> uses a multi-agent architecture where specialized AI agents collaborate to make trading decisions, similar to how professional trading firms operate.
-                                            </CalloutBox>
-                                            <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
-                                                {section.content}
-                                            </div>
-                                        </>
+                                        section.content
                                     ) : section.id === 'role-specialization' ? (
                                         <div className="space-y-4">
-                                            <CalloutBox type="info" isDarkMode={isDarkMode}>
-                                                Each agent type focuses on a specific aspect of market analysis, ensuring comprehensive coverage of all market dimensions.
-                                            </CalloutBox>
                                             <p>
                                                 The framework assigns specialized roles to LLM agents, ensuring expert-level analysis across all market dimensions:
                                             </p>
@@ -617,26 +541,10 @@ export default function ViewDocsPage() {
                                                 </div>
                                             </div>
                                         </div>
-                                    ) : section.id === 'agent-workflow' ? (
-                                        <>
-                                            <CalloutBox type="info" isDarkMode={isDarkMode}>
-                                                The workflow follows a hierarchical decision-making process, similar to how investment committees operate in professional trading firms.
-                                            </CalloutBox>
-                                            <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
-                                                {section.content}
-                                            </div>
-                                        </>
-                                    ) : section.id === 'related-work' ? (
-                                        <>
-                                            <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
-                                                {section.content}
-                                            </div>
-                                            <CalloutBox type="note" isDarkMode={isDarkMode}>
-                                                The <strong>TradingAgents Approach</strong> distinguishes itself by implementing true collaboration through structured debates, unlike traditional frameworks where agents work in isolation.
-                                            </CalloutBox>
-                                        </>
                                     ) : (
-                                        <ContentWithCallouts content={section.content} isDarkMode={isDarkMode} />
+                                        <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
+                                            {section.content}
+                                        </div>
                                     )}
                                 </div>
                             </section>
@@ -645,14 +553,10 @@ export default function ViewDocsPage() {
 
                     {/* ================= Tutorials Sections ================= */}
                     <div 
-                        className="mb-8 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out"
+                        className="mb-8"
                         id="tutorials-header"
                     >
-                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${
-                            isDarkMode
-                                ? "text-white border-zinc-600"
-                                : "text-gray-900 border-gray-300"
-                        }`}>
+                        <h2 className="text-2xl font-bold text-[#f8fbff] tracking-tight border-b border-white/10 pb-4">
                             Tutorials
                         </h2>
                     </div>
@@ -662,10 +566,9 @@ export default function ViewDocsPage() {
                             <section
                                 key={section.id}
                                 id={section.id}
-                                className={`scroll-mt-40 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out ${focusedSection === section.id ? "section-focused" : ""}`}
-                                style={{ transitionDelay: `${(index + 1) * 100}ms` }}
+                                className="scroll-mt-40"
                             >
-                                <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-[#f8fbff]" : "text-[#0f172a]"}`}>
                                     <span className={`font-mono ${isDarkMode ? "text-cyan-500" : "text-cyan-600"}`}>{index + 1}.</span> {section.title}
                                 </h3>
                                 <div className="space-y-4">
@@ -700,13 +603,13 @@ export default function ViewDocsPage() {
 
                     {/* ================= Our Agent Sections ================= */}
                     <div 
-                        className="mb-8 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out"
+                        className="mb-8"
                         id="agents-header"
                     >
                         <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${
                             isDarkMode
-                                ? "text-white border-zinc-600"
-                                : "text-gray-900 border-gray-300"
+                                ? "text-[#f8fbff] border-white/10"
+                                : "text-[#0f172a] border-gray-300"
                         }`}>
                             Our Agents
                         </h2>
@@ -717,17 +620,16 @@ export default function ViewDocsPage() {
                             <section
                                 key={team.id}
                                 id={team.id}
-                                className={`scroll-mt-40 opacity-0 translate-y-8 transition-all duration-700 ease-out animate-out ${focusedSection === team.id ? "section-focused" : ""}`}
-                                style={{ transitionDelay: `${(teamIndex + 1) * 150}ms` }}
+                                className="scroll-mt-40"
                             >
                                 <div className="mb-8">
-                                    <h3 className={`text-xl font-bold mb-2 flex items-center gap-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                    <h3 className={`text-xl font-bold mb-2 flex items-center gap-3 ${isDarkMode ? "text-[#f8fbff]" : "text-[#0f172a]"}`}>
                                         {team.title}
                                     </h3>
                                     <p className={`text-base leading-relaxed border-l-2 pl-4 max-w-4xl ${
                                         isDarkMode
-                                            ? "text-zinc-300 border-zinc-600"
-                                            : "text-gray-800 border-gray-500"
+                                            ? "text-[#f8fbff]/80 border-white/10"
+                                            : "text-[#0f172a]/80 border-gray-300"
                                     }`}>
                                         {team.description}
                                     </p>
@@ -735,7 +637,7 @@ export default function ViewDocsPage() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                                     {team.agents.map((agent) => (
-                                        <div key={agent.id} className={`border rounded-xl p-6 transition-colors relative overflow-hidden group h-full ${
+                                        <div key={agent.id} className={`border rounded-xl p-6 relative overflow-hidden group h-full ${
                                             isDarkMode
                                                 ? "bg-zinc-800/40 border-zinc-700/60 hover:border-zinc-600"
                                                 : "bg-white border-gray-400 hover:border-gray-500"
