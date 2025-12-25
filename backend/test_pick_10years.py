@@ -12,6 +12,8 @@ except ImportError:
     # Fallback if running from root
     sys.path.append(os.getcwd())
     from backend.tradingagents.dataflows.local_call import get_10years_fundamentals
+    
+from tradingagents.dataflows.local import pick_fundamental_source_10years, fetch_yfinance_10y
 
 async def main():
     # symbol = "PTT" # Known Thai Stock
@@ -20,9 +22,10 @@ async def main():
     print(f"🚀 Testing 10-year fetch for {symbol}...")
     
     try:
-        result = await get_10years_fundamentals(symbol)
+        result = await pick_fundamental_source_10years(symbol)
 
         print(result)
+        print(result['chosen_source'], result['years_found'])
             
         print("\nTest Completed Successfully.")
         

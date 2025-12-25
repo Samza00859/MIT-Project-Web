@@ -144,7 +144,7 @@ def get_tv_params(symbol: str, market: str):
     elif market == "GOLD":
         # ใช้ OANDA หรือ FOREXCOM สำหรับ Spot Gold
         return "XAUUSD", "OANDA" 
-    
+        
     # --- 5. ตลาด US (Default) ---
     else:
         # หุ้น US ส่วนใหญ่ถ้าไม่ NASDAQ ก็ NYSE
@@ -188,57 +188,74 @@ def get_tradingview_indicators(symbol, indicator, curr_date, look_back_days = 30
 
     tv = TvDatafeed(username=os.getenv('TV_USERNAME'), password=os.getenv('TV_PASSWORD'))
 
-    # 2. จัดการเรื่อง Exchange และ Symbol
-    if exchange is None: # ถ้าไม่ได้ระบุมา ให้ Auto-detect
+    # 1. จัดการเรื่อง Exchange และ Symbol
+    if exchange is None:
         if not market:
-            market = auto_detect_market(symbol) # ใช้ฟังก์ชันนักสืบที่เราเขียนกันก่อนหน้า
-        
+            market = auto_detect_market(symbol)
         tv_symbol, tv_exchange = get_tv_params(symbol, market)
     else:
         tv_symbol = symbol
         tv_exchange = exchange
 
-    print(f"📡 TradingView Fetch: {tv_symbol} on {tv_exchange}")
+    # 2. ค้นหาข้อมูล (พร้อม Retry สำหรับ US Market)
+    df = None
+    final_exchange = tv_exchange
 
-    curr_dt = datetime.strptime(curr_date, "%Y-%m-%d")
-    before_dt = curr_dt - timedelta(days=look_back_days)
+    if market == "US" and exchange is None:
+        us_exchanges = ["NASDAQ", "NYSE", "AMEX"]
+        for ex in us_exchanges:
+            try:
+                # ดึงมาครั้งเดียวแล้วใช้ต่อเลย ไม่ต้องดึงใหม่ข้างล่าง
+                temp_df = tv.get_hist(tv_symbol, ex, interval=Interval.in_daily, n_bars=look_back_days + 100)
+                if temp_df is not None and not temp_df.empty:
+                    df = temp_df
+                    final_exchange = ex
+                    break
+            except:
+                continue
+    else:
+        try:
+            df = tv.get_hist(tv_symbol, tv_exchange, interval=Interval.in_daily, n_bars=look_back_days + 100)
+        except:
+            df = None
 
-    # ดึงข้อมูล OHLC จาก TV
-    df = tv.get_hist(tv_symbol, tv_exchange, interval=Interval.in_daily, n_bars=look_back_days + 100)
-    if df.empty:
-        return f"No data found for {symbol}"
+    # 3. ตรวจสอบว่าได้ข้อมูลไหม
+    if df is None or df.empty:
+        return f"❌ No data found for {symbol} on TradingView.", None
 
-    df = df.reset_index()  # datetime index → column 'datetime'
+    print(f"✅ Data found on: {final_exchange}")
+
+    # 4. ประมวลผลข้อมูล (ใช้ df ที่ได้จากข้างบนเลย ไม่ต้อง get_hist ซ้ำ)
+    df = df.reset_index()
     df['datetime'] = pd.to_datetime(df['datetime'])
 
-    # wrap เฉพาะ OHLC + volume
     df_wrap = df[['open', 'high', 'low', 'close', 'volume']].copy()
     df_wrap = wrap(df_wrap)
 
-    # trigger calculation indicator
     try:
         df_wrap[indicator]
     except Exception as e:
-        return f"Indicator {indicator} not available: {e}"
+        return f"Indicator {indicator} not available: {e}", None
 
-    # merge indicator กลับกับ datetime
     df[indicator] = df_wrap[indicator]
 
-    # filter วันย้อนหลัง
+    # Filter วันที่
+    curr_dt = datetime.strptime(curr_date, "%Y-%m-%d")
+    before_dt = curr_dt - timedelta(days=look_back_days)
+    
     df_filtered = df[df['datetime'] <= curr_dt].tail(look_back_days + 1)
-
     df_filtered = df_filtered[df_filtered['datetime'] >= before_dt]
 
-    # สร้าง string output
+    # สร้าง output string
     ind_string = ""
     for _, row in df_filtered.iterrows():
         value = row[indicator]
-        value = "N/A" if pd.isna(value) else value
+        value = "N/A" if pd.isna(value) else f"{value:.2f}"
         ind_string += f"{row['datetime'].strftime('%Y-%m-%d')}: {value}\n"
 
-    # รวมผลลัพธ์ + description
     result_str = (
-        f"\n\n=== tradingview ===\n## {indicator.upper()} values from {before_dt.strftime('%Y-%m-%d')} to {curr_date}:\n\n"
+        f"\n\n=== tradingview ({final_exchange}) ===\n"
+        f"## {indicator.upper()} values for {tv_symbol} ({before_dt.strftime('%Y-%m-%d')} to {curr_date}):\n\n"
         + ind_string
         + "\n\n"
         + indicator_descriptions.get(indicator, "No description available.")

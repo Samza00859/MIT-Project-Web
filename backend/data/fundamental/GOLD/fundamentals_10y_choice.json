@@ -16,11 +16,10 @@
   },
   "final_payload": {
     "overview": {
-      "marketCap": 831501658.7447853,
-      "sharesOutstanding": null,
-      "peRatio": null,
+      "marketCap": 857378304.0,
+      "sharesOutstanding": 24644386.0,
+      "peRatio": 115.96667,
       "currency": "USD",
-      "exchange": "NYQ",
       "name": "Gold.com, Inc.",
       "sector": "Financial Services",
       "industry": "Capital Markets"
@@ -806,8 +805,6 @@
         "Reconciled Cost Of Revenue": 10767698000.0,
         "EBITDA": 90393000.0,
         "EBIT": 67473000.0,
-        "Net Interest Income": -20255000.0,
-        "Interest Expense": 46203000.0,
         "Interest Income": 25948000.0,
         "Normalized Income": 18318909.449929,
         "Net Income From Continuing And Discontinued Operation": 17320000.0,
@@ -838,7 +835,6 @@
         "Selling General And Administration": 139193000.0,
         "Gross Profit": 210916000.0,
         "Cost Of Revenue": 10767698000.0,
-        "Total Revenue": 10978614000.0,
         "Operating Revenue": 10978614000.0
       },
       "2024-06-30": {
@@ -852,8 +848,6 @@
         "Reconciled Cost Of Revenue": 9525784000.0,
         "EBITDA": 133706000.0,
         "EBIT": 122309000.0,
-        "Net Interest Income": -12363000.0,
-        "Interest Expense": 39531000.0,
         "Interest Income": 27168000.0,
         "Normalized Income": 68296647.913697,
         "Net Income From Continuing And Discontinued Operation": 68546000.0,
@@ -884,7 +878,6 @@
         "Selling General And Administration": 89800000.0,
         "Gross Profit": 173255000.0,
         "Cost Of Revenue": 9525784000.0,
-        "Total Revenue": 9699039000.0,
         "Operating Revenue": 9699039000.0
       },
       "2023-06-30": {
@@ -898,8 +891,6 @@
         "Reconciled Cost Of Revenue": 8991892000.0,
         "EBITDA": 247223000.0,
         "EBIT": 234698000.0,
-        "Net Interest Income": -9297000.0,
-        "Interest Expense": 31528000.0,
         "Interest Income": 22231000.0,
         "Normalized Income": 156077448.0,
         "Net Income From Continuing And Discontinued Operation": 156360000.0,
@@ -930,7 +921,6 @@
         "Selling General And Administration": 85282000.0,
         "Gross Profit": 294669000.0,
         "Cost Of Revenue": 8991892000.0,
-        "Total Revenue": 9286561000.0,
         "Operating Revenue": 9286561000.0
       },
       "2022-06-30": {
@@ -944,8 +934,6 @@
         "Reconciled Cost Of Revenue": 7897489000.0,
         "EBITDA": 215709000.0,
         "EBIT": 188409000.0,
-        "Net Interest Income": -192000.0,
-        "Interest Expense": 21992000.0,
         "Interest Income": 21800000.0,
         "Normalized Income": 132614400.0,
         "Net Income From Continuing And Discontinued Operation": 132536000.0,
@@ -976,7 +964,6 @@
         "Selling General And Administration": 76618000.0,
         "Gross Profit": 261765000.0,
         "Cost Of Revenue": 7897489000.0,
-        "Total Revenue": 8159254000.0,
         "Operating Revenue": 8159254000.0
       }
     }
@@ -984,11 +971,10 @@
   "raw": {
     "yfinance": {
       "overview": {
-        "marketCap": 831501658.7447853,
-        "sharesOutstanding": null,
-        "peRatio": null,
+        "marketCap": 857378304.0,
+        "sharesOutstanding": 24644386.0,
+        "peRatio": 115.96667,
         "currency": "USD",
-        "exchange": "NYQ",
         "name": "Gold.com, Inc.",
         "sector": "Financial Services",
         "industry": "Capital Markets"
@@ -1774,8 +1760,6 @@
           "Reconciled Cost Of Revenue": 10767698000.0,
           "EBITDA": 90393000.0,
           "EBIT": 67473000.0,
-          "Net Interest Income": -20255000.0,
-          "Interest Expense": 46203000.0,
           "Interest Income": 25948000.0,
           "Normalized Income": 18318909.449929,
           "Net Income From Continuing And Discontinued Operation": 17320000.0,
@@ -1806,7 +1790,6 @@
           "Selling General And Administration": 139193000.0,
           "Gross Profit": 210916000.0,
           "Cost Of Revenue": 10767698000.0,
-          "Total Revenue": 10978614000.0,
           "Operating Revenue": 10978614000.0
         },
         "2024-06-30": {
@@ -1820,8 +1803,6 @@
           "Reconciled Cost Of Revenue": 9525784000.0,
           "EBITDA": 133706000.0,
           "EBIT": 122309000.0,
-          "Net Interest Income": -12363000.0,
-          "Interest Expense": 39531000.0,
           "Interest Income": 27168000.0,
           "Normalized Income": 68296647.913697,
           "Net Income From Continuing And Discontinued Operation": 68546000.0,
@@ -1852,7 +1833,6 @@
           "Selling General And Administration": 89800000.0,
           "Gross Profit": 173255000.0,
           "Cost Of Revenue": 9525784000.0,
-          "Total Revenue": 9699039000.0,
           "Operating Revenue": 9699039000.0
         },
         "2023-06-30": {
@@ -1866,8 +1846,6 @@
           "Reconciled Cost Of Revenue": 8991892000.0,
           "EBITDA": 247223000.0,
           "EBIT": 234698000.0,
-          "Net Interest Income": -9297000.0,
-          "Interest Expense": 31528000.0,
           "Interest Income": 22231000.0,
           "Normalized Income": 156077448.0,
           "Net Income From Continuing And Discontinued Operation": 156360000.0,
@@ -1898,7 +1876,6 @@
           "Selling General And Administration": 85282000.0,
           "Gross Profit": 294669000.0,
           "Cost Of Revenue": 8991892000.0,
-          "Total Revenue": 9286561000.0,
           "Operating Revenue": 9286561000.0
         },
         "2022-06-30": {
@@ -1912,8 +1889,6 @@
           "Reconciled Cost Of Revenue": 7897489000.0,
           "EBITDA": 215709000.0,
           "EBIT": 188409000.0,
-          "Net Interest Income": -192000.0,
-          "Interest Expense": 21992000.0,
           "Interest Income": 21800000.0,
           "Normalized Income": 132614400.0,
           "Net Income From Continuing And Discontinued Operation": 132536000.0,
@@ -1944,7 +1919,6 @@
           "Selling General And Administration": 76618000.0,
           "Gross Profit": 261765000.0,
           "Cost Of Revenue": 7897489000.0,
-          "Total Revenue": 8159254000.0,
           "Operating Revenue": 8159254000.0
         }
       }
@@ -1952,5 +1926,5 @@
     "finnhub": {},
     "alphavantage": {}
   },
-  "timestamp": "2025-12-24T07:56:40.189564+00:00"
+  "timestamp": "2025-12-25T07:14:47.560788+00:00"
 }

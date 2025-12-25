@@ -10,7 +10,7 @@ import json
 
 def test_market_analyst_logic():
     ticker = "IBM"
-    current_date = "2025-12-22"
+    current_date = "2025-12-25"
     
     # Logic copied from market_analyst.py for verification
     try:

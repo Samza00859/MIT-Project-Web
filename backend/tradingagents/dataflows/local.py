@@ -2257,44 +2257,64 @@ def _safe_date_str(d):
     except: return str(d)
 
 def fetch_yfinance_10y(symbol: str) -> Dict[str, Dict]:
-    """Fetch all available historical data from YFinance"""
+    """Fetch all available historical data from YFinance (Exclude specific fields)"""
+    print(f"   Running YFinance for {symbol}...")
     t = yf.Ticker(symbol)
     
-    # Overview (static)
+    # 1. ระบุรายชื่อฟิลด์ที่ต้องการลบออก (ต้องพิมพ์ให้ตรงกับ key ของ yfinance เป๊ะๆ)
+    EXCLUDE_KEYS = [
+        "Interest Expense", 
+        "Net Interest Income", 
+        "Total Revenue"
+    ]
+
+    # Overview
     ov = {}
     try:
-        fi = t.fast_info
         info = t.get_info()
+        fi = t.fast_info 
         ov = {
-            "marketCap": _try_float(getattr(fi, "market_cap", None)),
-            "sharesOutstanding": _try_float(getattr(fi, "shares_outstanding", None)),
-            "peRatio": _try_float(getattr(fi, "trailing_pe", None)),
-            "currency": getattr(fi, "currency", None),
-            "exchange": getattr(fi, "exchange", None),
+            "marketCap": _try_float(info.get("marketCap", getattr(fi, "market_cap", None))),
+            "sharesOutstanding": _try_float(info.get("sharesOutstanding", getattr(fi, "shares_outstanding", None))),
+            "peRatio": _try_float(info.get("trailingPE", getattr(fi, "trailing_pe", None))),
+            "currency": info.get("currency", getattr(fi, "currency", None)),
             "name": info.get("shortName") or info.get("longName"),
             "sector": info.get("sector"),
             "industry": info.get("industry")
         }
     except: pass
 
-    # Helper to convert DF to Dict of Date -> Data
     def _parse_df(df):
         out = {}
         if df is None or getattr(df, "empty", True): return out
         
-        # Iterate columns (Dates)
         for col in df.columns:
             date_key = _safe_date_str(col)
-            # Convert series to dict, filter Nones
             series_dict = df[col].to_dict()
-            clean = {k: _try_float(v) for k,v in series_dict.items() if _try_float(v) is not None}
+            
+            clean = {}
+            for k, v in series_dict.items():
+                key_str = str(k).strip() # ตัดช่องว่างหน้าหลัง
+                
+                # 2. เช็คว่าชื่อฟิลด์นี้ อยู่ในบัญชี (Exclude List) หรือไม่
+                if key_str in EXCLUDE_KEYS:
+                    continue # ข้ามเลย ไม่เอา
+
+                val = _try_float(v)
+                if val is not None:
+                    clean[key_str] = val
+            
             if clean:
                 out[date_key] = clean
         return out
 
-    bs = _parse_df(getattr(t, "balance_sheet", None))
-    cf = _parse_df(getattr(t, "cashflow", None))
-    inc = _parse_df(getattr(t, "financials", None))
+    try:
+        bs = _parse_df(t.balance_sheet)
+        cf = _parse_df(t.cashflow)
+        inc = _parse_df(t.financials)
+    except Exception as e:
+        print(f"    YFinance Error: {e}")
+        return {}
 
     return {"overview": ov, "balancesheet": bs, "cashflow": cf, "incomestatement": inc}
 
@@ -2333,7 +2353,7 @@ def fetch_alphavantage_10y(symbol: str) -> Dict[str, Dict]:
 
     bs = _parse_reps("BALANCE_SHEET", {"totalAssets": "totalAssets", "totalLiabilities": "totalLiabilities", "shareholderEquity": "totalShareholderEquity"})
     cf = _parse_reps("CASH_FLOW", {"operatingCashFlow": "operatingCashflow", "capitalExpenditures": "capitalExpenditures", "freeCashFlow": "freeCashFlow"}) # logic compute fcf separate if needed
-    inc = _parse_reps("INCOME_STATEMENT", {"totalRevenue": "totalRevenue", "netIncome": "netIncome", "eps": "reportedEPS"})
+    inc = _parse_reps("INCOME_STATEMENT", {"totalRevenue": "totalRevenue", "netIncome": "netIncome", "eps": "reportedEPS", "interestExpense": "interestExpense", "netInterestIncome": "netInterestIncome"})
 
     return {"overview": ov, "balancesheet": bs, "cashflow": cf, "incomestatement": inc}
 
@@ -2393,6 +2413,8 @@ def fetch_finnhub_10y(symbol: str) -> Dict[str, Dict]:
         inc_clean = {
             "totalRevenue": _find_val(report.get("ic", []), ["Revenues", "SalesRevenueNet", "RevenuefromContractwithCustomerExcludingAssessedTax"]),
             "netIncome": _find_val(report.get("ic", []), ["NetIncomeLoss", "ProfitLoss"]),
+            "interestExpense": _find_val(report.get("ic", []), ["InterestExpense", "InterestAndDebtExpense"]),
+            "netInterestIncome": _find_val(report.get("ic", []), ["NetInterestIncome", "InterestIncomeExpenseNet"]),
         }
         if any(v is not None for v in inc_clean.values()):
             inc[date_key] = inc_clean
@@ -2435,6 +2457,8 @@ def decide_source_by_history(fetched: Dict, target_years=10) -> Dict:
     # 1. Max years
     max_years = max(scores.values())
     candidates = [s for s, sc in scores.items() if sc == max_years]
+    
+    print(candidates)
     
     winner = candidates[0]
     # Tie-breaker: Preference similar to original
