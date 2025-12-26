@@ -631,8 +631,12 @@ export default function ViewDocsPage() {
                     0%, 100% { transform: translate(0, 0) scale(1); }
                     50% { transform: translate(-2%, -2%) scale(1.05); }
                 }
+                @keyframes gradient-position {
+                    0%, 100% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                }
             `}</style>
-            <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative overflow-hidden ${isDarkMode ? 'bg-[#020617] text-[#f8fbff]' : 'bg-gradient-to-br from-[#e0f2fe] via-[#fef3c7] to-[#fce7f3] text-[#1a202c]'}`}>
+            <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative ${isDarkMode ? 'bg-[#020617] text-[#f8fbff]' : 'bg-[#F6F9FC] text-[#0F172A]'}`}>
             {/* Starry Night Sky Effect (matching home page) - only render on client */}
             {mounted && isDarkMode && (
                 <div className="fixed inset-0 pointer-events-none z-0">
@@ -656,16 +660,15 @@ export default function ViewDocsPage() {
                 </div>
             )}
             
-            {/* Morning Sky Effect for Light Mode */}
+            {/* Light Mode Background - Subtle blue gradient */}
             {mounted && !isDarkMode && (
                 <div className="fixed inset-0 pointer-events-none z-0">
-                    <div className="absolute inset-0 bg-gradient-to-b from-[#fef3c7]/60 via-[#fce7f3]/40 to-[#e0f2fe]/50" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
                     <div 
-                        className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-[radial-gradient(circle,rgba(255,237,153,0.35),rgba(255,200,87,0.25),transparent_70%)] rounded-full blur-3xl animate-[sunrise_20s_ease_infinite]"
-                        style={{ transform: 'translate(-50%, -20%)' }}
-                    />
-                    <div
-                        className="absolute inset-[-40%] bg-[radial-gradient(circle_at_20%_30%,rgba(255,237,153,0.20),transparent_50%),radial-gradient(circle_at_80%_10%,rgba(255,200,87,0.18),transparent_50%),radial-gradient(circle_at_50%_80%,rgba(251,191,36,0.12),transparent_60%),radial-gradient(circle_at_10%_70%,rgba(249,168,212,0.15),transparent_55%)] animate-[gradient_20s_ease_infinite] opacity-50"
+                        className="absolute inset-[-40%] opacity-60 light-mode-gradient"
+                        style={{
+                            background: 'radial-gradient(circle at 10% 20%, rgba(37,99,235,0.03), transparent 55%), radial-gradient(circle at 80% 0%, rgba(56,189,248,0.04), transparent 55%), radial-gradient(circle at 50% 100%, rgba(37,99,235,0.05), transparent 60%)'
+                        }}
                     />
                 </div>
             )}
@@ -693,14 +696,14 @@ export default function ViewDocsPage() {
                 isDarkMode={isDarkMode}
             />
 
-            <main className="flex-1 flex flex-col relative min-h-screen min-w-0 overflow-y-auto z-10 bg-transparent">
-                <div className={`sticky top-0 backdrop-blur-xl z-30 border-b px-12 py-8 ${isDarkMode ? 'bg-[#020617]/95 border-white/5' : 'bg-white/80 border-[#fbbf24]/20'}`}>
+            <main className="flex-1 flex flex-col relative min-h-screen min-w-0 z-10 bg-transparent">
+                <div className={`sticky top-0 backdrop-blur-xl z-30 border-b px-12 py-8 ${isDarkMode ? 'bg-[#020617]/95 border-white/5' : 'bg-white border-[#E2E8F0]'}`}>
                     <div className="flex justify-between items-start">
                         <div>
-                            <h1 className={`text-3xl font-bold mb-2 tracking-tight ${isDarkMode ? 'text-[#f8fbff]' : 'text-gray-900'}`}>
+                            <h1 className={`text-3xl font-bold mb-2 tracking-tight ${isDarkMode ? 'text-[#f8fbff]' : 'text-[#0F172A]'}`}>
                                 View Docs
                             </h1>
-                            <p className={`text-base ${isDarkMode ? 'text-[#f8fbff]/80' : 'text-gray-700'}`}>
+                            <p className={`text-base ${isDarkMode ? 'text-[#f8fbff]/80' : 'text-[#334155]'}`}>
                                 Document & Tutorials & Agent
                             </p>
                         </div>
@@ -708,7 +711,7 @@ export default function ViewDocsPage() {
                             href="https://arxiv.org/pdf/2412.20138"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm shadow-lg transition-all hover:scale-105 ${isDarkMode ? 'bg-[#00e33d] hover:bg-[#00c936] text-black shadow-green-500/20' : 'bg-gradient-to-r from-[#f59e0b] to-[#ec4899] text-white shadow-[0_8px_24px_rgba(245,158,11,0.3)] hover:shadow-[0_12px_32px_rgba(245,158,11,0.4)]'}`}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm shadow-lg transition-all hover:scale-105 ${isDarkMode ? 'bg-[#00e33d] hover:bg-[#00c936] text-black shadow-green-500/20' : 'bg-gradient-to-r from-[#2563EB] to-[#38BDF8] text-white shadow-lg shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/30'}`}
                         >
                             <Download size={16} />
                             Download Document
@@ -720,7 +723,7 @@ export default function ViewDocsPage() {
 
                     {/* ================= Document Sections ================= */}
                     <div className="mb-8">
-                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode ? 'text-[#f8fbff] border-white/10' : 'text-gray-900 border-[#fbbf24]/30'}`}>
+                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode ? 'text-[#f8fbff] border-white/10' : 'text-[#0F172A] border-[#E2E8F0]'}`}>
                             Document
                         </h2>
                     </div>
@@ -732,10 +735,10 @@ export default function ViewDocsPage() {
                                 id={section.id}
                                 className="scroll-mt-40"
                             >
-                                <h3 className={`text-xl font-bold mb-6 ${isDarkMode ? 'text-[#f8fbff]' : 'text-gray-900'}`}>
+                                <h3 className={`text-xl font-bold mb-6 ${isDarkMode ? 'text-[#f8fbff]' : 'text-[#0F172A]'}`}>
                                     {section.title}
                                 </h3>
-                                <div className={`text-base leading-relaxed ${isDarkMode ? 'text-[#f8fbff]/90' : 'text-gray-800'} ${!isDarkMode ? 'light-mode-content' : ''}`}>
+                                <div className={`text-base leading-relaxed ${isDarkMode ? 'text-[#f8fbff]/90' : 'text-[#334155]'} ${!isDarkMode ? 'light-mode-content' : ''}`}>
                                     {section.id === 'introduction' ? (
                                         section.content
                                     ) : section.id === 'role-specialization' ? (
@@ -747,34 +750,34 @@ export default function ViewDocsPage() {
                                                 <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${
                                                     isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-white/80 backdrop-blur-sm border-[#fbbf24]/30 hover:border-[#f59e0b]/50 shadow-sm"
+                                                        : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
                                                 }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#d97706]"}`}>Fundamental Analysts</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-700"}`}>Analyze company financial health, earnings reports, and macroeconomic indicators to determine long-term value.</p>
+                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Fundamental Analysts</h3>
+                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Analyze company financial health, earnings reports, and macroeconomic indicators to determine long-term value.</p>
                                                 </div>
                                                 <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${
                                                     isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-white/80 backdrop-blur-sm border-[#fbbf24]/30 hover:border-[#f59e0b]/50 shadow-sm"
+                                                        : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
                                                 }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#d97706]"}`}>Technical Analysts</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-700"}`}>Study price action, trends, and volume patterns to identify optimal entry and exit points.</p>
+                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Technical Analysts</h3>
+                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Study price action, trends, and volume patterns to identify optimal entry and exit points.</p>
                                                 </div>
                                                 <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${
                                                     isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-white/80 backdrop-blur-sm border-[#fbbf24]/30 hover:border-[#f59e0b]/50 shadow-sm"
+                                                        : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
                                                 }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#d97706]"}`}>Sentiment Analysts</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-700"}`}>Process news, social media, and market chatter to gauge market psychology and potential volatility.</p>
+                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Sentiment Analysts</h3>
+                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Process news, social media, and market chatter to gauge market psychology and potential volatility.</p>
                                                 </div>
                                                 <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${
                                                     isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-white/80 backdrop-blur-sm border-[#fbbf24]/30 hover:border-[#f59e0b]/50 shadow-sm"
+                                                        : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
                                                 }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#d97706]"}`}>Risk Management</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-gray-700"}`}>Monitor portfolio exposure and set strict limits to preserve capital and manage downside risk.</p>
+                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Risk Management</h3>
+                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Monitor portfolio exposure and set strict limits to preserve capital and manage downside risk.</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -793,7 +796,7 @@ export default function ViewDocsPage() {
                         className="mb-8"
                         id="tutorials-header"
                     >
-                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode ? 'text-[#f8fbff] border-white/10' : 'text-gray-900 border-[#fbbf24]/30'}`}>
+                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode ? 'text-[#f8fbff] border-white/10' : 'text-[#0F172A] border-[#E2E8F0]'}`}>
                             Tutorials
                         </h2>
                     </div>
@@ -805,8 +808,8 @@ export default function ViewDocsPage() {
                                 id={section.id}
                                 className="scroll-mt-40"
                             >
-                                <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-[#f8fbff]" : "text-gray-900"}`}>
-                                    <span className={`font-mono ${isDarkMode ? "text-cyan-500" : "text-[#d97706]"}`}>{index + 1}.</span> {section.title}
+                                <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-[#f8fbff]" : "text-[#0F172A]"}`}>
+                                    <span className={`font-mono ${isDarkMode ? "text-cyan-500" : "text-[#2563EB]"}`}>{index + 1}.</span> {section.title}
                                 </h3>
                                 <div className="space-y-4">
                                     {section.steps.map((step, i) => {
@@ -816,17 +819,17 @@ export default function ViewDocsPage() {
                                                 <div className={`flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center font-bold text-sm transition-all group-hover:scale-110 ${
                                                     isDarkMode
                                                         ? "bg-zinc-700/50 border-zinc-600 text-zinc-200"
-                                                        : "bg-[#fbbf24]/20 border-[#f59e0b]/40 text-[#d97706]"
+                                                        : "bg-[#EFF6FF] border-[#2563EB]/40 text-[#2563EB]"
                                                 }`}>
                                                     {i + 1}
                                                 </div>
                                                 <div className={`flex-1 p-4 rounded-xl border transition-all hover:scale-[1.02] hover:shadow-lg ${
                                                     isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-white/80 backdrop-blur-sm border-[#fbbf24]/30 hover:border-[#f59e0b]/50 shadow-sm"
+                                                        : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
                                                 }`}>
-                                                    <h4 className={`font-bold mb-1 ${isDarkMode ? "text-gray-200" : "text-gray-900"}`}>{title}</h4>
-                                                    <p className={`text-sm leading-relaxed ${isDarkMode ? "text-zinc-300" : "text-gray-700"}`}>
+                                                    <h4 className={`font-bold mb-1 ${isDarkMode ? "text-gray-200" : "text-[#0F172A]"}`}>{title}</h4>
+                                                    <p className={`text-sm leading-relaxed ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>
                                                         {desc || title}
                                                     </p>
                                                 </div>
@@ -846,7 +849,7 @@ export default function ViewDocsPage() {
                         <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${
                             isDarkMode
                                 ? "text-[#f8fbff] border-white/10"
-                                : "text-gray-900 border-[#fbbf24]/30"
+                                : "text-[#0F172A] border-[#E2E8F0]"
                         }`}>
                             Our Agents
                         </h2>
@@ -860,13 +863,13 @@ export default function ViewDocsPage() {
                                 className="scroll-mt-40"
                             >
                                 <div className="mb-8">
-                                    <h3 className={`text-xl font-bold mb-2 flex items-center gap-3 ${isDarkMode ? "text-[#f8fbff]" : "text-gray-900"}`}>
+                                    <h3 className={`text-xl font-bold mb-2 flex items-center gap-3 ${isDarkMode ? "text-[#f8fbff]" : "text-[#0F172A]"}`}>
                                         {team.title}
                                     </h3>
                                     <p className={`text-base leading-relaxed border-l-2 pl-4 max-w-4xl ${
                                         isDarkMode
                                             ? "text-[#f8fbff]/80 border-white/10"
-                                            : "text-gray-700 border-[#fbbf24]/30"
+                                            : "text-[#334155] border-[#E2E8F0]"
                                     }`}>
                                         {team.description}
                                     </p>
@@ -877,26 +880,26 @@ export default function ViewDocsPage() {
                                         <div key={agent.id} className={`border rounded-xl p-6 relative overflow-hidden group h-full transition-all hover:scale-105 hover:shadow-lg ${
                                             isDarkMode
                                                 ? "bg-zinc-800/40 border-zinc-700/60 hover:border-zinc-600"
-                                                : "bg-white/80 backdrop-blur-sm border-[#fbbf24]/30 hover:border-[#f59e0b]/50 shadow-sm"
+                                                : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
                                         }`}>
                                             <div className="flex items-center gap-3 mb-3 relative z-10">
                                                 <div className={`p-2 rounded-lg border transition-all group-hover:scale-110 ${
                                                     isDarkMode
                                                         ? "bg-zinc-800/50 border-zinc-600"
-                                                        : "bg-[#fbbf24]/20 border-[#f59e0b]/40"
+                                                        : "bg-[#EFF6FF] border-[#2563EB]/30"
                                                         }`}>
                                                         {agent.icon}
                                                     </div>
                                                     <div>
-                                                        <h4 className={`font-bold text-base ${isDarkMode ? "text-[#f8fbff]" : "text-gray-900"}`}>
+                                                        <h4 className={`font-bold text-base ${isDarkMode ? "text-[#f8fbff]" : "text-[#0F172A]"}`}>
                                                             {agent.title}
                                                         </h4>
-                                                        <p className={`text-[11px] uppercase tracking-wider font-bold ${isDarkMode ? "text-cyan-500" : "text-[#d97706]"}`}>
+                                                        <p className={`text-[11px] uppercase tracking-wider font-bold ${isDarkMode ? "text-cyan-500" : "text-[#2563EB]"}`}>
                                                             {agent.role}
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <p className={`text-sm leading-relaxed relative z-10 ${isDarkMode ? "text-[#f8fbff]/80" : "text-gray-700"}`}>
+                                                <p className={`text-sm leading-relaxed relative z-10 ${isDarkMode ? "text-[#f8fbff]/80" : "text-[#334155]"}`}>
                                                     {agent.content}
                                                 </p>
                                             </div>

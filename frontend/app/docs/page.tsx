@@ -389,7 +389,7 @@ export default function DocsPage() {
                     }
                 }
             `}</style>
-            <div className="flex min-h-screen w-full font-sans transition-colors duration-300 relative bg-[#020617] text-[#f8fbff] overflow-hidden">
+            <div className="flex min-h-screen w-full font-sans transition-colors duration-300 relative bg-[#020617] text-[#f8fbff]">
             {/* Starry Night Sky Effect (matching home page) - only render on client */}
             {mounted && (
                 <div className="fixed inset-0 pointer-events-none z-0">
@@ -447,7 +447,7 @@ export default function DocsPage() {
                 onSelectItem={scrollToSection}
             />
 
-            <main className="flex-1 flex flex-col relative min-h-screen min-w-0 overflow-y-auto z-10 bg-transparent">
+            <main className="flex-1 flex flex-col relative min-h-screen min-w-0 z-10 bg-transparent">
                 <div className="sticky top-0 bg-[#020617]/95 z-30 border-b border-white/5 px-12 pt-24 pb-8">
                         <div>
                             <h1 className="text-3xl font-bold text-[#f8fbff] mb-2 tracking-tight">

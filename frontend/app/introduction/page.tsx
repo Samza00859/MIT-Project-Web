@@ -5,12 +5,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Logo from "@/image/Logo.png";
+import LogoBlack from "@/image/Logo_black.png";
 
 export default function IntroductionPage() {
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [mounted, setMounted] = useState(false);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [stars, setStars] = useState<Array<{ x: number; y: number; size: number; opacity: number; delay: number; duration: number }>>([]);
+    const [lightParticles, setLightParticles] = useState<Array<{ x: number; y: number; size: number; opacity: number; delay: number; duration: number }>>([]);
     const cursorTrailRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
@@ -42,6 +44,26 @@ export default function IntroductionPage() {
         generateStars();
     }, []);
 
+    // Generate light particles for light mode
+    useEffect(() => {
+        const generateLightParticles = () => {
+            const particleCount = 120;
+            const newParticles = [];
+            for (let i = 0; i < particleCount; i++) {
+                newParticles.push({
+                    x: Math.random() * 100,
+                    y: Math.random() * 100,
+                    size: Math.random() * 3 + 1,
+                    opacity: Math.random() * 0.6 + 0.3,
+                    delay: Math.random() * 4,
+                    duration: 3 + Math.random() * 3,
+                });
+            }
+            setLightParticles(newParticles);
+        };
+        generateLightParticles();
+    }, []);
+
     // Mouse movement effect
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -71,7 +93,7 @@ export default function IntroductionPage() {
     };
 
     return (
-        <div className={`min-h-screen w-full font-sans overflow-hidden relative ${isDarkMode ? 'bg-gradient-to-b from-[#050811] via-[#050811] to-[#101522] text-white' : 'bg-gradient-to-b from-[#e0f2fe] via-[#fef3c7] to-[#fce7f3] text-[#0f172a]'}`}>
+        <div className={`min-h-screen w-full font-sans overflow-hidden relative ${isDarkMode ? 'bg-gradient-to-b from-[#050811] via-[#050811] to-[#101522] text-white' : 'bg-[#F6F9FC] text-[#0F172A]'}`}>
             {/* Animated Background Pattern */}
             <div className="pointer-events-none absolute inset-0">
                 {isDarkMode ? (
@@ -80,14 +102,10 @@ export default function IntroductionPage() {
                     />
                 ) : (
                     <>
-                        {/* Sun/Morning Sky Effect */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-[#fef3c7]/60 via-[#fce7f3]/40 to-[#e0f2fe]/50" />
-                        <div 
-                            className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,237,153,0.4),rgba(255,200,87,0.2),transparent_70%)] rounded-full blur-3xl animate-[sunrise_20s_ease_infinite]"
-                            style={{ transform: 'translate(-50%, -20%)' }}
-                        />
+                        {/* Light Mode Background - Subtle blue gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
                         <div
-                            className="absolute inset-[-40%] bg-[radial-gradient(circle_at_20%_30%,rgba(255,237,153,0.25),transparent_50%),radial-gradient(circle_at_80%_10%,rgba(255,200,87,0.20),transparent_50%),radial-gradient(circle_at_50%_80%,rgba(251,191,36,0.15),transparent_60%),radial-gradient(circle_at_10%_70%,rgba(249,168,212,0.18),transparent_55%)] animate-[gradient_18s_ease_infinite] opacity-60"
+                            className="absolute inset-[-40%] bg-[radial-gradient(circle_at_10%_20%,rgba(37,99,235,0.03),transparent_55%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.04),transparent_55%),radial-gradient(circle_at_50%_100%,rgba(37,99,235,0.05),transparent_60%)] animate-[gradient_18s_ease_infinite] opacity-60"
                         />
                     </>
                 )}
@@ -108,6 +126,27 @@ export default function IntroductionPage() {
                                 opacity: star.opacity,
                                 animationDelay: `${star.delay}s`,
                                 animationDuration: `${star.duration}s`,
+                            }}
+                        />
+                    ))}
+                </div>
+            )}
+
+            {/* Light Particles for Light Mode */}
+            {!isDarkMode && (
+                <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                    {lightParticles.map((particle, index) => (
+                        <div
+                            key={index}
+                            className="light-particle"
+                            style={{
+                                left: `${particle.x}%`,
+                                top: `${particle.y}%`,
+                                width: `${particle.size}px`,
+                                height: `${particle.size}px`,
+                                opacity: particle.opacity,
+                                animationDelay: `${particle.delay}s`,
+                                animationDuration: `${particle.duration}s`,
                             }}
                         />
                     ))}
@@ -155,19 +194,19 @@ export default function IntroductionPage() {
                     <svg className="wave-svg absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
                         <defs>
                             <linearGradient id="waveGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="rgba(255, 237, 153, 0.15)" />
-                                <stop offset="50%" stopColor="rgba(255, 220, 100, 0.22)" />
-                                <stop offset="100%" stopColor="rgba(255, 237, 153, 0.15)" />
+                                <stop offset="0%" stopColor="rgba(37, 99, 235, 0.04)" />
+                                <stop offset="50%" stopColor="rgba(56, 189, 248, 0.06)" />
+                                <stop offset="100%" stopColor="rgba(37, 99, 235, 0.04)" />
                             </linearGradient>
                             <linearGradient id="waveGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="rgba(255, 220, 100, 0.12)" />
-                                <stop offset="50%" stopColor="rgba(255, 237, 153, 0.18)" />
-                                <stop offset="100%" stopColor="rgba(255, 220, 100, 0.12)" />
+                                <stop offset="0%" stopColor="rgba(56, 189, 248, 0.03)" />
+                                <stop offset="50%" stopColor="rgba(37, 99, 235, 0.05)" />
+                                <stop offset="100%" stopColor="rgba(56, 189, 248, 0.03)" />
                             </linearGradient>
                             <linearGradient id="waveGradient3" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="rgba(255, 237, 153, 0.1)" />
-                                <stop offset="50%" stopColor="rgba(255, 220, 100, 0.15)" />
-                                <stop offset="100%" stopColor="rgba(255, 237, 153, 0.1)" />
+                                <stop offset="0%" stopColor="rgba(37, 99, 235, 0.02)" />
+                                <stop offset="50%" stopColor="rgba(56, 189, 248, 0.04)" />
+                                <stop offset="100%" stopColor="rgba(37, 99, 235, 0.02)" />
                             </linearGradient>
                         </defs>
                         <path 
@@ -277,35 +316,36 @@ export default function IntroductionPage() {
                    LIGHT MODE
                 ========================= */
                 body[data-theme="light"] {
-                    background: #f4f6f5;
-                    color: #0f172a;
+                    background: #F6F9FC;
+                    color: #334155;
                 }
                 body[data-theme="light"] h1,
                 body[data-theme="light"] h2 {
-                    color: #10e5b5;
+                    color: #0F172A;
                 }
                 body[data-theme="light"] .bg-gradient-to-r {
-                    background-image: linear-gradient(to right, #10e5b5, #0dc59f);
+                    background-image: linear-gradient(to right, #2563EB, #38BDF8);
                     -webkit-background-clip: text;
                     background-clip: text;
                     -webkit-text-fill-color: transparent;
                 }
                 :global(body[data-theme="light"]) .float-block {
-                    background: rgba(255, 255, 255, 0.85) !important;
-                    color: #0f172a !important;
-                    box-shadow: 0 10px 28px rgba(251, 191, 36, 0.2), 0 4px 12px rgba(249, 168, 212, 0.15);
-                    border: 1px solid rgba(251, 191, 36, 0.3) !important;
-                    transition: background 0.3s ease, transform 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+                    background: #FFFFFF !important;
+                    color: #0F172A !important;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 6px rgba(37, 99, 235, 0.08) !important;
+                    border: 1px solid rgba(37, 99, 235, 0.1) !important;
+                    transition: all 0.3s ease !important;
                     backdrop-filter: blur(10px);
                 }
                 :global(body[data-theme="light"]) .float-block:hover {
-                    background: rgba(255, 237, 153, 0.4) !important;
-                    color: #0f172a !important;
-                    border-color: rgba(251, 191, 36, 0.5) !important;
-                    box-shadow: 0 12px 32px rgba(251, 191, 36, 0.3), 0 6px 16px rgba(249, 168, 212, 0.2) !important;
+                    background: #FFFFFF !important;
+                    color: #0F172A !important;
+                    border-color: rgba(37, 99, 235, 0.2) !important;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06), 0 10px 15px rgba(37, 99, 235, 0.12) !important;
+                    transform: translateY(-2px) !important;
                 }
                 body[data-theme="light"] .subtitle {
-                    color: #475569;
+                    color: #64748B;
                 }
                 /* Wave Animation - Light Mode Only */
                 .wave-background-container {
@@ -316,7 +356,7 @@ export default function IntroductionPage() {
                     width: 500px;
                     height: 500px;
                     border-radius: 50%;
-                    background: radial-gradient(circle, rgba(255, 237, 153, 0.25), rgba(255, 220, 100, 0.15), transparent 70%);
+                    background: radial-gradient(circle, rgba(37, 99, 235, 0.06), rgba(56, 189, 248, 0.04), transparent 70%);
                     transform: translate(-50%, -50%);
                     pointer-events: none;
                     transition: transform 0.2s ease-out;
@@ -439,6 +479,24 @@ export default function IntroductionPage() {
                     border-radius: 50%;
                     animation: twinkle 3s ease-in-out infinite;
                 }
+                /* Light particle animations for light mode */
+                @keyframes sparkle {
+                    0%, 100% { 
+                        opacity: 0.3; 
+                        transform: scale(0.8) rotate(0deg); 
+                    }
+                    50% { 
+                        opacity: 0.8; 
+                        transform: scale(1.2) rotate(180deg); 
+                    }
+                }
+                .light-particle {
+                    position: absolute;
+                    background: radial-gradient(circle, rgba(37, 99, 235, 0.4), rgba(56, 189, 248, 0.3), transparent);
+                    border-radius: 50%;
+                    animation: sparkle 4s ease-in-out infinite;
+                    box-shadow: 0 0 6px rgba(37, 99, 235, 0.2);
+                }
                 /* Cursor trail particles */
                 .cursor-particle {
                     position: fixed;
@@ -454,7 +512,7 @@ export default function IntroductionPage() {
                     background: radial-gradient(circle, rgba(45, 244, 198, 0.8), rgba(45, 244, 198, 0));
                 }
                 body[data-theme="light"] .cursor-particle {
-                    background: radial-gradient(circle, rgba(251, 191, 36, 0.8), rgba(249, 168, 212, 0.6), transparent);
+                    background: radial-gradient(circle, rgba(37, 99, 235, 0.8), rgba(56, 189, 248, 0.6), transparent);
                 }
                 @keyframes particleFade {
                     0% {
@@ -481,7 +539,7 @@ export default function IntroductionPage() {
                     background: radial-gradient(circle, rgba(45, 244, 198, 0.1), transparent 70%);
                 }
                 .cursor-glow-light {
-                    background: radial-gradient(circle, rgba(251, 191, 36, 0.2), rgba(249, 168, 212, 0.15), transparent 70%);
+                    background: radial-gradient(circle, rgba(37, 99, 235, 0.08), rgba(56, 189, 248, 0.05), transparent 70%);
                 }
                 .cursor-trail-container {
                     position: fixed;
@@ -500,10 +558,8 @@ export default function IntroductionPage() {
                     {/* Logo Placeholder */}
                 </div>
                 <div className="flex gap-4 text-sm font-medium tracking-wide">
-                    <Link href="/docs" className={`rounded-full px-7 py-2.5 text-base transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525] border border-transparent shadow-lg" : "bg-white/90 backdrop-blur-xl text-gray-900 hover:bg-white shadow-lg border border-[#fbbf24]/30 hover:border-[#fbbf24]/50 hover:shadow-[0_0_20px_rgba(251,191,36,0.25)]"
-                        }`}>View Docs</Link>
-                    <Link href="/contact-public" className={`rounded-full px-7 py-2.5 text-base transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525] border border-transparent shadow-lg" : "bg-white/90 backdrop-blur-xl text-gray-900 hover:bg-white shadow-lg border border-[#fbbf24]/30 hover:border-[#fbbf24]/50 hover:shadow-[0_0_20px_rgba(251,191,36,0.25)]"
-                        }`}>Contact</Link>
+                    <Link href="/docs" className={`rounded-full px-7 py-2.5 text-base font-medium transition-all ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525] border border-transparent shadow-lg hover:scale-105" : "bg-white text-[#334155] hover:bg-[#F8FAFC] shadow-sm border border-[#E2E8F0] hover:shadow-md hover:border-[#2563EB]/30 hover:-translate-y-0.5"}`}>View Docs</Link>
+                    <Link href="/contact-public" className={`rounded-full px-7 py-2.5 text-base font-medium transition-all ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525] border border-transparent shadow-lg hover:scale-105" : "bg-white text-[#334155] hover:bg-[#F8FAFC] shadow-sm border border-[#E2E8F0] hover:shadow-md hover:border-[#2563EB]/30 hover:-translate-y-0.5"}`}>Contact</Link>
                 </div>
             </nav>
 
@@ -511,37 +567,36 @@ export default function IntroductionPage() {
                 {/* Left Section */}
                 <div className={`relative flex flex-col justify-start px-6 pt-16 pb-16 lg:px-10 ${isDarkMode
                     ? "bg-gradient-to-b from-[#0f1216]/40 to-[#141922]/50 backdrop-blur-2xl"
-                    : "bg-gradient-to-b from-white/70 to-white/50 backdrop-blur-2xl border-r border-[#fbbf24]/20"
+                    : "bg-[#F1F5F9] border-r border-[#E2E8F0]"
                     }`}>
                     <div className="mx-auto w-full max-w-sm flex flex-col h-full items-stretch">
                         {/* Header */}
                         <div className={`mb-10 text-center transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3'}`}>
-                            <h1 className={`text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6] to-[#26dcb2] bg-clip-text text-transparent' : 'bg-gradient-to-r from-[#d97706] via-[#ea580c] to-[#db2777] bg-clip-text text-transparent'}`}>
+                            <h1 className={`text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6] to-[#26dcb2] bg-clip-text text-transparent' : 'text-[#0F172A]'}`}>
                                 Trading Agents
                             </h1>
-                            <p className={`subtitle mt-3 text-sm md:text-base leading-relaxed transition-all duration-700 ease-out delay-150 ${isDarkMode ? 'text-slate-300/80' : 'text-slate-800'} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+                            <p className={`subtitle mt-3 text-sm md:text-base leading-relaxed transition-all duration-700 ease-out delay-150 ${isDarkMode ? 'text-slate-300/80' : 'text-[#64748B]'} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
                                 Multi-Agents LLM Financial Trading
                             </p>
                         </div>
 
                         {/* Feature floating list */}
                         <div className="feature-column py-6 w-full overflow-visible">
-                            <div className="float-block left" style={!isDarkMode ? { color: '#000000' } : {}}>AI Market Analysis</div>
-                            <div className="float-block right" style={!isDarkMode ? { color: '#000000' } : {}}>Autonomous Execution</div>
-                            <div className="float-block left" style={!isDarkMode ? { color: '#000000' } : {}}>Risk Management</div>
-                            <div className="float-block right" style={!isDarkMode ? { color: '#000000' } : {}}>Backtesting Engine</div>
-                            <div className="float-block left" style={!isDarkMode ? { color: '#000000' } : {}}>Supported Markets</div>
+                            <div className="float-block left">AI Market Analysis</div>
+                            <div className="float-block right">Autonomous Execution</div>
+                            <div className="float-block left">Risk Management</div>
+                            <div className="float-block right">Backtesting Engine</div>
+                            <div className="float-block left">Supported Markets</div>
                         </div>
 
                         {/* Action Buttons */}
                         <div className={`mt-14 flex flex-col gap-3 items-center transition-all duration-700 ease-out delay-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
-                            <Link href="/Auth/register" className={`group relative flex w-64 items-center justify-center rounded-full px-12 py-4 text-base font-semibold transition-all duration-200 ease-out hover:-translate-y-0.5 ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6] to-[#26f0ff] text-black shadow-[0_0_24px_rgba(45,244,198,0.45)] hover:shadow-[0_0_40px_rgba(45,244,198,0.75)]' : 'bg-gradient-to-r from-[#f59e0b] to-[#ec4899] text-white shadow-[0_0_24px_rgba(245,158,11,0.5)] hover:shadow-[0_0_40px_rgba(245,158,11,0.7),0_0_60px_rgba(236,72,153,0.4)]'}`}>
+                            <Link href="/Auth/register" className={`group relative flex w-64 items-center justify-center rounded-full px-12 py-4 text-base font-semibold transition-all duration-200 ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6] to-[#26f0ff] text-black shadow-[0_0_24px_rgba(45,244,198,0.45)] hover:shadow-[0_0_40px_rgba(45,244,198,0.75)] hover:-translate-y-0.5' : 'bg-gradient-to-r from-[#2563EB] to-[#38BDF8] text-white shadow-lg shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/30 hover:-translate-y-1'}`}>
                                 <span className="relative z-10">Register</span>
-                                <span className={`absolute inset-0 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 ${isDarkMode ? 'bg-gradient-to-r from-[#40f9c9] to-[#4bfbff]' : 'bg-gradient-to-r from-[#fbbf24] to-[#f472b6]'}`} />
+                                <span className={`absolute inset-0 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 ${isDarkMode ? 'bg-gradient-to-r from-[#40f9c9] to-[#4bfbff]' : 'bg-gradient-to-r from-[#3B82F6] to-[#60A5FA]'}`} />
                             </Link>
-                            <Link href="/Auth/login" className={`group relative flex w-64 items-center justify-center rounded-full border-2 px-12 py-4 text-base font-semibold backdrop-blur-xl transition-all duration-200 ease-out hover:-translate-y-0.5 ${isDarkMode ? 'border-[#2df4c6]/60 bg-[#2df4c6]/10 text-white hover:border-[#2df4c6] hover:bg-[#2df4c6]/20 shadow-[0_0_24px_rgba(45,244,198,0.4)] hover:shadow-[0_0_40px_rgba(45,244,198,0.6)]' : 'border-[#f59e0b]/80 bg-[#f59e0b]/20 text-slate-800 hover:border-[#f59e0b] hover:bg-[#f59e0b]/30 shadow-[0_0_24px_rgba(245,158,11,0.4)] hover:shadow-[0_0_40px_rgba(245,158,11,0.6),0_0_60px_rgba(236,72,153,0.3)]'}`}>
+                            <Link href="/Auth/login" className={`flex w-64 items-center justify-center rounded-full border-2 px-12 py-4 text-base font-semibold transition-all duration-200 ${isDarkMode ? 'border-[#2df4c6]/60 bg-[#2df4c6]/10 text-white hover:border-[#2df4c6] hover:bg-[#2df4c6]/20 shadow-[0_0_24px_rgba(45,244,198,0.4)] hover:shadow-[0_0_40px_rgba(45,244,198,0.6)] hover:-translate-y-0.5' : 'border-[#2563EB] bg-white text-[#2563EB] hover:border-[#2563EB] hover:bg-[#EFF6FF] shadow-md shadow-[#2563EB]/10 hover:shadow-lg hover:shadow-[#2563EB]/20 hover:-translate-y-1'}`}>
                                 <span className="relative z-10">Login</span>
-                                <span className={`absolute inset-0 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100 ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6]/20 to-[#26f0ff]/20' : 'bg-gradient-to-r from-[#fbbf24]/25 to-[#f472b6]/20'}`} />
                             </Link>
                         </div>
                     </div>
@@ -550,8 +605,8 @@ export default function IntroductionPage() {
                     <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
                         <label className="relative inline-flex cursor-pointer items-center">
                             <input type="checkbox" checked={!isDarkMode} onChange={toggleTheme} className="peer sr-only" />
-                            <div className={`peer h-6 w-11 rounded-full after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none peer-focus:ring-2 ${isDarkMode ? 'bg-gray-700 after:border-gray-300 after:bg-white peer-checked:bg-gray-300 peer-checked:after:border-white peer-focus:ring-[#2df4c6]' : 'bg-[#fbbf24]/30 after:border-[#fbbf24]/50 after:bg-white peer-checked:bg-[#fbbf24] peer-checked:after:border-white peer-focus:ring-[#fbbf24]'}`}></div>
-                            <span className={`ml-3 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-slate-700"}`}>
+                            <div className={`peer h-6 w-11 rounded-full after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none peer-focus:ring-2 ${isDarkMode ? 'bg-gray-700 after:border-gray-300 after:bg-white peer-checked:bg-gray-300 peer-checked:after:border-white peer-focus:ring-[#2df4c6]' : 'bg-[#CBD5E1] after:border-[#F1F5F9] after:bg-white peer-checked:bg-[#2563EB] peer-checked:after:border-white peer-focus:ring-[#2563EB]'}`}></div>
+                            <span className={`ml-3 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-[#64748B]"}`}>
                                 {isDarkMode ? "Dark Mode" : "Light Mode"}
                             </span>
                         </label>
@@ -559,18 +614,18 @@ export default function IntroductionPage() {
                 </div>
 
                 {/* Right Section */}
-                <div className={`relative flex flex-col items-center justify-center px-8 py-20 text-center lg:px-20 ${isDarkMode ? "bg-transparent" : "bg-gradient-to-br from-white/40 to-[#fef3c7]/30"
+                <div className={`relative flex flex-col items-center justify-center px-8 py-20 text-center lg:px-20 ${isDarkMode ? "bg-transparent" : "bg-gradient-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]"
                     }`}>
                     {/* Logo with subtle glow accent */}
-                    <div className={`relative mb-10 flex items-center justify-center transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                        <div className={`pointer-events-none absolute -inset-x-16 -inset-y-8 rounded-[32px] blur-3xl ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6]/10 via-transparent to-[#26dcb2]/10' : 'bg-gradient-to-r from-[#fbbf24]/20 via-transparent to-[#f97316]/15'}`} />
-                        <div className={`relative rounded-[28px] px-8 py-5 ${isDarkMode ? 'bg-[#040b10]/90 shadow-[0_32px_80px_rgba(0,0,0,0.8)] ring-1 ring-white/5' : 'bg-[#040b10]/95 backdrop-blur-xl shadow-[0_32px_80px_rgba(0,0,0,0.4),0_16px_40px_rgba(251,191,36,0.2)] ring-2 ring-[#fbbf24]/30'}`}>
+                    <div className={`relative mb-4 flex items-center justify-center transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                        <div className={`pointer-events-none absolute -inset-x-16 -inset-y-8 rounded-[32px] blur-3xl ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6]/10 via-transparent to-[#26dcb2]/10' : 'bg-gradient-to-r from-[#2563EB]/5 via-transparent to-[#38BDF8]/5'}`} />
+                        <div className={`relative rounded-[28px] inline-block ${isDarkMode ? 'bg-transparent' : 'bg-transparent'}`}>
                             <Image
-                                src={Logo}
+                                src={isDarkMode ? Logo : LogoBlack}
                                 alt="Trading Agents Logo"
-                                width={480}
-                                height={180}
-                                className="h-auto w-full max-w-[480px] object-contain"
+                                width={640}
+                                height={240}
+                                className="h-auto w-auto object-contain block"
                                 priority
                             />
                         </div>
@@ -579,10 +634,10 @@ export default function IntroductionPage() {
                     {/* Hero Text */}
                     <h2 className={`mb-5 max-w-2xl text-2xl font-semibold leading-snug md:text-3xl lg:text-4xl transition-all duration-700 ease-out delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} text-balance`}>
                         Elevate Your Trading with Intelligent AI<br />
-                        <span className={`bg-clip-text text-transparent ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6] to-[#26dcb2]' : 'bg-gradient-to-r from-[#d97706] via-[#ea580c] to-[#db2777]'}`}>Multi-Agents LLM Financial Trading</span>
+                        <span className={`bg-clip-text text-transparent ${isDarkMode ? 'bg-gradient-to-r from-[#2df4c6] to-[#26dcb2]' : 'bg-gradient-to-r from-[#2563EB] to-[#38BDF8]'}`}>Multi-Agents LLM Financial Trading</span>
                     </h2>
 
-                    <p className={`max-w-xl text-sm md:text-base leading-relaxed transition-all duration-700 ease-out delay-300 ${isDarkMode ? 'text-slate-300/85' : 'text-slate-700/90'} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} text-balance`}>
+                    <p className={`max-w-xl text-sm md:text-base leading-relaxed transition-all duration-700 ease-out delay-300 ${isDarkMode ? 'text-slate-300/85' : 'text-[#334155]'} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} text-balance`}>
                         Discover Trading Agents that never stop evolving with Multi-Agents LLM Financial Trading architecture.
                         Our system is not just an ordinary bot, but a network of intelligent Agents that communicate,
                         exchange information, and learn from millions of trading experiences. The collaborative work of these AIs

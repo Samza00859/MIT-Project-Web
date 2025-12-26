@@ -76,13 +76,13 @@ const NavMenuItem = React.memo(function NavMenuItem({
                 className={`flex items-center gap-2 py-2 px-2 rounded-lg cursor-pointer font-semibold text-sm transition-colors ${
                     isDarkMode
                         ? 'text-white hover:text-cyan-400 hover:bg-cyan-500/10'
-                        : 'text-gray-900 hover:text-[#d97706] hover:bg-[#f59e0b]/10'
+                        : 'text-[#0F172A] hover:text-[#2563EB] hover:bg-[#EFF6FF]'
                 }`}
                 onClick={onToggle}
             >
                 <div>
                     {isExpanded ? (
-                        <ChevronDown size={14} className={isDarkMode ? "text-cyan-400" : "text-[#d97706]"} />
+                        <ChevronDown size={14} className={isDarkMode ? "text-cyan-400" : "text-[#2563EB]"} />
                     ) : (
                         <ChevronRight size={14} className={isDarkMode ? "text-zinc-400" : "text-gray-600"} />
                     )}
@@ -92,7 +92,7 @@ const NavMenuItem = React.memo(function NavMenuItem({
 
             {/* Sub Items */}
             {isExpanded && (
-                <div className={`relative ml-2 pl-4 border-l ${isDarkMode ? 'border-cyan-500/30' : 'border-[#f59e0b]/30'}`}>
+                <div className={`relative ml-2 pl-4 border-l ${isDarkMode ? 'border-cyan-500/30' : 'border-[#2563EB]/30'}`}>
                     {category.items.map((item) => {
                         const isActive = activeSection === item.id;
                         return (
@@ -102,10 +102,10 @@ const NavMenuItem = React.memo(function NavMenuItem({
                                     isActive
                                         ? isDarkMode
                                             ? 'text-cyan-400 font-semibold bg-cyan-500/15 border border-cyan-400/40'
-                                            : 'text-[#d97706] font-semibold bg-[#f59e0b]/15 border border-[#f59e0b]/40'
+                                            : 'text-[#2563EB] font-semibold bg-[#EFF6FF] border border-[#2563EB]/40'
                                         : isDarkMode
                                             ? 'text-zinc-400 hover:text-cyan-300 hover:bg-cyan-500/5'
-                                            : 'text-gray-700 hover:text-[#d97706] hover:bg-[#f59e0b]/5'
+                                            : 'text-[#64748B] hover:text-[#2563EB] hover:bg-[#EFF6FF]'
                                 }`}
                                 onClick={() => onSelectItem(item.id)}
                             >
@@ -138,10 +138,10 @@ export default function ViewDocsSidebar({
     const memoizedCategories = useMemo(() => NAV_STRUCTURE, []);
 
     return (
-        <aside className={`sticky top-0 w-[280px] shrink-0 flex flex-col pt-20 px-6 border-r hidden md:flex z-40 h-[calc(100vh-0px)] overflow-y-auto backdrop-blur-xl custom-scrollbar ${isDarkMode ? 'bg-[#020617]/80 border-white/10' : 'bg-white/80 border-[#fbbf24]/20'}`}>
+        <aside className={`sticky top-0 w-[280px] shrink-0 flex flex-col pt-20 px-6 border-r hidden md:flex z-40 max-h-screen overflow-y-auto backdrop-blur-xl custom-scrollbar ${isDarkMode ? 'bg-[#020617]/80 border-white/10' : 'bg-white/80 border-[#E2E8F0]'}`}>
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-                <h2 className={`text-lg font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                <h2 className={`text-lg font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-[#0F172A]'}`}>
                     TradingAgent Multi Agent
                 </h2>
             </div>

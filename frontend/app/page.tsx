@@ -1283,12 +1283,16 @@ export default function Home() {
     setIsDarkMode(!isDarkMode);
   };
 
+  useEffect(() => {
+    document.body.setAttribute("data-theme", isDarkMode ? "dark" : "light");
+  }, [isDarkMode]);
+
   return (
     <div
-      className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative overflow-hidden ${
+      className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative ${
         isDarkMode
           ? "bg-[#020617] text-[#f8fbff]"
-          : "bg-gradient-to-br from-[#e0f2fe] via-[#fef3c7] to-[#fce7f3] text-[#0f172a]"
+          : "bg-[#F6F9FC] text-[#0F172A]"
       }`}
     >
       {/* Starry Night Sky Effect - Dark Mode */}
@@ -1327,31 +1331,17 @@ export default function Home() {
         </>
       )}
 
-      {/* Morning Sky Background - Light Mode */}
+      {/* Light Mode Background - Subtle blue gradient */}
       {!isDarkMode && (
         <>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#fef3c7]/60 via-[#fce7f3]/40 to-[#e0f2fe]/50" />
+          <div className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
           <div 
-            className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,237,153,0.4),rgba(255,200,87,0.2),transparent_70%)] rounded-full blur-3xl animate-[sunrise_20s_ease_infinite]"
-            style={{ transform: 'translate(-50%, -20%)' }}
-          />
-          <div
-            className="pointer-events-none absolute inset-[-40%] bg-[radial-gradient(circle_at_20%_30%,rgba(255,237,153,0.25),transparent_50%),radial-gradient(circle_at_80%_10%,rgba(255,200,87,0.20),transparent_50%),radial-gradient(circle_at_50%_80%,rgba(251,191,36,0.15),transparent_60%),radial-gradient(circle_at_10%_70%,rgba(249,168,212,0.18),transparent_55%)] animate-[gradient_18s_ease_infinite] opacity-60"
+            className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_10%_20%,rgba(37,99,235,0.03),transparent_55%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.04),transparent_55%),radial-gradient(circle_at_50%_100%,rgba(37,99,235,0.05),transparent_60%)] animate-[gradient_18s_ease_infinite] opacity-60"
           />
           <style jsx>{`
             @keyframes gradient {
               0%, 100% { background-position: 0% 50%; }
               50% { background-position: 100% 50%; }
-            }
-            @keyframes sunrise {
-              0%, 100% { 
-                transform: translate(-50%, -20%) scale(1);
-                opacity: 0.6;
-              }
-              50% { 
-                transform: translate(-50%, -15%) scale(1.1);
-                opacity: 0.8;
-              }
             }
           `}</style>
         </>
@@ -1393,10 +1383,10 @@ export default function Home() {
       <main className="flex-1 flex flex-col gap-8 px-4 py-6 md:px-9 md:py-8 md:pb-12 pt-20 relative z-10">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className={`text-[0.85rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
+            <p className={`text-[0.85rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
               Trading workflow
             </p>
-            <h1 className={`text-2xl font-semibold ${isDarkMode ? "" : "text-gray-900"}`}>Generate</h1>
+            <h1 className={`text-2xl font-semibold ${isDarkMode ? "" : "text-[#0F172A]"}`}>Generate</h1>
           </div>
         </header>
 
@@ -1408,14 +1398,14 @@ export default function Home() {
 
         {/* Step Grid */}
         <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
-          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#f59e0b]/30 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(245,158,11,0.1)]"}`}>
+          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
             <header>
-              <p className={`text-[0.7rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
+              <p className={`text-[0.7rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                 Step 1
               </p>
-              <h2 className={`text-lg font-semibold ${isDarkMode ? "" : "text-gray-900"}`}>Ticker Symbol</h2>
+              <h2 className={`text-lg font-semibold ${isDarkMode ? "" : "text-[#0F172A]"}`}>Ticker Symbol</h2>
             </header>
-            <div className={`flex flex-col gap-1.5 text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-700"}`}>
+            <div className={`flex flex-col gap-1.5 text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>
               <span>Select Market & Ticker</span>
               <div className="flex gap-2">
                 {/* Custom Market Select Dropdown */}
@@ -1431,17 +1421,17 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setShowMarketSelector(!showMarketSelector)}
-                    className={`flex items-center gap-2 h-full rounded-xl border px-3 py-2.5 transition-colors cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] hover:bg-white/5" : "border-[#f59e0b]/30 bg-white/80 hover:bg-white hover:border-[#f59e0b]/50"}`}
+                    className={`flex items-center gap-2 h-full rounded-xl border px-3 py-2.5 transition-colors cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] hover:bg-white/5" : "border-[#E2E8F0] bg-white hover:border-[#2563EB]/30"}`}
                   >
                     {MARKET_INFO[selectedMarket]?.icon || <span>?</span>}
-                    <svg className={`w-3 h-3 text-gray-400 transition-transform ${showMarketSelector ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className={`w-3 h-3 ${isDarkMode ? "text-gray-400" : "text-[#64748B]"} transition-transform ${showMarketSelector ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
 
                   {/* Market Dropdown Menu */}
                   {showMarketSelector && (
-                    <div className={`absolute left-0 top-full z-[100] mt-1 w-48 rounded-xl border shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100 ${isDarkMode ? "bg-[#1a2133] border-white/10" : "bg-white/95 backdrop-blur-sm border-[#f59e0b]/30 shadow-[0_8px_24px_rgba(245,158,11,0.15)]"}`}>
+                    <div className={`absolute left-0 top-full z-[100] mt-1 w-48 rounded-xl border shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100 ${isDarkMode ? "bg-[#1a2133] border-white/10" : "bg-white border-[#E2E8F0] shadow-lg"}`}>
                       {Object.entries(MARKET_INFO).map(([key, info]) => (
                         <button
                           key={key}
@@ -1450,7 +1440,7 @@ export default function Home() {
                             setSelectedMarket(key);
                             setShowMarketSelector(false);
                           }}
-                          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${key === selectedMarket ? (isDarkMode ? "bg-white/10 text-white" : "bg-[#f59e0b]/15 text-[#d97706]") : (isDarkMode ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-[#f59e0b]/5")}`}
+                          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${key === selectedMarket ? (isDarkMode ? "bg-white/10 text-white" : "bg-[#EFF6FF] text-[#2563EB]") : (isDarkMode ? "text-gray-300 hover:bg-white/5" : "text-[#334155] hover:bg-[#F8FAFC]")}`}
                         >
                           {info.icon}
                           <span className="font-medium">{info.label}</span>
@@ -1477,7 +1467,7 @@ export default function Home() {
                       }
                     }}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    className={`w-full min-w-[120px] rounded-xl border pl-3 pr-8 py-2.5 cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff]" : "border-[#f59e0b]/30 bg-white/80 text-gray-900"}`}
+                    className={`w-full min-w-[120px] rounded-xl border pl-3 pr-8 py-2.5 cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff]" : "border-[#E2E8F0] bg-white text-[#0F172A]"}`}
                   />
                   {/* Chevron Icon */}
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
@@ -1486,22 +1476,22 @@ export default function Home() {
 
                   {/* Suggestions Dropdown */}
                   {showSuggestions && suggestions.length > 0 && (
-                    <ul className={`absolute left-0 top-full z-[100] mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-[#f59e0b]/30 bg-white/95 backdrop-blur-sm shadow-[0_8px_24px_rgba(245,158,11,0.15)]"}`}>
+                    <ul className={`absolute left-0 top-full z-[100] mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-[#E2E8F0] bg-white shadow-lg"}`}>
                       {/* Optional Header for List */}
-                      <li className={`px-4 py-2 text-[10px] uppercase tracking-wider font-semibold ${isDarkMode ? "bg-white/5 text-gray-400 opacity-50" : "bg-[#f59e0b]/10 text-gray-600"}`}>
+                      <li className={`px-4 py-2 text-[10px] uppercase tracking-wider font-semibold ${isDarkMode ? "bg-white/5 text-gray-400 opacity-50" : "bg-[#F8FAFC] text-[#64748B]"}`}>
                         {ticker.length < 2 ? "Popular Recommendations" : "Search Results"}
                       </li>
                       {suggestions.map((item, idx) => (
                         <li
                           key={idx}
                           onClick={() => selectSuggestion(item.symbol)}
-                          className={`cursor-pointer px-4 py-2 text-sm flex justify-between items-center transition-colors ${isDarkMode ? "hover:bg-white/5 text-gray-200" : "hover:bg-[#f59e0b]/10 text-gray-800"}`}
+                          className={`cursor-pointer px-4 py-2 text-sm flex justify-between items-center transition-colors ${isDarkMode ? "hover:bg-white/5 text-gray-200" : "hover:bg-[#F8FAFC] text-[#334155]"}`}
                         >
                           <div>
-                            <span className={`font-bold ${isDarkMode ? "" : "text-gray-900"}`}>{item.symbol}</span>
-                            <span className={`ml-2 text-xs ${isDarkMode ? "opacity-70" : "text-gray-600"}`}>{item.name}</span>
+                            <span className={`font-bold ${isDarkMode ? "" : "text-[#0F172A]"}`}>{item.symbol}</span>
+                            <span className={`ml-2 text-xs ${isDarkMode ? "opacity-70" : "text-[#64748B]"}`}>{item.name}</span>
                           </div>
-                          <span className={`text-[10px] border rounded px-1 ${isDarkMode ? "opacity-50" : "border-[#f59e0b]/30 text-gray-600 bg-white/50"}`}>{item.exchange}</span>
+                          <span className={`text-[10px] border rounded px-1 ${isDarkMode ? "opacity-50" : "border-[#E2E8F0] text-[#64748B] bg-[#F8FAFC]"}`}>{item.exchange}</span>
                         </li>
                       ))}
                     </ul>
@@ -1511,15 +1501,15 @@ export default function Home() {
             </div>
           </article>
 
-          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#f59e0b]/30 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(245,158,11,0.1)]"}`}>
+          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
             <header>
-              <p className={`text-[0.7rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
+              <p className={`text-[0.7rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                 Step 2
               </p>
-              <h2 className={`text-lg font-semibold ${isDarkMode ? "" : "text-gray-900"}`}>Analysis Date</h2>
+              <h2 className={`text-lg font-semibold ${isDarkMode ? "" : "text-[#0F172A]"}`}>Analysis Date</h2>
             </header>
             <div className="flex items-end gap-3">
-              <label className={`flex flex-1 flex-col gap-1.5 text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-700"}`}>
+              <label className={`flex flex-1 flex-col gap-1.5 text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>
                 <span>Select Date (DD-MM-YYYY)</span>
                 <div className="relative w-full">
                   {/* Visual Input (DD/MM/YYYY) */}
@@ -1530,7 +1520,7 @@ export default function Home() {
                     onClick={() => dateInputRef.current?.showPicker()}
                     className={`w-full cursor-pointer rounded-xl border px-3 py-2.5 shadow-inner outline-none transition-all ${isDarkMode
                       ? "border-white/10 bg-[#1a2133] text-[#f8fbff] placeholder-gray-600 focus:border-[#2df4c6]/50"
-                      : "border-[#f59e0b]/30 bg-white/80 text-gray-900 focus:border-[#f59e0b]"
+                      : "border-[#E2E8F0] bg-white text-[#0F172A] focus:border-[#2563EB]"
                       }`}
                   />
                   {/* Hidden Actual Date Input */}
@@ -1547,7 +1537,7 @@ export default function Home() {
                 onClick={() => dateInputRef.current?.showPicker()}
                 className={`flex h-[46px] w-[46px] flex-shrink-0 items-center justify-center rounded-xl border-2 transition-all hover:scale-105 active:scale-95 ${isDarkMode
                   ? "border-[#2df4c6]/30 bg-[#2df4c6]/10 text-[#2df4c6] hover:bg-[#2df4c6]/20 hover:shadow-[0_0_15px_rgba(45,244,198,0.3)]"
-                  : "border-[#f59e0b]/50 bg-[#f59e0b]/15 text-[#d97706] hover:bg-[#f59e0b]/25 hover:shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                  : "border-[#2563EB]/50 bg-[#EFF6FF] text-[#2563EB] hover:bg-[#DBEAFE] hover:shadow-[0_0_15px_rgba(37,99,235,0.2)]"
                   }`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1563,7 +1553,7 @@ export default function Home() {
 
 
           {/* Live Market Data Card */}
-          <article className={`relative flex flex-col overflow-hidden rounded-[20px] border p-5 h-[210px] transition-all duration-300 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#f59e0b]/30 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(245,158,11,0.1)]"}`}>
+          <article className={`relative flex flex-col overflow-hidden rounded-[20px] border p-5 h-[210px] transition-all duration-300 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
             {/* Header */}
             <div className="relative z-10 flex items-start justify-between">
               <div className="flex items-center gap-2">
@@ -1571,11 +1561,11 @@ export default function Home() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2df4c6] opacity-75"></span>
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#2df4c6]"></span>
                 </span>
-                <span className={`text-[0.7rem] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#2df4c6]" : "text-[#d97706]"}`}>
+                <span className={`text-[0.7rem] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"}`}>
                   Live Market Data
                 </span>
               </div>
-              <span className={`rounded-lg border px-2 py-1 text-[0.65rem] font-semibold uppercase ${isDarkMode ? "border-white/10 text-[#8b94ad]" : "border-[#f59e0b]/30 bg-white/80 text-gray-700"}`}>
+              <span className={`rounded-lg border px-2 py-1 text-[0.65rem] font-semibold uppercase ${isDarkMode ? "border-white/10 text-[#8b94ad]" : "border-[#E2E8F0] bg-white text-[#334155]"}`}>
                 {marketData?.sector || "Loading..."}
               </span>
             </div>
@@ -1606,9 +1596,9 @@ export default function Home() {
               </div>
               <div className="mt-2 min-h-[40px]">
                 {marketData ? (
-                  <span className={`text-4xl font-bold tracking-tight ${isDarkMode ? "text-[#2df4c6]" : "text-[#d97706]"}`}>${marketData.price?.toFixed(2)}</span>
+                  <span className={`text-4xl font-bold tracking-tight ${isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"}`}>${marketData.price?.toFixed(2)}</span>
                 ) : (
-                  <span className={`animate-pulse text-2xl font-bold opacity-50 ${isDarkMode ? "" : "text-gray-700"}`}>Loading...</span>
+                  <span className={`animate-pulse text-2xl font-bold opacity-50 ${isDarkMode ? "" : "text-[#334155]"}`}>Loading...</span>
                 )}
               </div>
             </div>
@@ -1618,7 +1608,7 @@ export default function Home() {
               {marketData && (
                 <div className="flex items-center gap-3">
                   <span className={`flex items-center rounded-md px-2 py-1 text-xs font-bold ${marketData.change >= 0 
-                    ? isDarkMode ? "bg-[#2df4c6]/10 text-[#2df4c6]" : "bg-[#f59e0b]/15 text-[#d97706]"
+                    ? isDarkMode ? "bg-[#2df4c6]/10 text-[#2df4c6]" : "bg-[#EFF6FF] text-[#2563EB]"
                     : "bg-[#ff4d6d]/10 text-[#ff4d6d]"
                   }`}>
                     {marketData.change >= 0 ? "↑" : "↓"} {marketData.change > 0 ? "+" : ""}{marketData.percentChange}%
@@ -1675,7 +1665,7 @@ export default function Home() {
               className={`flex w-full flex-row items-center justify-center gap-1.5 rounded-[12px] border-2 py-2 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale ${
                 isDarkMode
                   ? "border-white/20 bg-[#00c05e] hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)]"
-                  : "border-[#f59e0b]/50 bg-gradient-to-r from-[#f59e0b] to-[#ec4899] hover:from-[#fbbf24] hover:to-[#f472b6] hover:shadow-[0_10px_25px_rgba(245,158,11,0.4)]"
+                  : "border-[#2563EB] bg-gradient-to-r from-[#2563EB] to-[#38BDF8] text-white hover:shadow-[0_10px_25px_rgba(37,99,235,0.3)]"
               }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1734,10 +1724,10 @@ export default function Home() {
               >
                 <header className="flex items-center justify-between gap-4">
                   <div>
-                    <p className={`text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-700"}`}>
+                    <p className={`text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>
                       {headerTitle}
                     </p>
-                    <span className={`text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
+                    <span className={`text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                       {headerSub}
                     </span>
                   </div>
@@ -1746,7 +1736,7 @@ export default function Home() {
                     style={{
                       background: isDarkMode 
                         ? `conic-gradient(#2df4c6 ${(progress / 100) * 360}deg, rgba(255,255,255,0.05) 0deg)`
-                        : `conic-gradient(#f59e0b ${(progress / 100) * 360}deg, rgba(255,255,255,0.3) 0deg)`,
+                        : `conic-gradient(#2563EB ${(progress / 100) * 360}deg, rgba(226,232,240,0.5) 0deg)`,
                       transition: "background 1s ease-out",
                     }}
                   >
@@ -1769,9 +1759,9 @@ export default function Home() {
                           : "bg-green-600/15 text-green-700";
                       }
                     } else if (member.status === "pending") {
-                      statusColorClass = isDarkMode ? "bg-[#f9a826]/10 text-[#f9a826]" : "bg-[#f59e0b]/15 text-[#d97706]";
+                      statusColorClass = isDarkMode ? "bg-[#f9a826]/10 text-[#f9a826]" : "bg-[#EFF6FF] text-[#2563EB]";
                     } else if (member.status === "in_progress") {
-                      statusColorClass = isDarkMode ? "bg-[#3db8ff]/10 text-[#3db8ff]" : "bg-[#f59e0b]/20 text-[#d97706]";
+                      statusColorClass = isDarkMode ? "bg-[#3db8ff]/10 text-[#3db8ff]" : "bg-[#DBEAFE] text-[#2563EB]";
                     } else {
                       statusColorClass = "bg-[#ff4d6d]/10 text-[#ff4d6d]";
                     }
@@ -1779,9 +1769,9 @@ export default function Home() {
                     return (
                       <li
                         key={idx}
-                        className={`flex flex-wrap items-center justify-between gap-y-1 text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-gray-700"}`}
+                        className={`flex flex-wrap items-center justify-between gap-y-1 text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}
                       >
-                        <span className={isDarkMode ? "" : "text-gray-800"}>{member.name}</span>
+                        <span className={isDarkMode ? "" : "text-[#334155]"}>{member.name}</span>
                         <span
                           className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs capitalize ${statusColorClass}`}
                         >
@@ -1818,7 +1808,7 @@ export default function Home() {
         />
 
         {/* Summary Panel */}
-        <section className={`flex flex-col lg:flex-row items-center justify-between gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#f59e0b]/30 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(245,158,11,0.1)]"}`}>
+        <section className={`flex flex-col lg:flex-row items-center justify-between gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
           <div className="w-full lg:w-auto">
             <p className="mb-2">Summary</p>
             <div className="flex flex-wrap gap-6">
@@ -1826,19 +1816,19 @@ export default function Home() {
                 <span className={`block text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
                   Symbol
                 </span>
-                <strong className={`text-xl ${isDarkMode ? "" : "text-gray-900"}`}>{ticker}</strong>
+                <strong className={`text-xl ${isDarkMode ? "" : "text-[#0F172A]"}`}>{ticker}</strong>
               </div>
               <div>
                 <span className={`block text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
                   Date
                 </span>
-                <strong className={`text-xl ${isDarkMode ? "" : "text-gray-900"}`}>{analysisDate}</strong>
+                <strong className={`text-xl ${isDarkMode ? "" : "text-[#0F172A]"}`}>{analysisDate}</strong>
               </div>
               <div>
                 <span className={`block text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
                   Research depth
                 </span>
-                <strong className={`text-xl ${isDarkMode ? "" : "text-gray-900"}`}>
+                <strong className={`text-xl ${isDarkMode ? "" : "text-[#0F172A]"}`}>
                   {
                     RESEARCH_DEPTH_OPTIONS.find(
                       (o) => o.value === researchDepth
@@ -1850,16 +1840,16 @@ export default function Home() {
           </div>
           <div
             className={`rounded-2xl border px-8 py-4 text-center ${recVariant === "buy"
-              ? isDarkMode ? "border-[#2df4c6]/40 bg-[#2df4c6]/10" : "border-[#f59e0b]/40 bg-[#f59e0b]/15"
+              ? isDarkMode ? "border-[#2df4c6]/40 bg-[#2df4c6]/10" : "border-[#2563EB]/40 bg-[#EFF6FF]"
               : recVariant === "sell" || recVariant === "reduce"
                 ? "border-[#ff4d6d]/40 bg-[#ff4d6d]/10"
                 : "border-[#ff4d6d]/40 bg-[#ff4d6d]/10"
               }`}
           >
-            <span className={`block ${isDarkMode ? "text-[#8b94ad]" : "text-gray-700"}`}>Recommendation</span>
+            <span className={`block ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>Recommendation</span>
             <strong
               className={`text-2xl ${recVariant === "buy" 
-                ? isDarkMode ? "text-[#2df4c6]" : "text-[#d97706]"
+                ? isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"
                 : "text-[#ff4d6d]"
                 }`}
             >
