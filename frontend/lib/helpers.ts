@@ -210,17 +210,5 @@ export function extractAndCleanContent(text: string): string {
     return cleaned || text;
 }
 
-// API URL helper
-export function getApiUrl(): string {
-    let apiUrl = "http://localhost:8000";
-    if (
-        typeof window !== "undefined" &&
-        window.location.hostname !== "" &&
-        window.location.protocol !== "file:"
-    ) {
-        const protocol = window.location.protocol;
-        const host = window.location.hostname;
-        apiUrl = `${protocol}//${host}:8000`;
-    }
-    return apiUrl;
-}
+// Re-export API utilities from centralized location
+export { getApiUrl, getWsUrl } from "./api";

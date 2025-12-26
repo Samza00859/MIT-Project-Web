@@ -12,7 +12,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
@@ -46,10 +45,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      # Note: NEXT_PUBLIC_* vars must be set at BUILD time, not runtime
+      # The frontend uses dynamic URL detection based on window.location
+      # For custom API URL, set it as build arg in Dockerfile
     container_name: trading_frontend
     restart: always
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
     ports:
       - "3000:3000"
     depends_on:

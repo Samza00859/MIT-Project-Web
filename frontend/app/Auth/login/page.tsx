@@ -41,7 +41,7 @@ export default function LoginPage() {
 
                     {/* Optional: Add Link to register if needed */}
                     <div className="text-center mt-6 text-sm text-gray-600">
-                        Don't have an account? <Link href="/register" className="font-bold underline">Sign up</Link>
+                        Don't have an account? <Link href="/Auth/register" className="font-bold underline">Sign up</Link>
                     </div>
 
                 </div>

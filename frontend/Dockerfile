@@ -22,6 +22,8 @@ COPY --from=builder /app/.next/static ./.next/static
 EXPOSE 3000
 
 ENV NODE_ENV=production
-ENV NEXT_PUBLIC_API_URL=http://localhost:8000
+# Note: NEXT_PUBLIC_API_URL is NOT set here intentionally
+# The app uses dynamic URL detection based on window.location
+# which works correctly for any deployment domain
 
 CMD ["node", "server.js"]

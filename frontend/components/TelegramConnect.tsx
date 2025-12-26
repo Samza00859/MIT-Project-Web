@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
+import { getApiUrl } from "../lib/api";
 
 declare global {
     interface Window {
@@ -20,15 +21,7 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
     const [currentChatId, setCurrentChatId] = useState("");
     const [isOpen, setIsOpen] = useState(false); // For modal variant
 
-    // Determine API Base URL
-    const getApiUrl = () => {
-        if (typeof window !== "undefined" && window.location.hostname !== "" && window.location.protocol !== "file:") {
-            const protocol = window.location.protocol;
-            const host = window.location.hostname;
-            return `${protocol}//${host}:8000`;
-        }
-        return "http://localhost:8000";
-    };
+    // API URL is now handled by centralized utility
 
     // Fetch initial status from backend
     useEffect(() => {

@@ -9,6 +9,7 @@ import React, {
     useCallback,
     ReactNode,
 } from "react";
+import { getWsUrl } from "../lib/api";
 
 // --- Types ---
 export interface TeamMember {
@@ -237,22 +238,8 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
-            let url: string;
-            if (
-                typeof window !== "undefined" &&
-                (window.location.protocol === "file:" ||
-                    window.location.hostname === "")
-            ) {
-                url = "ws://localhost:8000/ws";
-            } else if (typeof window !== "undefined") {
-                const wsProtocol =
-                    window.location.protocol === "https:" ? "wss:" : "ws:";
-                const wsHost = window.location.hostname;
-                const wsPort = "8000";
-                url = `${wsProtocol}//${wsHost}:${wsPort}/ws`;
-            } else {
-                url = "ws://localhost:8000/ws";
-            }
+            // Use centralized URL utility for proper production deployment
+            const url = getWsUrl();
 
             setWsUrl(url);
             setWsStatus("connecting");

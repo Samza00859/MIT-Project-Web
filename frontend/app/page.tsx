@@ -7,6 +7,7 @@ import DebugPanel from "../components/DebugPanel";
 import ReportSections from "../components/ReportSections";
 import TelegramConnect from "../components/TelegramConnect";
 import { useGeneration } from "../context/GenerationContext";
+import { getApiUrl } from "../lib/api";
 
 // Import from shared modules for better code splitting
 import {
@@ -91,12 +92,7 @@ export default function Home() {
   // Fetch Full Ticker List from Backend
   const fetchMarketTickers = async (market: string) => {
     try {
-      let apiUrl = "http://localhost:8000";
-      if (typeof window !== "undefined" && window.location.hostname !== "" && window.location.protocol !== "file:") {
-        const protocol = window.location.protocol;
-        const host = window.location.hostname;
-        apiUrl = `${protocol}//${host}:8000`;
-      }
+      const apiUrl = getApiUrl();
 
       const res = await fetch(`${apiUrl}/api/tickers?market=${market}`);
       if (res.ok) {
@@ -118,12 +114,7 @@ export default function Home() {
     }
 
     try {
-      let apiUrl = "http://localhost:8000";
-      if (typeof window !== "undefined" && window.location.hostname !== "" && window.location.protocol !== "file:") {
-        const protocol = window.location.protocol;
-        const host = window.location.hostname;
-        apiUrl = `${protocol}//${host}:8000`;
-      }
+      const apiUrl = getApiUrl();
 
       const res = await fetch(`${apiUrl}/api/search?q=${query}&market=${selectedMarket}`);
       if (res.ok) {
@@ -191,13 +182,7 @@ export default function Home() {
     const fetchMarketData = async (retries = 2) => {
       if (!isMounted) return;
       try {
-        // Determine API Base URL (similar to WS logic but http)
-        let apiUrl = "http://localhost:8000";
-        if (typeof window !== "undefined" && window.location.hostname !== "" && window.location.protocol !== "file:") {
-          const protocol = window.location.protocol;
-          const host = window.location.hostname;
-          apiUrl = `${protocol}//${host}:8000`;
-        }
+        const apiUrl = getApiUrl();
 
         // Only clear data on initial attempt when ticker changed
         if (retries === 2 && lastFetchedTickerRef.current !== ticker) {
@@ -410,7 +395,7 @@ export default function Home() {
       analysts: ANALYSTS_DATA.map((a) => a.value),
       researchDepth,
       llmProvider: "google",
-      backendUrl: "http://localhost:8000",
+      backendUrl: getApiUrl(),
       shallowThinker: SHALLOW_AGENTS.google[0][1],
       deepThinker: DEEP_AGENTS.google[0][1],
       reportLength,
@@ -437,39 +422,68 @@ export default function Home() {
     // 1. Setup Document
     const doc = new jsPDF({ unit: "pt", format: "a4" });
 
-    // Load Fonts Implementation
-    const loadFont = async (url: string): Promise<string> => {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          // Remove data:application/octet-stream;base64, prefix
-          const base64data = (reader.result as string).split(",")[1];
-          resolve(base64data);
-        };
-        reader.readAsDataURL(blob);
-      });
+    // Load Fonts Implementation with validation
+    const loadFont = async (url: string): Promise<string | null> => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          console.warn(`Font not found: ${url}`);
+          return null;
+        }
+        const blob = await response.blob();
+
+        // Validate font file size (should be more than 1KB for valid TTF)
+        if (blob.size < 1000) {
+          console.warn(`Invalid font file (too small): ${url}`);
+          return null;
+        }
+
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64data = (reader.result as string).split(",")[1];
+            resolve(base64data);
+          };
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(blob);
+        });
+      } catch (error) {
+        console.warn(`Failed to load font: ${url}`, error);
+        return null;
+      }
     };
 
+    // Track which fonts are available
+    let hasMaishan = false;
+
+    // Load Sarabun fonts (required for Thai)
     try {
-      const [sarabunRegular, sarabunBold, maishan] = await Promise.all([
-        loadFont("/fonts/Sarabun-Regular.ttf"),
-        loadFont("/fonts/Sarabun-Bold.ttf"),
-        loadFont("/fonts/Maishan.ttf"),
-      ]);
+      const sarabunRegular = await loadFont("/fonts/Sarabun-Regular.ttf");
+      const sarabunBold = await loadFont("/fonts/Sarabun-Bold.ttf");
 
-      doc.addFileToVFS("Sarabun-Regular.ttf", sarabunRegular);
-      doc.addFont("Sarabun-Regular.ttf", "Sarabun", "normal");
+      if (sarabunRegular) {
+        doc.addFileToVFS("Sarabun-Regular.ttf", sarabunRegular);
+        doc.addFont("Sarabun-Regular.ttf", "Sarabun", "normal");
+      }
 
-      doc.addFileToVFS("Sarabun-Bold.ttf", sarabunBold);
-      doc.addFont("Sarabun-Bold.ttf", "Sarabun", "bold");
-
-      doc.addFileToVFS("Maishan.ttf", maishan);
-      doc.addFont("Maishan.ttf", "Maishan", "normal");
+      if (sarabunBold) {
+        doc.addFileToVFS("Sarabun-Bold.ttf", sarabunBold);
+        doc.addFont("Sarabun-Bold.ttf", "Sarabun", "bold");
+      }
     } catch (error) {
-      console.error("Error loading fonts:", error);
-      // Fallback to standard fonts if loading fails
+      console.error("Error loading Sarabun fonts:", error);
+    }
+
+    // Load Maishan font (optional, for Chinese characters)
+    try {
+      const maishan = await loadFont("/fonts/Maishan.ttf");
+      if (maishan) {
+        doc.addFileToVFS("Maishan.ttf", maishan);
+        doc.addFont("Maishan.ttf", "Maishan", "normal");
+        hasMaishan = true;
+      }
+    } catch (error) {
+      console.warn("Maishan font not available, Chinese characters may not render correctly");
     }
 
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -522,12 +536,10 @@ export default function Home() {
       const hasChinese = /[\u4E00-\u9FFF]/.test(text);
 
       let currentFont = "Sarabun"; // Default to Sarabun (covers Eng + Thai)
-      if (hasChinese && !hasThai) {
+      if (hasChinese && !hasThai && hasMaishan) {
         currentFont = "Maishan";
       } else if (hasChinese && hasThai) {
-        // Mixed content: Sarabun might not show Chinese well, Maishan might not show Thai well.
-        // Prioritize Thai (Sarabun) as it is likely the primary non-English context for this user,
-        // OR default to Sarabun. Ideally we split text, but for simplicity:
+        // Mixed content: Prioritize Thai (Sarabun) as it is likely the primary context
         currentFont = "Sarabun";
       }
 
@@ -555,10 +567,49 @@ export default function Home() {
       }
     };
 
+    // Clean content: remove markdown headers, raw JSON formatting, unwanted labels
+    const cleanContent = (text: string): string => {
+      if (!text || typeof text !== 'string') return '';
+
+      let cleaned = text;
+
+      // Remove markdown headers like "### Portfolio Manager Decision"
+      cleaned = cleaned.replace(/^#{1,6}\s+.*$/gm, '');
+
+      // Remove code block markers
+      cleaned = cleaned.replace(/```json/g, '');
+      cleaned = cleaned.replace(/```/g, '');
+
+      // Remove "Text:" labels at the start
+      cleaned = cleaned.replace(/^Text:\s*/gim, '');
+
+      // Remove standalone curly braces lines
+      cleaned = cleaned.replace(/^\s*[{}]\s*$/gm, '');
+
+      // Remove JSON key-value format like "key": "value" - convert to readable format
+      cleaned = cleaned.replace(/"([^"]+)":\s*"([^"]*)"/g, (_, key, value) => {
+        // Convert snake_case to Title Case
+        const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+        return `${formattedKey}: ${value}`;
+      });
+
+      // Remove remaining quotes around values
+      cleaned = cleaned.replace(/"([^"]+)"/g, '$1');
+
+      // Remove excessive whitespace and empty lines
+      cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+      cleaned = cleaned.trim();
+
+      return cleaned;
+    };
+
     const toSentenceCase = (str: string) => {
       const s = str.replace(/_/g, " ");
       return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
     };
+
+    // Keys to skip (not display in PDF)
+    const KEYS_TO_SKIP = ['text', 'raw', 'raw_content', 'markdown'];
 
     // --- Recursive Data Processor (Logic หลักที่คุณต้องการ) ---
     const processData = (data: any, indent = 0) => {
@@ -588,13 +639,19 @@ export default function Home() {
             if (typeof parsedItem === 'object') {
               processData(parsedItem, indent + 10);
             } else {
-              addText(`•  ${String(parsedItem).replace(/\*\*/g, "")}`, 10, false, indent + 10);
+              // Clean the content before adding
+              const cleanedText = cleanContent(String(parsedItem));
+              if (cleanedText) {
+                addText(`•  ${cleanedText.replace(/\*\*/g, "")}`, 10, false, indent + 10);
+              }
             }
           }
         });
       } else if (typeof data === 'object' && data !== null) {
         Object.entries(data).forEach(([key, value]) => {
+          // Skip hidden keys and unwanted display keys
           if (KEYS_TO_HIDE.includes(key)) return;
+          if (KEYS_TO_SKIP.includes(key.toLowerCase())) return;
 
           const label = toSentenceCase(key);
           let valToProcess = value;
@@ -606,8 +663,16 @@ export default function Home() {
 
           // DECISION LOGIC: Inline vs Block
           const isComplex = typeof valToProcess === 'object' && valToProcess !== null;
-          const strVal = String(valToProcess).replace(/\*\*/g, ""); // ลบ Markdown bold
+
+          // Clean string values before display
+          let strVal = '';
+          if (!isComplex) {
+            strVal = cleanContent(String(valToProcess)).replace(/\*\*/g, ""); // ลบ Markdown bold
+          }
           const isShortText = strVal.length < 80 && !strVal.includes('\n');
+
+          // Skip empty values
+          if (!isComplex && !strVal.trim()) return;
 
           checkPageBreak(20); // เช็คก่อนเริ่ม Key ใหม่
 
@@ -628,7 +693,7 @@ export default function Home() {
               const hasThai = /[\u0E00-\u0E7F]/.test(strVal);
               const hasChinese = /[\u4E00-\u9FFF]/.test(strVal);
               let valFont = "Sarabun";
-              if (hasChinese && !hasThai) valFont = "Maishan";
+              if (hasChinese && !hasThai && hasMaishan) valFont = "Maishan";
 
               // Check width with correct font
               doc.setFont(valFont, "normal");
@@ -661,8 +726,10 @@ export default function Home() {
         });
       } else {
         // Base case (Primitive)
-        const strVal = String(data).replace(/\*\*/g, "");
-        addText(strVal, 10, false, indent, [0, 0, 0]);
+        const cleanedVal = cleanContent(String(data)).replace(/\*\*/g, "");
+        if (cleanedVal.trim()) {
+          addText(cleanedVal, 10, false, indent, [0, 0, 0]);
+        }
       }
     };
 

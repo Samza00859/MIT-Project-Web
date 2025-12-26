@@ -2,8 +2,8 @@
 
 import React, { ReactNode } from "react";
 import Link from "next/link";
-
 import Image from "next/image";
+import { getApiUrl } from "../lib/api";
 
 interface SidebarProps {
     activeId: string;
@@ -32,12 +32,7 @@ export default function Sidebar({
         setPairingMessage("Checking for messages...");
 
         try {
-            let apiUrl = "http://localhost:8000";
-            if (typeof window !== "undefined" && window.location.hostname !== "" && window.location.protocol !== "file:") {
-                const protocol = window.location.protocol;
-                const host = window.location.hostname;
-                apiUrl = `${protocol}//${host}:8000`;
-            }
+            const apiUrl = getApiUrl();
 
             const res = await fetch(`${apiUrl}/api/settings/telegram/pair`, {
                 method: "POST",
@@ -74,13 +69,7 @@ export default function Sidebar({
 
         setTelegramStatus("saving");
         try {
-            // Determine API URL
-            let apiUrl = "http://localhost:8000";
-            if (typeof window !== "undefined" && window.location.hostname !== "" && window.location.protocol !== "file:") {
-                const protocol = window.location.protocol;
-                const host = window.location.hostname;
-                apiUrl = `${protocol}//${host}:8000`;
-            }
+            const apiUrl = getApiUrl();
 
             const res = await fetch(`${apiUrl}/api/settings/telegram`, {
                 method: "POST",
@@ -282,10 +271,10 @@ export default function Sidebar({
                                     onClick={handleAutoPair}
                                     disabled={telegramStatus === "saving"}
                                     className={`w-full py-3 rounded-xl font-bold text-md transition-all flex items-center justify-center gap-2 ${telegramStatus === "success"
-                                            ? "bg-green-500 text-white"
-                                            : telegramStatus === "error"
-                                                ? "bg-red-500 text-white"
-                                                : "bg-[#2df4c6] text-[#03161b] hover:bg-[#20dcb0]"
+                                        ? "bg-green-500 text-white"
+                                        : telegramStatus === "error"
+                                            ? "bg-red-500 text-white"
+                                            : "bg-[#2df4c6] text-[#03161b] hover:bg-[#20dcb0]"
                                         }`}
                                 >
                                     {telegramStatus === "saving" && <span className="animate-spin">⌛</span>}
@@ -293,8 +282,8 @@ export default function Sidebar({
                                 </button>
                                 {pairingMessage && (
                                     <p className={`mt-2 text-center text-xs ${telegramStatus === "error" ? "text-red-400" :
-                                            telegramStatus === "waiting" ? "text-yellow-400" :
-                                                telegramStatus === "success" ? "text-green-400" : "text-gray-400"
+                                        telegramStatus === "waiting" ? "text-yellow-400" :
+                                            telegramStatus === "success" ? "text-green-400" : "text-gray-400"
                                         }`}>
                                         {pairingMessage}
                                     </p>

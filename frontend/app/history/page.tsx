@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import Sidebar from "../../components/Sidebar";
 import { useGeneration } from "../../context/GenerationContext";
+import { getApiUrl } from "../../lib/api";
 
 // Import from shared modules for better code splitting
 import { HISTORY_REPORT_ORDER as REPORT_ORDER, TITLE_MAP } from "../../lib/constants";
@@ -44,12 +45,7 @@ export default function HistoryPage() {
 
     const fetchHistory = async () => {
         try {
-            let apiUrl = "http://localhost:8000";
-            if (typeof window !== "undefined" && window.location.hostname !== "" && window.location.protocol !== "file:") {
-                const protocol = window.location.protocol;
-                const host = window.location.hostname;
-                apiUrl = `${protocol}//${host}:8000`;
-            }
+            const apiUrl = getApiUrl();
             const res = await fetch(`${apiUrl}/api/history/`);
             if (res.ok) {
                 const data = await res.json();
@@ -162,37 +158,68 @@ export default function HistoryPage() {
         // 1. Setup Document
         const doc = new jsPDF({ unit: "pt", format: "a4" });
 
-        // Load Fonts Implementation
-        const loadFont = async (url: string): Promise<string> => {
-            const response = await fetch(url);
-            const blob = await response.blob();
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    const base64data = (reader.result as string).split(",")[1];
-                    resolve(base64data);
-                };
-                reader.readAsDataURL(blob);
-            });
+        // Load Fonts Implementation with validation
+        const loadFont = async (url: string): Promise<string | null> => {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    console.warn(`Font not found: ${url}`);
+                    return null;
+                }
+                const blob = await response.blob();
+
+                // Validate font file size (should be more than 1KB for valid TTF)
+                if (blob.size < 1000) {
+                    console.warn(`Invalid font file (too small): ${url}`);
+                    return null;
+                }
+
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const base64data = (reader.result as string).split(",")[1];
+                        resolve(base64data);
+                    };
+                    reader.onerror = () => resolve(null);
+                    reader.readAsDataURL(blob);
+                });
+            } catch (error) {
+                console.warn(`Failed to load font: ${url}`, error);
+                return null;
+            }
         };
 
+        // Track which fonts are available
+        let hasMaishan = false;
+
+        // Load Sarabun fonts (required for Thai)
         try {
-            const [sarabunRegular, sarabunBold, maishan] = await Promise.all([
-                loadFont("/fonts/Sarabun-Regular.ttf"),
-                loadFont("/fonts/Sarabun-Bold.ttf"),
-                loadFont("/fonts/Maishan.ttf"),
-            ]);
+            const sarabunRegular = await loadFont("/fonts/Sarabun-Regular.ttf");
+            const sarabunBold = await loadFont("/fonts/Sarabun-Bold.ttf");
 
-            doc.addFileToVFS("Sarabun-Regular.ttf", sarabunRegular);
-            doc.addFont("Sarabun-Regular.ttf", "Sarabun", "normal");
+            if (sarabunRegular) {
+                doc.addFileToVFS("Sarabun-Regular.ttf", sarabunRegular);
+                doc.addFont("Sarabun-Regular.ttf", "Sarabun", "normal");
+            }
 
-            doc.addFileToVFS("Sarabun-Bold.ttf", sarabunBold);
-            doc.addFont("Sarabun-Bold.ttf", "Sarabun", "bold");
-
-            doc.addFileToVFS("Maishan.ttf", maishan);
-            doc.addFont("Maishan.ttf", "Maishan", "normal");
+            if (sarabunBold) {
+                doc.addFileToVFS("Sarabun-Bold.ttf", sarabunBold);
+                doc.addFont("Sarabun-Bold.ttf", "Sarabun", "bold");
+            }
         } catch (error) {
-            console.error("Error loading fonts:", error);
+            console.error("Error loading Sarabun fonts:", error);
+        }
+
+        // Load Maishan font (optional, for Chinese characters)
+        try {
+            const maishan = await loadFont("/fonts/Maishan.ttf");
+            if (maishan) {
+                doc.addFileToVFS("Maishan.ttf", maishan);
+                doc.addFont("Maishan.ttf", "Maishan", "normal");
+                hasMaishan = true;
+            }
+        } catch (error) {
+            console.warn("Maishan font not available, Chinese characters may not render correctly");
         }
 
         const pageWidth = doc.internal.pageSize.getWidth();
@@ -236,7 +263,7 @@ export default function HistoryPage() {
             const hasChinese = /[\u4E00-\u9FFF]/.test(text);
 
             let currentFont = "Sarabun";
-            if (hasChinese && !hasThai) {
+            if (hasChinese && !hasThai && hasMaishan) {
                 currentFont = "Maishan";
             }
 
@@ -267,6 +294,45 @@ export default function HistoryPage() {
             return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
         };
 
+        // Clean content: remove markdown headers, raw JSON formatting, unwanted labels
+        const cleanContent = (text: string): string => {
+            if (!text || typeof text !== 'string') return '';
+
+            let cleaned = text;
+
+            // Remove markdown headers like "### Portfolio Manager Decision"
+            cleaned = cleaned.replace(/^#{1,6}\s+.*$/gm, '');
+
+            // Remove code block markers
+            cleaned = cleaned.replace(/```json/g, '');
+            cleaned = cleaned.replace(/```/g, '');
+
+            // Remove "Text:" labels at the start
+            cleaned = cleaned.replace(/^Text:\s*/gim, '');
+
+            // Remove standalone curly braces lines
+            cleaned = cleaned.replace(/^\s*[{}]\s*$/gm, '');
+
+            // Remove JSON key-value format like "key": "value" - convert to readable format
+            cleaned = cleaned.replace(/"([^"]+)":\s*"([^"]*)"/g, (_, key, value) => {
+                // Convert snake_case to Title Case
+                const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+                return `${formattedKey}: ${value}`;
+            });
+
+            // Remove remaining quotes around values
+            cleaned = cleaned.replace(/"([^"]+)"/g, '$1');
+
+            // Remove excessive whitespace and empty lines
+            cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+            cleaned = cleaned.trim();
+
+            return cleaned;
+        };
+
+        // Keys to skip (not display in PDF)
+        const KEYS_TO_SKIP = ['text', 'raw', 'raw_content', 'markdown'];
+
         const processData = (data: any, indent = 0) => {
             if (!data) return;
 
@@ -292,13 +358,19 @@ export default function HistoryPage() {
                         if (typeof parsedItem === 'object') {
                             processData(parsedItem, indent + 10);
                         } else {
-                            addText(`•  ${String(parsedItem).replace(/\*\*/g, "")}`, 10, false, indent + 10);
+                            // Clean the content before adding
+                            const cleanedText = cleanContent(String(parsedItem));
+                            if (cleanedText) {
+                                addText(`•  ${cleanedText.replace(/\*\*/g, "")}`, 10, false, indent + 10);
+                            }
                         }
                     }
                 });
             } else if (typeof data === 'object' && data !== null) {
                 Object.entries(data).forEach(([key, value]) => {
+                    // Skip hidden keys and unwanted display keys
                     if (KEYS_TO_HIDE.includes(key)) return;
+                    if (KEYS_TO_SKIP.includes(key.toLowerCase())) return;
 
                     const label = toSentenceCase(key);
                     let valToProcess = value;
@@ -308,8 +380,16 @@ export default function HistoryPage() {
                     }
 
                     const isComplex = typeof valToProcess === 'object' && valToProcess !== null;
-                    const strVal = String(valToProcess).replace(/\*\*/g, "");
+
+                    // Clean string values before display
+                    let strVal = '';
+                    if (!isComplex) {
+                        strVal = cleanContent(String(valToProcess)).replace(/\*\*/g, "");
+                    }
                     const isShortText = strVal.length < 80 && !strVal.includes('\n');
+
+                    // Skip empty values
+                    if (!isComplex && !strVal.trim()) return;
 
                     checkPageBreak(20);
 
@@ -327,7 +407,7 @@ export default function HistoryPage() {
                             const hasThai = /[\u0E00-\u0E7F]/.test(strVal);
                             const hasChinese = /[\u4E00-\u9FFF]/.test(strVal);
                             let valFont = "Sarabun";
-                            if (hasChinese && !hasThai) valFont = "Maishan";
+                            if (hasChinese && !hasThai && hasMaishan) valFont = "Maishan";
 
                             doc.setFont(valFont, "normal");
                             const valWidth = doc.getTextWidth(strVal);
@@ -353,8 +433,11 @@ export default function HistoryPage() {
                     }
                 });
             } else {
-                const strVal = String(data).replace(/\*\*/g, "");
-                addText(strVal, 10, false, indent, [0, 0, 0]);
+                // Base case (Primitive)
+                const cleanedVal = cleanContent(String(data)).replace(/\*\*/g, "");
+                if (cleanedVal.trim()) {
+                    addText(cleanedVal, 10, false, indent, [0, 0, 0]);
+                }
             }
         };
 
