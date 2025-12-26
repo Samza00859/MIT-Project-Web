@@ -29,12 +29,90 @@ interface HistoryItem {
     reports: ReportResult[];
 }
 
+// Logo component for history items
+function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean }) {
+    const [logoSrc, setLogoSrc] = useState<string>("");
+    const [logoError, setLogoError] = useState(false);
+
+    useEffect(() => {
+        const fetchLogo = async () => {
+            if (!ticker) return;
+            const cleanTicker = ticker.trim().toUpperCase();
+
+            try {
+                const apiUrl = getApiUrl();
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 4000); // 4 sec timeout
+
+                const res = await fetch(`${apiUrl}/quote/${cleanTicker}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.logo_url && !data.logo_url.includes("clearbit.com")) {
+                        // Clearbit is often unreliable, prefer backend choice if it's not clearbit
+                        setLogoSrc(data.logo_url);
+                    } else if (data.website) {
+                        try {
+                            // URL constructor needs protocol
+                            const website = data.website.startsWith('http') ? data.website : `https://${data.website}`;
+                            const domain = new URL(website).hostname;
+                            setLogoSrc(`https://www.google.com/s2/favicons?domain=${domain}&sz=64`);
+                        } catch (e) {
+                            // Fallback to Parqet for cleaner stock logos if domain fails
+                            setLogoSrc(`https://assets.parqet.com/logos/symbol/${cleanTicker.split('.')[0]}?format=png`);
+                        }
+                    } else {
+                        // Secondary fallback: known public logo API
+                        setLogoSrc(`https://assets.parqet.com/logos/symbol/${cleanTicker.split('.')[0]}?format=png`);
+                    }
+                } else {
+                    setLogoSrc(`https://assets.parqet.com/logos/symbol/${cleanTicker.split('.')[0]}?format=png`);
+                }
+            } catch (e) {
+                // Network error or timeout, try direct fallback
+                setLogoSrc(`https://assets.parqet.com/logos/symbol/${cleanTicker.split('.')[0]}?format=png`);
+            }
+        };
+        fetchLogo();
+    }, [ticker]);
+
+    const handleLogoError = () => {
+        // Final fallback to text if all image attempts fail
+        setLogoError(true);
+    };
+
+    return (
+        <div className={`flex h-10 w-10 items-center justify-center rounded-full flex-shrink-0 relative overflow-hidden ${logoSrc && !logoError ? "bg-white" : (isDarkMode ? "bg-white/10" : "bg-gray-100")}`}>
+            {logoSrc && !logoError ? (
+                <img
+                    src={logoSrc}
+                    alt={ticker}
+                    className="h-full w-full object-contain p-1.5"
+                    onError={handleLogoError}
+                />
+            ) : (
+                <span className={`text-xs font-bold ${isDarkMode ? "text-white/40" : "text-gray-400"}`}>
+                    {ticker.substring(0, 2).toUpperCase()}
+                </span>
+            )}
+        </div>
+    );
+}
+
 export default function HistoryPage() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
     const [loading, setLoading] = useState(true);
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [viewMode, setViewMode] = useState<"summary" | "detailed">("detailed");
+
+    // Search and Filters State
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [timeFilter, setTimeFilter] = useState("all");
 
     // Get generation state from context
     const { isRunning, currentTicker, teamState, progress } = useGeneration();
@@ -57,6 +135,30 @@ export default function HistoryPage() {
             setLoading(false);
         }
     };
+
+    // Filter logic
+    const filteredHistory = history.filter(item => {
+        // Search filter
+        const matchesSearch = item.ticker.toLowerCase().includes(searchTerm.toLowerCase());
+
+        // Status filter
+        const matchesStatus = statusFilter === "all" || item.status.toLowerCase() === statusFilter.toLowerCase();
+
+        // Time filter
+        let matchesTime = true;
+        if (timeFilter !== "all") {
+            const now = new Date();
+            const itemDate = new Date(item.timestamp);
+            const diffMs = now.getTime() - itemDate.getTime();
+            const diffHours = diffMs / (1000 * 60 * 60);
+
+            if (timeFilter === "last24h") matchesTime = diffHours <= 24;
+            else if (timeFilter === "last7d") matchesTime = diffHours <= 24 * 7;
+            else if (timeFilter === "last30d") matchesTime = diffHours <= 24 * 30;
+        }
+
+        return matchesSearch && matchesStatus && matchesTime;
+    });
 
     const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
@@ -531,41 +633,93 @@ export default function HistoryPage() {
 
             <main className="flex-1 flex overflow-hidden">
                 {/* List Sidebar */}
-                <div className={`w-80 border-r flex flex-col ${isDarkMode ? "border-white/10 bg-[#161b2c]" : "border-gray-200 bg-white"}`}>
+                <div className={`w-[22rem] border-r flex flex-col ${isDarkMode ? "border-white/10 bg-[#0c111f]" : "border-gray-200 bg-white"}`}>
                     <div className="p-6 border-b border-white/10">
-                        <h2 className="text-xl font-bold">Execution History</h2>
-                        <div className="flex justify-between items-center mt-1">
-                            <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                                {history.length} records found
-                            </p>
-                            <button onClick={fetchHistory} className="text-xs text-[#2df4c6] hover:underline">Refresh</button>
+                        <h2 className="text-2xl font-bold mb-1">Execution history</h2>
+                        <p className={`text-sm mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                            Showing {filteredHistory.length} record
+                        </p>
+
+                        {/* Search and Filters */}
+                        <div className="space-y-4">
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                </span>
+                                <input
+                                    type="text"
+                                    placeholder="Search Symbol"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm transition-all outline-none ${isDarkMode
+                                        ? "bg-white/5 border-white/10 focus:border-[#2df4c6]/50 focus:bg-white/10"
+                                        : "bg-gray-50 border-gray-200 focus:border-[#2df4c6] focus:bg-white"
+                                        }`}
+                                />
+                            </div>
+
+                            <div className="flex gap-2">
+                                <select
+                                    value={statusFilter}
+                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                    className={`flex-1 px-3 py-2 rounded-xl border text-sm appearance-none outline-none ${isDarkMode
+                                        ? "bg-white/5 border-white/10 text-white"
+                                        : "bg-gray-50 border-gray-200 text-gray-700"
+                                        }`}
+                                >
+                                    <option value="all">All Status</option>
+                                    <option value="success">Success</option>
+                                    <option value="error">Error</option>
+                                    <option value="executing">Executing</option>
+                                </select>
+
+                                <select
+                                    value={timeFilter}
+                                    onChange={(e) => setTimeFilter(e.target.value)}
+                                    className={`flex-1 px-3 py-2 rounded-xl border text-sm appearance-none outline-none ${isDarkMode
+                                        ? "bg-white/5 border-white/10 text-white"
+                                        : "bg-gray-50 border-gray-200 text-gray-700"
+                                        }`}
+                                >
+                                    <option value="all">All Time</option>
+                                    <option value="last24h">Last 24h</option>
+                                    <option value="last7d">Last 7 days</option>
+                                    <option value="last30d">Last 30 days</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
                         {loading ? (
                             <div className="p-6 text-center animate-pulse">Loading...</div>
                         ) : (
                             <>
-                                {/* Currently Running Generation Card */}
                                 {isRunning && currentTicker && (
-                                    <div
-                                        className={`w-full text-left p-4 border-b border-l-4 border-l-[#2df4c6] ${isDarkMode ? "bg-[#2df4c6]/5 border-white/10" : "bg-[#2df4c6]/5 border-gray-100"}`}
-                                    >
-                                        <div className="flex justify-between items-start mb-1">
-                                            <span className="font-bold text-xs tracking-widest opacity-70 flex items-center gap-2">
-                                                <span className="relative flex h-2 w-2">
-                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2df4c6] opacity-75"></span>
-                                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#2df4c6]"></span>
-                                                </span>
-                                                GENERATING...
-                                            </span>
-                                            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-yellow-500/20 text-yellow-400 animate-pulse">
-                                                IN PROGRESS
-                                            </span>
+                                    <>
+                                        <div
+                                            className={`w-full text-left p-4 rounded-2xl border transition-all ${isDarkMode
+                                                ? "bg-[#2df4c6]/5 border-[#2df4c6]/20"
+                                                : "bg-[#2df4c6]/5 border-[#2df4c6]/20"
+                                                }`}
+                                        >
+                                            <div className="flex gap-4">
+                                                <StockLogo ticker={currentTicker} isDarkMode={isDarkMode} />
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex justify-between items-start">
+                                                        <span className="font-bold text-xs uppercase tracking-tight opacity-90">ANALYSIS</span>
+                                                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-yellow-500 text-black animate-pulse">
+                                                            PROGRESS
+                                                        </span>
+                                                    </div>
+                                                    <div className="font-bold text-sm truncate">{currentTicker} - {new Date().toISOString().split('T')[0]}</div>
+                                                    <div className="text-[11px] opacity-40 mt-1">Processing analysis...</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="font-bold text-lg text-[#2df4c6]">{currentTicker}</div>
-                                        <div className="text-sm opacity-60">Analysis in progress...</div>
 
                                         {/* Progress indicator */}
                                         <div className="mt-3 flex flex-wrap gap-1">
@@ -596,42 +750,60 @@ export default function HistoryPage() {
                                             </svg>
                                             Processing...
                                         </div>
-                                    </div>
+                                    </>
                                 )}
+                            </>
+                        )}
 
-                                {/* History Items */}
-                                {history.map((item) => (
-                                    <button
-                                        key={item.id}
-                                        onClick={() => setSelectedItem(item)}
-                                        className={`w-full text-left p-4 border-b transition-all ${selectedItem?.id === item.id
-                                            ? (isDarkMode ? "bg-[#2df4c6]/10 border-l-4 border-l-[#2df4c6]" : "bg-[#2df4c6]/10 border-l-4 border-l-[#2df4c6]")
-                                            : (isDarkMode ? "border-white/5 hover:bg-white/5" : "border-gray-100 hover:bg-gray-50")
-                                            }`}
-                                    >
-                                        <div className="flex justify-between items-start mb-1">
-                                            <span className="font-bold text-xs tracking-widest opacity-70">ID #{item.id}</span>
-                                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${item.status === "success"
-                                                ? "bg-[#2df4c6]/20 text-[#2df4c6]"
+                        {/* History Items */}
+                        {filteredHistory.map((item) => (
+                            <button
+                                key={item.id}
+                                onClick={() => setSelectedItem(item)}
+                                className={`w-full text-left p-4 rounded-2xl border transition-all group ${selectedItem?.id === item.id
+                                    ? (isDarkMode ? "bg-white/10 border-[#2df4c6] shadow-[0_0_15px_rgba(45,244,198,0.1)]" : "bg-gray-50 border-[#2df4c6]")
+                                    : (isDarkMode ? "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10" : "bg-white border-gray-100 hover:bg-gray-50")
+                                    }`}
+                            >
+                                <div className="flex gap-4">
+                                    <StockLogo ticker={item.ticker} isDarkMode={isDarkMode} />
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex justify-between items-start font-sans">
+                                            <span className="font-bold text-xs uppercase tracking-tight opacity-90">ANALYSIS</span>
+                                            <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase ${item.status === "success"
+                                                ? "bg-[#2df4c6] text-black"
                                                 : (item.status === "executing" && item.reports.length === 0)
-                                                    ? "bg-red-500/20 text-red-400"
+                                                    ? "bg-red-500 text-white"
                                                     : item.status === "executing"
-                                                        ? "bg-yellow-500/20 text-yellow-400"
-                                                        : "bg-red-500/20 text-red-400"
+                                                        ? "bg-yellow-500 text-black"
+                                                        : "bg-red-500 text-white"
                                                 }`}>
                                                 {item.status === "executing" && item.reports.length === 0
-                                                    ? "INCOMPLETE"
+                                                    ? "FAILED"
                                                     : item.status}
                                             </span>
                                         </div>
-                                        <div className="font-bold text-lg">{item.ticker}</div>
-                                        <div className="text-sm opacity-60">{item.analysis_date}</div>
-                                        <div className="text-[10px] opacity-40 mt-2">
-                                            {formatDate(item.timestamp)}
+                                        <div className="font-bold text-sm truncate">{item.ticker} - {item.analysis_date}</div>
+                                        <div className="text-[11px] opacity-40 mt-1">
+                                            {new Date(item.timestamp).toLocaleString('en-US', {
+                                                month: 'short',
+                                                day: 'numeric',
+                                                year: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                second: '2-digit',
+                                                hour12: false
+                                            })}
                                         </div>
-                                    </button>
-                                ))}
-                            </>
+                                    </div>
+                                </div>
+                            </button>
+                        ))}
+
+                        {filteredHistory.length === 0 && !loading && (
+                            <div className="p-8 text-center opacity-40">
+                                <p className="text-sm">No records found</p>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -757,7 +929,7 @@ export default function HistoryPage() {
                                             if (!hasContent) return null;
 
                                             return (
-                                                <div key={idx} className={`p-6 rounded-[20px] border ${isDarkMode ? "bg-[#111726] border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.3)]" : "bg-white border-gray-200 shadow-sm"}`}>
+                                                <div key={idx} className={`p-6 rounded-[20px] border ${isDarkMode ? "bg-[#111726] border-white/5 shadow-[0_4px_20_rgba(0,0,0,0.3)]" : "bg-white border-gray-200 shadow-sm"}`}>
                                                     <h3 className="text-xl font-bold mb-6 flex items-center gap-3 border-b border-white/5 pb-4">
                                                         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2df4c6]/20 text-sm text-[#2df4c6]">
                                                             {idx + 1}
