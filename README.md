@@ -118,7 +118,7 @@ TradingAgents is a sophisticated financial analysis platform that leverages **Mu
 | SQLAlchemy | 2.x | Database ORM (async) |
 | LangGraph | Latest | Multi-agent orchestration |
 | yfinance | Latest | Market data fetching |
-| Python | 3.11+ | Runtime |
+| Python | 3.12+ | Runtime |
 
 ### Infrastructure
 | Technology | Version | Purpose |
@@ -129,16 +129,14 @@ TradingAgents is a sophisticated financial analysis platform that leverages **Mu
 
 ### LLM Providers (Configurable)
 - **Google Gemini** (Default: gemini-2.5-flash)
-- OpenAI (GPT-4o-mini)
 - DeepSeek (deepseek-reasoner)
-- Anthropic Claude
 
 ---
 
 ## 📋 Prerequisites
 
 - **Node.js** 20.x or higher
-- **Python** 3.11 or higher
+- **Python** 3.12 or higher
 - **PostgreSQL** 16 or higher (or Docker)
 - **Docker & Docker Compose** (optional, for containerized deployment)
 - **LLM API Key** (Google, OpenAI, DeepSeek, or Anthropic)
