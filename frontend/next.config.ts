@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
 
+  // Standalone output for Docker
+  output: 'standalone',
+
   // Compiler optimizations
   compiler: {
     // Remove console logs in production
@@ -14,19 +17,6 @@ const nextConfig: NextConfig = {
   experimental: {
     // Enable optimized package imports
     optimizePackageImports: ['lucide-react', 'date-fns'],
-  },
-
-  // Webpack optimization
-  webpack: (config, { dev, isServer }) => {
-    // Optimize for development
-    if (dev) {
-      config.watchOptions = {
-        poll: 1000,
-        aggregateTimeout: 300,
-        ignored: /node_modules/,
-      };
-    }
-    return config;
   },
 };
 

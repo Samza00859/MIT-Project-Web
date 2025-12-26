@@ -18,12 +18,6 @@ import {
   SECTION_MAP,
   TEAM_KEYS,
 } from "../lib/constants";
-import {
-  toISODate,
-  deepClone,
-  getApiUrl,
-  formatVolume,
-} from "../lib/helpers";
 import { MARKET_INFO } from "../components/MarketIcons";
 
 // --- Components ---

@@ -7,7 +7,7 @@ import { useGeneration } from "../../context/GenerationContext";
 
 // Import from shared modules for better code splitting
 import { HISTORY_REPORT_ORDER as REPORT_ORDER, TITLE_MAP } from "../../lib/constants";
-import { formatDate, getApiUrl } from "../../lib/helpers";
+import { formatDate } from "../../lib/helpers";
 import { RenderMarkdown, RenderJsonData } from "../../components/RenderContent";
 
 interface ReportResult {
