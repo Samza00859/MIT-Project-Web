@@ -1,15 +1,15 @@
 🏷️ Stock Data Source Comparison Result:
 
-===== TOTAL RECORDS CHECK (KBANK - TH) =====
-YFinance (KBANK.BK):      242
-TwelveData (KBANK):    0
-TradingView (SET:KBANK):   243
+===== TOTAL RECORDS CHECK (IBM - US) =====
+YFinance (IBM):      250
+TwelveData (IBM):    250
+TradingView (IBM):   0
 
 
 ===== SIMILARITY SCORE =====
-YFinance Score: 139
-TwelveData Score: 0
-TradingView Score: 139
+YFinance Score: 64
+TwelveData Score: 64
+TradingView Score: 0
 
-🏆 Best Source: TRADINGVIEW
+🏆 Best Source: YFINANCE
 

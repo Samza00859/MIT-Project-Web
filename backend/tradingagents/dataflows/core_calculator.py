@@ -2,52 +2,79 @@
 import pandas as pd
 import numpy as np
 from io import StringIO
+import pandas_ta as ta
 
 def calculate_sma(df: pd.DataFrame, period: int = 50, column: str = "Close") -> pd.Series:
-    return df[column].rolling(window=period).mean()
+    # Use pandas_ta.sma
+    return ta.sma(df[column], length=period)
 
 def calculate_ema(df: pd.DataFrame, period: int = 10, column: str = "Close") -> pd.Series:
-    return df[column].ewm(span=period, adjust=False).mean()
+    # Use pandas_ta.ema
+    return ta.ema(df[column], length=period)
 
 def calculate_rsi(df: pd.DataFrame, period: int = 14, column: str = "Close") -> pd.Series:
-    delta = df[column].diff(1)
-    gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
-    rs = gain / loss
-    return 100 - (100 / (1 + rs))
+    # Use pandas_ta.rsi
+    return ta.rsi(df[column], length=period)
 
 def calculate_macd(df: pd.DataFrame, fast: int = 12, slow: int = 26, signal: int = 9, column: str = "Close"):
-    exp1 = df[column].ewm(span=fast, adjust=False).mean()
-    exp2 = df[column].ewm(span=slow, adjust=False).mean()
-    macd_line = exp1 - exp2
-    signal_line = macd_line.ewm(span=signal, adjust=False).mean()
-    histogram = macd_line - signal_line
+    # pandas_ta.macd returns a DataFrame with 3 columns:
+    # MACD_{fast}_{slow}_{signal} (Line)
+    # MACDh_{fast}_{slow}_{signal} (Histogram)
+    # MACDs_{fast}_{slow}_{signal} (Signal)
+    macd_df = ta.macd(df[column], fast=fast, slow=slow, signal=signal)
+    
+    if macd_df is None or macd_df.empty:
+        return pd.Series([np.nan]*len(df)), pd.Series([np.nan]*len(df)), pd.Series([np.nan]*len(df))
+
+    # Identify columns by name pattern or index
+    # We expect columns in order: macd, histogram, signal (or similar, check pandas_ta docs/implementation)
+    # Actually pandas_ta returns: MACD, MACDh (hist), MACDs (signal)
+    
+    # Construct expected column names
+    macd_col = f"MACD_{fast}_{slow}_{signal}"
+    hist_col = f"MACDh_{fast}_{slow}_{signal}"
+    signal_col = f"MACDs_{fast}_{slow}_{signal}"
+    
+    macd_line = macd_df[macd_col]
+    signal_line = macd_df[signal_col]
+    histogram = macd_df[hist_col]
+    
     return macd_line, signal_line, histogram
 
 def calculate_bollinger_bands(df: pd.DataFrame, period: int = 20, num_std: int = 2, column: str = "Close"):
-    sma = df[column].rolling(window=period).mean()
-    std = df[column].rolling(window=period).std()
-    upper_band = sma + (std * num_std)
-    lower_band = sma - (std * num_std)
+    # pandas_ta.bbands returns BBL, BBM, BBU, BBB, BBP
+    bb_df = ta.bbands(df[column], length=period, std=num_std)
+    
+    if bb_df is None or bb_df.empty:
+        return pd.Series([np.nan]*len(df)), pd.Series([np.nan]*len(df))
+        
+    lower_col = f"BBL_{period}_{float(num_std)}"
+    upper_col = f"BBU_{period}_{float(num_std)}"
+    
+    # Handle implicit float formatting in pandas_ta names if needed (e.g. 2.0)
+    # Usually it's 'BBL_20_2.0'
+    
+    # Fallback search if exact name match fails
+    if lower_col not in bb_df.columns:
+        # Try to find columns starting with BBL and BBU
+        lower_vals = bb_df.filter(like="BBL").iloc[:, 0]
+        upper_vals = bb_df.filter(like="BBU").iloc[:, 0]
+        return upper_vals, lower_vals
+    
+    upper_band = bb_df[upper_col]
+    lower_band = bb_df[lower_col]
     return upper_band, lower_band
 
 def calculate_atr(df: pd.DataFrame, period: int = 14):
-    high_low = df['High'] - df['Low']
-    high_close = np.abs(df['High'] - df['Close'].shift())
-    low_close = np.abs(df['Low'] - df['Close'].shift())
-    ranges = pd.concat([high_low, high_close, low_close], axis=1)
-    true_range = np.max(ranges, axis=1)
-    return true_range.rolling(window=period).mean()
+    # pandas_ta.atr requires High, Low, Close
+    return ta.atr(df["High"], df["Low"], df["Close"], length=period)
 
 def calculate_vwma(df: pd.DataFrame, period: int = 20):
-    v = df['Volume'].values
-    p = df['Close'].values
-    # Check if we have volume
+    # pandas_ta.vwma requires Close, Volume
     if 'Volume' not in df.columns or df['Volume'].sum() == 0:
-        return calculate_sma(df, period) # Fallback to SMA
-    
-    vwma = (df['Close'] * df['Volume']).rolling(window=period).sum() / df['Volume'].rolling(window=period).sum()
-    return vwma
+        return calculate_sma(df, period) # Fallback
+        
+    return ta.vwma(df["Close"], df["Volume"], length=period)
 
 def process_indicators_from_csv(csv_text: str):
     """
@@ -63,32 +90,45 @@ def process_indicators_from_csv(csv_text: str):
         indicators = {}
         
         # SMA
-        indicators['close_50_sma'] = calculate_sma(df, 50).iloc[-1]
-        indicators['close_200_sma'] = calculate_sma(df, 200).iloc[-1]
+        sma_50 = calculate_sma(df, 50)
+        if sma_50 is not None: indicators['close_50_sma'] = sma_50.iloc[-1]
+        
+        sma_200 = calculate_sma(df, 200)
+        if sma_200 is not None: indicators['close_200_sma'] = sma_200.iloc[-1]
         
         # EMA
-        indicators['close_10_ema'] = calculate_ema(df, 10).iloc[-1]
+        ema_10 = calculate_ema(df, 10)
+        if ema_10 is not None: indicators['close_10_ema'] = ema_10.iloc[-1]
         
         # RSI
-        indicators['rsi'] = calculate_rsi(df, 14).iloc[-1]
+        rsi = calculate_rsi(df, 14)
+        if rsi is not None: indicators['rsi'] = rsi.iloc[-1]
         
         # MACD
         macd, signal, hist = calculate_macd(df)
-        indicators['macd'] = macd.iloc[-1]
-        indicators['macds'] = signal.iloc[-1]
-        indicators['macdh'] = hist.iloc[-1]
+        if macd is not None: indicators['macd'] = macd.iloc[-1]
+        if signal is not None: indicators['macds'] = signal.iloc[-1]
+        if hist is not None: indicators['macdh'] = hist.iloc[-1]
         
         # BOLL
         ub, lb = calculate_bollinger_bands(df)
-        indicators['boll_ub'] = ub.iloc[-1]
-        indicators['boll_lb'] = lb.iloc[-1]
-        indicators['boll'] = (ub.iloc[-1] + lb.iloc[-1]) / 2 # Middle band usually
+        if ub is not None and lb is not None:
+            indicators['boll_ub'] = ub.iloc[-1]
+            indicators['boll_lb'] = lb.iloc[-1]
+            indicators['boll'] = (ub.iloc[-1] + lb.iloc[-1]) / 2 # Middle band
         
         # ATR
-        indicators['atr'] = calculate_atr(df).iloc[-1]
+        atr = calculate_atr(df)
+        if atr is not None: indicators['atr'] = atr.iloc[-1]
         
         # VWMA
-        indicators['vwma'] = calculate_vwma(df).iloc[-1]
+        # Note: pandas_ta requires DataFrame with DatetimeIndex for some operations, df has it.
+        vwma = calculate_vwma(df)
+        if vwma is not None: indicators['vwma'] = vwma.iloc[-1]
+        
+        # Replace NaNs with None for JSON serializability if needed, or handle externally
+        # The original code didn't seem to explicitly handle NaNs here but usually returned floats or NaNs.
+        # We will return as is.
         
         return indicators, df
     except Exception as e:
