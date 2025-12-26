@@ -179,9 +179,9 @@ const TUTORIAL_SECTIONS = [
         id: 'telegram-alerts',
         title: 'Connecting Telegram Alerts',
         steps: [
-            "Open Connect Menu: Click the mobile phone icon (📱) in the left sidebar.",
-            "Start the Bot: Click the provided link to open 'TradingAgentsBot' in Telegram and tap 'Start'.",
-            "Auto-Connect: Return to the website and click 'Connect Automatically'. The system will detect your Chat ID and pair your account instantly.",
+            "Open Connect Menu: Click the sent telegram button in the generate page.",
+            "Start the Bot: Click the 'Open Telegram & Connect' to open 'TradingAgentsBot' in Telegram and tap 'Start'.",
+            "Auto-Connect: Return to the website. The system will detect your Chat and pair your account instantly.",
             "Receive Alerts: You will now get real-time notifications whenever a report is ready."
         ]
     },
@@ -204,7 +204,7 @@ const AGENT_TEAMS = [
         description: 'The foundation. specialized agents collect and process raw data from multiple sources—quantitative, fundamental, technical, and sentiment—to create a unified view of the market.',
         agents: [
             { id: 'market-data', title: 'Market Data Agent', icon: <BarChart size={24} className="text-cyan-400" />, role: 'Market Aggregator', content: 'Fetches raw financial data including historical prices, trading volumes, and key financial ratios.' },
-            { id: 'fundamental', title: 'Fundamental Agent', icon: <BookOpen size={24} className="text-blue-400" />, role: 'Fundamental Aggregator', content: 'Parses 10-K/10-Q reports and balance sheets. Calculates intrinsic value metrics.' },
+            { id: 'fundamental', title: 'Fundamental Agent', icon: <BookOpen size={24} className="text-blue-400" />, role: 'Fundamental Aggregator', content: 'Parses reports and balance sheets. Calculates intrinsic value metrics.' },
             { id: 'news', title: 'News Agent', icon: <Newspaper size={24} className="text-green-400" />, role: 'News Aggregator', content: 'Monitors global newswires/RSS feeds. Filters noise to find high-impact economic events.' },
             { id: 'social', title: 'Social Agent', icon: <Globe size={24} className="text-purple-400" />, role: 'Social Media Aggregator', content: 'Quantifies market psychology by scanning social platforms. Detects accumulating fear or greed trends.' }
         ]
