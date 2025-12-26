@@ -50,15 +50,15 @@ export default function ContactContent({
     ];
 
     return (
-        <main className="flex-1 p-6 md:p-10 lg:p-14 pt-20 relative z-10">
-            <header className="mb-8 space-y-2">
+        <main className="flex-1 relative z-10 px-6 pb-10 pt-14 md:px-10 md:pb-12 md:pt-10 lg:px-12 lg:pb-14 lg:pt-10">
+            <header className="mb-6 space-y-2">
                 <h1 className={`text-3xl md:text-4xl font-bold ${isDarkMode ? "text-white" : "text-[#0F172A]"}`}>Contact Us</h1>
                 <p className={`text-sm md:text-base leading-relaxed ${isDarkMode ? "text-gray-400" : "text-[#64748B]"}`}>
                     Connect with our team for partnerships, support, or product questions. We respond quickly.
                 </p>
             </header>
 
-            <section className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-6">
+            <section className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-5">
                 {/* Contacts list */}
                 <div className="flex flex-col gap-6">
                     {contacts.map((contact, index) => {
@@ -66,7 +66,7 @@ export default function ContactContent({
                         return (
                             <article
                                 key={index}
-                                className={`group flex flex-col gap-6 rounded-2xl p-8 md:p-10 transition-all duration-300 cursor-pointer ${isDarkMode 
+                                className={`group flex flex-col gap-5 rounded-2xl p-7 md:p-9 transition-all duration-300 cursor-pointer ${isDarkMode 
                                     ? "bg-[#131722] border border-white/5 hover:border-[#2df4c6]/40 shadow-[0_14px_40px_rgba(0,0,0,0.12)]" 
                                     : "bg-white border border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm hover:shadow-md"
                                 }`}

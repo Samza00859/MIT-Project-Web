@@ -140,7 +140,7 @@ export default function Sidebar({
             )}
 
             <aside
-                className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col gap-8 border-r transition-all duration-300 ease-in-out md:sticky md:top-0 md:inset-y-auto md:h-auto md:max-h-screen md:translate-x-0 overflow-y-auto overflow-x-hidden ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
+                className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col gap-8 border-r transition-all duration-300 ease-in-out md:sticky md:top-0 md:inset-y-auto md:h-auto md:max-h-screen md:translate-x-0 overflow-y-auto overflow-x-hidden no-scrollbar ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
                     } ${isCollapsed ? "w-20 px-2 py-8" : "w-[280px] px-6 py-8"
                     } ${isDarkMode
                         ? "border-white/5 bg-gradient-to-b from-[#0f1216] to-[#141922]"

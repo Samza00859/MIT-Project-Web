@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import ContactContent from "@/components/ContactContent";
 
@@ -24,7 +23,7 @@ export default function ContactPage() {
     };
 
     return (
-        <div className={`flex min-h-screen w-full font-['Inter','Montserrat',sans-serif] transition-colors duration-300 relative overflow-hidden ${isDarkMode ? "bg-[#0d1117] text-[#e8eefc]" : "bg-[#F6F9FC] text-[#0F172A]"}`}>
+        <div className={`flex h-screen w-full font-['Inter','Montserrat',sans-serif] transition-colors duration-300 relative overflow-x-hidden overflow-y-auto no-scrollbar ${isDarkMode ? "bg-[#0d1117] text-[#e8eefc]" : "bg-[#F6F9FC] text-[#0F172A]"}`}>
             {/* Data Stream Background Depth Layer - Dark Mode */}
             {isDarkMode && (
                 <>
@@ -102,9 +101,9 @@ export default function ContactPage() {
             {/* Light Mode Background - Subtle blue gradient */}
             {!isDarkMode && (
                 <>
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
+                    <div className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
                     <div 
-                        className="pointer-events-none absolute inset-[-40%] bg-[radial-gradient(circle_at_10%_20%,rgba(37,99,235,0.03),transparent_55%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.04),transparent_55%),radial-gradient(circle_at_50%_100%,rgba(37,99,235,0.05),transparent_60%)] animate-[gradient_18s_ease_infinite] opacity-60"
+                        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_10%_20%,rgba(37,99,235,0.03),transparent_55%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.04),transparent_55%),radial-gradient(circle_at_50%_100%,rgba(37,99,235,0.05),transparent_60%)] animate-[gradient_18s_ease_infinite] opacity-60 transform-gpu scale-[1.8] origin-center"
                     />
                     <style jsx>{`
                         @keyframes gradient {
