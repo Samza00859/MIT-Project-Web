@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import ViewDocsSidebar from "../../components/ViewDocsSidebar";
 import Sidebar from "../../components/Sidebar";
+import { useTheme } from "@/context/ThemeContext";
 import {
     Download,
     BarChart, BookOpen, Newspaper, Globe,
@@ -19,7 +20,7 @@ const DOCUMENT_SECTIONS = [
         content: (
             <div className="space-y-4 text-zinc-300 leading-relaxed">
                 <p>
-                    Significant progress has been made in automated problem-solving using societies of agents powered by <Tooltip text="Large Language Models - advanced AI systems that can understand and generate human-like text" isDarkMode={true}><strong className="text-white">LLMs</strong></Tooltip>. While single-agent systems handle specific tasks well, complex financial markets require collaborative dynamics similar to real-world trading firms.
+                    Significant progress has been made in automated problem-solving using societies of agents powered by <Tooltip text="Large Language Models - advanced AI systems that can understand and generate human-like text"><strong className="text-white">LLMs</strong></Tooltip>. While single-agent systems handle specific tasks well, complex financial markets require collaborative dynamics similar to real-world trading firms.
                 </p>
                 <p>
                     <strong className="text-white">TradingAgents</strong> proposes a novel stock trading framework inspired by professional trading firms, featuring LLM-powered agents in specialized roles. By simulating a dynamic, collaborative trading environment, this framework aims to replicate the multi-faceted decision-making process of successful investment houses.
@@ -203,7 +204,8 @@ const AGENT_TEAMS = [
 
 
 // Tooltip Component for Explain-on-Hover
-function Tooltip({ text, children, isDarkMode }: { text: string; children: React.ReactNode; isDarkMode: boolean }) {
+function Tooltip({ text, children }: { text: string; children: React.ReactNode }) {
+    const { isDarkMode } = useTheme();
     const [show, setShow] = useState(false);
     return (
         <span className="relative inline-block group">
@@ -227,7 +229,7 @@ function Tooltip({ text, children, isDarkMode }: { text: string; children: React
 }
 
 export default function ViewDocsPage() {
-    const [isDarkMode, setIsDarkMode] = useState(true);
+    const { isDarkMode, toggleTheme } = useTheme();
     const [activeSection, setActiveSection] = useState('introduction');
     const [expandedCategories, setExpandedCategories] = useState<string[]>(['document', 'tutorials', 'our-agent']);
     const [focusedSection, setFocusedSection] = useState<string | null>(null);
@@ -254,15 +256,6 @@ export default function ViewDocsPage() {
             };
         });
     }, []);
-
-    const toggleTheme = () => {
-        setIsDarkMode(!isDarkMode);
-        document.body.setAttribute('data-theme', !isDarkMode ? 'dark' : 'light');
-    };
-
-    useEffect(() => {
-        document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
-    }, [isDarkMode]);
 
     useEffect(() => {
         setMounted(true);

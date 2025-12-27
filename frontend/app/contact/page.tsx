@@ -3,14 +3,11 @@
 import React, { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import ContactContent from "@/components/ContactContent";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function ContactPage() {
-    const [isDarkMode, setIsDarkMode] = useState(true);
+    const { isDarkMode, toggleTheme } = useTheme();
     const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
-
-    const toggleTheme = () => {
-        setIsDarkMode(!isDarkMode);
-    };
 
     const toggleCard = (index: number) => {
         const newExpanded = new Set(expandedCards);

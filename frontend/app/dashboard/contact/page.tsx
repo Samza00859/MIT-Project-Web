@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function DashboardContactPage() {
-    const [isDarkMode, setIsDarkMode] = useState(true);
-
-    const toggleTheme = () => {
-        setIsDarkMode(!isDarkMode);
-    };
+    const { isDarkMode, toggleTheme } = useTheme();
 
     const contacts = [
         {

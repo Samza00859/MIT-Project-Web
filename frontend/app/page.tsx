@@ -11,6 +11,7 @@ import ReportSections from "../components/ReportSections";
 import { buildApiUrl, buildWsUrl, mapFetchError } from "@/lib/api";
 import TelegramConnect from "../components/TelegramConnect";
 import { useGeneration } from "../context/GenerationContext";
+import { useTheme } from "@/context/ThemeContext";
 
 // --- Constants & Types ---
 
@@ -357,7 +358,7 @@ export default function Home() {
     trader: 0,
     risk: 0,
   });
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const { isDarkMode, toggleTheme } = useTheme();
   // Debug State
   const [isDebugCollapsed, setIsDebugCollapsed] = useState(false);
   const [debugLogs, setDebugLogs] = useState<
@@ -1278,14 +1279,6 @@ export default function Home() {
   };
 
   const recVariant = getRecommendationVariant(decision);
-
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
-  useEffect(() => {
-    document.body.setAttribute("data-theme", isDarkMode ? "dark" : "light");
-  }, [isDarkMode]);
 
   return (
     <div

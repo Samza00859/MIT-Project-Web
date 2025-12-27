@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
+import { useTheme } from "@/context/ThemeContext";
 
 // Helper function to format date
 function formatDate(dateString: string): string {
@@ -141,7 +142,7 @@ export default function HistoryPage() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isDarkMode, setIsDarkMode] = useState(true);
+    const { isDarkMode, toggleTheme } = useTheme();
     const [viewMode, setViewMode] = useState<"summary" | "detailed">("detailed");
 
     useEffect(() => {
@@ -167,8 +168,6 @@ export default function HistoryPage() {
             setLoading(false);
         }
     };
-
-    const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
     const getGroupedSections = (item: HistoryItem) => {
         const sectionsMap: Record<string, { sum?: any, full?: any }> = {};

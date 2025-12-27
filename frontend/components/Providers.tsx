@@ -1,11 +1,12 @@
 "use client";
 
 import { GenerationProvider } from "../context/GenerationContext";
+import { ThemeProvider } from "../context/ThemeContext";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
     return (
-        <GenerationProvider>
-            {children}
-        </GenerationProvider>
+        <ThemeProvider>
+            <GenerationProvider>{children}</GenerationProvider>
+        </ThemeProvider>
     );
 }

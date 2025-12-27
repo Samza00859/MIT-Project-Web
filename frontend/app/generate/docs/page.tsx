@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
+import { useTheme } from "@/context/ThemeContext";
 import {
     Download, ChevronRight, ChevronDown,
     BarChart, BookOpen, Newspaper, Globe,
@@ -302,13 +303,9 @@ function NavMenuItem({
 }
 
 export default function GenerateDocsPage() {
-    const [isDarkMode, setIsDarkMode] = useState(true);
+    const { isDarkMode, toggleTheme } = useTheme();
     const [activeSection, setActiveSection] = useState('introduction');
     const [expandedCategories, setExpandedCategories] = useState<string[]>(['document', 'tutorials', 'our-agent']);
-
-    const toggleTheme = () => {
-        setIsDarkMode(!isDarkMode);
-    };
 
     const toggleCategory = (categoryId: string) => {
         setExpandedCategories(prev =>

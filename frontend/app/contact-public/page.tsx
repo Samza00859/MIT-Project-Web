@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, Mail, MessageCircle, Linkedin, Phone, User, Building2, Briefcase } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function ContactPublicPage() {
-    const [isDarkMode, setIsDarkMode] = useState(true);
+    const { isDarkMode, toggleTheme } = useTheme();
     const [visibleElements, setVisibleElements] = useState<Set<string>>(new Set());
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [stars, setStars] = useState<Array<{ x: number; y: number; size: number; opacity: number; delay: number; duration: number }>>([]);
+    const cursorTrailRef = useRef<HTMLDivElement>(null);
 
     const contacts = [
         {
@@ -42,6 +46,50 @@ export default function ContactPublicPage() {
             other: "Other contact",
         },
     ];
+
+    // Generate stars
+    useEffect(() => {
+        const generateStars = () => {
+            const starCount = 150;
+            const newStars = [];
+            for (let i = 0; i < starCount; i++) {
+                newStars.push({
+                    x: Math.random() * 100,
+                    y: Math.random() * 100,
+                    size: Math.random() * 2 + 0.5,
+                    opacity: Math.random() * 0.8 + 0.2,
+                    delay: Math.random() * 3,
+                    duration: 2 + Math.random() * 2,
+                });
+            }
+            setStars(newStars);
+        };
+        generateStars();
+    }, []);
+
+    // Mouse movement effect
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            setMousePosition({ x: e.clientX, y: e.clientY });
+            
+            // Create cursor trail particles
+            if (cursorTrailRef.current) {
+                const particle = document.createElement('div');
+                particle.className = 'cursor-particle';
+                particle.style.left = `${e.clientX}px`;
+                particle.style.top = `${e.clientY}px`;
+                cursorTrailRef.current.appendChild(particle);
+                
+                // Remove particle after animation
+                setTimeout(() => {
+                    particle.remove();
+                }, 1000);
+            }
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
 
     // Intersection Observer for scroll animations
     useEffect(() => {
@@ -90,9 +138,104 @@ export default function ContactPublicPage() {
                     </>
                 )}
             </div>
+
+            {/* Night Star Field */}
+            {isDarkMode && (
+                <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                    {stars.map((star, index) => (
+                        <div
+                            key={index}
+                            className="star"
+                            style={{
+                                left: `${star.x}%`,
+                                top: `${star.y}%`,
+                                width: `${star.size}px`,
+                                height: `${star.size}px`,
+                                opacity: star.opacity,
+                                animationDelay: `${star.delay}s`,
+                                animationDuration: `${star.duration}s`,
+                            }}
+                        />
+                    ))}
+                </div>
+            )}
+            
+            {/* Floating Gradient Orbs for Light Mode */}
+            {!isDarkMode && (
+                <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                    {Array.from({ length: 6 }).map((_, index) => {
+                        const orbColors = [
+                            'rgba(37, 99, 235, 0.08)',
+                            'rgba(56, 189, 248, 0.06)',
+                            'rgba(99, 102, 241, 0.05)',
+                            'rgba(139, 92, 246, 0.04)',
+                            'rgba(37, 99, 235, 0.06)',
+                            'rgba(14, 165, 233, 0.05)',
+                        ];
+                        return (
+                            <div
+                                key={index}
+                                className={`floating-orb floating-orb-${index % 3}`}
+                                style={{
+                                    left: `${10 + (index * 15) + Math.random() * 10}%`,
+                                    top: `${15 + Math.random() * 70}%`,
+                                    width: `${280 + Math.random() * 180}px`,
+                                    height: `${280 + Math.random() * 180}px`,
+                                    background: `radial-gradient(circle, ${orbColors[index % orbColors.length]}, transparent 70%)`,
+                                    animationDelay: `${index * 2}s`,
+                                    animationDuration: `${18 + Math.random() * 12}s`,
+                                }}
+                            />
+                        );
+                    })}
+                </div>
+            )}
+            
+            {/* Geometric Grid Background - Light Mode Only */}
+            {!isDarkMode && (
+                <div className="geometric-grid-container pointer-events-none absolute inset-0 overflow-hidden">
+                    <div className="geometric-grid" />
+                    <div className="accent-line accent-line-1" />
+                    <div className="accent-line accent-line-2" />
+                    <div className="accent-line accent-line-3" />
+                </div>
+            )}
+
+            {/* Side Animations - Light Mode Only */}
+            {!isDarkMode && (
+                <>
+                    {/* Left Side Animations */}
+                    <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-64 z-0 overflow-hidden">
+                        <div className="side-animation-left-1" />
+                        <div className="side-animation-left-2" />
+                        <div className="side-animation-left-3" />
+                        <div className="side-animation-left-4" />
+                    </div>
+                    
+                    {/* Right Side Animations */}
+                    <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-64 z-0 overflow-hidden">
+                        <div className="side-animation-right-1" />
+                        <div className="side-animation-right-2" />
+                        <div className="side-animation-right-3" />
+                        <div className="side-animation-right-4" />
+                    </div>
+                </>
+            )}
             
             {/* Background Depth Layer */}
-            <div className="bg-depth pointer-events-none fixed inset-0 z-0" />
+            <div className={`bg-depth pointer-events-none fixed inset-0 z-0 ${isDarkMode ? '' : 'light-mode-depth'}`} />
+
+            {/* Cursor Trail Container */}
+            <div ref={cursorTrailRef} className="cursor-trail-container" />
+
+            {/* Cursor Glow Effect */}
+            <div
+                className={`cursor-glow ${isDarkMode ? 'cursor-glow-dark' : 'cursor-glow-light'}`}
+                style={{
+                    left: `${mousePosition.x}px`,
+                    top: `${mousePosition.y}px`,
+                }}
+            />
             <style jsx>{`
                 .animated-gradient-bg {
                     background: linear-gradient(
@@ -119,8 +262,8 @@ export default function ContactPublicPage() {
                     }
                 }
                 @keyframes gradient {
-                    0%, 100% { transform: translate(0, 0) scale(1); }
-                    50% { transform: translate(-2%, -2%) scale(1.05); }
+                    0%, 100% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
                 }
                 @keyframes sunrise {
                     0%, 100% { 
@@ -176,6 +319,138 @@ export default function ContactPublicPage() {
                     animation: floatBg 20s ease-in-out infinite;
                     z-index: -1;
                 }
+                .light-mode-depth::before {
+                    background:
+                        radial-gradient(circle at 30% 20%, rgba(37, 99, 235, 0.06), transparent 45%),
+                        radial-gradient(circle at 70% 80%, rgba(56, 189, 248, 0.05), transparent 50%);
+                }
+                
+                /* Floating Gradient Orbs - Light Mode */
+                .floating-orb {
+                    position: absolute;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    will-change: transform, opacity;
+                }
+                .floating-orb-0 {
+                    animation: orbFloat0 20s ease-in-out infinite;
+                }
+                .floating-orb-1 {
+                    animation: orbFloat1 24s ease-in-out infinite;
+                }
+                .floating-orb-2 {
+                    animation: orbFloat2 22s ease-in-out infinite;
+                }
+                @keyframes orbFloat0 {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.7;
+                    }
+                    25% {
+                        transform: translate(30px, -20px) scale(1.05);
+                        opacity: 0.9;
+                    }
+                    50% {
+                        transform: translate(-10px, 25px) scale(0.95);
+                        opacity: 0.6;
+                    }
+                    75% {
+                        transform: translate(-25px, -15px) scale(1.02);
+                        opacity: 0.8;
+                    }
+                }
+                @keyframes orbFloat1 {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.6;
+                    }
+                    33% {
+                        transform: translate(-35px, 20px) scale(1.08);
+                        opacity: 0.85;
+                    }
+                    66% {
+                        transform: translate(20px, -30px) scale(0.92);
+                        opacity: 0.55;
+                    }
+                }
+                @keyframes orbFloat2 {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.65;
+                    }
+                    50% {
+                        transform: translate(25px, 35px) scale(1.1);
+                        opacity: 0.85;
+                    }
+                }
+                
+                /* Geometric Grid Background - Light Mode */
+                .geometric-grid-container {
+                    z-index: 0;
+                }
+                .geometric-grid {
+                    position: absolute;
+                    inset: 0;
+                    background-image: 
+                        linear-gradient(rgba(37, 99, 235, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(37, 99, 235, 0.03) 1px, transparent 1px);
+                    background-size: 60px 60px;
+                    opacity: 0.8;
+                }
+                .accent-line {
+                    position: absolute;
+                    background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.08), rgba(56, 189, 248, 0.06), transparent);
+                    height: 1px;
+                    width: 40%;
+                    will-change: transform, opacity;
+                }
+                .accent-line-1 {
+                    top: 25%;
+                    left: 10%;
+                    animation: lineSlide1 16s ease-in-out infinite;
+                }
+                .accent-line-2 {
+                    top: 55%;
+                    right: 5%;
+                    width: 35%;
+                    animation: lineSlide2 20s ease-in-out infinite 3s;
+                }
+                .accent-line-3 {
+                    top: 80%;
+                    left: 20%;
+                    width: 25%;
+                    animation: lineSlide3 18s ease-in-out infinite 6s;
+                }
+                @keyframes lineSlide1 {
+                    0%, 100% {
+                        transform: translateX(0);
+                        opacity: 0.4;
+                    }
+                    50% {
+                        transform: translateX(60px);
+                        opacity: 0.8;
+                    }
+                }
+                @keyframes lineSlide2 {
+                    0%, 100% {
+                        transform: translateX(0);
+                        opacity: 0.3;
+                    }
+                    50% {
+                        transform: translateX(-50px);
+                        opacity: 0.7;
+                    }
+                }
+                @keyframes lineSlide3 {
+                    0%, 100% {
+                        transform: translateX(0);
+                        opacity: 0.35;
+                    }
+                    50% {
+                        transform: translateX(40px);
+                        opacity: 0.65;
+                    }
+                }
                 .card {
                     transition: transform 0.3s ease, box-shadow 0.3s ease;
                 }
@@ -201,10 +476,306 @@ export default function ContactPublicPage() {
                     background-size: 1000px 100%;
                     animation: shimmer 3s infinite;
                 }
+                
+                /* Star animations */
+                @keyframes twinkle {
+                    0%, 100% { opacity: 0.2; transform: scale(1); }
+                    50% { opacity: 1; transform: scale(1.2); }
+                }
+                .star {
+                    position: absolute;
+                    background: white;
+                    border-radius: 50%;
+                    animation: twinkle 3s ease-in-out infinite;
+                }
+                /* Cursor trail particles */
+                .cursor-particle {
+                    position: fixed;
+                    width: 4px;
+                    height: 4px;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 9999;
+                    transform: translate(-50%, -50%);
+                    animation: particleFade 1s ease-out forwards;
+                }
+                body[data-theme="dark"] .cursor-particle {
+                    background: radial-gradient(circle, rgba(45, 244, 198, 0.8), rgba(45, 244, 198, 0));
+                }
+                body[data-theme="light"] .cursor-particle {
+                    background: radial-gradient(circle, rgba(37, 99, 235, 0.8), rgba(56, 189, 248, 0.6), transparent);
+                }
+                @keyframes particleFade {
+                    0% {
+                        opacity: 1;
+                        transform: translate(-50%, -50%) scale(1);
+                    }
+                    100% {
+                        opacity: 0;
+                        transform: translate(-50%, -50%) scale(0) translateY(-20px);
+                    }
+                }
+                /* Cursor glow effect */
+                .cursor-glow {
+                    position: fixed;
+                    width: 300px;
+                    height: 300px;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 9998;
+                    transform: translate(-50%, -50%);
+                    transition: opacity 0.3s ease;
+                }
+                .cursor-glow-dark {
+                    background: radial-gradient(circle, rgba(45, 244, 198, 0.1), transparent 70%);
+                }
+                .cursor-glow-light {
+                    background: radial-gradient(circle, rgba(37, 99, 235, 0.08), rgba(56, 189, 248, 0.05), transparent 70%);
+                }
+                .cursor-trail-container {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    z-index: 9999;
+                    overflow: hidden;
+                }
+                
+                /* Side Animations - Light Mode Only */
+                .side-animation-left-1,
+                .side-animation-left-2,
+                .side-animation-left-3,
+                .side-animation-left-4,
+                .side-animation-right-1,
+                .side-animation-right-2,
+                .side-animation-right-3,
+                .side-animation-right-4 {
+                    position: absolute;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    will-change: transform, opacity;
+                }
+                
+                /* Left Side Animations */
+                .side-animation-left-1 {
+                    width: 200px;
+                    height: 200px;
+                    background: radial-gradient(circle, rgba(37, 99, 235, 0.12), rgba(37, 99, 235, 0.04), transparent 70%);
+                    top: 10%;
+                    left: -50px;
+                    animation: sideFloatLeft1 25s ease-in-out infinite;
+                }
+                .side-animation-left-2 {
+                    width: 150px;
+                    height: 150px;
+                    background: radial-gradient(circle, rgba(56, 189, 248, 0.1), rgba(56, 189, 248, 0.03), transparent 70%);
+                    top: 40%;
+                    left: -30px;
+                    animation: sideFloatLeft2 22s ease-in-out infinite 2s;
+                }
+                .side-animation-left-3 {
+                    width: 180px;
+                    height: 180px;
+                    background: radial-gradient(circle, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.02), transparent 70%);
+                    top: 70%;
+                    left: -60px;
+                    animation: sideFloatLeft3 28s ease-in-out infinite 4s;
+                }
+                .side-animation-left-4 {
+                    width: 120px;
+                    height: 120px;
+                    background: radial-gradient(circle, rgba(139, 92, 246, 0.09), rgba(139, 92, 246, 0.03), transparent 70%);
+                    top: 55%;
+                    left: -40px;
+                    animation: sideFloatLeft4 20s ease-in-out infinite 1s;
+                }
+                
+                /* Right Side Animations */
+                .side-animation-right-1 {
+                    width: 200px;
+                    height: 200px;
+                    background: radial-gradient(circle, rgba(37, 99, 235, 0.12), rgba(37, 99, 235, 0.04), transparent 70%);
+                    top: 15%;
+                    right: -50px;
+                    animation: sideFloatRight1 26s ease-in-out infinite 1s;
+                }
+                .side-animation-right-2 {
+                    width: 150px;
+                    height: 150px;
+                    background: radial-gradient(circle, rgba(56, 189, 248, 0.1), rgba(56, 189, 248, 0.03), transparent 70%);
+                    top: 45%;
+                    right: -30px;
+                    animation: sideFloatRight2 23s ease-in-out infinite 3s;
+                }
+                .side-animation-right-3 {
+                    width: 180px;
+                    height: 180px;
+                    background: radial-gradient(circle, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.02), transparent 70%);
+                    top: 75%;
+                    right: -60px;
+                    animation: sideFloatRight3 27s ease-in-out infinite 5s;
+                }
+                .side-animation-right-4 {
+                    width: 120px;
+                    height: 120px;
+                    background: radial-gradient(circle, rgba(139, 92, 246, 0.09), rgba(139, 92, 246, 0.03), transparent 70%);
+                    top: 60%;
+                    right: -40px;
+                    animation: sideFloatRight4 21s ease-in-out infinite 2s;
+                }
+                
+                /* Left Side Animation Keyframes */
+                @keyframes sideFloatLeft1 {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.6;
+                    }
+                    25% {
+                        transform: translate(30px, -40px) scale(1.1);
+                        opacity: 0.8;
+                    }
+                    50% {
+                        transform: translate(-20px, 50px) scale(0.9);
+                        opacity: 0.5;
+                    }
+                    75% {
+                        transform: translate(40px, -30px) scale(1.05);
+                        opacity: 0.7;
+                    }
+                }
+                @keyframes sideFloatLeft2 {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.5;
+                    }
+                    33% {
+                        transform: translate(-25px, 35px) scale(1.15);
+                        opacity: 0.75;
+                    }
+                    66% {
+                        transform: translate(35px, -45px) scale(0.85);
+                        opacity: 0.4;
+                    }
+                }
+                @keyframes sideFloatLeft3 {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.55;
+                    }
+                    50% {
+                        transform: translate(45px, 40px) scale(1.2);
+                        opacity: 0.8;
+                    }
+                }
+                @keyframes sideFloatLeft4 {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.6;
+                    }
+                    25% {
+                        transform: translate(-30px, -25px) scale(1.08);
+                        opacity: 0.85;
+                    }
+                    75% {
+                        transform: translate(25px, 30px) scale(0.92);
+                        opacity: 0.45;
+                    }
+                }
+                
+                /* Right Side Animation Keyframes */
+                @keyframes sideFloatRight1 {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.6;
+                    }
+                    25% {
+                        transform: translate(-30px, -40px) scale(1.1);
+                        opacity: 0.8;
+                    }
+                    50% {
+                        transform: translate(20px, 50px) scale(0.9);
+                        opacity: 0.5;
+                    }
+                    75% {
+                        transform: translate(-40px, -30px) scale(1.05);
+                        opacity: 0.7;
+                    }
+                }
+                @keyframes sideFloatRight2 {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.5;
+                    }
+                    33% {
+                        transform: translate(25px, 35px) scale(1.15);
+                        opacity: 0.75;
+                    }
+                    66% {
+                        transform: translate(-35px, -45px) scale(0.85);
+                        opacity: 0.4;
+                    }
+                }
+                @keyframes sideFloatRight3 {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.55;
+                    }
+                    50% {
+                        transform: translate(-45px, 40px) scale(1.2);
+                        opacity: 0.8;
+                    }
+                }
+                @keyframes sideFloatRight4 {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.6;
+                    }
+                    25% {
+                        transform: translate(30px, -25px) scale(1.08);
+                        opacity: 0.85;
+                    }
+                    75% {
+                        transform: translate(-25px, 30px) scale(0.92);
+                        opacity: 0.45;
+                    }
+                }
+                
+                /* Accessibility: Reduced motion support */
+                @media (prefers-reduced-motion: reduce) {
+                    .floating-orb,
+                    .accent-line,
+                    .bg-depth::before,
+                    .star,
+                    .cursor-particle,
+                    .side-animation-left-1,
+                    .side-animation-left-2,
+                    .side-animation-left-3,
+                    .side-animation-left-4,
+                    .side-animation-right-1,
+                    .side-animation-right-2,
+                    .side-animation-right-3,
+                    .side-animation-right-4 {
+                        animation: none !important;
+                        transition: none !important;
+                    }
+                    .floating-orb {
+                        opacity: 0.5 !important;
+                    }
+                    .cursor-glow,
+                    .cursor-trail-container {
+                        display: none !important;
+                    }
+                }
             `}</style>
             
             {/* Navigation Bar */}
-            <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-center px-8 py-6 backdrop-blur-sm bg-black/5">
+            <nav className={`absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6 backdrop-blur-sm ${isDarkMode ? 'bg-[#020617]/80' : 'bg-[#F6F9FC]/80'}`}>
+                {/* Left side - empty for spacing */}
+                <div className="flex-1"></div>
+                
+                {/* Center - Navigation Links */}
                 <div className="flex items-center gap-4 text-sm font-medium tracking-wide">
                     {/* Home */}
                     <Link
@@ -240,13 +811,24 @@ export default function ContactPublicPage() {
                         Contact
                     </Link>
                 </div>
+                
+                {/* Right side - Theme Toggle */}
+                <div className="flex-1 flex justify-end">
+                    <label className="relative inline-flex cursor-pointer items-center">
+                        <input type="checkbox" checked={!isDarkMode} onChange={toggleTheme} className="peer sr-only" />
+                        <div className={`peer h-6 w-11 rounded-full after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none peer-focus:ring-2 ${isDarkMode ? 'bg-gray-700 after:border-gray-300 after:bg-white peer-checked:bg-gray-300 peer-checked:after:border-white peer-focus:ring-[#2df4c6]' : 'bg-[#CBD5E1] after:border-[#F1F5F9] after:bg-white peer-checked:bg-[#2563EB] peer-checked:after:border-white peer-focus:ring-[#2563EB]'}`}></div>
+                        <span className={`ml-3 text-sm font-medium ${isDarkMode ? "text-white" : "text-[#64748B]"}`}>
+                            {isDarkMode ? "Dark Mode" : "Light Mode"}
+                        </span>
+                    </label>
+                </div>
             </nav>
 
             {/* Main Content */}
-            <main className="flex-1 p-6 md:p-10 lg:p-14 pt-32">
+            <main className="flex-1 p-6 md:p-10 lg:p-14 pt-40">
                 <div className="max-w-7xl mx-auto">
                     <header 
-                        className={`mt-6 mb-12 space-y-4 relative transition-all duration-700 ease-out ${
+                        className={`mt-8 mb-12 space-y-4 relative transition-all duration-700 ease-out ${
                             visibleElements.has('header') 
                                 ? 'opacity-100 translate-y-0' 
                                 : 'opacity-0 translate-y-8'
