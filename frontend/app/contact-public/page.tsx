@@ -130,11 +130,13 @@ export default function ContactPublicPage() {
                     <div className="absolute inset-[-40%] bg-[radial-gradient(circle_at_20%_30%,rgba(45,244,198,0.08),transparent_50%),radial-gradient(circle_at_80%_70%,rgba(56,189,248,0.08),transparent_50%),radial-gradient(circle_at_50%_50%,rgba(94,92,255,0.06),transparent_60%)] animate-[gradient_20s_ease_infinite] opacity-30" />
                 ) : (
                     <>
-                        {/* Light Mode Background - Subtle blue gradient */}
+                        {/* Light Mode Background - Enhanced gradient */}
                         <div className="absolute inset-0 bg-gradient-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
                         <div 
-                            className="absolute inset-[-40%] bg-[radial-gradient(circle_at_10%_20%,rgba(37,99,235,0.03),transparent_55%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.04),transparent_55%),radial-gradient(circle_at_50%_100%,rgba(37,99,235,0.05),transparent_60%)] animate-[gradient_20s_ease_infinite] opacity-60"
+                            className="absolute inset-[-40%] bg-[radial-gradient(circle_at_10%_20%,rgba(37,99,235,0.06),transparent_55%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.08),transparent_55%),radial-gradient(circle_at_50%_100%,rgba(37,99,235,0.07),transparent_60%),radial-gradient(circle_at_30%_70%,rgba(99,102,241,0.05),transparent_50%)] animate-[gradient_20s_ease_infinite] opacity-70"
                         />
+                        {/* Additional shimmer layer */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-[shimmer_8s_ease_infinite]" />
                     </>
                 )}
             </div>
@@ -163,27 +165,30 @@ export default function ContactPublicPage() {
             {/* Floating Gradient Orbs for Light Mode */}
             {!isDarkMode && (
                 <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                    {Array.from({ length: 6 }).map((_, index) => {
+                    {Array.from({ length: 8 }).map((_, index) => {
                         const orbColors = [
-                            'rgba(37, 99, 235, 0.08)',
-                            'rgba(56, 189, 248, 0.06)',
-                            'rgba(99, 102, 241, 0.05)',
-                            'rgba(139, 92, 246, 0.04)',
-                            'rgba(37, 99, 235, 0.06)',
-                            'rgba(14, 165, 233, 0.05)',
+                            'rgba(37, 99, 235, 0.12)',
+                            'rgba(56, 189, 248, 0.10)',
+                            'rgba(99, 102, 241, 0.08)',
+                            'rgba(139, 92, 246, 0.07)',
+                            'rgba(37, 99, 235, 0.10)',
+                            'rgba(14, 165, 233, 0.09)',
+                            'rgba(59, 130, 246, 0.11)',
+                            'rgba(79, 70, 229, 0.08)',
                         ];
                         return (
                             <div
                                 key={index}
                                 className={`floating-orb floating-orb-${index % 3}`}
                                 style={{
-                                    left: `${10 + (index * 15) + Math.random() * 10}%`,
-                                    top: `${15 + Math.random() * 70}%`,
-                                    width: `${280 + Math.random() * 180}px`,
-                                    height: `${280 + Math.random() * 180}px`,
+                                    left: `${10 + (index * 12) + Math.random() * 8}%`,
+                                    top: `${10 + Math.random() * 80}%`,
+                                    width: `${300 + Math.random() * 200}px`,
+                                    height: `${300 + Math.random() * 200}px`,
                                     background: `radial-gradient(circle, ${orbColors[index % orbColors.length]}, transparent 70%)`,
-                                    animationDelay: `${index * 2}s`,
+                                    animationDelay: `${index * 1.5}s`,
                                     animationDuration: `${18 + Math.random() * 12}s`,
+                                    filter: 'blur(40px)',
                                 }}
                             />
                         );
@@ -224,6 +229,48 @@ export default function ContactPublicPage() {
             
             {/* Background Depth Layer */}
             <div className={`bg-depth pointer-events-none fixed inset-0 z-0 ${isDarkMode ? '' : 'light-mode-depth'}`} />
+            
+            {/* Light Mode Enhanced Effects */}
+            {!isDarkMode && (
+                <>
+                    {/* Animated Light Rays */}
+                    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                        <div className="light-ray light-ray-1" />
+                        <div className="light-ray light-ray-2" />
+                        <div className="light-ray light-ray-3" />
+                    </div>
+                    
+                    {/* Floating Particles - Light Mode */}
+                    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                        {Array.from({ length: 20 }).map((_, index) => (
+                            <div
+                                key={`particle-${index}`}
+                                className="floating-particle"
+                                style={{
+                                    left: `${Math.random() * 100}%`,
+                                    top: `${Math.random() * 100}%`,
+                                    animationDelay: `${Math.random() * 5}s`,
+                                    animationDuration: `${15 + Math.random() * 10}s`,
+                                }}
+                            />
+                        ))}
+                    </div>
+                    
+                    {/* Subtle Wave Animation */}
+                    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                        <div className="wave-animation wave-1" />
+                        <div className="wave-animation wave-2" />
+                        <div className="wave-animation wave-3" />
+                    </div>
+                    
+                    {/* Glowing Accent Circles */}
+                    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                        <div className="glow-circle glow-circle-1" />
+                        <div className="glow-circle glow-circle-2" />
+                        <div className="glow-circle glow-circle-3" />
+                    </div>
+                </>
+            )}
 
             {/* Cursor Trail Container */}
             <div ref={cursorTrailRef} className="cursor-trail-container" />
@@ -392,10 +439,21 @@ export default function ContactPublicPage() {
                     position: absolute;
                     inset: 0;
                     background-image: 
-                        linear-gradient(rgba(37, 99, 235, 0.03) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(37, 99, 235, 0.03) 1px, transparent 1px);
-                    background-size: 60px 60px;
-                    opacity: 0.8;
+                        linear-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px),
+                        linear-gradient(rgba(56, 189, 248, 0.02) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(56, 189, 248, 0.02) 1px, transparent 1px);
+                    background-size: 60px 60px, 60px 60px, 120px 120px, 120px 120px;
+                    opacity: 0.9;
+                    animation: gridPulse 15s ease-in-out infinite;
+                }
+                @keyframes gridPulse {
+                    0%, 100% {
+                        opacity: 0.7;
+                    }
+                    50% {
+                        opacity: 1;
+                    }
                 }
                 .accent-line {
                     position: absolute;
@@ -742,6 +800,219 @@ export default function ContactPublicPage() {
                     }
                 }
                 
+                /* Light Mode Enhanced Effects */
+                
+                /* Animated Light Rays */
+                .light-ray {
+                    position: absolute;
+                    width: 2px;
+                    height: 100%;
+                    background: linear-gradient(
+                        to bottom,
+                        transparent,
+                        rgba(37, 99, 235, 0.15),
+                        rgba(56, 189, 248, 0.12),
+                        transparent
+                    );
+                    transform-origin: center;
+                    opacity: 0.6;
+                    filter: blur(1px);
+                }
+                .light-ray-1 {
+                    left: 20%;
+                    animation: rayRotate1 25s ease-in-out infinite;
+                }
+                .light-ray-2 {
+                    left: 50%;
+                    animation: rayRotate2 30s ease-in-out infinite 5s;
+                }
+                .light-ray-3 {
+                    left: 80%;
+                    animation: rayRotate3 28s ease-in-out infinite 10s;
+                }
+                @keyframes rayRotate1 {
+                    0%, 100% {
+                        transform: rotate(0deg) translateY(0);
+                        opacity: 0.4;
+                    }
+                    50% {
+                        transform: rotate(5deg) translateY(-20px);
+                        opacity: 0.8;
+                    }
+                }
+                @keyframes rayRotate2 {
+                    0%, 100% {
+                        transform: rotate(0deg) translateY(0);
+                        opacity: 0.3;
+                    }
+                    50% {
+                        transform: rotate(-4deg) translateY(15px);
+                        opacity: 0.7;
+                    }
+                }
+                @keyframes rayRotate3 {
+                    0%, 100% {
+                        transform: rotate(0deg) translateY(0);
+                        opacity: 0.35;
+                    }
+                    50% {
+                        transform: rotate(3deg) translateY(-10px);
+                        opacity: 0.75;
+                    }
+                }
+                
+                /* Floating Particles */
+                .floating-particle {
+                    position: absolute;
+                    width: 3px;
+                    height: 3px;
+                    background: radial-gradient(circle, rgba(37, 99, 235, 0.6), transparent);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    will-change: transform, opacity;
+                    animation: particleFloat ease-in-out infinite;
+                }
+                @keyframes particleFloat {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.3;
+                    }
+                    25% {
+                        transform: translate(20px, -30px) scale(1.2);
+                        opacity: 0.6;
+                    }
+                    50% {
+                        transform: translate(-15px, -50px) scale(0.8);
+                        opacity: 0.4;
+                    }
+                    75% {
+                        transform: translate(30px, -20px) scale(1.1);
+                        opacity: 0.7;
+                    }
+                }
+                
+                /* Wave Animation */
+                .wave-animation {
+                    position: absolute;
+                    width: 100%;
+                    height: 200px;
+                    background: linear-gradient(
+                        90deg,
+                        transparent,
+                        rgba(37, 99, 235, 0.08),
+                        rgba(56, 189, 248, 0.06),
+                        transparent
+                    );
+                    opacity: 0.5;
+                    filter: blur(40px);
+                }
+                .wave-1 {
+                    top: 10%;
+                    animation: waveMove1 20s ease-in-out infinite;
+                }
+                .wave-2 {
+                    top: 50%;
+                    animation: waveMove2 25s ease-in-out infinite 7s;
+                }
+                .wave-3 {
+                    top: 80%;
+                    animation: waveMove3 22s ease-in-out infinite 12s;
+                }
+                @keyframes waveMove1 {
+                    0%, 100% {
+                        transform: translateX(-100%) scaleY(1);
+                        opacity: 0.3;
+                    }
+                    50% {
+                        transform: translateX(100%) scaleY(1.2);
+                        opacity: 0.6;
+                    }
+                }
+                @keyframes waveMove2 {
+                    0%, 100% {
+                        transform: translateX(100%) scaleY(1);
+                        opacity: 0.25;
+                    }
+                    50% {
+                        transform: translateX(-100%) scaleY(0.9);
+                        opacity: 0.55;
+                    }
+                }
+                @keyframes waveMove3 {
+                    0%, 100% {
+                        transform: translateX(-50%) scaleY(1);
+                        opacity: 0.3;
+                    }
+                    50% {
+                        transform: translateX(50%) scaleY(1.1);
+                        opacity: 0.6;
+                    }
+                }
+                
+                /* Glowing Accent Circles */
+                .glow-circle {
+                    position: absolute;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    filter: blur(60px);
+                    will-change: transform, opacity;
+                }
+                .glow-circle-1 {
+                    width: 400px;
+                    height: 400px;
+                    background: radial-gradient(circle, rgba(37, 99, 235, 0.12), transparent 70%);
+                    top: 5%;
+                    left: 5%;
+                    animation: glowPulse1 18s ease-in-out infinite;
+                }
+                .glow-circle-2 {
+                    width: 350px;
+                    height: 350px;
+                    background: radial-gradient(circle, rgba(56, 189, 248, 0.1), transparent 70%);
+                    bottom: 10%;
+                    right: 8%;
+                    animation: glowPulse2 22s ease-in-out infinite 6s;
+                }
+                .glow-circle-3 {
+                    width: 300px;
+                    height: 300px;
+                    background: radial-gradient(circle, rgba(99, 102, 241, 0.08), transparent 70%);
+                    top: 60%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    animation: glowPulse3 20s ease-in-out infinite 10s;
+                }
+                @keyframes glowPulse1 {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.5;
+                    }
+                    50% {
+                        transform: translate(30px, -20px) scale(1.2);
+                        opacity: 0.8;
+                    }
+                }
+                @keyframes glowPulse2 {
+                    0%, 100% {
+                        transform: translate(0, 0) scale(1);
+                        opacity: 0.4;
+                    }
+                    50% {
+                        transform: translate(-25px, 25px) scale(1.15);
+                        opacity: 0.75;
+                    }
+                }
+                @keyframes glowPulse3 {
+                    0%, 100% {
+                        transform: translate(-50%, -50%) scale(1);
+                        opacity: 0.45;
+                    }
+                    50% {
+                        transform: translate(-50%, -50%) scale(1.3);
+                        opacity: 0.7;
+                    }
+                }
+                
                 /* Accessibility: Reduced motion support */
                 @media (prefers-reduced-motion: reduce) {
                     .floating-orb,
@@ -756,7 +1027,11 @@ export default function ContactPublicPage() {
                     .side-animation-right-1,
                     .side-animation-right-2,
                     .side-animation-right-3,
-                    .side-animation-right-4 {
+                    .side-animation-right-4,
+                    .light-ray,
+                    .floating-particle,
+                    .wave-animation,
+                    .glow-circle {
                         animation: none !important;
                         transition: none !important;
                     }
