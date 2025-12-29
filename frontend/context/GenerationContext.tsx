@@ -10,6 +10,7 @@ import React, {
     ReactNode,
 } from "react";
 import { getWsUrl } from "../lib/api";
+import { REPORT_ORDER, SECTION_MAP } from "../lib/constants";
 
 // --- Types ---
 export interface TeamMember {
@@ -180,7 +181,7 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
     const [decision, setDecision] = useState("Awaiting run");
 
     // Form State (persisted across navigation)
-    const [ticker, setTicker] = useState("SPY");
+    const [ticker, setTicker] = useState("");
     const [analysisDate, setAnalysisDate] = useState(() => {
         // Initialize with current date
         return new Date().toISOString().split("T")[0];
@@ -200,6 +201,50 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
     const [errorCount, setErrorCount] = useState(0);
     const [lastUpdate, setLastUpdate] = useState<string | null>(null);
     const [lastType, setLastType] = useState<string | null>(null);
+
+    // Effect: Update Report Sections when data or mode changes
+    useEffect(() => {
+        if (!finalReportData) return;
+
+        const finalSections: ReportSection[] = [];
+
+        REPORT_ORDER.forEach((key) => {
+            const content = finalReportData[key];
+            if (content && SECTION_MAP[key]) {
+                const entry = SECTION_MAP[key];
+                const isSummary = entry.label.includes("(Summary)");
+
+                // Filtering Logic
+                let shouldInclude = false;
+                if (reportLength === "summary report") {
+                    shouldInclude = isSummary;
+                } else {
+                    shouldInclude = !isSummary;
+                }
+
+                if (shouldInclude) {
+                    // Format content
+                    let textContent = "";
+                    if (typeof content === "object") {
+                        // Keep JSON structure for smart rendering
+                        textContent = "```json\n" + JSON.stringify(content, null, 2) + "\n```";
+                    } else {
+                        textContent = String(content);
+                    }
+
+                    finalSections.push({
+                        key: SECTION_MAP[key].key,
+                        label: SECTION_MAP[key].label,
+                        text: textContent,
+                    });
+                }
+            }
+        });
+
+        if (finalSections.length > 0) {
+            setReportSections(finalSections);
+        }
+    }, [finalReportData, reportLength]);
 
     // Refs
     const wsRef = useRef<WebSocket | null>(null);

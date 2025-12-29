@@ -35,6 +35,8 @@ export default function Home() {
   // Get global generation context
   const {
     // Generation State
+    isRunning,
+    teamState,
     reportSections: contextReportSections,
     decision: contextDecision,
     finalReportData: contextFinalReportData,
@@ -44,6 +46,17 @@ export default function Home() {
     setFinalReportData: setContextFinalReportData,
     startGeneration,
     stopGeneration: stopPipeline,
+    // Form State (persisted from context)
+    ticker,
+    setTicker,
+    selectedMarket,
+    setSelectedMarket,
+    analysisDate,
+    setAnalysisDate,
+    researchDepth,
+    setResearchDepth,
+    reportLength,
+    setReportLength,
     // Market Data State (persisted from context)
     marketData,
     setMarketData,
@@ -51,43 +64,17 @@ export default function Home() {
     setLogoSrc,
     logoError,
     setLogoError,
+    // WebSocket State
+    wsStatus,
+    debugLogs,
+    addDebugLog,
   } = useGeneration();
 
   // Local State (UI-specific only)
-  // State
-  const [ticker, setTicker] = useState("");
-  const [selectedMarket, setSelectedMarket] = useState("US");
-  const [analysisDate, setAnalysisDate] = useState("");
-  const [researchDepth, setResearchDepth] = useState(3);
-  const [reportLength, setReportLength] = useState<"summary report" | "full report">("summary report");
-  const [isRunning, setIsRunning] = useState(false);
-  const [teamState, setTeamState] = useState(deepClone(TEAM_TEMPLATE));
-  const [reportSections, setReportSections] = useState<
-    { key: string; label: string; text: string }[]
-  >([]);
-  const [decision, setDecision] = useState("Awaiting run");
-  const [finalReportData, setFinalReportData] = useState<any>(null);
-  const [copyFeedback, setCopyFeedback] = useState("Copy report");
-  const [teamProgress, setTeamProgress] = useState({
-    analyst: 0,
-    research: 0,
-    trader: 0,
-    risk: 0,
-  });
+
   const { isDarkMode, toggleTheme } = useTheme();
   // Debug State
   const [isDebugCollapsed, setIsDebugCollapsed] = useState(false);
-  const [debugLogs, setDebugLogs] = useState<
-    { time: string; type: string; content: string }[]
-  >([]);
-  const [wsStatus, setWsStatus] = useState<
-    "connected" | "connecting" | "disconnected"
-  >("disconnected");
-  const [wsUrl, setWsUrl] = useState("");
-  const [msgCount, setMsgCount] = useState(0);
-  const [errorCount, setErrorCount] = useState(0);
-  const [lastUpdate, setLastUpdate] = useState<string | null>(null);
-  const [lastType, setLastType] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
   // Track last fetched ticker to avoid refetching same data
@@ -109,7 +96,7 @@ export default function Home() {
       const delay = Math.random() * 3;
       const duration = Math.random() * 3 + 2;
       const opacity = Math.random() * 0.8 + 0.2;
-      
+
       return {
         id: i,
         size,
@@ -215,7 +202,7 @@ export default function Home() {
     const fetchMarketData = async (retries = 2) => {
       if (!isMounted) return;
       try {
-        const apiUrl = buildApiUrl(`/quote/${ticker}`);
+        const apiUrl = getApiUrl();
 
         // Only clear data on initial attempt when ticker changed
         if (retries === 2 && lastFetchedTickerRef.current !== ticker) {
@@ -353,282 +340,12 @@ export default function Home() {
   };
 
 
-  const wsRef = useRef<WebSocket | null>(null);
-  const isRunningRef = useRef(false);
-  const debugLogRef = useRef<HTMLDivElement>(null);
-  const dateInputRef = useRef<HTMLInputElement>(null);
-
-  // Sync isRunning state with ref
+  // Ticker search should use market-specific list when focused
   useEffect(() => {
-    isRunningRef.current = isRunning;
-  }, [isRunning]);
-
-  // Initialize Date
-  useEffect(() => {
-    setAnalysisDate(toISODate());
-  }, []);
-
-  // Auto-scroll debug logs
-  useEffect(() => {
-    if (debugLogRef.current) {
-      debugLogRef.current.scrollTop = debugLogRef.current.scrollHeight;
+    if (!ticker) {
+      setSuggestions(marketTickers);
     }
-  }, [debugLogs]);
-
-  // Effect: Update Report Sections when data or mode changes
-  useEffect(() => {
-    if (!contextFinalReportData) return;
-
-    const finalSections: {
-      key: string;
-      label: string;
-      text: string;
-    }[] = [];
-
-    REPORT_ORDER.forEach((key) => {
-      const content = contextFinalReportData[key];
-      if (content && SECTION_MAP[key]) {
-        const entry = SECTION_MAP[key];
-        const isSummary = entry.label.includes("(Summary)");
-
-        // Filtering Logic
-        let shouldInclude = false;
-        if (reportLength === "summary report") {
-          shouldInclude = isSummary;
-        } else {
-          shouldInclude = !isSummary;
-        }
-
-        if (shouldInclude) {
-          // Format content
-          let textContent = "";
-          if (typeof content === "object") {
-            // Keep JSON structure for smart rendering
-            textContent = "```json\n" + JSON.stringify(content, null, 2) + "\n```";
-          } else {
-            textContent = String(content);
-          }
-
-          finalSections.push({
-            key: SECTION_MAP[key].key,
-            label: SECTION_MAP[key].label,
-            text: textContent,
-          });
-        }
-      }
-    });
-
-    if (finalSections.length > 0) {
-      setContextReportSections(finalSections);
-    }
-  }, [contextFinalReportData, reportLength, setContextReportSections]);
-
-  // WebSocket Logic
-  const addDebugLog = useCallback(
-    (type: string, content: string, isError = false) => {
-      const time = new Date().toLocaleTimeString();
-      setDebugLogs((prev) => {
-        const newLogs = [...prev, { time, type, content: String(content) }];
-        if (newLogs.length > 50) newLogs.shift();
-        return newLogs;
-      });
-      setMsgCount((prev) => prev + 1);
-      setLastUpdate(new Date().toISOString());
-      setLastType(type);
-      if (isError) setErrorCount((prev) => prev + 1);
-    },
-    []
-  );
-
-  // WebSocket Connection Effect
-  useEffect(() => {
-    let isMounted = true;
-    let reconnectTimeout: NodeJS.Timeout;
-
-    const connectWebSocket = () => {
-      if (!isMounted) return;
-
-      const url = buildWsUrl("/ws");
-      setWsUrl(url);
-      setWsStatus("connecting");
-
-      const ws = new WebSocket(url);
-      wsRef.current = ws;
-
-      ws.onopen = () => {
-        if (!isMounted) {
-          ws.close();
-          return;
-        }
-        setWsStatus("connected");
-        setConnectionError(null);
-        if (isRunningRef.current) {
-          addDebugLog("system", "WebSocket reconnected. Analysis continues...", false);
-        } else {
-          addDebugLog("system", "WebSocket connected", false);
-        }
-      };
-
-      ws.onmessage = (event) => {
-        if (!isMounted) return;
-        let message;
-        try {
-          message = JSON.parse(event.data);
-        } catch (err) {
-          console.error("Failed to parse WebSocket message:", err);
-          addDebugLog("error", "Failed to parse message from server", true);
-          return;
-        }
-        const { type, data } = message;
-
-        addDebugLog(
-          type,
-          JSON.stringify(data).substring(0, 200),
-          type === "error"
-        );
-
-        switch (type) {
-          case "status":
-            if (data.agents) {
-              setTeamState((prev) => {
-                const newState = deepClone(prev);
-                Object.entries(data.agents).forEach(([agentName, status]) => {
-                  const mapping = AGENT_TO_TEAM_MAP[agentName];
-                  if (mapping) {
-                    const [teamKey, frontendName] = mapping;
-                    const member = newState[teamKey].find(
-                      (m) => m.name === frontendName
-                    );
-                    if (member) member.status = status as string;
-                  }
-                });
-                return newState;
-              });
-            }
-            if (data.message) {
-              // Handle status messages (e.g., "Analysis cancelled", "Analysis stopped")
-              addDebugLog("system", data.message, false);
-              if (data.message.includes("stopped") || data.message.includes("cancelled")) {
-                setIsRunning(false);
-              }
-            }
-            break;
-
-          case "report":
-            break;
-
-          case "complete":
-            if (data.final_state) {
-              setFinalReportData(data.final_state);
-            }
-
-            let finalDecision = data.decision;
-            if (!finalDecision && data.final_state?.final_trade_decision) {
-              const decisionContent = data.final_state.final_trade_decision;
-              const textToCheck = typeof decisionContent === 'string'
-                ? decisionContent
-                : JSON.stringify(decisionContent);
-              finalDecision = extractDecision(textToCheck);
-            }
-            if (finalDecision) {
-              setDecision(finalDecision);
-            }
-
-            setTeamState((prev) => {
-              const newState = deepClone(prev);
-              Object.keys(newState).forEach((key) => {
-                newState[key as keyof typeof TEAM_TEMPLATE].forEach((m) => {
-                  m.status = "completed";
-                });
-              });
-              return newState;
-            });
-
-            setIsRunning(false);
-            break;
-
-          case "error":
-            addDebugLog("error", data.message, true);
-            setReportSections((prev) => [
-              ...prev,
-              {
-                key: "error",
-                label: "Error",
-                text: `Error: ${data.message}`,
-              },
-            ]);
-            setIsRunning(false);
-            break;
-
-          case "pong":
-            // Keep-alive response, no action needed
-            break;
-        }
-      };
-
-      ws.onerror = () => {
-        if (!isMounted) return;
-        console.warn("WebSocket connection error. Retrying...");
-        setConnectionError(
-          "Realtime connection failed. Verify the backend websocket is reachable on http://localhost:8000/ws and that CORS allows this origin."
-        );
-        if (isRunningRef.current) {
-          addDebugLog("warning", "Connection lost during analysis. Attempting to reconnect...", true);
-        }
-        ws.close(); // Trigger onclose
-      };
-
-      ws.onclose = (event) => {
-        if (!isMounted) return;
-        setWsStatus("disconnected");
-        
-        // If analysis was running, the backend has cancelled it
-        // Stop the analysis state and notify user
-        if (isRunningRef.current) {
-          setIsRunning(false);
-          addDebugLog("error", "Connection lost. Analysis was interrupted. Please restart the analysis.", true);
-          setReportSections((prev) => [
-            ...prev,
-            {
-              key: "connection_error",
-              label: "Connection Error",
-              text: "WebSocket connection was lost during analysis. The analysis was interrupted. Please restart the analysis after reconnection.",
-            },
-          ]);
-        }
-        setConnectionError("Realtime connection lost. Reconnecting to backend...");
-        
-        // Retry connection after 3 seconds
-        reconnectTimeout = setTimeout(() => {
-          if (isMounted) {
-            connectWebSocket();
-          }
-        }, 3000);
-      };
-    };
-
-    connectWebSocket();
-
-    // Keep-alive ping every 30 seconds
-    const pingInterval = setInterval(() => {
-      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        try {
-          wsRef.current.send(JSON.stringify({ action: "ping" }));
-        } catch (err) {
-          console.warn("Failed to send ping:", err);
-        }
-      }
-    }, 30000);
-
-    return () => {
-      isMounted = false;
-      clearInterval(pingInterval);
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-      clearTimeout(reconnectTimeout);
-    };
-  }, [addDebugLog]);
+  }, [marketTickers, ticker]);
 
   const runPipeline = useCallback(() => {
     if (isRunning) return;
@@ -650,6 +367,9 @@ export default function Home() {
       reportLength,
     });
   }, [isRunning, wsStatus, startGeneration, ticker, analysisDate, researchDepth, reportLength]);
+
+  const [copyFeedback, setCopyFeedback] = useState("Copy report");
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   // Handlers
   const handleCopyReport = async () => {
@@ -1071,11 +791,10 @@ export default function Home() {
 
   return (
     <div
-      className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative ${
-        isDarkMode
-          ? "bg-[#020617] text-[#f8fbff]"
-          : "bg-[#F6F9FC] text-[#0F172A]"
-      }`}
+      className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative ${isDarkMode
+        ? "bg-[#020617] text-[#f8fbff]"
+        : "bg-[#F6F9FC] text-[#0F172A]"
+        }`}
     >
       {/* Starry Night Sky Effect - Dark Mode */}
       {isDarkMode && (
@@ -1117,7 +836,7 @@ export default function Home() {
       {!isDarkMode && (
         <>
           <div className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
-          <div 
+          <div
             className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_10%_20%,rgba(37,99,235,0.03),transparent_55%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.04),transparent_55%),radial-gradient(circle_at_50%_100%,rgba(37,99,235,0.05),transparent_60%)] animate-[gradient_18s_ease_infinite] opacity-60"
           />
           <style jsx>{`
@@ -1389,10 +1108,10 @@ export default function Home() {
             <div className="relative z-10 mt-4 flex items-center justify-between">
               {marketData && (
                 <div className="flex items-center gap-3">
-                  <span className={`flex items-center rounded-md px-2 py-1 text-xs font-bold ${marketData.change >= 0 
+                  <span className={`flex items-center rounded-md px-2 py-1 text-xs font-bold ${marketData.change >= 0
                     ? isDarkMode ? "bg-[#2df4c6]/10 text-[#2df4c6]" : "bg-[#EFF6FF] text-[#2563EB]"
                     : "bg-[#ff4d6d]/10 text-[#ff4d6d]"
-                  }`}>
+                    }`}>
                     {marketData.change >= 0 ? "↑" : "↓"} {marketData.change > 0 ? "+" : ""}{marketData.percentChange}%
                   </span>
                   <span className="text-xs text-[#8b94ad]">
@@ -1444,14 +1163,13 @@ export default function Home() {
             <button
               onClick={runPipeline}
               disabled={wsStatus !== "connected"}
-              className={`flex w-full flex-row items-center justify-center gap-1.5 rounded-[12px] border-2 py-2 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale ${
-                isDarkMode
-                  ? "border-white/20 bg-[#00c05e] hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)]"
-                  : "border-[#2563EB] bg-gradient-to-r from-[#2563EB] to-[#38BDF8] text-white hover:shadow-[0_10px_25px_rgba(37,99,235,0.3)]"
-              }`}
+              className={`flex w-full flex-row items-center justify-center gap-1.5 rounded-[12px] border-2 py-2 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale ${isDarkMode
+                ? "border-white/20 bg-[#00c05e] hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)]"
+                : "border-[#2563EB] bg-gradient-to-r from-[#2563EB] to-[#38BDF8] text-white hover:shadow-[0_10px_25px_rgba(37,99,235,0.3)]"
+                }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="5 3 19 12 5 21 5 3"/>
+                <polygon points="5 3 19 12 5 21 5 3" />
               </svg>
               <span>Generate</span>
             </button>
@@ -1516,7 +1234,7 @@ export default function Home() {
                   <div
                     className="relative grid h-20 w-20 flex-shrink-0 place-items-center rounded-full"
                     style={{
-                      background: isDarkMode 
+                      background: isDarkMode
                         ? `conic-gradient(#2df4c6 ${(progress / 100) * 360}deg, rgba(255,255,255,0.05) 0deg)`
                         : `conic-gradient(#2563EB ${(progress / 100) * 360}deg, rgba(226,232,240,0.5) 0deg)`,
                       transition: "background 1s ease-out",
@@ -1630,7 +1348,7 @@ export default function Home() {
           >
             <span className={`block ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>Recommendation</span>
             <strong
-              className={`text-2xl ${recVariant === "buy" 
+              className={`text-2xl ${recVariant === "buy"
                 ? isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"
                 : "text-[#ff4d6d]"
                 }`}

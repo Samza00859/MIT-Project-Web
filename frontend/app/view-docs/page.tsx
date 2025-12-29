@@ -364,7 +364,7 @@ export default function ViewDocsPage() {
                     content: (
                         <div className={`space-y-4 leading-relaxed ${isDarkMode ? 'text-zinc-300' : 'text-gray-900'}`}>
                             <p>
-                                Significant progress has been made in automated problem-solving using societies of agents powered by <Tooltip text="Large Language Models - advanced AI systems that can understand and generate human-like text" isDarkMode={isDarkMode}><strong className={isDarkMode ? "text-white" : "text-gray-900"}>LLMs</strong></Tooltip>. While single-agent systems handle specific tasks well, complex financial markets require collaborative dynamics similar to real-world trading firms.
+                                Significant progress has been made in automated problem-solving using societies of agents powered by <Tooltip text="Large Language Models - advanced AI systems that can understand and generate human-like text" ><strong className={isDarkMode ? "text-white" : "text-gray-900"}>LLMs</strong></Tooltip>. While single-agent systems handle specific tasks well, complex financial markets require collaborative dynamics similar to real-world trading firms.
                             </p>
                             <p>
                                 <strong className={isDarkMode ? "text-white" : "text-gray-900"}>TradingAgents</strong> proposes a novel stock trading framework inspired by professional trading firms, featuring LLM-powered agents in specialized roles. By simulating a dynamic, collaborative trading environment, this framework aims to replicate the multi-faceted decision-making process of successful investment houses.
