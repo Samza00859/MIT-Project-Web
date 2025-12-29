@@ -140,3 +140,4 @@ DATABASE_URL=postgresql+asyncpg://user:password@remote-host:5432/trading_db
 
 
 
+
