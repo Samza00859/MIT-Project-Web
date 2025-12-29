@@ -71,7 +71,7 @@ export default function ContactPublicPage() {
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             setMousePosition({ x: e.clientX, y: e.clientY });
-            
+
             // Create cursor trail particles
             if (cursorTrailRef.current) {
                 const particle = document.createElement('div');
@@ -79,7 +79,7 @@ export default function ContactPublicPage() {
                 particle.style.left = `${e.clientX}px`;
                 particle.style.top = `${e.clientY}px`;
                 cursorTrailRef.current.appendChild(particle);
-                
+
                 // Remove particle after animation
                 setTimeout(() => {
                     particle.remove();
@@ -123,7 +123,7 @@ export default function ContactPublicPage() {
         <div className={`min-h-screen w-full font-['Inter','Montserrat',sans-serif] transition-colors duration-300 relative overflow-hidden ${isDarkMode ? "bg-[#0a0d14] text-[#f8fbff]" : "bg-[#F6F9FC] text-[#0F172A]"}`}>
             {/* Animated Gradient Background */}
             {isDarkMode && <div className="pointer-events-none absolute inset-0 animated-gradient-bg" />}
-            
+
             {/* Animated Background Pattern */}
             <div className="pointer-events-none absolute inset-0">
                 {isDarkMode ? (
@@ -131,12 +131,12 @@ export default function ContactPublicPage() {
                 ) : (
                     <>
                         {/* Light Mode Background - Enhanced gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
-                        <div 
+                        <div className="absolute inset-0 bg-linear-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
+                        <div
                             className="absolute inset-[-40%] bg-[radial-gradient(circle_at_10%_20%,rgba(37,99,235,0.06),transparent_55%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.08),transparent_55%),radial-gradient(circle_at_50%_100%,rgba(37,99,235,0.07),transparent_60%),radial-gradient(circle_at_30%_70%,rgba(99,102,241,0.05),transparent_50%)] animate-[gradient_20s_ease_infinite] opacity-70"
                         />
                         {/* Additional shimmer layer */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-[shimmer_8s_ease_infinite]" />
+                        <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/5 to-transparent animate-[shimmer_8s_ease_infinite]" />
                     </>
                 )}
             </div>
@@ -161,7 +161,7 @@ export default function ContactPublicPage() {
                     ))}
                 </div>
             )}
-            
+
             {/* Floating Gradient Orbs for Light Mode */}
             {!isDarkMode && (
                 <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -195,7 +195,7 @@ export default function ContactPublicPage() {
                     })}
                 </div>
             )}
-            
+
             {/* Geometric Grid Background - Light Mode Only */}
             {!isDarkMode && (
                 <div className="geometric-grid-container pointer-events-none absolute inset-0 overflow-hidden">
@@ -216,7 +216,7 @@ export default function ContactPublicPage() {
                         <div className="side-animation-left-3" />
                         <div className="side-animation-left-4" />
                     </div>
-                    
+
                     {/* Right Side Animations */}
                     <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-64 z-0 overflow-hidden">
                         <div className="side-animation-right-1" />
@@ -226,10 +226,10 @@ export default function ContactPublicPage() {
                     </div>
                 </>
             )}
-            
+
             {/* Background Depth Layer */}
             <div className={`bg-depth pointer-events-none fixed inset-0 z-0 ${isDarkMode ? '' : 'light-mode-depth'}`} />
-            
+
             {/* Light Mode Enhanced Effects */}
             {!isDarkMode && (
                 <>
@@ -239,7 +239,7 @@ export default function ContactPublicPage() {
                         <div className="light-ray light-ray-2" />
                         <div className="light-ray light-ray-3" />
                     </div>
-                    
+
                     {/* Floating Particles - Light Mode */}
                     <div className="pointer-events-none absolute inset-0 overflow-hidden">
                         {Array.from({ length: 20 }).map((_, index) => (
@@ -255,14 +255,14 @@ export default function ContactPublicPage() {
                             />
                         ))}
                     </div>
-                    
+
                     {/* Subtle Wave Animation */}
                     <div className="pointer-events-none absolute inset-0 overflow-hidden">
                         <div className="wave-animation wave-1" />
                         <div className="wave-animation wave-2" />
                         <div className="wave-animation wave-3" />
                     </div>
-                    
+
                     {/* Glowing Accent Circles */}
                     <div className="pointer-events-none absolute inset-0 overflow-hidden">
                         <div className="glow-circle glow-circle-1" />
@@ -1044,49 +1044,46 @@ export default function ContactPublicPage() {
                     }
                 }
             `}</style>
-            
+
             {/* Navigation Bar */}
             <nav className={`absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6 backdrop-blur-sm ${isDarkMode ? 'bg-[#020617]/80' : 'bg-[#F6F9FC]/80'}`}>
                 {/* Left side - empty for spacing */}
                 <div className="flex-1"></div>
-                
+
                 {/* Center - Navigation Links */}
                 <div className="flex items-center gap-4 text-sm font-medium tracking-wide">
                     {/* Home */}
                     <Link
                         href="/introduction"
-                        className={`rounded-full px-6 py-2 transition-all hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_10px_30px_rgba(15,23,42,0.55)] ${
-                            isDarkMode
-                                ? "bg-white/5 text-white hover:bg-white/10 border border-white/10"
-                                : "bg-white text-[#334155] hover:bg-[#F8FAFC] shadow-sm border border-[#E2E8F0] hover:border-[#2563EB]/30 hover:shadow-md hover:-translate-y-0.5"
-                        }`}
+                        className={`rounded-full px-6 py-2 transition-all hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_10px_30px_rgba(15,23,42,0.55)] ${isDarkMode
+                            ? "bg-white/5 text-white hover:bg-white/10 border border-white/10"
+                            : "bg-white text-[#334155] hover:bg-[#F8FAFC] shadow-sm border border-[#E2E8F0] hover:border-[#2563EB]/30 hover:shadow-md hover:-translate-y-0.5"
+                            }`}
                     >
                         Home
                     </Link>
                     {/* View Docs */}
                     <Link
                         href="/docs"
-                        className={`rounded-full px-6 py-2 transition-all hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_10px_30px_rgba(15,23,42,0.55)] ${
-                            isDarkMode
-                                ? "bg-white/5 text-white hover:bg-white/10 border border-white/10"
-                                : "bg-white text-[#334155] hover:bg-[#F8FAFC] shadow-sm border border-[#E2E8F0] hover:border-[#2563EB]/30 hover:shadow-md hover:-translate-y-0.5"
-                        }`}
+                        className={`rounded-full px-6 py-2 transition-all hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_10px_30px_rgba(15,23,42,0.55)] ${isDarkMode
+                            ? "bg-white/5 text-white hover:bg-white/10 border border-white/10"
+                            : "bg-white text-[#334155] hover:bg-[#F8FAFC] shadow-sm border border-[#E2E8F0] hover:border-[#2563EB]/30 hover:shadow-md hover:-translate-y-0.5"
+                            }`}
                     >
                         View Docs
                     </Link>
                     {/* Contact (active) */}
                     <Link
                         href="/contact-public"
-                        className={`rounded-full px-6 py-2 transition-all hover:-translate-y-0.5 hover:scale-105 ${
-                            isDarkMode
-                                ? "bg-[#2df4c6] text-black border border-[#2df4c6] shadow-[0_16px_40px_rgba(45,244,198,0.4)] hover:shadow-[0_20px_50px_rgba(45,244,198,0.55)]"
-                                : "bg-gradient-to-r from-[#2563EB] to-[#38BDF8] text-white border border-[#2563EB] shadow-lg shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/30"
-                        }`}
+                        className={`rounded-full px-6 py-2 transition-all hover:-translate-y-0.5 hover:scale-105 ${isDarkMode
+                            ? "bg-[#2df4c6] text-black border border-[#2df4c6] shadow-[0_16px_40px_rgba(45,244,198,0.4)] hover:shadow-[0_20px_50px_rgba(45,244,198,0.55)]"
+                            : "bg-linear-to-r from-[#2563EB] to-[#38BDF8] text-white border border-[#2563EB] shadow-lg shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/30"
+                            }`}
                     >
                         Contact
                     </Link>
                 </div>
-                
+
                 {/* Right side - Theme Toggle */}
                 <div className="flex-1 flex justify-end">
                     <label className="relative inline-flex cursor-pointer items-center">
@@ -1102,19 +1099,18 @@ export default function ContactPublicPage() {
             {/* Main Content */}
             <main className="flex-1 p-6 md:p-10 lg:p-14 pt-40">
                 <div className="max-w-7xl mx-auto">
-                    <header 
-                        className={`mt-8 mb-12 space-y-4 relative transition-all duration-700 ease-out ${
-                            visibleElements.has('header') 
-                                ? 'opacity-100 translate-y-0' 
-                                : 'opacity-0 translate-y-8'
-                        }`}
+                    <header
+                        className={`mt-8 mb-12 space-y-4 relative transition-all duration-700 ease-out ${visibleElements.has('header')
+                            ? 'opacity-100 translate-y-0'
+                            : 'opacity-0 translate-y-8'
+                            }`}
                         data-animate-id="header"
                     >
-                        <h1 className={`text-4xl md:text-5xl font-bold bg-gradient-to-r ${isDarkMode ? "from-white via-[#2df4c6] to-white" : "from-[#0F172A] via-[#2563EB] to-[#0F172A]"} bg-clip-text text-transparent`}>
+                        <h1 className={`text-4xl md:text-5xl font-bold bg-linear-to-r ${isDarkMode ? "from-white via-[#2df4c6] to-white" : "from-[#0F172A] via-[#2563EB] to-[#0F172A]"} bg-clip-text text-transparent`}>
                             Contact Us
                         </h1>
                         <p className={`text-base md:text-lg leading-relaxed max-w-2xl ${isDarkMode ? "text-gray-300" : "text-[#64748B]"}`}>
-                            Connect with our team for partnerships, support, or product questions. 
+                            Connect with our team for partnerships, support, or product questions.
                             We respond quickly.
                         </p>
                     </header>
@@ -1126,23 +1122,22 @@ export default function ContactPublicPage() {
                                 <article
                                     key={index}
                                     data-animate-id={`contact-${index}`}
-                                    className={`card group relative flex flex-col gap-6 rounded-3xl p-7 md:p-8 transition-all duration-700 ease-out backdrop-blur-sm ${
-                                        visibleElements.has(`contact-${index}`)
-                                            ? 'opacity-100 translate-y-0'
-                                            : 'opacity-0 translate-y-12'
-                                    } ${isDarkMode 
-                                        ? "bg-gradient-to-br from-[#131722]/90 to-[#0f131c]/90 border border-white/10 hover:border-[#2df4c6]/50 shadow-[0_20px_60px_rgba(0,0,0,0.3)]" 
-                                        : "bg-white border border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-lg"
-                                    }`}
+                                    className={`card group relative flex flex-col gap-6 rounded-3xl p-7 md:p-8 transition-all duration-700 ease-out backdrop-blur-sm ${visibleElements.has(`contact-${index}`)
+                                        ? 'opacity-100 translate-y-0'
+                                        : 'opacity-0 translate-y-12'
+                                        } ${isDarkMode
+                                            ? "bg-linear-to-br from-[#131722]/90 to-[#0f131c]/90 border border-white/10 hover:border-[#2df4c6]/50 shadow-[0_20px_60px_rgba(0,0,0,0.3)]"
+                                            : "bg-white border border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-lg"
+                                        }`}
                                     style={{ transitionDelay: `${index * 150}ms` }}
                                 >
                                     {/* Glow effect on hover */}
                                     <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl ${isDarkMode ? "bg-[#2df4c6]/10" : "bg-[#2563EB]/8"}`} />
-                                    
+
                                     {/* Top Section */}
                                     <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between relative z-10">
                                         <div className="flex items-center gap-5">
-                                            <div className={`relative h-20 w-20 flex-shrink-0 rounded-2xl overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 ${isDarkMode ? "bg-gradient-to-br from-[#2df4c6]/20 to-[#2df4c6]/5" : "bg-gradient-to-br from-[#2563EB]/20 to-[#38BDF8]/15"} shadow-lg`}>
+                                            <div className={`relative h-20 w-20 shrink-0 rounded-2xl overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 ${isDarkMode ? "bg-linear-to-br from-[#2df4c6]/20 to-[#2df4c6]/5" : "bg-linear-to-br from-[#2563EB]/20 to-[#38BDF8]/15"} shadow-lg`}>
                                                 <div className="absolute inset-0 flex items-center justify-center">
                                                     <User size={32} className={`transition-all duration-300 group-hover:scale-125 ${isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"}`} />
                                                 </div>
@@ -1205,23 +1200,22 @@ export default function ContactPublicPage() {
                         </div>
 
                         {/* Quick contact panel */}
-                        <aside 
+                        <aside
                             data-animate-id="quick-contact"
-                            className={`relative rounded-3xl p-7 md:p-8 shadow-2xl flex flex-col gap-6 backdrop-blur-sm transition-all duration-700 ease-out ${
-                                visibleElements.has('quick-contact')
-                                    ? 'opacity-100 translate-x-0'
-                                    : 'opacity-0 translate-x-8'
-                            } ${isDarkMode 
-                                ? "bg-gradient-to-br from-[#131722]/90 to-[#0f131c]/90 border border-white/10" 
-                                : "bg-white border border-[#E2E8F0] shadow-lg"
-                            }`}
+                            className={`relative rounded-3xl p-7 md:p-8 shadow-2xl flex flex-col gap-6 backdrop-blur-sm transition-all duration-700 ease-out ${visibleElements.has('quick-contact')
+                                ? 'opacity-100 translate-x-0'
+                                : 'opacity-0 translate-x-8'
+                                } ${isDarkMode
+                                    ? "bg-linear-to-br from-[#131722]/90 to-[#0f131c]/90 border border-white/10"
+                                    : "bg-white border border-[#E2E8F0] shadow-lg"
+                                }`}
                             style={{ transitionDelay: '300ms' }}
                         >
                             {/* Animated background glow */}
                             <div className={`absolute inset-0 rounded-3xl opacity-50 animate-pulse-glow ${isDarkMode ? "bg-[#2df4c6]/5" : "bg-[#2563EB]/6"}`} />
-                            
+
                             <div className="relative z-10">
-                                <p className={`text-xs font-bold tracking-[0.1em] uppercase mb-2 ${isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"}`}>
+                                <p className={`text-xs font-bold tracking-widest uppercase mb-2 ${isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"}`}>
                                     Need help fast?
                                 </p>
                                 <h3 className={`text-2xl font-bold mb-3 ${isDarkMode ? "text-white" : "text-[#0F172A]"}`}>Talk to us</h3>
@@ -1229,13 +1223,13 @@ export default function ContactPublicPage() {
                                     Reach out via your preferred channel. We aim to respond within one business day.
                                 </p>
                             </div>
-                            
+
                             <div className="flex flex-col gap-3 text-sm relative z-10">
-                                <a 
-                                    className={`group flex items-center justify-between rounded-xl border px-5 py-4 transition-all duration-300 hover:scale-105 hover:shadow-lg ${isDarkMode 
-                                        ? "border-white/10 bg-white/5 hover:border-[#2df4c6]/50 hover:bg-white/10" 
+                                <a
+                                    className={`group flex items-center justify-between rounded-xl border px-5 py-4 transition-all duration-300 hover:scale-105 hover:shadow-lg ${isDarkMode
+                                        ? "border-white/10 bg-white/5 hover:border-[#2df4c6]/50 hover:bg-white/10"
                                         : "border-[#E2E8F0] bg-white hover:border-[#2563EB]/40 hover:bg-[#F8FAFC] shadow-sm"
-                                    }`} 
+                                        }`}
                                     href="mailto:support@tradingagents.ai"
                                 >
                                     <div className="flex items-center gap-3">
@@ -1246,12 +1240,12 @@ export default function ContactPublicPage() {
                                     </div>
                                     <span className={`text-xs font-semibold px-2 py-1 rounded-md ${isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#EFF6FF] text-[#2563EB]"}`}>Email</span>
                                 </a>
-                                <a 
-                                    className={`group flex items-center justify-between rounded-xl border px-5 py-4 transition-all duration-300 hover:scale-105 hover:shadow-lg ${isDarkMode 
-                                        ? "border-white/10 bg-white/5 hover:border-[#2df4c6]/50 hover:bg-white/10" 
+                                <a
+                                    className={`group flex items-center justify-between rounded-xl border px-5 py-4 transition-all duration-300 hover:scale-105 hover:shadow-lg ${isDarkMode
+                                        ? "border-white/10 bg-white/5 hover:border-[#2df4c6]/50 hover:bg-white/10"
                                         : "border-[#E2E8F0] bg-white hover:border-[#2563EB]/40 hover:bg-[#F8FAFC] shadow-sm"
-                                    }`} 
-                                    href="https://t.me/TradingAgentsBot" 
+                                        }`}
+                                    href="https://t.me/TradingAgentsBot"
                                     target="_blank"
                                 >
                                     <div className="flex items-center gap-3">
@@ -1262,12 +1256,12 @@ export default function ContactPublicPage() {
                                     </div>
                                     <span className={`text-xs font-semibold px-2 py-1 rounded-md ${isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#EFF6FF] text-[#2563EB]"}`}>Telegram</span>
                                 </a>
-                                <a 
-                                    className={`group flex items-center justify-between rounded-xl border px-5 py-4 transition-all duration-300 hover:scale-105 hover:shadow-lg ${isDarkMode 
-                                        ? "border-white/10 bg-white/5 hover:border-[#2df4c6]/50 hover:bg-white/10" 
+                                <a
+                                    className={`group flex items-center justify-between rounded-xl border px-5 py-4 transition-all duration-300 hover:scale-105 hover:shadow-lg ${isDarkMode
+                                        ? "border-white/10 bg-white/5 hover:border-[#2df4c6]/50 hover:bg-white/10"
                                         : "border-[#E2E8F0] bg-white hover:border-[#2563EB]/40 hover:bg-[#F8FAFC] shadow-sm"
-                                    }`} 
-                                    href="https://www.linkedin.com" 
+                                        }`}
+                                    href="https://www.linkedin.com"
                                     target="_blank"
                                 >
                                     <div className="flex items-center gap-3">
@@ -1279,11 +1273,11 @@ export default function ContactPublicPage() {
                                     <span className={`text-xs font-semibold px-2 py-1 rounded-md ${isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#EFF6FF] text-[#2563EB]"}`}>Connect</span>
                                 </a>
                             </div>
-                            
+
                             <div className="mt-auto relative z-10">
                                 <button className={`w-full rounded-xl px-6 py-4 font-bold text-base transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${isDarkMode
-                                    ? "bg-gradient-to-r from-[#2df4c6]/20 to-[#2df4c6]/10 text-white border-2 border-[#2df4c6]/40 hover:border-[#2df4c6] hover:shadow-[0_0_30px_rgba(45,244,198,0.4)]"
-                                    : "bg-gradient-to-r from-[#2563EB] to-[#38BDF8] text-white shadow-lg shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/30"
+                                    ? "bg-linear-to-r from-[#2df4c6]/20 to-[#2df4c6]/10 text-white border-2 border-[#2df4c6]/40 hover:border-[#2df4c6] hover:shadow-[0_0_30px_rgba(45,244,198,0.4)]"
+                                    : "bg-linear-to-r from-[#2563EB] to-[#38BDF8] text-white shadow-lg shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/30"
                                     }`}>
                                     Book a call
                                 </button>

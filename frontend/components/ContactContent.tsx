@@ -50,7 +50,7 @@ export default function ContactContent({
     ];
 
     return (
-        <main className="flex-1 relative z-10 px-6 pb-10 pt-14 md:px-10 md:pb-12 md:pt-10 lg:px-12 lg:pb-14 lg:pt-10">
+        <main className="flex-1 relative z-10 w-full max-w-7xl mx-auto px-6 pb-10 pt-14 md:px-10 md:pb-12 md:pt-10 lg:px-12 lg:pb-14 lg:pt-10">
             <header className="mb-6 space-y-2">
                 <h1 className={`text-3xl md:text-4xl font-bold ${isDarkMode ? "text-white" : "text-[#0F172A]"}`}>Contact Us</h1>
                 <p className={`text-sm md:text-base leading-relaxed ${isDarkMode ? "text-gray-400" : "text-[#64748B]"}`}>
@@ -66,16 +66,16 @@ export default function ContactContent({
                         return (
                             <article
                                 key={index}
-                                className={`group flex flex-col gap-5 rounded-2xl p-7 md:p-9 transition-all duration-300 cursor-pointer ${isDarkMode 
-                                    ? "bg-[#131722] border border-white/5 hover:border-[#2df4c6]/40 shadow-[0_14px_40px_rgba(0,0,0,0.12)]" 
+                                className={`group flex flex-col gap-5 rounded-2xl p-7 md:p-9 transition-all duration-300 cursor-pointer ${isDarkMode
+                                    ? "bg-[#131722] border border-white/5 hover:border-[#2df4c6]/40 shadow-[0_14px_40px_rgba(0,0,0,0.12)]"
                                     : "bg-white border border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm hover:shadow-md"
-                                }`}
+                                    }`}
                                 onClick={() => onToggleCard(index)}
                             >
                                 {/* Top Section */}
-                                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                     <div className="flex items-center gap-4 flex-1">
-                                        <div className={`h-20 w-20 flex-shrink-0 rounded-2xl ${isDarkMode ? "bg-white/10" : "bg-[#F8FAFC]"} shadow-inner`} />
+                                        <div className={`h-20 w-20 shrink-0 rounded-2xl ${isDarkMode ? "bg-white/10" : "bg-[#F8FAFC]"} shadow-inner`} />
                                         <div className={`flex flex-col gap-1 text-sm tracking-wide flex-1 ${isDarkMode ? "text-gray-200" : "text-[#0F172A]"}`}>
                                             <p className="font-semibold text-base">{contact.name}</p>
                                             <p>{contact.company}</p>
@@ -91,20 +91,19 @@ export default function ContactContent({
                                                 Multi-channel
                                             </span>
                                         </div>
-                                        <ChevronDown 
-                                            size={20} 
+                                        <ChevronDown
+                                            size={20}
                                             className={`transition-transform duration-300 ${isExpanded ? "rotate-180" : ""} ${isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"}`}
                                         />
                                     </div>
                                 </div>
 
                                 {/* Details - Collapsible */}
-                                <div 
-                                    className={`grid grid-cols-1 gap-3 md:grid-cols-3 overflow-hidden transition-all duration-500 ease-in-out ${
-                                        isExpanded 
-                                            ? "max-h-[500px] opacity-100 mt-2" 
-                                            : "max-h-0 opacity-0"
-                                    }`}
+                                <div
+                                    className={`grid grid-cols-1 gap-3 md:grid-cols-3 overflow-hidden transition-all duration-500 ease-in-out ${isExpanded
+                                        ? "max-h-[500px] opacity-100 mt-2"
+                                        : "max-h-0 opacity-0"
+                                        }`}
                                 >
                                     {[
                                         { label: contact.email, value: "____________________", icon: Mail },
@@ -116,7 +115,7 @@ export default function ContactContent({
                                             className={`flex flex-col gap-2 rounded-xl p-4 transition ${isDarkMode
                                                 ? "bg-[#0f131c] border border-white/5"
                                                 : "bg-white border border-[#E2E8F0] hover:border-[#2563EB]/40"
-                                            }`}
+                                                }`}
                                         >
                                             <div className="flex items-center gap-2">
                                                 <detail.icon size={16} className={isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"} />
@@ -161,8 +160,8 @@ export default function ContactContent({
                     <div className="mt-auto">
                         <button className={`w-full rounded-xl px-5 py-3 font-semibold transition transform hover:-translate-y-0.5 ${isDarkMode
                             ? "bg-[#2df4c6]/15 text-white border border-[#2df4c6]/40 hover:shadow-[0_10px_30px_rgba(45,244,198,0.25)]"
-                            : "bg-gradient-to-r from-[#2563EB] to-[#38BDF8] text-white shadow-lg shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/30"
-                        }`}>
+                            : "bg-linear-to-r from-[#2563EB] to-[#38BDF8] text-white shadow-lg shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/30"
+                            }`}>
                             Book a call
                         </button>
                     </div>

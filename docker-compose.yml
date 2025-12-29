@@ -44,14 +44,18 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
-      # Note: NEXT_PUBLIC_* vars must be set at BUILD time, not runtime
-      # The frontend uses dynamic URL detection based on window.location
-      # For custom API URL, set it as build arg in Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: trading_frontend
     restart: always
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - backend
 

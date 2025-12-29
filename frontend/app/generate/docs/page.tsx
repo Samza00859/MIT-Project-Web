@@ -354,21 +354,10 @@ export default function GenerateDocsPage() {
     return (
         <div className={`flex min-h-screen w-full font-sans ${isDarkMode ? "bg-[#161616] text-[#f8fbff]" : "bg-[#f0f2f5] text-[#1a202c]"}`}>
             {/* ================= LEFT SIDEBAR (Global) ================= */}
-            <Sidebar
-                activeId="docs"
-                isDarkMode={isDarkMode}
-                toggleTheme={toggleTheme}
-                navItems={[
-                    { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
-                    { id: "generate", icon: "🌐", label: "Generate", href: "/" },
-                    { id: "history", icon: "📜", label: "History", href: "/history" },
-                    { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
-                    { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
-                ]}
-            />
+            <Sidebar />
 
             {/* ================= MIDDLE SIDEBAR (Navigation Tree) ================= */}
-            <aside className="sticky top-0 h-screen w-[280px] shrink-0 bg-[#1a1a1a] flex flex-col pt-8 px-6 border-r border-zinc-800/50 hidden md:flex z-40 overflow-y-auto custom-scrollbar">
+            <aside className="sticky top-0 h-screen w-[280px] shrink-0 bg-[#1a1a1a] flex-col pt-8 px-6 border-r border-zinc-800/50 hidden md:flex z-40 overflow-y-auto custom-scrollbar">
                 {/* Header */}
                 <h2 className="text-lg font-bold text-white mb-6 tracking-tight">
                     TradingAgent Multi Agent
@@ -489,7 +478,7 @@ export default function GenerateDocsPage() {
                                         const [title, desc] = step.split(': ');
                                         return (
                                             <div key={i} className="flex gap-4 group">
-                                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400 font-bold text-sm">
+                                                <div className="shrink-0 w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400 font-bold text-sm">
                                                     {i + 1}
                                                 </div>
                                                 <div className="flex-1 bg-zinc-900/50 p-4 rounded-xl border border-zinc-800/50">

@@ -21,17 +21,18 @@ function normalizeTheme(value: unknown): ThemeMode | null {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeMode>("dark");
-
-  // Load persisted theme once (layout persists across navigation, so this should only run once per app load).
-  useEffect(() => {
-    try {
-      const stored = normalizeTheme(window.localStorage.getItem(STORAGE_KEY));
-      if (stored) setThemeState(stored);
-    } catch {
-      // ignore (e.g. storage blocked)
+  const [theme, setThemeState] = useState<ThemeMode>(() => {
+    // Initialize state lazily to avoid useEffect setState warning
+    if (typeof window !== "undefined") {
+      try {
+        const stored = normalizeTheme(window.localStorage.getItem(STORAGE_KEY));
+        if (stored) return stored;
+      } catch {
+        // ignore
+      }
     }
-  }, []);
+    return "dark";
+  });
 
   // Keep DOM + storage in sync.
   useEffect(() => {

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import ViewDocsSidebar from "../../components/ViewDocsSidebar";
-import Sidebar from "../../components/Sidebar";
 import { useTheme } from "@/context/ThemeContext";
 import {
     Download,
@@ -244,7 +243,7 @@ export default function ViewDocsPage() {
             const delay = Math.random() * 3;
             const duration = Math.random() * 3 + 2;
             const opacity = Math.random() * 0.8 + 0.2;
-            
+
             return {
                 id: i,
                 size,
@@ -284,12 +283,14 @@ export default function ViewDocsPage() {
     }, [focusedSection]);
 
     useEffect(() => {
+        // Find the actual scrolling container (defined in layout.tsx)
+        const scrollContainer = document.getElementById('main-content') || window;
+
         let ticking = false;
 
         const handleScroll = () => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
-                    const scrollPosition = window.scrollY + 250;
                     const viewportHeight = window.innerHeight;
                     const allSections = [
                         ...DOCUMENT_SECTIONS,
@@ -304,17 +305,16 @@ export default function ViewDocsPage() {
                         const element = document.getElementById(section.id);
                         if (element) {
                             const rect = element.getBoundingClientRect();
-                            const { offsetTop, offsetHeight } = element;
 
-                            // Check if section is in viewport (active section)
-                            if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+                            // Check if section is in activation zone (near top of viewport)
+                            // We use 250px as the offset to account for header and user focus area
+                            if (rect.top <= 250 && rect.bottom > 250) {
                                 newActiveSection = section.id;
                             }
 
-                            // Check if section is focused (centered in viewport)
-                            const elementTop = rect.top + window.scrollY;
-                            const elementCenter = elementTop + offsetHeight / 2;
-                            const viewportCenter = window.scrollY + viewportHeight / 2;
+                            // Check if section is focused (roughly centered in viewport)
+                            const elementCenter = rect.top + rect.height / 2;
+                            const viewportCenter = viewportHeight / 2;
 
                             if (Math.abs(elementCenter - viewportCenter) < viewportHeight * 0.3 && rect.top < viewportHeight && rect.bottom > 0) {
                                 newFocusedSection = section.id;
@@ -339,18 +339,35 @@ export default function ViewDocsPage() {
             }
         };
 
-        window.addEventListener('scroll', handleScroll, { passive: true });
+        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
         handleScroll(); // Initial check
-        return () => window.removeEventListener('scroll', handleScroll);
+        return () => scrollContainer.removeEventListener('scroll', handleScroll);
     }, []);
 
     const scrollToSection = (id: string) => {
         const element = document.getElementById(id);
+        const scrollContainer = document.querySelector('main.overflow-auto');
+
         if (element) {
-            window.scrollTo({
-                top: element.offsetTop - 120,
-                behavior: 'auto'
-            });
+            if (scrollContainer) {
+                const containerRect = scrollContainer.getBoundingClientRect();
+                const elementRect = element.getBoundingClientRect();
+                // Calculate position relative to current scroll
+                const offset = elementRect.top - containerRect.top;
+                const currentScroll = scrollContainer.scrollTop;
+
+                scrollContainer.scrollTo({
+                    top: currentScroll + offset - 120, // 120px offset for header
+                    behavior: 'smooth'
+                });
+            } else {
+                // Fallback for window scrolling
+                const offsetTop = element.getBoundingClientRect().top + window.scrollY;
+                window.scrollTo({
+                    top: offsetTop - 120,
+                    behavior: 'smooth'
+                });
+            }
             setActiveSection(id);
         }
     };
@@ -630,254 +647,232 @@ export default function ViewDocsPage() {
                 }
             `}</style>
             <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative ${isDarkMode ? 'bg-[#020617] text-[#f8fbff]' : 'bg-[#F6F9FC] text-[#0F172A]'}`}>
-            {/* Starry Night Sky Effect (matching home page) - only render on client */}
-            {mounted && isDarkMode && (
-                <div className="fixed inset-0 pointer-events-none z-0">
-                    {stars.map((star) => (
+                {/* Starry Night Sky Effect (matching home page) - only render on client */}
+                {mounted && isDarkMode && (
+                    <div className="fixed inset-0 pointer-events-none z-0">
+                        {stars.map((star) => (
+                            <div
+                                key={star.id}
+                                className="absolute rounded-full"
+                                style={{
+                                    width: `${star.size}px`,
+                                    height: `${star.size}px`,
+                                    left: `${star.left}%`,
+                                    top: `${star.top}%`,
+                                    backgroundColor: 'rgb(255, 255, 255)',
+                                    opacity: star.opacity,
+                                    animation: `twinkle ${star.duration}s ease-in-out infinite`,
+                                    animationDelay: `${star.delay}s`,
+                                    boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, 0.8)`,
+                                }}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {/* Light Mode Background - Subtle blue gradient */}
+                {mounted && !isDarkMode && (
+                    <div className="fixed inset-0 pointer-events-none z-0">
+                        <div className="absolute inset-0 bg-linear-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
                         <div
-                            key={star.id}
-                            className="absolute rounded-full"
+                            className="absolute inset-[-40%] opacity-60 light-mode-gradient"
                             style={{
-                                width: `${star.size}px`,
-                                height: `${star.size}px`,
-                                left: `${star.left}%`,
-                                top: `${star.top}%`,
-                                backgroundColor: 'rgb(255, 255, 255)',
-                                opacity: star.opacity,
-                                animation: `twinkle ${star.duration}s ease-in-out infinite`,
-                                animationDelay: `${star.delay}s`,
-                                boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, 0.8)`,
+                                background: 'radial-gradient(circle at 10% 20%, rgba(37,99,235,0.03), transparent 55%), radial-gradient(circle at 80% 0%, rgba(56,189,248,0.04), transparent 55%), radial-gradient(circle at 50% 100%, rgba(37,99,235,0.05), transparent 60%)'
                             }}
                         />
-                    ))}
-                </div>
-            )}
-            
-            {/* Light Mode Background - Subtle blue gradient */}
-            {mounted && !isDarkMode && (
-                <div className="fixed inset-0 pointer-events-none z-0">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
-                    <div 
-                        className="absolute inset-[-40%] opacity-60 light-mode-gradient"
-                        style={{
-                            background: 'radial-gradient(circle at 10% 20%, rgba(37,99,235,0.03), transparent 55%), radial-gradient(circle at 80% 0%, rgba(56,189,248,0.04), transparent 55%), radial-gradient(circle at 50% 100%, rgba(37,99,235,0.05), transparent 60%)'
-                        }}
-                    />
-                </div>
-            )}
-
-            {/* Main Sidebar for navigation to other pages */}
-            <Sidebar
-                activeId="docs"
-                isDarkMode={isDarkMode}
-                toggleTheme={toggleTheme}
-                navItems={[
-                    { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
-                    { id: "generate", icon: "🌐", label: "Generate", href: "/" },
-                    { id: "history", icon: "📜", label: "History", href: "/history" },
-                    { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
-                    { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
-                ]}
-            />
-
-            {/* Docs-specific sidebar for internal navigation */}
-            <ViewDocsSidebar
-                activeSection={activeSection}
-                expandedCategories={expandedCategories}
-                onToggleCategory={toggleCategory}
-                onSelectItem={scrollToSection}
-                isDarkMode={isDarkMode}
-            />
-
-            <main className="flex-1 flex flex-col relative min-h-screen min-w-0 z-10 bg-transparent">
-                <div className={`sticky top-0 backdrop-blur-xl z-30 border-b px-12 py-8 ${isDarkMode ? 'bg-[#020617]/95 border-white/5' : 'bg-white border-[#E2E8F0]'}`}>
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <h1 className={`text-3xl font-bold mb-2 tracking-tight ${isDarkMode ? 'text-[#f8fbff]' : 'text-[#0F172A]'}`}>
-                                View Docs
-                            </h1>
-                            <p className={`text-base ${isDarkMode ? 'text-[#f8fbff]/80' : 'text-[#334155]'}`}>
-                                Document & Tutorials & Agent
-                            </p>
-                        </div>
-                        <a
-                            href="https://arxiv.org/pdf/2412.20138"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm shadow-lg transition-all hover:scale-105 ${isDarkMode ? 'bg-[#00e33d] hover:bg-[#00c936] text-black shadow-green-500/20' : 'bg-gradient-to-r from-[#2563EB] to-[#38BDF8] text-white shadow-lg shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/30'}`}
-                        >
-                            <Download size={16} />
-                            Download Document
-                        </a>
                     </div>
-                </div>
+                )}
 
-                <div className="px-8 md:px-12 w-full max-w-[1600px] pb-40 pt-10 mx-auto bg-transparent">
 
-                    {/* ================= Document Sections ================= */}
-                    <div className="mb-8">
-                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode ? 'text-[#f8fbff] border-white/10' : 'text-[#0F172A] border-[#E2E8F0]'}`}>
-                            Document
-                        </h2>
-                    </div>
 
-                    <div className="flex flex-col gap-16 mb-24">
-                        {documentSectionsWithTheme.map((section, index) => (
-                            <section
-                                key={section.id}
-                                id={section.id}
-                                className="scroll-mt-40"
+                {/* Docs-specific sidebar for internal navigation */}
+                <ViewDocsSidebar
+                    activeSection={activeSection}
+                    expandedCategories={expandedCategories}
+                    onToggleCategory={toggleCategory}
+                    onSelectItem={scrollToSection}
+                    isDarkMode={isDarkMode}
+                />
+
+                <main className="flex-1 flex flex-col relative min-h-screen min-w-0 z-10 bg-transparent">
+                    <div className={`sticky top-0 backdrop-blur-xl z-30 border-b pl-16 pr-6 py-6 md:px-12 md:py-8 ${isDarkMode ? 'bg-[#020617]/95 border-white/5' : 'bg-white border-[#E2E8F0]'}`}>
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h1 className={`text-3xl font-bold mb-2 tracking-tight ${isDarkMode ? 'text-[#f8fbff]' : 'text-[#0F172A]'}`}>
+                                    View Docs
+                                </h1>
+                                <p className={`text-base ${isDarkMode ? 'text-[#f8fbff]/80' : 'text-[#334155]'}`}>
+                                    Document & Tutorials & Agent
+                                </p>
+                            </div>
+                            <a
+                                href="https://arxiv.org/pdf/2412.20138"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm shadow-lg transition-all hover:scale-105 ${isDarkMode ? 'bg-[#00e33d] hover:bg-[#00c936] text-black shadow-green-500/20' : 'bg-linear-to-r from-[#2563EB] to-[#38BDF8] text-white shadow-lg shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/30'}`}
                             >
-                                <h3 className={`text-xl font-bold mb-6 ${isDarkMode ? 'text-[#f8fbff]' : 'text-[#0F172A]'}`}>
-                                    {section.title}
-                                </h3>
-                                <div className={`text-base leading-relaxed ${isDarkMode ? 'text-[#f8fbff]/90' : 'text-[#334155]'} ${!isDarkMode ? 'light-mode-content' : ''}`}>
-                                    {section.id === 'introduction' ? (
-                                        section.content
-                                    ) : section.id === 'role-specialization' ? (
-                                        <div className="space-y-4">
-                                            <p>
-                                                The framework assigns specialized roles to LLM agents, ensuring expert-level analysis across all market dimensions:
-                                            </p>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                                                <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${
-                                                    isDarkMode
+                                <Download size={16} />
+                                Download Document
+                            </a>
+                        </div>
+                    </div>
+
+                    <div className="px-6 md:px-12 w-full max-w-[1600px] pb-40 pt-20 md:pt-20 lg:pt-10 mx-auto bg-transparent">
+
+                        {/* ================= Document Sections ================= */}
+                        <div className="mb-8">
+                            <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode ? 'text-[#f8fbff] border-white/10' : 'text-[#0F172A] border-[#E2E8F0]'}`}>
+                                Document
+                            </h2>
+                        </div>
+
+                        <div className="flex flex-col gap-16 mb-24">
+                            {documentSectionsWithTheme.map((section, index) => (
+                                <section
+                                    key={section.id}
+                                    id={section.id}
+                                    className="scroll-mt-40"
+                                >
+                                    <h3 className={`text-xl font-bold mb-6 ${isDarkMode ? 'text-[#f8fbff]' : 'text-[#0F172A]'}`}>
+                                        {section.title}
+                                    </h3>
+                                    <div className={`text-base leading-relaxed ${isDarkMode ? 'text-[#f8fbff]/90' : 'text-[#334155]'} ${!isDarkMode ? 'light-mode-content' : ''}`}>
+                                        {section.id === 'introduction' ? (
+                                            section.content
+                                        ) : section.id === 'role-specialization' ? (
+                                            <div className="space-y-4">
+                                                <p>
+                                                    The framework assigns specialized roles to LLM agents, ensuring expert-level analysis across all market dimensions:
+                                                </p>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                                                    <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
                                                         : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
-                                                }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Fundamental Analysts</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Analyze company financial health, earnings reports, and macroeconomic indicators to determine long-term value.</p>
-                                                </div>
-                                                <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${
-                                                    isDarkMode
+                                                        }`}>
+                                                        <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Fundamental Analysts</h3>
+                                                        <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Analyze company financial health, earnings reports, and macroeconomic indicators to determine long-term value.</p>
+                                                    </div>
+                                                    <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
                                                         : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
-                                                }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Technical Analysts</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Study price action, trends, and volume patterns to identify optimal entry and exit points.</p>
-                                                </div>
-                                                <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${
-                                                    isDarkMode
+                                                        }`}>
+                                                        <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Technical Analysts</h3>
+                                                        <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Study price action, trends, and volume patterns to identify optimal entry and exit points.</p>
+                                                    </div>
+                                                    <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
                                                         : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
-                                                }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Sentiment Analysts</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Process news, social media, and market chatter to gauge market psychology and potential volatility.</p>
-                                                </div>
-                                                <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${
-                                                    isDarkMode
+                                                        }`}>
+                                                        <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Sentiment Analysts</h3>
+                                                        <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Process news, social media, and market chatter to gauge market psychology and potential volatility.</p>
+                                                    </div>
+                                                    <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
                                                         : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
-                                                }`}>
-                                                    <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Risk Management</h3>
-                                                    <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Monitor portfolio exposure and set strict limits to preserve capital and manage downside risk.</p>
+                                                        }`}>
+                                                        <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Risk Management</h3>
+                                                        <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Monitor portfolio exposure and set strict limits to preserve capital and manage downside risk.</p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
-                                            {section.content}
-                                        </div>
-                                    )}
-                                </div>
-                            </section>
-                        ))}
-                    </div>
+                                        ) : (
+                                            <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
+                                                {section.content}
+                                            </div>
+                                        )}
+                                    </div>
+                                </section>
+                            ))}
+                        </div>
 
-                    {/* ================= Tutorials Sections ================= */}
-                    <div 
-                        className="mb-8"
-                        id="tutorials-header"
-                    >
-                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode ? 'text-[#f8fbff] border-white/10' : 'text-[#0F172A] border-[#E2E8F0]'}`}>
-                            Tutorials
-                        </h2>
-                    </div>
+                        {/* ================= Tutorials Sections ================= */}
+                        <div
+                            className="mb-8"
+                            id="tutorials-header"
+                        >
+                            <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode ? 'text-[#f8fbff] border-white/10' : 'text-[#0F172A] border-[#E2E8F0]'}`}>
+                                Tutorials
+                            </h2>
+                        </div>
 
-                    <div className="flex flex-col gap-16 mb-24">
-                        {TUTORIAL_SECTIONS.map((section, index) => (
-                            <section
-                                key={section.id}
-                                id={section.id}
-                                className="scroll-mt-40"
-                            >
-                                <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-[#f8fbff]" : "text-[#0F172A]"}`}>
-                                    <span className={`font-mono ${isDarkMode ? "text-cyan-500" : "text-[#2563EB]"}`}>{index + 1}.</span> {section.title}
-                                </h3>
-                                <div className="space-y-4">
-                                    {section.steps.map((step, i) => {
-                                        const [title, desc] = step.split(': ');
-                                        return (
-                                            <div key={i} className="flex gap-4 group">
-                                                <div className={`flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center font-bold text-sm transition-all group-hover:scale-110 ${
-                                                    isDarkMode
+                        <div className="flex flex-col gap-16 mb-24">
+                            {TUTORIAL_SECTIONS.map((section, index) => (
+                                <section
+                                    key={section.id}
+                                    id={section.id}
+                                    className="scroll-mt-40"
+                                >
+                                    <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-[#f8fbff]" : "text-[#0F172A]"}`}>
+                                        <span className={`font-mono ${isDarkMode ? "text-cyan-500" : "text-[#2563EB]"}`}>{index + 1}.</span> {section.title}
+                                    </h3>
+                                    <div className="space-y-4">
+                                        {section.steps.map((step, i) => {
+                                            const [title, desc] = step.split(': ');
+                                            return (
+                                                <div key={i} className="flex gap-4 group">
+                                                    <div className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center font-bold text-sm transition-all group-hover:scale-110 ${isDarkMode
                                                         ? "bg-zinc-700/50 border-zinc-600 text-zinc-200"
                                                         : "bg-[#EFF6FF] border-[#2563EB]/40 text-[#2563EB]"
-                                                }`}>
-                                                    {i + 1}
-                                                </div>
-                                                <div className={`flex-1 p-4 rounded-xl border transition-all hover:scale-[1.02] hover:shadow-lg ${
-                                                    isDarkMode
+                                                        }`}>
+                                                        {i + 1}
+                                                    </div>
+                                                    <div className={`flex-1 p-4 rounded-xl border transition-all hover:scale-[1.02] hover:shadow-lg ${isDarkMode
                                                         ? "bg-zinc-800/40 border-zinc-700/60"
                                                         : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
-                                                }`}>
-                                                    <h4 className={`font-bold mb-1 ${isDarkMode ? "text-gray-200" : "text-[#0F172A]"}`}>{title}</h4>
-                                                    <p className={`text-sm leading-relaxed ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>
-                                                        {desc || title}
-                                                    </p>
+                                                        }`}>
+                                                        <h4 className={`font-bold mb-1 ${isDarkMode ? "text-gray-200" : "text-[#0F172A]"}`}>{title}</h4>
+                                                        <p className={`text-sm leading-relaxed ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>
+                                                            {desc || title}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </section>
-                        ))}
-                    </div>
+                                            );
+                                        })}
+                                    </div>
+                                </section>
+                            ))}
+                        </div>
 
-                    {/* ================= Our Agent Sections ================= */}
-                    <div 
-                        className="mb-8"
-                        id="agents-header"
-                    >
-                        <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${
-                            isDarkMode
+                        {/* ================= Our Agent Sections ================= */}
+                        <div
+                            className="mb-8"
+                            id="agents-header"
+                        >
+                            <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode
                                 ? "text-[#f8fbff] border-white/10"
                                 : "text-[#0F172A] border-[#E2E8F0]"
-                        }`}>
-                            Our Agents
-                        </h2>
-                    </div>
+                                }`}>
+                                Our Agents
+                            </h2>
+                        </div>
 
-                    <div className="flex flex-col gap-20">
-                        {AGENT_TEAMS.map((team, teamIndex) => (
-                            <section
-                                key={team.id}
-                                id={team.id}
-                                className="scroll-mt-40"
-                            >
-                                <div className="mb-8">
-                                    <h3 className={`text-xl font-bold mb-2 flex items-center gap-3 ${isDarkMode ? "text-[#f8fbff]" : "text-[#0F172A]"}`}>
-                                        {team.title}
-                                    </h3>
-                                    <p className={`text-base leading-relaxed border-l-2 pl-4 max-w-4xl ${
-                                        isDarkMode
+                        <div className="flex flex-col gap-20">
+                            {AGENT_TEAMS.map((team, teamIndex) => (
+                                <section
+                                    key={team.id}
+                                    id={team.id}
+                                    className="scroll-mt-40"
+                                >
+                                    <div className="mb-8">
+                                        <h3 className={`text-xl font-bold mb-2 flex items-center gap-3 ${isDarkMode ? "text-[#f8fbff]" : "text-[#0F172A]"}`}>
+                                            {team.title}
+                                        </h3>
+                                        <p className={`text-base leading-relaxed border-l-2 pl-4 max-w-4xl ${isDarkMode
                                             ? "text-[#f8fbff]/80 border-white/10"
                                             : "text-[#334155] border-[#E2E8F0]"
-                                    }`}>
-                                        {team.description}
-                                    </p>
-                                </div>
+                                            }`}>
+                                            {team.description}
+                                        </p>
+                                    </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                                    {team.agents.map((agent) => (
-                                        <div key={agent.id} className={`border rounded-xl p-6 relative overflow-hidden group h-full transition-all hover:scale-105 hover:shadow-lg ${
-                                            isDarkMode
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                                        {team.agents.map((agent) => (
+                                            <div key={agent.id} className={`border rounded-xl p-6 relative overflow-hidden group h-full transition-all hover:scale-105 hover:shadow-lg ${isDarkMode
                                                 ? "bg-zinc-800/40 border-zinc-700/60 hover:border-zinc-600"
                                                 : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
-                                        }`}>
-                                            <div className="flex items-center gap-3 mb-3 relative z-10">
-                                                <div className={`p-2 rounded-lg border transition-all group-hover:scale-110 ${
-                                                    isDarkMode
+                                                }`}>
+                                                <div className="flex items-center gap-3 mb-3 relative z-10">
+                                                    <div className={`p-2 rounded-lg border transition-all group-hover:scale-110 ${isDarkMode
                                                         ? "bg-zinc-800/50 border-zinc-600"
                                                         : "bg-[#EFF6FF] border-[#2563EB]/30"
                                                         }`}>

@@ -13,7 +13,7 @@ export default function DebugPanel({ wsStatus, isDarkMode }: DebugPanelProps) {
             </div>
             <div className="flex items-center gap-2">
                 <span
-                    className={`h-2 w-2 flex-shrink-0 rounded-full ${wsStatus === "connected"
+                    className={`h-2 w-2 shrink-0 rounded-full ${wsStatus === "connected"
                         ? "bg-[#2df4c6] shadow-[0_0_8px_#2df4c6]"
                         : wsStatus === "connecting"
                             ? "animate-pulse bg-[#f9a826]"

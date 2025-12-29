@@ -4,7 +4,7 @@ import Logo from '@/image/Logo.png';
 
 const AuthSidebar = () => {
     return (
-        <div className="hidden md:flex flex-col justify-between w-1/3 text-white p-12 min-h-screen bg-gradient-to-b from-[#0f1216] to-[#141922] relative overflow-hidden">
+        <div className="hidden md:flex flex-col justify-between w-1/3 text-white p-12 min-h-screen bg-linear-to-b from-[#0f1216] to-[#141922] relative overflow-hidden">
             {/* Animated background accents */}
             <div className="pointer-events-none absolute inset-0">
                 <div className="absolute -left-10 top-12 h-40 w-40 rounded-full bg-[#2df4c6]/12 blur-3xl animate-orb" />
@@ -23,7 +23,7 @@ const AuthSidebar = () => {
                     {/* Logo card with glow (no circle) */}
                     <div className="relative mb-6 flex items-center justify-center">
                         {/* Glow background */}
-                        <div className="pointer-events-none absolute -inset-x-10 -inset-y-6 rounded-[32px] bg-gradient-to-r from-[#2df4c6]/25 via-transparent to-[#26dcb2]/25 blur-3xl" />
+                        <div className="pointer-events-none absolute -inset-x-10 -inset-y-6 rounded-[32px] bg-linear-to-r from-[#2df4c6]/25 via-transparent to-[#26dcb2]/25 blur-3xl" />
                         {/* Logo frame */}
                         <div className="relative rounded-[28px] bg-[#040b10]/90 px-8 py-5 shadow-[0_24px_70px_rgba(0,0,0,0.85)] ring-1 ring-white/5">
                             <Image

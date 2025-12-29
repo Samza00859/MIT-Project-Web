@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   description: "AI-powered trading analysis platform",
 };
 
+import Sidebar from "../components/Sidebar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -26,10 +28,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[var(--background)] text-[var(--foreground)]`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
         <Providers>
-          <main className="min-h-screen bg-transparent">{children}</main>
+          <div className="flex h-screen overflow-hidden bg-transparent">
+            <Sidebar />
+            <main id="main-content" className="flex-1 overflow-auto bg-transparent relative w-full h-full">
+              {children}
+            </main>
+          </div>
         </Providers>
       </body>
     </html>

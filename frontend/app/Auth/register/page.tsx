@@ -31,11 +31,11 @@ export default function RegisterPage() {
           <div className="text-center space-y-3 mb-8">
             <h2 className="text-3xl md:text-4xl font-bold text-[#0f172a] tracking-tight">
               Create Your Account
-          </h2>
+            </h2>
             <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
               Join our AI-powered trading platform with secure onboarding and streamlined access.
-              </p>
-            </div>
+            </p>
+          </div>
 
           <div className="bg-white/70 backdrop-blur-xl rounded-[28px] px-8 md:px-12 py-12 shadow-[0_28px_80px_rgba(15,23,42,0.14)] w-full border border-white/60">
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -46,27 +46,27 @@ export default function RegisterPage() {
                 { label: "Confirm Password", value: confirmPassword, setter: setConfirmPassword, type: "password" },
               ].map((field) => (
                 <div className="w-full relative" key={field.label}>
-                <input
+                  <input
                     className="peer w-full rounded-xl border-[1.5px] border-gray-200 bg-gray-50 px-4 pt-5 pb-2.5 text-gray-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] transition focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/25 focus:bg-white placeholder-transparent"
                     placeholder={field.label}
                     type={field.type}
                     value={field.value}
                     onChange={(e) => field.setter(e.target.value)}
-                  required
-                />
+                    required
+                  />
                   <label className="pointer-events-none absolute left-4 top-3 text-sm font-semibold text-gray-500 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-[#0f172a]">
                     {field.label}<span className="text-red-500">*</span>
-                </label>
+                  </label>
                   {field.label === "Confirm Password" && confirmPassword && password !== confirmPassword && (
                     <p className="text-xs text-red-600 mt-2">Passwords do not match (demo only)</p>
-                )}
-              </div>
+                  )}
+                </div>
               ))}
 
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="submit"
-                  className="px-7 md:px-8 py-3 rounded-xl bg-gradient-to-br from-[#10b981] to-[#059669] text-white font-semibold text-base shadow-[0_12px_28px_rgba(16,185,129,0.35)] hover:shadow-[0_16px_36px_rgba(16,185,129,0.45)] hover:scale-[1.05] focus:outline-none focus:ring-2 focus:ring-[#10b981]/50 transition"
+                  className="px-7 md:px-8 py-3 rounded-xl bg-linear-to-br from-[#10b981] to-[#059669] text-white font-semibold text-base shadow-[0_12px_28px_rgba(16,185,129,0.35)] hover:shadow-[0_16px_36px_rgba(16,185,129,0.45)] hover:scale-[1.05] focus:outline-none focus:ring-2 focus:ring-[#10b981]/50 transition"
                 >
                   Sign up
                 </button>

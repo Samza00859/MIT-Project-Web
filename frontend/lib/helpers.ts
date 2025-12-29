@@ -76,7 +76,7 @@ export function extractKeyPoints(text: string): string[] {
 }
 
 export function summarizeReport(
-    reportText: string | any,
+    reportText: string | unknown,
     decision: string
 ): string {
     if (!reportText) return "";

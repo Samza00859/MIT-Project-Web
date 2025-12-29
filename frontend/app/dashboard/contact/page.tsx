@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import Sidebar from "@/components/Sidebar";
 import { useTheme } from "@/context/ThemeContext";
 
 export default function DashboardContactPage() {
@@ -37,17 +36,6 @@ export default function DashboardContactPage() {
 
     return (
         <div className={`flex min-h-screen w-full ${isDarkMode ? "bg-[#0a0c10]" : "bg-gray-50"}`}>
-            <Sidebar 
-                activeId="contact" 
-                isDarkMode={isDarkMode} 
-                toggleTheme={toggleTheme}
-                navItems={[
-                    { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
-                    { id: "generate", icon: "🌐", label: "Generate", href: "/" },
-                    { id: "contact", icon: "📬", label: "Contact", href: "/dashboard/contact" },
-                    { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
-                ]}
-            />
             <main className="flex-1 p-8 md:p-12 lg:p-16">
                 <header className="mb-8">
                     <h1 className={`text-3xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Contact Us</h1>
@@ -67,7 +55,7 @@ export default function DashboardContactPage() {
                         >
                             {/* Top Section: Profile & Info */}
                             <div className="flex flex-col gap-6 md:flex-row md:items-center">
-                                <div className={`h-24 w-24 flex-shrink-0 rounded-full ${isDarkMode ? "bg-white" : "bg-gray-200"}`}></div>
+                                <div className={`h-24 w-24 shrink-0 rounded-full ${isDarkMode ? "bg-white" : "bg-gray-200"}`}></div>
                                 <div className={`flex flex-col gap-2 text-sm tracking-wide ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                                     <p>{contact.name}</p>
                                     <p>{contact.company}</p>

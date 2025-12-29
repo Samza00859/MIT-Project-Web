@@ -6,7 +6,7 @@ interface FacebookSDK {
         version: string;
     }) => void;
     login: (callback: (response: FacebookLoginResponse) => void, options?: { scope: string }) => void;
-    api: (path: string, params: any, callback: (response: any) => void) => void;
+    api: (path: string, params: object, callback: (response: unknown) => void) => void;
     getLoginStatus: (callback: (response: FacebookLoginStatusResponse) => void) => void;
 }
 
@@ -33,7 +33,7 @@ declare global {
     }
 }
 
-export {};
+export { };
 
 
 

@@ -75,13 +75,13 @@ export default function IntroductionPage() {
     }, []);
 
     return (
-        <div className={`min-h-screen w-full font-sans overflow-hidden relative ${isDarkMode ? 'bg-[#050B14] text-white' : 'bg-[#F5FAFF] text-[#0F172A]'}`}>
+        <div className={`h-full w-full font-sans overflow-hidden relative ${isDarkMode ? 'bg-[#050B14] text-white' : 'bg-[#F5FAFF] text-[#0F172A]'}`}>
             {/* Dark Mode - Night Sky Background */}
             {isDarkMode && (
                 <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
                     {/* Night Sky Gradient */}
                     <div className="night-sky-gradient" />
-                    
+
                     {/* Background Star Layer - Slow Movement */}
                     <div className="star-layer star-layer-bg">
                         {backgroundStars.map((star) => (
@@ -100,7 +100,7 @@ export default function IntroductionPage() {
                             />
                         ))}
                     </div>
-                    
+
                     {/* Mid Star Layer - Medium Movement */}
                     <div className="star-layer star-layer-mid">
                         {midStars.map((star) => (
@@ -119,7 +119,7 @@ export default function IntroductionPage() {
                             />
                         ))}
                     </div>
-                    
+
                     {/* Foreground Star Layer - Fast Movement */}
                     <div className="star-layer star-layer-fg">
                         {foregroundStars.map((star) => (
@@ -138,7 +138,7 @@ export default function IntroductionPage() {
                             />
                         ))}
                     </div>
-                    
+
                     {/* Faint Nebula Gradient */}
                     <div className="nebula-gradient" />
                 </div>
@@ -149,64 +149,64 @@ export default function IntroductionPage() {
                 <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
                     {/* Ocean Base Gradient */}
                     <div className="ocean-base-gradient" />
-                    
+
                     {/* Wave Layer 1 */}
                     <div className="wave-layer wave-layer-1" />
-                    
+
                     {/* Wave Layer 2 */}
                     <div className="wave-layer wave-layer-2" />
-                    
+
                     {/* Wave Layer 3 */}
                     <div className="wave-layer wave-layer-3" />
                 </div>
             )}
 
             {/* Navigation Bar - Blurred */}
-            <nav className={`absolute top-0 left-0 right-0 z-50 flex items-center justify-end px-8 py-4 backdrop-blur-xl border-b ${isDarkMode 
-                ? 'bg-black/10 border-white/5' 
+            <nav className={`absolute top-0 left-0 right-0 z-50 flex items-center justify-end px-8 py-4 backdrop-blur-xl border-b ${isDarkMode
+                ? 'bg-black/10 border-white/5'
                 : 'bg-white/15 border-[#E2E8F0]/20'
-            }`}>
+                }`}>
                 <div className="flex gap-6 items-center">
                     {/* View Docs Link */}
-                    <Link 
+                    <Link
                         href="/docs"
                         className={`text-sm font-medium transition-colors duration-200 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded ${isDarkMode
                             ? 'text-white/80 hover:text-[#2df4c6] focus-visible:ring-[#2df4c6]'
                             : 'text-[#64748B] hover:text-[#2563EB] focus-visible:ring-[#2563EB]'
-                        }`}
+                            }`}
                     >
                         View Docs
                     </Link>
 
                     {/* Contact Link */}
-                    <Link 
+                    <Link
                         href="/contact-public"
                         className={`text-sm font-medium transition-colors duration-200 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded ${isDarkMode
                             ? 'text-white/80 hover:text-[#2df4c6] focus-visible:ring-[#2df4c6]'
                             : 'text-[#64748B] hover:text-[#2563EB] focus-visible:ring-[#2563EB]'
-                        }`}
+                            }`}
                     >
                         Contact
                     </Link>
 
                     {/* Theme Toggle */}
                     <label className="relative inline-flex cursor-pointer items-center">
-                        <input 
-                            type="checkbox" 
-                            checked={!isDarkMode} 
-                            onChange={toggleTheme} 
-                            className="peer sr-only" 
+                        <input
+                            type="checkbox"
+                            checked={!isDarkMode}
+                            onChange={toggleTheme}
+                            className="peer sr-only"
                         />
-                        <div className={`peer h-6 w-11 rounded-full after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none peer-focus:ring-2 ${isDarkMode 
-                            ? 'bg-gray-700 after:border-gray-300 after:bg-white peer-checked:bg-gray-300 peer-checked:after:border-white peer-focus:ring-[#2df4c6]' 
+                        <div className={`peer h-6 w-11 rounded-full after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none peer-focus:ring-2 ${isDarkMode
+                            ? 'bg-gray-700 after:border-gray-300 after:bg-white peer-checked:bg-gray-300 peer-checked:after:border-white peer-focus:ring-[#2df4c6]'
                             : 'bg-[#CBD5E1] after:border-[#F1F5F9] after:bg-white peer-checked:bg-[#2563EB] peer-checked:after:border-white peer-focus:ring-[#2563EB]'
-                        }`}></div>
+                            }`}></div>
                     </label>
                 </div>
             </nav>
 
             {/* Hero Section - Centered */}
-            <section className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20 md:py-32">
+            <section className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 pt-20 pb-40 md:pt-32 md:pb-64">
                 <div className="w-full max-w-4xl mx-auto text-center">
                     {/* Logo */}
                     <div className={`mb-0 flex items-center justify-center transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
@@ -214,8 +214,8 @@ export default function IntroductionPage() {
                             <Image
                                 src={isDarkMode ? Logo : LogoBlack}
                                 alt="Trading Agents Logo"
-                                width={500}
-                                height={187}
+                                width={800}
+                                height={300}
                                 className="h-auto w-auto object-contain"
                                 priority
                             />
@@ -223,14 +223,14 @@ export default function IntroductionPage() {
                     </div>
 
                     {/* Headline */}
-                    <h1 className={`-mt-24 mb-4 text-3xl md:text-4xl lg:text-5xl font-bold leading-tight transition-all duration-700 ease-out delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+                    <h1 className={`-mt-12 mb-4 text-3xl md:text-4xl lg:text-5xl font-bold leading-tight transition-all duration-700 ease-out delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
                         <span className={isDarkMode ? 'text-white' : 'text-[#0F172A]'}>
                             INTELLIGENT{" "}
                         </span>
-                        <span className={`bg-clip-text text-transparent ${isDarkMode 
-                            ? 'bg-gradient-to-r from-[#2df4c6] via-[#26dcb2] to-[#2df4c6]' 
-                            : 'bg-gradient-to-r from-[#2563EB] via-[#38BDF8] to-[#2563EB]'
-                        }`}>
+                        <span className={`bg-clip-text text-transparent ${isDarkMode
+                            ? 'bg-linear-to-r from-[#2df4c6] via-[#26dcb2] to-[#2df4c6]'
+                            : 'bg-linear-to-r from-[#2563EB] via-[#38BDF8] to-[#2563EB]'
+                            }`}>
                             MULTI-AGENT AI
                         </span>
                         <br />
@@ -247,12 +247,12 @@ export default function IntroductionPage() {
                     {/* CTA Button */}
                     <div className={`flex items-center justify-center mb-20 transition-all duration-700 ease-out delay-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
                         {/* Get Started - Primary */}
-                        <Link 
+                        <Link
                             href="/Auth/register"
-                            className={`group relative flex items-center justify-center rounded-full px-10 py-5 text-lg font-medium transform-gpu transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-[1.05] hover:-translate-y-1 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${isDarkMode
-                                ? 'bg-gradient-to-r from-[#2df4c6] to-[#26dcb2] text-black shadow-md shadow-[#2df4c6]/30 hover:shadow-xl hover:shadow-[#2df4c6]/50 focus-visible:ring-[#2df4c6]'
-                                : 'bg-gradient-to-r from-[#2563EB] to-[#38BDF8] text-white shadow-md shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/40 focus-visible:ring-[#2563EB]'
-                            }`}
+                            className={`group relative flex items-center justify-center rounded-full px-10 py-5 text-lg font-medium transform-gpu transition-all duration-300 ease-in-out hover:scale-[1.05] hover:-translate-y-1 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${isDarkMode
+                                ? 'bg-linear-to-r from-[#2df4c6] to-[#26dcb2] text-black shadow-md shadow-[#2df4c6]/30 hover:shadow-xl hover:shadow-[#2df4c6]/50 focus-visible:ring-[#2df4c6]'
+                                : 'bg-linear-to-r from-[#2563EB] to-[#38BDF8] text-white shadow-md shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/40 focus-visible:ring-[#2563EB]'
+                                }`}
                         >
                             <span className="relative z-10">Get Started</span>
                         </Link>

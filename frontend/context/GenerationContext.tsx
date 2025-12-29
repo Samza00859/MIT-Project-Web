@@ -7,6 +7,7 @@ import React, {
     useEffect,
     useRef,
     useCallback,
+    useMemo,
     ReactNode,
 } from "react";
 import { getWsUrl } from "../lib/api";
@@ -61,7 +62,7 @@ export interface GenerationContextType {
     progress: number;
     teamState: TeamState;
     reportSections: ReportSection[];
-    finalReportData: any;
+    finalReportData: Record<string, any> | null;
     decision: string;
 
     // Form State (persisted across navigation)
@@ -177,7 +178,7 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
     const [progress, setProgress] = useState(0);
     const [teamState, setTeamState] = useState<TeamState>(deepClone(TEAM_TEMPLATE));
     const [reportSections, setReportSections] = useState<ReportSection[]>([]);
-    const [finalReportData, setFinalReportData] = useState<any>(null);
+    const [finalReportData, setFinalReportData] = useState<Record<string, any> | null>(null);
     const [decision, setDecision] = useState("Awaiting run");
 
     // Form State (persisted across navigation)
@@ -202,9 +203,9 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
     const [lastUpdate, setLastUpdate] = useState<string | null>(null);
     const [lastType, setLastType] = useState<string | null>(null);
 
-    // Effect: Update Report Sections when data or mode changes
-    useEffect(() => {
-        if (!finalReportData) return;
+    // Use useMemo for derived sections logic to render immediately and avoid effect loop
+    const derivedReportSections = useMemo(() => {
+        if (!finalReportData) return [];
 
         const finalSections: ReportSection[] = [];
 
@@ -240,11 +241,18 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
                 }
             }
         });
-
-        if (finalSections.length > 0) {
-            setReportSections(finalSections);
-        }
+        return finalSections;
     }, [finalReportData, reportLength]);
+
+    // Merge manual sections (e.g. errors) with derived sections
+    const activeReportSections = useMemo(() => {
+        // If we have final data, the derived sections take precedence for the report content
+        // But we might want to keep errors? Assuming errors stop generation, finalReportData might be null
+        if (finalReportData) {
+            return derivedReportSections;
+        }
+        return reportSections;
+    }, [finalReportData, derivedReportSections, reportSections]);
 
     // Refs
     const wsRef = useRef<WebSocket | null>(null);
@@ -464,7 +472,7 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
             try {
                 wsRef.current.send(JSON.stringify(wsRequest));
                 addDebugLog("request", `Starting analysis for ${request.ticker}`, false);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error("Send error:", err);
                 setIsRunning(false);
                 addDebugLog("error", "Failed to send request", true);
@@ -509,7 +517,7 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
         currentTicker,
         progress,
         teamState,
-        reportSections,
+        reportSections: activeReportSections,
         finalReportData,
         decision,
 

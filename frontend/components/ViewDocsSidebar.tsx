@@ -73,11 +73,10 @@ const NavMenuItem = React.memo(function NavMenuItem({
         <div className="mb-2">
             {/* Category Header */}
             <div
-                className={`flex items-center gap-2 py-2 px-2 rounded-lg cursor-pointer font-semibold text-sm transition-colors ${
-                    isDarkMode
-                        ? 'text-white hover:text-cyan-400 hover:bg-cyan-500/10'
-                        : 'text-[#0F172A] hover:text-[#2563EB] hover:bg-[#EFF6FF]'
-                }`}
+                className={`flex items-center gap-2 py-2 px-2 rounded-lg cursor-pointer font-semibold text-sm transition-colors ${isDarkMode
+                    ? 'text-white hover:text-cyan-400 hover:bg-cyan-500/10'
+                    : 'text-[#0F172A] hover:text-[#2563EB] hover:bg-[#EFF6FF]'
+                    }`}
                 onClick={onToggle}
             >
                 <div>
@@ -98,15 +97,14 @@ const NavMenuItem = React.memo(function NavMenuItem({
                         return (
                             <div
                                 key={item.id}
-                                className={`relative py-2 px-2 -ml-4 rounded-lg text-sm cursor-pointer select-none transition-colors ${
-                                    isActive
-                                        ? isDarkMode
-                                            ? 'text-cyan-400 font-semibold bg-cyan-500/15 border border-cyan-400/40'
-                                            : 'text-[#2563EB] font-semibold bg-[#EFF6FF] border border-[#2563EB]/40'
-                                        : isDarkMode
-                                            ? 'text-zinc-400 hover:text-cyan-300 hover:bg-cyan-500/5'
-                                            : 'text-[#64748B] hover:text-[#2563EB] hover:bg-[#EFF6FF]'
-                                }`}
+                                className={`relative py-2 px-2 -ml-4 rounded-lg text-sm cursor-pointer select-none transition-colors ${isActive
+                                    ? isDarkMode
+                                        ? 'text-cyan-400 font-semibold bg-cyan-500/15 border border-cyan-400/40'
+                                        : 'text-[#2563EB] font-semibold bg-[#EFF6FF] border border-[#2563EB]/40'
+                                    : isDarkMode
+                                        ? 'text-zinc-400 hover:text-cyan-300 hover:bg-cyan-500/5'
+                                        : 'text-[#64748B] hover:text-[#2563EB] hover:bg-[#EFF6FF]'
+                                    }`}
                                 onClick={() => onSelectItem(item.id)}
                             >
                                 {item.title}
@@ -163,4 +161,3 @@ export default function ViewDocsSidebar({
         </aside>
     );
 }
-

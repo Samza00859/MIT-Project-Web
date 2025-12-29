@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
-import Sidebar from "../../components/Sidebar";
 import { useGeneration } from "../../context/GenerationContext";
 import { getApiUrl } from "../../lib/api";
 
@@ -85,7 +84,7 @@ function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean
     };
 
     return (
-        <div className={`flex h-10 w-10 items-center justify-center rounded-full flex-shrink-0 relative overflow-hidden ${logoSrc && !logoError ? "bg-white" : (isDarkMode ? "bg-white/10" : "bg-gray-100")}`}>
+        <div className={`flex h-10 w-10 items-center justify-center rounded-full shrink-0 relative overflow-hidden ${logoSrc && !logoError ? "bg-white" : (isDarkMode ? "bg-white/10" : "bg-gray-100")}`}>
             {logoSrc && !logoError ? (
                 <img
                     src={logoSrc}
@@ -102,11 +101,13 @@ function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean
     );
 }
 
+import { useTheme } from "../../context/ThemeContext";
+
 export default function HistoryPage() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isDarkMode, setIsDarkMode] = useState(true);
+    const { isDarkMode, toggleTheme } = useTheme();
     const [viewMode, setViewMode] = useState<"summary" | "detailed">("detailed");
 
     // Search and Filters State
@@ -160,7 +161,7 @@ export default function HistoryPage() {
         return matchesSearch && matchesStatus && matchesTime;
     });
 
-    const toggleTheme = () => setIsDarkMode(!isDarkMode);
+
 
     const getGroupedSections = (item: HistoryItem) => {
         const sectionsMap: Record<string, { sum?: any, full?: any }> = {};
@@ -711,15 +712,14 @@ export default function HistoryPage() {
     };
 
     return (
-        <div className={`flex h-screen overflow-hidden ${isDarkMode ? "bg-[#0c111f] text-white" : "bg-gray-50 text-gray-900"}`}>
-            <Sidebar activeId="history" isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+        <div className={`w-full h-full flex flex-col xl:flex-row overflow-hidden ${isDarkMode ? "bg-[#0c111f] text-white" : "bg-gray-50 text-gray-900"}`}>
 
-            <main className="flex-1 flex overflow-hidden">
-                {/* List Sidebar */}
-                <div className={`w-[22rem] border-r flex flex-col ${isDarkMode ? "border-white/10 bg-[#0c111f]" : "border-gray-200 bg-white"}`}>
-                    <div className="p-6 border-b border-white/10">
-                        <h2 className="text-2xl font-bold mb-1">Execution history</h2>
-                        <p className={`text-sm mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+            <div className="flex-1 flex flex-col xl:flex-row overflow-hidden">
+                {/* List Sidebar - Full width on mobile, fixed width on desktop */}
+                <div className={`${selectedItem ? 'hidden xl:flex' : 'flex'} w-full xl:w-88 border-r flex-col ${isDarkMode ? "border-white/10 bg-[#0c111f]" : "border-gray-200 bg-white"}`}>
+                    <div className={`p-4 pt-24 md:p-6 md:pt-24 xl:p-6 xl:pt-6 border-b ${isDarkMode ? "border-white/10" : "border-gray-200"}`}>
+                        <h2 className="text-xl md:text-2xl font-bold mb-1">Execution history</h2>
+                        <p className={`text-sm mb-4 md:mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                             Showing {filteredHistory.length} record
                         </p>
 
@@ -891,15 +891,49 @@ export default function HistoryPage() {
                     </div>
                 </div>
 
-                {/* Detail View */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-8">
+                {/* Detail View - Hidden on mobile when no item selected */}
+                <div className={`${selectedItem ? 'flex' : 'hidden xl:flex'} flex-1 flex-col overflow-y-auto p-4 pt-24 md:p-8 md:pt-24 xl:p-8 xl:pt-8`}>
                     {selectedItem ? (
                         <div className="max-w-5xl mx-auto">
+                            {/* Back button for mobile */}
+                            <button
+                                onClick={() => setSelectedItem(null)}
+                                className={`xl:hidden flex items-center gap-2 mb-4 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isDarkMode ? "bg-white/5 hover:bg-white/10" : "bg-gray-100 hover:bg-gray-200"}`}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                                </svg>
+                                Back to list
+                            </button>
                             <header className="flex flex-wrap justify-between items-end gap-4 mb-8">
                                 <div>
-                                    <div className="flex items-center gap-3 mb-2">
+                                    <div className="flex flex-wrap items-center gap-4 mb-2">
                                         <h1 className="text-4xl font-bold">{selectedItem.ticker}</h1>
-                                        <span className={`px-3 py-1 rounded-full text-sm font-bold ${selectedItem.status === "success"
+                                        {(() => {
+                                            const finalReport = selectedItem.reports.find(r => r.report_type === 'conclusion');
+                                            let decision = null;
+                                            if (finalReport) {
+                                                try {
+                                                    const content = typeof finalReport.content === 'string'
+                                                        ? JSON.parse(finalReport.content)
+                                                        : finalReport.content;
+                                                    if (content && content.decision) {
+                                                        decision = content.decision;
+                                                    }
+                                                } catch (e) { /* ignore */ }
+                                            }
+                                            if (decision) {
+                                                return (
+                                                    <span className="px-3 py-1 rounded-lg text-lg font-bold bg-[#2df4c6] text-[#03161b] shadow-[0_0_15px_rgba(45,244,198,0.3)]">
+                                                        {decision.toUpperCase()}
+                                                    </span>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
+                                    </div>
+                                    <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
+                                        <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-bold ${selectedItem.status === "success"
                                             ? "bg-[#2df4c6]/20 text-[#2df4c6]"
                                             : (selectedItem.status === "executing" && selectedItem.reports.length === 0)
                                                 ? "bg-red-500/10 text-red-500"
@@ -911,8 +945,8 @@ export default function HistoryPage() {
                                                 ? "INCOMPLETE"
                                                 : selectedItem.status.toUpperCase()}
                                         </span>
+                                        <p className="opacity-50 text-sm whitespace-nowrap">Analysis for {selectedItem.analysis_date}</p>
                                     </div>
-                                    <p className="opacity-50 text-lg">Analysis for {selectedItem.analysis_date}</p>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     {/* Download PDF Button */}
@@ -996,10 +1030,6 @@ export default function HistoryPage() {
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <div className="w-full md:w-auto p-6 rounded-2xl bg-[#2df4c6]/10 border border-[#2df4c6]/30 text-center">
-                                                        <span className="text-xs uppercase font-bold text-[#2df4c6] block mb-1">Recommendation</span>
-                                                        <strong className="text-3xl text-[#2df4c6] uppercase">{summary.decision}</strong>
-                                                    </div>
                                                 </div>
                                             </section>
                                         );
@@ -1074,7 +1104,7 @@ export default function HistoryPage() {
                         </div>
                     )}
                 </div>
-            </main>
+            </div>
         </div>
     );
 }

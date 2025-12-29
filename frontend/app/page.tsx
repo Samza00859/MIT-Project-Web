@@ -3,13 +3,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Logo from "@/image/Logo.png";
+
 import { jsPDF } from "jspdf";
-import Sidebar from "../components/Sidebar";
-import DebugPanel from "../components/DebugPanel";
 import ReportSections from "../components/ReportSections";
 import { buildApiUrl, buildWsUrl, mapFetchError } from "@/lib/api";
-import TelegramConnect from "../components/TelegramConnect";
 import { useGeneration } from "../context/GenerationContext";
 import { getApiUrl } from "../lib/api";
 import { useTheme } from "@/context/ThemeContext";
@@ -30,6 +27,24 @@ import { MARKET_INFO } from "../components/MarketIcons";
 import { deepClone, extractDecision, toISODate } from "@/lib/helpers";
 
 // --- Components ---
+
+interface TickerSuggestion {
+  symbol: string;
+  name: string;
+  exchange: string;
+  assetType: string;
+  [key: string]: string | number;
+}
+
+interface Star {
+  id: number;
+  size: number;
+  left: number;
+  top: number;
+  delay: number;
+  duration: number;
+  opacity: number;
+}
 
 export default function Home() {
   // Get global generation context
@@ -81,15 +96,17 @@ export default function Home() {
   const lastFetchedTickerRef = useRef<string>("");
 
   // Ticker Search State
-  const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [marketTickers, setMarketTickers] = useState<any[]>([]); // Cache for backend list
+  const [suggestions, setSuggestions] = useState<TickerSuggestion[]>([]);
+  const [marketTickers, setMarketTickers] = useState<TickerSuggestion[]>([]); // Cache for backend list
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMarketSelector, setShowMarketSelector] = useState(false); // New Dropdown State
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Generate stars once for the night sky effect
-  const stars = React.useMemo(() => {
-    return Array.from({ length: 150 }).map((_, i) => {
+  const [stars, setStars] = useState<Star[]>([]);
+
+  useEffect(() => {
+    const generatedStars = Array.from({ length: 150 }).map((_, i) => {
       const size = Math.random() * 2 + 0.5;
       const left = Math.random() * 100;
       const top = Math.random() * 100;
@@ -107,10 +124,11 @@ export default function Home() {
         opacity,
       };
     });
+    setStars(generatedStars);
   }, []);
 
   // Fetch Full Ticker List from Backend
-  const fetchMarketTickers = async (market: string) => {
+  const fetchMarketTickers = useCallback(async (market: string) => {
     try {
       const apiUrl = getApiUrl();
 
@@ -125,9 +143,9 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching market tickers:", error);
     }
-  };
+  }, [ticker]);
 
-  const fetchSuggestions = async (query: string) => {
+  const fetchSuggestions = useCallback(async (query: string) => {
     if (!query || query.length < 2) {
       setSuggestions(marketTickers);
       return;
@@ -145,13 +163,13 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     }
-  };
+  }, [marketTickers, selectedMarket]);
 
   // Logic: When Market changes -> Fetch Tickers for that market
   useEffect(() => {
     fetchMarketTickers(selectedMarket);
     // Note: we don't clear suggestions immediately here because fetch will update them
-  }, [selectedMarket]);
+  }, [selectedMarket, fetchMarketTickers]);
 
   const handleTickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.toUpperCase();
@@ -246,7 +264,7 @@ export default function Home() {
         } else {
           throw new Error(`Status: ${res.status}`);
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (!isMounted) return;
 
         // Only log error on final retry to reduce console spam
@@ -791,7 +809,7 @@ export default function Home() {
 
   return (
     <div
-      className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative ${isDarkMode
+      className={`min-h-full w-full font-sans transition-colors duration-300 relative ${isDarkMode
         ? "bg-[#020617] text-[#f8fbff]"
         : "bg-[#F6F9FC] text-[#0F172A]"
         }`}
@@ -835,7 +853,7 @@ export default function Home() {
       {/* Light Mode Background - Subtle blue gradient */}
       {!isDarkMode && (
         <>
-          <div className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
+          <div className="pointer-events-none fixed inset-0 z-0 bg-linear-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
           <div
             className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_10%_20%,rgba(37,99,235,0.03),transparent_55%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.04),transparent_55%),radial-gradient(circle_at_50%_100%,rgba(37,99,235,0.05),transparent_60%)] animate-[gradient_18s_ease_infinite] opacity-60"
           />
@@ -848,40 +866,12 @@ export default function Home() {
         </>
       )}
 
-      {/* Navigation Bar */}
-      <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-start px-8 py-6">
-        <div className="flex items-center gap-3">
-          <div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-black/70 ring-2 ring-[#2df4c6]/60 shadow-[0_0_18px_rgba(45,244,198,0.45)] overflow-hidden">
-            <Image
-              src={Logo}
-              alt="Trading Agents Logo"
-              width={44}
-              height={44}
-              className="object-contain"
-              priority
-            />
-          </div>
-        </div>
-      </nav>
 
-      {/* Sidebar */}
-      <Sidebar
-        activeId="generate"
-        isDarkMode={isDarkMode}
-        toggleTheme={toggleTheme}
-        navItems={[
-          { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
-          { id: "generate", icon: "🌐", label: "Generate", href: "/" },
-          { id: "history", icon: "📜", label: "History", href: "/history" },
-          { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
-          { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
-        ]}
-      >
-        <DebugPanel wsStatus={wsStatus} isDarkMode={isDarkMode} />
-      </Sidebar>
+
+
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col gap-8 px-4 py-6 md:px-9 md:py-8 md:pb-12 pt-20 relative z-10">
+      <main className="flex-1 flex flex-col gap-8 px-4 py-6 md:px-9 md:py-8 md:pb-12 pt-20 md:pt-24 xl:pt-8 relative z-10">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className={`text-[0.85rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
@@ -898,7 +888,7 @@ export default function Home() {
         )}
 
         {/* Step Grid */}
-        <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
+        <section className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
           <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
             <header>
               <p className={`text-[0.7rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
@@ -911,7 +901,7 @@ export default function Home() {
               <div className="flex gap-2">
                 {/* Custom Market Select Dropdown */}
                 <div
-                  className="relative z-[100]"
+                  className="relative z-100"
                   onBlur={(e) => {
                     // Close dropdown if focus leaves the container
                     if (!e.currentTarget.contains(e.relatedTarget)) {
@@ -932,7 +922,7 @@ export default function Home() {
 
                   {/* Market Dropdown Menu */}
                   {showMarketSelector && (
-                    <div className={`absolute left-0 top-full z-[100] mt-1 w-48 rounded-xl border shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100 ${isDarkMode ? "bg-[#1a2133] border-white/10" : "bg-white border-[#E2E8F0] shadow-lg"}`}>
+                    <div className={`absolute left-0 top-full z-100 mt-1 w-48 rounded-xl border shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100 ${isDarkMode ? "bg-[#1a2133] border-white/10" : "bg-white border-[#E2E8F0] shadow-lg"}`}>
                       {Object.entries(MARKET_INFO).map(([key, info]) => (
                         <button
                           key={key}
@@ -953,7 +943,7 @@ export default function Home() {
                 </div>
 
                 {/* Ticker Input */}
-                <div className="relative flex-1 z-[100]">
+                <div className="relative flex-1 z-100">
                   <input
                     type="text"
                     autoComplete="off"
@@ -977,7 +967,7 @@ export default function Home() {
 
                   {/* Suggestions Dropdown */}
                   {showSuggestions && suggestions.length > 0 && (
-                    <ul className={`absolute left-0 top-full z-[100] mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-[#E2E8F0] bg-white shadow-lg"}`}>
+                    <ul className={`absolute left-0 top-full z-100 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-[#E2E8F0] bg-white shadow-lg"}`}>
                       {/* Optional Header for List */}
                       <li className={`px-4 py-2 text-[10px] uppercase tracking-wider font-semibold ${isDarkMode ? "bg-white/5 text-gray-400 opacity-50" : "bg-[#F8FAFC] text-[#64748B]"}`}>
                         {ticker.length < 2 ? "Popular Recommendations" : "Search Results"}
@@ -1036,7 +1026,7 @@ export default function Home() {
               </label>
               <button
                 onClick={() => dateInputRef.current?.showPicker()}
-                className={`flex h-[46px] w-[46px] flex-shrink-0 items-center justify-center rounded-xl border-2 transition-all hover:scale-105 active:scale-95 ${isDarkMode
+                className={`flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-xl border-2 transition-all hover:scale-105 active:scale-95 ${isDarkMode
                   ? "border-[#2df4c6]/30 bg-[#2df4c6]/10 text-[#2df4c6] hover:bg-[#2df4c6]/20 hover:shadow-[0_0_15px_rgba(45,244,198,0.3)]"
                   : "border-[#2563EB]/50 bg-[#EFF6FF] text-[#2563EB] hover:bg-[#DBEAFE] hover:shadow-[0_0_15px_rgba(37,99,235,0.2)]"
                   }`}
@@ -1054,7 +1044,7 @@ export default function Home() {
 
 
           {/* Live Market Data Card */}
-          <article className={`relative flex flex-col overflow-hidden rounded-[20px] border p-5 h-[210px] transition-all duration-300 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
+          <article className={`relative flex flex-col overflow-hidden rounded-[20px] border p-5 h-auto min-h-[210px] transition-all duration-300 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
             {/* Header */}
             <div className="relative z-10 flex items-start justify-between">
               <div className="flex items-center gap-2">
@@ -1074,7 +1064,7 @@ export default function Home() {
             {/* Main Info */}
             <div className="relative z-10 mt-4 flex flex-col gap-1">
               <div className="flex items-center gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-full overflow-hidden flex-shrink-0 ${isDarkMode ? "bg-white text-black" : "bg-white text-gray-700 shadow-md border border-gray-200"}`}>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full overflow-hidden shrink-0 ${isDarkMode ? "bg-white text-black" : "bg-white text-gray-700 shadow-md border border-gray-200"}`}>
                   {logoSrc && !logoError ? (
                     <img
                       src={logoSrc}
@@ -1165,7 +1155,7 @@ export default function Home() {
               disabled={wsStatus !== "connected"}
               className={`flex w-full flex-row items-center justify-center gap-1.5 rounded-[12px] border-2 py-2 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale ${isDarkMode
                 ? "border-white/20 bg-[#00c05e] hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)]"
-                : "border-[#2563EB] bg-gradient-to-r from-[#2563EB] to-[#38BDF8] text-white hover:shadow-[0_10px_25px_rgba(37,99,235,0.3)]"
+                : "border-[#2563EB] bg-linear-to-r from-[#2563EB] to-[#38BDF8] text-white hover:shadow-[0_10px_25px_rgba(37,99,235,0.3)]"
                 }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1177,7 +1167,7 @@ export default function Home() {
         </section>
 
         {/* Teams Grid */}
-        <section className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5 relative z-0">
+        <section className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5 relative z-0">
           {TEAM_KEYS.map((teamKey, index) => {
             const members = teamState[teamKey];
             const completedCount = members.filter(
@@ -1232,7 +1222,7 @@ export default function Home() {
                     </span>
                   </div>
                   <div
-                    className="relative grid h-20 w-20 flex-shrink-0 place-items-center rounded-full"
+                    className="relative grid h-20 w-20 shrink-0 place-items-center rounded-full"
                     style={{
                       background: isDarkMode
                         ? `conic-gradient(#2df4c6 ${(progress / 100) * 360}deg, rgba(255,255,255,0.05) 0deg)`
@@ -1358,6 +1348,6 @@ export default function Home() {
           </div>
         </section>
       </main>
-    </div >
+    </div>
   );
 }

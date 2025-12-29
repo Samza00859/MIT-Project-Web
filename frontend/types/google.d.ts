@@ -5,7 +5,7 @@ interface GoogleAccounts {
             callback: (response: GoogleCredentialResponse) => void;
         }) => void;
         prompt: () => void;
-        renderButton: (element: HTMLElement, config: any) => void;
+        renderButton: (element: HTMLElement, config: object) => void;
     };
     oauth2: {
         initTokenClient: (config: {
@@ -35,5 +35,5 @@ declare global {
     }
 }
 
-export {};
+export { };
 
