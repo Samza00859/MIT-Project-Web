@@ -5,7 +5,6 @@ import { jsPDF } from "jspdf";
 import Sidebar from "../../components/Sidebar";
 import { useGeneration } from "../../context/GenerationContext";
 import { getApiUrl } from "../../lib/api";
-import { useTheme } from "@/context/ThemeContext";
 
 // Import from shared modules for better code splitting
 import { HISTORY_REPORT_ORDER as REPORT_ORDER, TITLE_MAP } from "../../lib/constants";
@@ -107,7 +106,7 @@ export default function HistoryPage() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
     const [loading, setLoading] = useState(true);
-    const { isDarkMode, toggleTheme } = useTheme();
+    const [isDarkMode, setIsDarkMode] = useState(true);
     const [viewMode, setViewMode] = useState<"summary" | "detailed">("detailed");
 
     // Search and Filters State
@@ -161,6 +160,7 @@ export default function HistoryPage() {
         return matchesSearch && matchesStatus && matchesTime;
     });
 
+    const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
     const getGroupedSections = (item: HistoryItem) => {
         const sectionsMap: Record<string, { sum?: any, full?: any }> = {};
@@ -396,34 +396,48 @@ export default function HistoryPage() {
             return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
         };
 
-        // Clean content: remove markdown headers, raw JSON formatting, unwanted labels
+        // Clean content: remove unwanted formatting while preserving actual content
         const cleanContent = (text: string): string => {
             if (!text || typeof text !== 'string') return '';
 
             let cleaned = text;
 
-            // Remove markdown headers like "### Portfolio Manager Decision"
-            cleaned = cleaned.replace(/^#{1,6}\s+.*$/gm, '');
+            // Convert literal escape sequences to actual characters
+            cleaned = cleaned.replace(/\\n/g, '\n');  // \n to newline
+            cleaned = cleaned.replace(/\\t/g, '  ');  // \t to spaces
+            cleaned = cleaned.replace(/\\r/g, '');    // remove \r
+
+            // Remove backslashes used as emphasis markers (e.g., \word\)
+            cleaned = cleaned.replace(/\\([^\\]+)\\/g, '$1');  // \text\ -> text
+
+            // Remove all remaining standalone backslashes
+            cleaned = cleaned.replace(/\\/g, '');
 
             // Remove code block markers
-            cleaned = cleaned.replace(/```json/g, '');
-            cleaned = cleaned.replace(/```/g, '');
+            cleaned = cleaned.replace(/```json\s*/g, '');
+            cleaned = cleaned.replace(/```\s*/g, '');
 
-            // Remove "Text:" labels at the start
+            // Convert markdown headers to bold-like text (preserve the content)
+            cleaned = cleaned.replace(/^#{1,6}\s+(.*)$/gm, '$1');
+
+            // Remove "Text:" labels at the start of lines
             cleaned = cleaned.replace(/^Text:\s*/gim, '');
 
-            // Remove standalone curly braces lines
-            cleaned = cleaned.replace(/^\s*[{}]\s*$/gm, '');
+            // Remove standalone curly braces lines but keep JSON content
+            cleaned = cleaned.replace(/^\s*{\s*$/gm, '');
+            cleaned = cleaned.replace(/^\s*}\s*$/gm, '');
 
-            // Remove JSON key-value format like "key": "value" - convert to readable format
+            // Convert JSON key-value format "key": "value" to Key: value
             cleaned = cleaned.replace(/"([^"]+)":\s*"([^"]*)"/g, (_, key, value) => {
-                // Convert snake_case to Title Case
                 const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
                 return `${formattedKey}: ${value}`;
             });
 
-            // Remove remaining quotes around values
+            // Remove quotes around remaining values
             cleaned = cleaned.replace(/"([^"]+)"/g, '$1');
+
+            // Clean up markdown bold markers
+            cleaned = cleaned.replace(/\*\*/g, '');
 
             // Remove excessive whitespace and empty lines
             cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
@@ -432,8 +446,9 @@ export default function HistoryPage() {
             return cleaned;
         };
 
-        // Keys to skip (not display in PDF)
-        const KEYS_TO_SKIP = ['text', 'raw', 'raw_content', 'markdown'];
+        // Keys to skip (not display in PDF) - technical fields only
+        // Note: 'text' is NOT skipped because full_report content is in 'text' key
+        const KEYS_TO_SKIP = ['raw', 'raw_content', 'markdown', 'metadata'];
 
         const processData = (data: any, indent = 0) => {
             if (!data) return;
@@ -495,15 +510,40 @@ export default function HistoryPage() {
 
                     checkPageBreak(20);
 
+                    // Special styling for analyst-type keys (sub-headers)
+                    const isAnalystKey = key.toLowerCase().includes('analyst') ||
+                        key.toLowerCase().includes('history') ||
+                        key.toLowerCase().includes('reasoning') ||
+                        key.toLowerCase().includes('recommendation') ||
+                        key.toLowerCase().includes('decision') ||
+                        key.toLowerCase().includes('summary');
+
                     if (isComplex) {
-                        addText(label + ":", 10, true, indent, [0, 0, 0]);
+                        if (isAnalystKey) {
+                            // Analyst sub-header - prominent styling
+                            yPosition += 8;
+                            doc.setFontSize(11);
+                            doc.setFont("Sarabun", "bold");
+                            doc.setTextColor(0, 100, 150); // Blue color for sub-headers
+                            doc.text(label + ":", margin + indent, yPosition);
+                            yPosition += lineHeight + 4;
+                        } else {
+                            addText(label + ":", 10, true, indent, [40, 40, 40]);
+                        }
                         processData(valToProcess, indent + 15);
-                        yPosition += 4;
+                        yPosition += 6;
                     } else {
                         if (isShortText) {
                             doc.setFontSize(10);
                             doc.setFont("Sarabun", "bold");
-                            doc.setTextColor(50, 50, 50);
+
+                            // Color key labels based on type
+                            if (isAnalystKey) {
+                                doc.setTextColor(0, 100, 150);
+                            } else {
+                                doc.setTextColor(80, 80, 80);
+                            }
+
                             const keyWidth = doc.getTextWidth(label + ": ");
 
                             const hasThai = /[\u0E00-\u0E7F]/.test(strVal);
@@ -516,20 +556,32 @@ export default function HistoryPage() {
 
                             if (margin + indent + keyWidth + valWidth < maxWidth) {
                                 doc.setFont("Sarabun", "bold");
-                                doc.setTextColor(50, 50, 50);
+                                if (isAnalystKey) {
+                                    doc.setTextColor(0, 100, 150);
+                                } else {
+                                    doc.setTextColor(80, 80, 80);
+                                }
                                 doc.text(label + ": ", margin + indent, yPosition);
 
                                 doc.setFont(valFont, "normal");
-                                doc.setTextColor(0, 0, 0);
+                                doc.setTextColor(30, 30, 30);
                                 doc.text(strVal, margin + indent + keyWidth, yPosition);
                                 yPosition += lineHeight;
                             } else {
-                                addText(label + ":", 10, true, indent, [50, 50, 50]);
-                                addText(strVal, 10, false, indent + 15, [0, 0, 0]);
+                                if (isAnalystKey) {
+                                    addText(label + ":", 10, true, indent, [0, 100, 150]);
+                                } else {
+                                    addText(label + ":", 10, true, indent, [80, 80, 80]);
+                                }
+                                addText(strVal, 10, false, indent + 15, [30, 30, 30]);
                             }
                         } else {
-                            addText(label + ":", 10, true, indent, [50, 50, 50]);
-                            addText(strVal, 10, false, indent + 15, [0, 0, 0]);
+                            if (isAnalystKey) {
+                                addText(label + ":", 10, true, indent, [0, 100, 150]);
+                            } else {
+                                addText(label + ":", 10, true, indent, [80, 80, 80]);
+                            }
+                            addText(strVal, 10, false, indent + 15, [30, 30, 30]);
                             yPosition += 4;
                         }
                     }
@@ -583,7 +635,7 @@ export default function HistoryPage() {
         doc.setFontSize(11);
 
         const sections = getGroupedSections(item);
-        const currentViewMode = viewMode; // Use current view mode
+        const currentViewMode = viewMode;
 
         sections.forEach((section, idx) => {
             const content = currentViewMode === "summary" ? section.sum : section.full;
@@ -604,19 +656,50 @@ export default function HistoryPage() {
 
             // Prepare Content
             let contentData: any = content;
-            try {
-                if (typeof content === 'string') {
-                    const cleanJsonStr = content.replace(/```json/g, "").replace(/```/g, "").trim();
+
+            // Handle object with 'text' or 'content' key
+            if (typeof content === 'object' && content !== null) {
+                if (content.text) contentData = content.text;
+                else if (content.content) contentData = content.content;
+            }
+
+            // Try to parse JSON if it's a string
+            if (typeof contentData === 'string') {
+                try {
+                    const cleanJsonStr = contentData.replace(/```json/g, "").replace(/```/g, "").trim();
                     if (cleanJsonStr.startsWith('{') || cleanJsonStr.startsWith('[')) {
                         contentData = JSON.parse(cleanJsonStr);
                     }
-                }
-            } catch (e) { }
+                } catch (e) { }
+            }
 
             // Render Content
-            processData(contentData);
+            if (typeof contentData === 'string') {
+                const cleanedContent = cleanContent(contentData);
+                if (cleanedContent) {
+                    // Split by newlines and render paragraph by paragraph
+                    const paragraphs = cleanedContent.split('\n').filter(p => p.trim());
+                    paragraphs.forEach(para => {
+                        addText(para, 10, false, 0);
+                        yPosition += 4;
+                    });
+                }
+            } else if (typeof contentData === 'object' && contentData !== null) {
+                // Check if object has 'text', 'content', 'summary', 'reasoning' etc
+                if (contentData.text || contentData.content || contentData.summary) {
+                    const textContent = contentData.text || contentData.content || contentData.summary;
+                    if (typeof textContent === 'string') {
+                        const cleanedContent = cleanContent(textContent);
+                        if (cleanedContent) {
+                            addText(cleanedContent, 10, false, 0);
+                        }
+                    }
+                }
+                // Process remaining keys
+                processData(contentData);
+            }
 
-            yPosition += 25;
+            yPosition += 30;
         });
 
         // 4. Footer Last Page
