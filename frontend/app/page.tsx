@@ -1,13 +1,18 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import Logo from "@/image/Logo.png";
 import { jsPDF } from "jspdf";
 import Sidebar from "../components/Sidebar";
 import DebugPanel from "../components/DebugPanel";
 import ReportSections from "../components/ReportSections";
+import { buildApiUrl, buildWsUrl, mapFetchError } from "@/lib/api";
 import TelegramConnect from "../components/TelegramConnect";
 import { useGeneration } from "../context/GenerationContext";
 import { getApiUrl } from "../lib/api";
+import { useTheme } from "@/context/ThemeContext";
 
 // Import from shared modules for better code splitting
 import {
@@ -18,8 +23,11 @@ import {
   REPORT_ORDER,
   SECTION_MAP,
   TEAM_KEYS,
+  TEAM_TEMPLATE,
+  AGENT_TO_TEAM_MAP,
 } from "../lib/constants";
 import { MARKET_INFO } from "../components/MarketIcons";
+import { deepClone, extractDecision, toISODate } from "@/lib/helpers";
 
 // --- Components ---
 
@@ -27,38 +35,15 @@ export default function Home() {
   // Get global generation context
   const {
     // Generation State
-    isRunning,
-    teamState,
     reportSections: contextReportSections,
     decision: contextDecision,
     finalReportData: contextFinalReportData,
     progress: contextProgress,
-    // Debug State
-    debugLogs,
-    wsStatus,
-    wsUrl,
-    msgCount,
-    errorCount,
-    lastUpdate,
-    lastType,
-    // Actions
-    startGeneration,
-    stopGeneration: stopPipeline,
-    addDebugLog,
     // Setters
     setReportSections: setContextReportSections,
     setFinalReportData: setContextFinalReportData,
-    // Form State (persisted from context)
-    ticker,
-    setTicker,
-    analysisDate,
-    setAnalysisDate,
-    researchDepth,
-    setResearchDepth,
-    reportLength,
-    setReportLength,
-    selectedMarket,
-    setSelectedMarket,
+    startGeneration,
+    stopGeneration: stopPipeline,
     // Market Data State (persisted from context)
     marketData,
     setMarketData,
@@ -69,6 +54,19 @@ export default function Home() {
   } = useGeneration();
 
   // Local State (UI-specific only)
+  // State
+  const [ticker, setTicker] = useState("");
+  const [selectedMarket, setSelectedMarket] = useState("US");
+  const [analysisDate, setAnalysisDate] = useState("");
+  const [researchDepth, setResearchDepth] = useState(3);
+  const [reportLength, setReportLength] = useState<"summary report" | "full report">("summary report");
+  const [isRunning, setIsRunning] = useState(false);
+  const [teamState, setTeamState] = useState(deepClone(TEAM_TEMPLATE));
+  const [reportSections, setReportSections] = useState<
+    { key: string; label: string; text: string }[]
+  >([]);
+  const [decision, setDecision] = useState("Awaiting run");
+  const [finalReportData, setFinalReportData] = useState<any>(null);
   const [copyFeedback, setCopyFeedback] = useState("Copy report");
   const [teamProgress, setTeamProgress] = useState({
     analyst: 0,
@@ -76,8 +74,21 @@ export default function Home() {
     trader: 0,
     risk: 0,
   });
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const { isDarkMode, toggleTheme } = useTheme();
+  // Debug State
   const [isDebugCollapsed, setIsDebugCollapsed] = useState(false);
+  const [debugLogs, setDebugLogs] = useState<
+    { time: string; type: string; content: string }[]
+  >([]);
+  const [wsStatus, setWsStatus] = useState<
+    "connected" | "connecting" | "disconnected"
+  >("disconnected");
+  const [wsUrl, setWsUrl] = useState("");
+  const [msgCount, setMsgCount] = useState(0);
+  const [errorCount, setErrorCount] = useState(0);
+  const [lastUpdate, setLastUpdate] = useState<string | null>(null);
+  const [lastType, setLastType] = useState<string | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   // Track last fetched ticker to avoid refetching same data
   const lastFetchedTickerRef = useRef<string>("");
@@ -88,6 +99,28 @@ export default function Home() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMarketSelector, setShowMarketSelector] = useState(false); // New Dropdown State
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Generate stars once for the night sky effect
+  const stars = React.useMemo(() => {
+    return Array.from({ length: 150 }).map((_, i) => {
+      const size = Math.random() * 2 + 0.5;
+      const left = Math.random() * 100;
+      const top = Math.random() * 100;
+      const delay = Math.random() * 3;
+      const duration = Math.random() * 3 + 2;
+      const opacity = Math.random() * 0.8 + 0.2;
+      
+      return {
+        id: i,
+        size,
+        left,
+        top,
+        delay,
+        duration,
+        opacity,
+      };
+    });
+  }, []);
 
   // Fetch Full Ticker List from Backend
   const fetchMarketTickers = async (market: string) => {
@@ -182,7 +215,7 @@ export default function Home() {
     const fetchMarketData = async (retries = 2) => {
       if (!isMounted) return;
       try {
-        const apiUrl = getApiUrl();
+        const apiUrl = buildApiUrl(`/quote/${ticker}`);
 
         // Only clear data on initial attempt when ticker changed
         if (retries === 2 && lastFetchedTickerRef.current !== ticker) {
@@ -320,10 +353,20 @@ export default function Home() {
   };
 
 
+  const wsRef = useRef<WebSocket | null>(null);
+  const isRunningRef = useRef(false);
   const debugLogRef = useRef<HTMLDivElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
 
-  // Note: Date is now initialized in GenerationContext, no need to initialize here
+  // Sync isRunning state with ref
+  useEffect(() => {
+    isRunningRef.current = isRunning;
+  }, [isRunning]);
+
+  // Initialize Date
+  useEffect(() => {
+    setAnalysisDate(toISODate());
+  }, []);
 
   // Auto-scroll debug logs
   useEffect(() => {
@@ -380,7 +423,213 @@ export default function Home() {
     }
   }, [contextFinalReportData, reportLength, setContextReportSections]);
 
-  // Create runPipeline function that uses global context
+  // WebSocket Logic
+  const addDebugLog = useCallback(
+    (type: string, content: string, isError = false) => {
+      const time = new Date().toLocaleTimeString();
+      setDebugLogs((prev) => {
+        const newLogs = [...prev, { time, type, content: String(content) }];
+        if (newLogs.length > 50) newLogs.shift();
+        return newLogs;
+      });
+      setMsgCount((prev) => prev + 1);
+      setLastUpdate(new Date().toISOString());
+      setLastType(type);
+      if (isError) setErrorCount((prev) => prev + 1);
+    },
+    []
+  );
+
+  // WebSocket Connection Effect
+  useEffect(() => {
+    let isMounted = true;
+    let reconnectTimeout: NodeJS.Timeout;
+
+    const connectWebSocket = () => {
+      if (!isMounted) return;
+
+      const url = buildWsUrl("/ws");
+      setWsUrl(url);
+      setWsStatus("connecting");
+
+      const ws = new WebSocket(url);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        if (!isMounted) {
+          ws.close();
+          return;
+        }
+        setWsStatus("connected");
+        setConnectionError(null);
+        if (isRunningRef.current) {
+          addDebugLog("system", "WebSocket reconnected. Analysis continues...", false);
+        } else {
+          addDebugLog("system", "WebSocket connected", false);
+        }
+      };
+
+      ws.onmessage = (event) => {
+        if (!isMounted) return;
+        let message;
+        try {
+          message = JSON.parse(event.data);
+        } catch (err) {
+          console.error("Failed to parse WebSocket message:", err);
+          addDebugLog("error", "Failed to parse message from server", true);
+          return;
+        }
+        const { type, data } = message;
+
+        addDebugLog(
+          type,
+          JSON.stringify(data).substring(0, 200),
+          type === "error"
+        );
+
+        switch (type) {
+          case "status":
+            if (data.agents) {
+              setTeamState((prev) => {
+                const newState = deepClone(prev);
+                Object.entries(data.agents).forEach(([agentName, status]) => {
+                  const mapping = AGENT_TO_TEAM_MAP[agentName];
+                  if (mapping) {
+                    const [teamKey, frontendName] = mapping;
+                    const member = newState[teamKey].find(
+                      (m) => m.name === frontendName
+                    );
+                    if (member) member.status = status as string;
+                  }
+                });
+                return newState;
+              });
+            }
+            if (data.message) {
+              // Handle status messages (e.g., "Analysis cancelled", "Analysis stopped")
+              addDebugLog("system", data.message, false);
+              if (data.message.includes("stopped") || data.message.includes("cancelled")) {
+                setIsRunning(false);
+              }
+            }
+            break;
+
+          case "report":
+            break;
+
+          case "complete":
+            if (data.final_state) {
+              setFinalReportData(data.final_state);
+            }
+
+            let finalDecision = data.decision;
+            if (!finalDecision && data.final_state?.final_trade_decision) {
+              const decisionContent = data.final_state.final_trade_decision;
+              const textToCheck = typeof decisionContent === 'string'
+                ? decisionContent
+                : JSON.stringify(decisionContent);
+              finalDecision = extractDecision(textToCheck);
+            }
+            if (finalDecision) {
+              setDecision(finalDecision);
+            }
+
+            setTeamState((prev) => {
+              const newState = deepClone(prev);
+              Object.keys(newState).forEach((key) => {
+                newState[key as keyof typeof TEAM_TEMPLATE].forEach((m) => {
+                  m.status = "completed";
+                });
+              });
+              return newState;
+            });
+
+            setIsRunning(false);
+            break;
+
+          case "error":
+            addDebugLog("error", data.message, true);
+            setReportSections((prev) => [
+              ...prev,
+              {
+                key: "error",
+                label: "Error",
+                text: `Error: ${data.message}`,
+              },
+            ]);
+            setIsRunning(false);
+            break;
+
+          case "pong":
+            // Keep-alive response, no action needed
+            break;
+        }
+      };
+
+      ws.onerror = () => {
+        if (!isMounted) return;
+        console.warn("WebSocket connection error. Retrying...");
+        setConnectionError(
+          "Realtime connection failed. Verify the backend websocket is reachable on http://localhost:8000/ws and that CORS allows this origin."
+        );
+        if (isRunningRef.current) {
+          addDebugLog("warning", "Connection lost during analysis. Attempting to reconnect...", true);
+        }
+        ws.close(); // Trigger onclose
+      };
+
+      ws.onclose = (event) => {
+        if (!isMounted) return;
+        setWsStatus("disconnected");
+        
+        // If analysis was running, the backend has cancelled it
+        // Stop the analysis state and notify user
+        if (isRunningRef.current) {
+          setIsRunning(false);
+          addDebugLog("error", "Connection lost. Analysis was interrupted. Please restart the analysis.", true);
+          setReportSections((prev) => [
+            ...prev,
+            {
+              key: "connection_error",
+              label: "Connection Error",
+              text: "WebSocket connection was lost during analysis. The analysis was interrupted. Please restart the analysis after reconnection.",
+            },
+          ]);
+        }
+        setConnectionError("Realtime connection lost. Reconnecting to backend...");
+        
+        // Retry connection after 3 seconds
+        reconnectTimeout = setTimeout(() => {
+          if (isMounted) {
+            connectWebSocket();
+          }
+        }, 3000);
+      };
+    };
+
+    connectWebSocket();
+
+    // Keep-alive ping every 30 seconds
+    const pingInterval = setInterval(() => {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        try {
+          wsRef.current.send(JSON.stringify({ action: "ping" }));
+        } catch (err) {
+          console.warn("Failed to send ping:", err);
+        }
+      }
+    }, 30000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(pingInterval);
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      clearTimeout(reconnectTimeout);
+    };
+  }, [addDebugLog]);
+
   const runPipeline = useCallback(() => {
     if (isRunning) return;
 
@@ -820,48 +1069,130 @@ export default function Home() {
 
   const recVariant = getRecommendationVariant(contextDecision);
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
   return (
-    <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 ${isDarkMode ? "bg-[#070a13] text-[#f8fbff]" : "bg-[#f0f2f5] text-[#1a202c]"}`}>
+    <div
+      className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative ${
+        isDarkMode
+          ? "bg-[#020617] text-[#f8fbff]"
+          : "bg-[#F6F9FC] text-[#0F172A]"
+      }`}
+    >
+      {/* Starry Night Sky Effect - Dark Mode */}
+      {isDarkMode && (
+        <>
+          <div className="fixed inset-0 pointer-events-none z-0">
+            {stars.map((star) => (
+              <div
+                key={star.id}
+                className="absolute rounded-full bg-white"
+                style={{
+                  width: `${star.size}px`,
+                  height: `${star.size}px`,
+                  left: `${star.left}%`,
+                  top: `${star.top}%`,
+                  opacity: star.opacity,
+                  animation: `twinkle ${star.duration}s ease-in-out infinite`,
+                  animationDelay: `${star.delay}s`,
+                  boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, 0.8)`,
+                }}
+              />
+            ))}
+          </div>
+          <style jsx>{`
+            @keyframes twinkle {
+              0%, 100% {
+                opacity: 0.2;
+                transform: scale(1);
+              }
+              50% {
+                opacity: 1;
+                transform: scale(1.2);
+              }
+            }
+          `}</style>
+        </>
+      )}
+
+      {/* Light Mode Background - Subtle blue gradient */}
+      {!isDarkMode && (
+        <>
+          <div className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
+          <div 
+            className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_10%_20%,rgba(37,99,235,0.03),transparent_55%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.04),transparent_55%),radial-gradient(circle_at_50%_100%,rgba(37,99,235,0.05),transparent_60%)] animate-[gradient_18s_ease_infinite] opacity-60"
+          />
+          <style jsx>{`
+            @keyframes gradient {
+              0%, 100% { background-position: 0% 50%; }
+              50% { background-position: 100% 50%; }
+            }
+          `}</style>
+        </>
+      )}
+
+      {/* Navigation Bar */}
+      <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-start px-8 py-6">
+        <div className="flex items-center gap-3">
+          <div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-black/70 ring-2 ring-[#2df4c6]/60 shadow-[0_0_18px_rgba(45,244,198,0.45)] overflow-hidden">
+            <Image
+              src={Logo}
+              alt="Trading Agents Logo"
+              width={44}
+              height={44}
+              className="object-contain"
+              priority
+            />
+          </div>
+        </div>
+      </nav>
+
       {/* Sidebar */}
       <Sidebar
         activeId="generate"
         isDarkMode={isDarkMode}
         toggleTheme={toggleTheme}
+        navItems={[
+          { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
+          { id: "generate", icon: "🌐", label: "Generate", href: "/" },
+          { id: "history", icon: "📜", label: "History", href: "/history" },
+          { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
+          { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
+        ]}
       >
         <DebugPanel wsStatus={wsStatus} isDarkMode={isDarkMode} />
       </Sidebar>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col gap-8 px-4 py-6 md:px-9 md:py-8 md:pb-12">
+      <main className="flex-1 flex flex-col gap-8 px-4 py-6 md:px-9 md:py-8 md:pb-12 pt-20 relative z-10">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-[0.85rem] uppercase tracking-widest text-[#8b94ad]">
+            <p className={`text-[0.85rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
               Trading workflow
             </p>
-            <h1 className="text-2xl font-semibold">Generate</h1>
+            <h1 className={`text-2xl font-semibold ${isDarkMode ? "" : "text-[#0F172A]"}`}>Generate</h1>
           </div>
-
         </header>
+
+        {connectionError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 shadow-sm">
+            {connectionError}
+          </div>
+        )}
 
         {/* Step Grid */}
         <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
-          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
+          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
             <header>
-              <p className="text-[0.7rem] uppercase tracking-widest text-[#8b94ad]">
+              <p className={`text-[0.7rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                 Step 1
               </p>
-              <h2 className="text-lg font-semibold">Ticker Symbol</h2>
+              <h2 className={`text-lg font-semibold ${isDarkMode ? "" : "text-[#0F172A]"}`}>Ticker Symbol</h2>
             </header>
-            <div className="flex flex-col gap-1.5 text-[0.85rem] text-[#8b94ad]">
+            <div className={`flex flex-col gap-1.5 text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>
               <span>Select Market & Ticker</span>
               <div className="flex gap-2">
                 {/* Custom Market Select Dropdown */}
                 <div
-                  className="relative"
+                  className="relative z-[100]"
                   onBlur={(e) => {
                     // Close dropdown if focus leaves the container
                     if (!e.currentTarget.contains(e.relatedTarget)) {
@@ -872,17 +1203,17 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setShowMarketSelector(!showMarketSelector)}
-                    className={`flex items-center gap-2 h-full rounded-xl border px-3 py-2.5 transition-colors cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] hover:bg-white/5" : "border-gray-200 bg-gray-50 hover:bg-gray-100"}`}
+                    className={`flex items-center gap-2 h-full rounded-xl border px-3 py-2.5 transition-colors cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] hover:bg-white/5" : "border-[#E2E8F0] bg-white hover:border-[#2563EB]/30"}`}
                   >
                     {MARKET_INFO[selectedMarket]?.icon || <span>?</span>}
-                    <svg className={`w-3 h-3 text-gray-400 transition-transform ${showMarketSelector ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className={`w-3 h-3 ${isDarkMode ? "text-gray-400" : "text-[#64748B]"} transition-transform ${showMarketSelector ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
 
                   {/* Market Dropdown Menu */}
                   {showMarketSelector && (
-                    <div className={`absolute left-0 top-full z-[60] mt-1 w-48 rounded-xl border shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100 ${isDarkMode ? "bg-[#1a2133] border-white/10" : "bg-white border-gray-100"}`}>
+                    <div className={`absolute left-0 top-full z-[100] mt-1 w-48 rounded-xl border shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100 ${isDarkMode ? "bg-[#1a2133] border-white/10" : "bg-white border-[#E2E8F0] shadow-lg"}`}>
                       {Object.entries(MARKET_INFO).map(([key, info]) => (
                         <button
                           key={key}
@@ -891,7 +1222,7 @@ export default function Home() {
                             setSelectedMarket(key);
                             setShowMarketSelector(false);
                           }}
-                          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${key === selectedMarket ? (isDarkMode ? "bg-white/10 text-white" : "bg-blue-50 text-blue-600") : (isDarkMode ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-gray-50")}`}
+                          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${key === selectedMarket ? (isDarkMode ? "bg-white/10 text-white" : "bg-[#EFF6FF] text-[#2563EB]") : (isDarkMode ? "text-gray-300 hover:bg-white/5" : "text-[#334155] hover:bg-[#F8FAFC]")}`}
                         >
                           {info.icon}
                           <span className="font-medium">{info.label}</span>
@@ -903,7 +1234,7 @@ export default function Home() {
                 </div>
 
                 {/* Ticker Input */}
-                <div className="relative flex-1">
+                <div className="relative flex-1 z-[100]">
                   <input
                     type="text"
                     autoComplete="off"
@@ -918,7 +1249,7 @@ export default function Home() {
                       }
                     }}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    className={`w-full min-w-[120px] rounded-xl border pl-3 pr-8 py-2.5 cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff]" : "border-gray-200 bg-gray-50 text-gray-900"}`}
+                    className={`w-full min-w-[120px] rounded-xl border pl-3 pr-8 py-2.5 cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff]" : "border-[#E2E8F0] bg-white text-[#0F172A]"}`}
                   />
                   {/* Chevron Icon */}
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
@@ -927,22 +1258,22 @@ export default function Home() {
 
                   {/* Suggestions Dropdown */}
                   {showSuggestions && suggestions.length > 0 && (
-                    <ul className={`absolute left-0 top-full z-50 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-gray-200 bg-white"}`}>
+                    <ul className={`absolute left-0 top-full z-[100] mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-[#E2E8F0] bg-white shadow-lg"}`}>
                       {/* Optional Header for List */}
-                      <li className={`px-4 py-2 text-[10px] uppercase tracking-wider font-semibold opacity-50 ${isDarkMode ? "bg-white/5" : "bg-gray-100"}`}>
+                      <li className={`px-4 py-2 text-[10px] uppercase tracking-wider font-semibold ${isDarkMode ? "bg-white/5 text-gray-400 opacity-50" : "bg-[#F8FAFC] text-[#64748B]"}`}>
                         {ticker.length < 2 ? "Popular Recommendations" : "Search Results"}
                       </li>
                       {suggestions.map((item, idx) => (
                         <li
                           key={idx}
                           onClick={() => selectSuggestion(item.symbol)}
-                          className={`cursor-pointer px-4 py-2 text-sm flex justify-between items-center transition-colors ${isDarkMode ? "hover:bg-white/5 text-gray-200" : "hover:bg-gray-50 text-gray-700"}`}
+                          className={`cursor-pointer px-4 py-2 text-sm flex justify-between items-center transition-colors ${isDarkMode ? "hover:bg-white/5 text-gray-200" : "hover:bg-[#F8FAFC] text-[#334155]"}`}
                         >
                           <div>
-                            <span className="font-bold">{item.symbol}</span>
-                            <span className="ml-2 text-xs opacity-70">{item.name}</span>
+                            <span className={`font-bold ${isDarkMode ? "" : "text-[#0F172A]"}`}>{item.symbol}</span>
+                            <span className={`ml-2 text-xs ${isDarkMode ? "opacity-70" : "text-[#64748B]"}`}>{item.name}</span>
                           </div>
-                          <span className="text-[10px] opacity-50 border rounded px-1">{item.exchange}</span>
+                          <span className={`text-[10px] border rounded px-1 ${isDarkMode ? "opacity-50" : "border-[#E2E8F0] text-[#64748B] bg-[#F8FAFC]"}`}>{item.exchange}</span>
                         </li>
                       ))}
                     </ul>
@@ -952,15 +1283,15 @@ export default function Home() {
             </div>
           </article>
 
-          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
+          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
             <header>
-              <p className="text-[0.7rem] uppercase tracking-widest text-[#8b94ad]">
+              <p className={`text-[0.7rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                 Step 2
               </p>
-              <h2 className="text-lg font-semibold">Analysis Date</h2>
+              <h2 className={`text-lg font-semibold ${isDarkMode ? "" : "text-[#0F172A]"}`}>Analysis Date</h2>
             </header>
             <div className="flex items-end gap-3">
-              <label className="flex flex-1 flex-col gap-1.5 text-[0.85rem] text-[#8b94ad]">
+              <label className={`flex flex-1 flex-col gap-1.5 text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>
                 <span>Select Date (DD-MM-YYYY)</span>
                 <div className="relative w-full">
                   {/* Visual Input (DD/MM/YYYY) */}
@@ -971,7 +1302,7 @@ export default function Home() {
                     onClick={() => dateInputRef.current?.showPicker()}
                     className={`w-full cursor-pointer rounded-xl border px-3 py-2.5 shadow-inner outline-none transition-all ${isDarkMode
                       ? "border-white/10 bg-[#1a2133] text-[#f8fbff] placeholder-gray-600 focus:border-[#2df4c6]/50"
-                      : "border-gray-200 bg-gray-50 text-gray-900 focus:border-[#2df4c6]"
+                      : "border-[#E2E8F0] bg-white text-[#0F172A] focus:border-[#2563EB]"
                       }`}
                   />
                   {/* Hidden Actual Date Input */}
@@ -988,7 +1319,7 @@ export default function Home() {
                 onClick={() => dateInputRef.current?.showPicker()}
                 className={`flex h-[46px] w-[46px] flex-shrink-0 items-center justify-center rounded-xl border-2 transition-all hover:scale-105 active:scale-95 ${isDarkMode
                   ? "border-[#2df4c6]/30 bg-[#2df4c6]/10 text-[#2df4c6] hover:bg-[#2df4c6]/20 hover:shadow-[0_0_15px_rgba(45,244,198,0.3)]"
-                  : "border-[#2df4c6] bg-[#2df4c6]/10 text-[#00c05e]"
+                  : "border-[#2563EB]/50 bg-[#EFF6FF] text-[#2563EB] hover:bg-[#DBEAFE] hover:shadow-[0_0_15px_rgba(37,99,235,0.2)]"
                   }`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1004,7 +1335,7 @@ export default function Home() {
 
 
           {/* Live Market Data Card */}
-          <article className={`relative flex flex-col overflow-hidden rounded-[20px] border p-5 h-[210px] transition-all duration-300 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
+          <article className={`relative flex flex-col overflow-hidden rounded-[20px] border p-5 h-[210px] transition-all duration-300 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
             {/* Header */}
             <div className="relative z-10 flex items-start justify-between">
               <div className="flex items-center gap-2">
@@ -1012,11 +1343,11 @@ export default function Home() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2df4c6] opacity-75"></span>
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#2df4c6]"></span>
                 </span>
-                <span className="text-[0.7rem] font-bold uppercase tracking-widest text-[#2df4c6]">
+                <span className={`text-[0.7rem] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"}`}>
                   Live Market Data
                 </span>
               </div>
-              <span className={`rounded-lg border px-2 py-1 text-[0.65rem] font-semibold uppercase ${isDarkMode ? "border-white/10 text-[#8b94ad]" : "border-gray-200 text-gray-500"}`}>
+              <span className={`rounded-lg border px-2 py-1 text-[0.65rem] font-semibold uppercase ${isDarkMode ? "border-white/10 text-[#8b94ad]" : "border-[#E2E8F0] bg-white text-[#334155]"}`}>
                 {marketData?.sector || "Loading..."}
               </span>
             </div>
@@ -1047,9 +1378,9 @@ export default function Home() {
               </div>
               <div className="mt-2 min-h-[40px]">
                 {marketData ? (
-                  <span className="text-4xl font-bold tracking-tight text-[#2df4c6]">${marketData.price?.toFixed(2)}</span>
+                  <span className={`text-4xl font-bold tracking-tight ${isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"}`}>${marketData.price?.toFixed(2)}</span>
                 ) : (
-                  <span className="animate-pulse text-2xl font-bold opacity-50">Loading...</span>
+                  <span className={`animate-pulse text-2xl font-bold opacity-50 ${isDarkMode ? "" : "text-[#334155]"}`}>Loading...</span>
                 )}
               </div>
             </div>
@@ -1058,7 +1389,10 @@ export default function Home() {
             <div className="relative z-10 mt-4 flex items-center justify-between">
               {marketData && (
                 <div className="flex items-center gap-3">
-                  <span className={`flex items-center rounded-md px-2 py-1 text-xs font-bold ${marketData.change >= 0 ? "bg-[#2df4c6]/10 text-[#2df4c6]" : "bg-[#ff4d6d]/10 text-[#ff4d6d]"}`}>
+                  <span className={`flex items-center rounded-md px-2 py-1 text-xs font-bold ${marketData.change >= 0 
+                    ? isDarkMode ? "bg-[#2df4c6]/10 text-[#2df4c6]" : "bg-[#EFF6FF] text-[#2563EB]"
+                    : "bg-[#ff4d6d]/10 text-[#ff4d6d]"
+                  }`}>
                     {marketData.change >= 0 ? "↑" : "↓"} {marketData.change > 0 ? "+" : ""}{marketData.percentChange}%
                   </span>
                   <span className="text-xs text-[#8b94ad]">
@@ -1095,15 +1429,14 @@ export default function Home() {
             </div>
           </article>
 
-
           {/* Generate / Stop Button */}
           {isRunning ? (
             <button
               onClick={stopPipeline}
-              className="flex w-full flex-row items-center justify-center gap-3 rounded-[16px] border-2 border-white/20 bg-[#ff4d6d] py-4 text-xl font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#ff3355] hover:shadow-[0_10px_25px_rgba(255,77,109,0.35)]"
+              className="flex w-full flex-row items-center justify-center gap-2 rounded-[16px] border-2 border-white/20 bg-[#ff4d6d] py-2.5 text-lg font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#ff3355] hover:shadow-[0_10px_25px_rgba(255,77,109,0.35)]"
             >
-              <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-transparent">
-                <div className="h-2.5 w-2.5 rounded-[1px] bg-white" />
+              <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-transparent">
+                <div className="h-2 w-2 rounded-[1px] bg-white" />
               </div>
               <span>Stop Generating</span>
             </button>
@@ -1111,11 +1444,14 @@ export default function Home() {
             <button
               onClick={runPipeline}
               disabled={wsStatus !== "connected"}
-              className="flex w-full flex-row items-center justify-center gap-3 rounded-[16px] border-2 border-white/20 bg-[#00c05e] py-4 text-xl font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)] disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale"
+              className={`flex w-full flex-row items-center justify-center gap-1.5 rounded-[12px] border-2 py-2 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale ${
+                isDarkMode
+                  ? "border-white/20 bg-[#00c05e] hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)]"
+                  : "border-[#2563EB] bg-gradient-to-r from-[#2563EB] to-[#38BDF8] text-white hover:shadow-[0_10px_25px_rgba(37,99,235,0.3)]"
+              }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"/>
               </svg>
               <span>Generate</span>
             </button>
@@ -1123,7 +1459,7 @@ export default function Home() {
         </section>
 
         {/* Teams Grid */}
-        <section className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5">
+        <section className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5 relative z-0">
           {TEAM_KEYS.map((teamKey, index) => {
             const members = teamState[teamKey];
             const completedCount = members.filter(
@@ -1166,25 +1502,27 @@ export default function Home() {
             return (
               <article
                 key={teamKey}
-                className={`flex flex-col gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}
+                className={`flex flex-col gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#f59e0b]/30 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(245,158,11,0.1)]"}`}
               >
                 <header className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-[0.85rem] text-[#8b94ad]">
+                    <p className={`text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>
                       {headerTitle}
                     </p>
-                    <span className="text-[0.85rem] text-[#8b94ad]">
+                    <span className={`text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                       {headerSub}
                     </span>
                   </div>
                   <div
                     className="relative grid h-20 w-20 flex-shrink-0 place-items-center rounded-full"
                     style={{
-                      background: `conic-gradient(#2df4c6 ${(progress / 100) * 360}deg, rgba(255,255,255,0.05) 0deg)`,
+                      background: isDarkMode 
+                        ? `conic-gradient(#2df4c6 ${(progress / 100) * 360}deg, rgba(255,255,255,0.05) 0deg)`
+                        : `conic-gradient(#2563EB ${(progress / 100) * 360}deg, rgba(226,232,240,0.5) 0deg)`,
                       transition: "background 1s ease-out",
                     }}
                   >
-                    <div className={`absolute inset-[10px] rounded-full ${isDarkMode ? "bg-[#111726]" : "bg-white"}`}></div>
+                    <div className={`absolute inset-[10px] rounded-full ${isDarkMode ? "bg-[#111726]" : "bg-white/80"}`}></div>
                     <span className="relative font-semibold">{progress}%</span>
                   </div>
                 </header>
@@ -1195,17 +1533,17 @@ export default function Home() {
 
                     if (member.status === "completed") {
                       if (showGreenCompletion) {
-                        statusColorClass = "bg-[#2df4c6]/10 text-[#2df4c6]";
+                        statusColorClass = isDarkMode ? "bg-[#2df4c6]/10 text-[#2df4c6]" : "bg-[#f59e0b]/15 text-[#d97706]";
                       } else {
                         statusLabel = "Completed";
                         statusColorClass = isDarkMode
                           ? "bg-green-600/10 text-green-600"
-                          : "bg-green-600 text-green-600";
+                          : "bg-green-600/15 text-green-700";
                       }
                     } else if (member.status === "pending") {
-                      statusColorClass = "bg-[#f9a826]/10 text-[#f9a826]";
+                      statusColorClass = isDarkMode ? "bg-[#f9a826]/10 text-[#f9a826]" : "bg-[#EFF6FF] text-[#2563EB]";
                     } else if (member.status === "in_progress") {
-                      statusColorClass = "bg-[#3db8ff]/10 text-[#3db8ff]";
+                      statusColorClass = isDarkMode ? "bg-[#3db8ff]/10 text-[#3db8ff]" : "bg-[#DBEAFE] text-[#2563EB]";
                     } else {
                       statusColorClass = "bg-[#ff4d6d]/10 text-[#ff4d6d]";
                     }
@@ -1213,9 +1551,9 @@ export default function Home() {
                     return (
                       <li
                         key={idx}
-                        className="flex flex-wrap items-center justify-between gap-y-1 text-sm text-[#8b94ad]"
+                        className={`flex flex-wrap items-center justify-between gap-y-1 text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}
                       >
-                        <span>{member.name}</span>
+                        <span className={isDarkMode ? "" : "text-[#334155]"}>{member.name}</span>
                         <span
                           className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs capitalize ${statusColorClass}`}
                         >
@@ -1249,31 +1587,30 @@ export default function Home() {
           handleDownloadPdf={handleDownloadPdf}
           reportLength={reportLength}
           setReportLength={setReportLength}
-          isRunning={isRunning}
         />
 
         {/* Summary Panel */}
-        <section className={`flex flex-col lg:flex-row items-center justify-between gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"}`}>
+        <section className={`flex flex-col lg:flex-row items-center justify-between gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
           <div className="w-full lg:w-auto">
             <p className="mb-2">Summary</p>
             <div className="flex flex-wrap gap-6">
               <div>
-                <span className="block text-[0.85rem] text-[#8b94ad]">
+                <span className={`block text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
                   Symbol
                 </span>
-                <strong className="text-xl">{ticker}</strong>
+                <strong className={`text-xl ${isDarkMode ? "" : "text-[#0F172A]"}`}>{ticker}</strong>
               </div>
               <div>
-                <span className="block text-[0.85rem] text-[#8b94ad]">
+                <span className={`block text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
                   Date
                 </span>
-                <strong className="text-xl">{analysisDate}</strong>
+                <strong className={`text-xl ${isDarkMode ? "" : "text-[#0F172A]"}`}>{analysisDate}</strong>
               </div>
               <div>
-                <span className="block text-[0.85rem] text-[#8b94ad]">
+                <span className={`block text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
                   Research depth
                 </span>
-                <strong className="text-xl">
+                <strong className={`text-xl ${isDarkMode ? "" : "text-[#0F172A]"}`}>
                   {
                     RESEARCH_DEPTH_OPTIONS.find(
                       (o) => o.value === researchDepth
@@ -1285,15 +1622,17 @@ export default function Home() {
           </div>
           <div
             className={`rounded-2xl border px-8 py-4 text-center ${recVariant === "buy"
-              ? "border-[#2df4c6]/40 bg-[#2df4c6]/10"
+              ? isDarkMode ? "border-[#2df4c6]/40 bg-[#2df4c6]/10" : "border-[#2563EB]/40 bg-[#EFF6FF]"
               : recVariant === "sell" || recVariant === "reduce"
                 ? "border-[#ff4d6d]/40 bg-[#ff4d6d]/10"
                 : "border-[#ff4d6d]/40 bg-[#ff4d6d]/10"
               }`}
           >
-            <span className="block text-[#8b94ad]">Recommendation</span>
+            <span className={`block ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>Recommendation</span>
             <strong
-              className={`text-2xl ${recVariant === "buy" ? "text-[#2df4c6]" : "text-[#ff4d6d]"
+              className={`text-2xl ${recVariant === "buy" 
+                ? isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"
+                : "text-[#ff4d6d]"
                 }`}
             >
               {contextDecision}

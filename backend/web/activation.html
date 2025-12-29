@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Activation Code • TradingAgents</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-signup-wrapper">
+      <div class="app-plan-wrapper"></div>
+      <label class="form-label app-activation-label">
+        <p>We have sent a 6-number code to</p>
+        <p><strong id="user-email">user@example.com</strong></p>
+        <p>The code expires in 1 hour, so please hurry.</p>
+        <p id="email-error" style="color: red; display: none; font-size: 0.9em; margin-top: 10px;">
+          Error: Email address is missing. Please check the URL or contact support.
+        </p>
+      </label>
+      <div class="app-code-activation-wrapper"></div>
+      <a href="#" class="app-code-activation-resend" data-sent="false">Did not receive it? Re-Send Now</a>
+    </div>
+
+    <script src="activation.js"></script>
+  </body>
+</html>
+

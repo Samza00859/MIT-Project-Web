@@ -8,7 +8,7 @@
       "description": "",
       "summary": "Yahoo Finance is chronicling the latest news and updates on President Trump's plans to impose tariffs on goods from other countries.",
       "pubDate": "2025-11-04T23:18:53Z",
-      "displayTime": "2025-12-16T15:35:27Z",
+      "displayTime": "2025-12-17T09:12:22Z",
       "isHosted": true,
       "bypassModal": false,
       "previewUrl": null,
@@ -122,6 +122,311 @@
     }
   },
   {
+    "id": "c7841a68-af5e-3efe-ad97-c8bc40578d09",
+    "content": {
+      "id": "c7841a68-af5e-3efe-ad97-c8bc40578d09",
+      "contentType": "STORY",
+      "title": "Will the Bubble Burst on Artificial Intelligence (AI) Stocks Nvidia and Palantir in 2026? History Weighs in and Offers a Big Clue.",
+      "description": "",
+      "summary": "History has a way of rhyming on Wall Street -- and that's potentially worrisome news for the faces of the AI revolution.",
+      "pubDate": "2025-12-17T08:26:00Z",
+      "displayTime": "2025-12-17T08:26:00Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/motleyfool.com/0d3aa31f588f6d94af1f141bd9472f1d",
+        "originalWidth": 1400,
+        "originalHeight": 933,
+        "caption": "A twenty dollar bill paper airplane that's crashed and crumpled into a financial newspaper.",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/a6FXPdrlJi51d1laPS1S3g--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/0d3aa31f588f6d94af1f141bd9472f1d",
+            "width": 1400,
+            "height": 933,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/xoQyJ19pu8gvKtlMStOvvA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/0d3aa31f588f6d94af1f141bd9472f1d",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Motley Fool",
+        "url": "http://www.fool.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://www.fool.com/investing/2025/12/17/bubble-burst-ai-stocks-nvidia-pltr-2026-history/",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/bubble-burst-artificial-intelligence-ai-082600334.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "7eadc5f9-1ea8-3e55-9abd-a19dac773f69",
+    "content": {
+      "id": "7eadc5f9-1ea8-3e55-9abd-a19dac773f69",
+      "contentType": "STORY",
+      "title": "Chinese Stocks Stage Sudden Rally as Tech Enthusiasm Roars Back",
+      "description": "",
+      "summary": "The onshore benchmark CSI 300 Index jumped 1.8%, capping its best day in more than three months.  Chinese hardware makers including Suzhou TFC Optical Communication Co. and Eoptolink Technology Inc. were among the top gainers.  The tech‑focused ChiNext Index climbed more than 3%, and a gauge of major Chinese companies trading in Hong Kong rose 1% at the close.",
+      "pubDate": "2025-12-17T08:16:03Z",
+      "displayTime": "2025-12-17T08:16:03Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/bloomberg_holding_pen_162/9cc5976480f701d84c377b45d6723709",
+        "originalWidth": 2000,
+        "originalHeight": 1334,
+        "caption": "",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/g2kcX_mSP7wSSPAbrW_W1A--~B/aD0xMzM0O3c9MjAwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/bloomberg_holding_pen_162/9cc5976480f701d84c377b45d6723709",
+            "width": 2000,
+            "height": 1334,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/CiZovuEvmedek25BcC9dLg--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/bloomberg_holding_pen_162/9cc5976480f701d84c377b45d6723709",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Bloomberg",
+        "url": "https://www.bloomberg.com/company"
+      },
+      "canonicalUrl": {
+        "url": "https://finance.yahoo.com/news/chinese-stocks-stage-sudden-rally-081603529.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/chinese-stocks-stage-sudden-rally-081603529.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "21e12c64-eac9-30d0-86dd-5c9b15607cff",
+    "content": {
+      "id": "21e12c64-eac9-30d0-86dd-5c9b15607cff",
+      "contentType": "STORY",
+      "title": "Should Nvidia Worry About AMD and Google Breathing Down Its Neck in 2026?",
+      "description": "",
+      "summary": "Two hungry challengers appear to have their eyes on Nvidia's throne.",
+      "pubDate": "2025-12-17T07:04:00Z",
+      "displayTime": "2025-12-17T07:04:00Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/motleyfool.com/66652db5044606ac096912d48c43a113",
+        "originalWidth": 1400,
+        "originalHeight": 840,
+        "caption": "Nvidia sign in front of a building.",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/TYkp7LgYISrWL0lQDZCvCw--~B/aD04NDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/66652db5044606ac096912d48c43a113",
+            "width": 1400,
+            "height": 840,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/57Y_141LtUiopyVCq6D8Ig--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/66652db5044606ac096912d48c43a113",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Motley Fool",
+        "url": "http://www.fool.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://www.fool.com/investing/2025/12/17/should-nvidia-worry-about-amd-and-google-breathing/",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/nvidia-worry-amd-google-breathing-070400039.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "7f7ff4da-32f0-3e50-9876-853bdcaf32a1",
+    "content": {
+      "id": "7f7ff4da-32f0-3e50-9876-853bdcaf32a1",
+      "contentType": "STORY",
+      "title": "Analysts May Still Be Underestimating Nvidia's Long-Term Growth Potential",
+      "description": "",
+      "summary": "Companies with impressive demand visibility, rapid innovation cycles, and robust supply chains can pleasantly surprise investors.",
+      "pubDate": "2025-12-17T05:05:00Z",
+      "displayTime": "2025-12-17T05:05:00Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/motleyfool.com/d38384585d6810a6f341ebffcb0d8961",
+        "originalWidth": 1400,
+        "originalHeight": 840,
+        "caption": "Nvidia laptop with Nvidia graphics card and game on the screen.",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/8O5uSw7lKLyMa6dIRcUPBQ--~B/aD04NDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/d38384585d6810a6f341ebffcb0d8961",
+            "width": 1400,
+            "height": 840,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/EwhAWNxxZQ_TuDNrfw_a7g--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/d38384585d6810a6f341ebffcb0d8961",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Motley Fool",
+        "url": "http://www.fool.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://www.fool.com/investing/2025/12/16/analysts-may-still-be-underestimating-nvidias-long/",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/analysts-may-still-underestimating-nvidias-050500909.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "96912f92-e9f9-3680-aca2-590ff3c38625",
+    "content": {
+      "id": "96912f92-e9f9-3680-aca2-590ff3c38625",
+      "contentType": "VIDEO",
+      "title": "Red-Hot Stock Debut: Chinese Chipmaker MetaX Soars 755%",
+      "description": "MetaX Integrated Circuits surged as much as 755% in its Shanghai debut as investors bet on national champions that could emerge as viable local competitors to Nvidia. The company manufactures graphics processing units, a rapidly growing industry as more consumers and businesses adopt AI services.",
+      "summary": "MetaX Integrated Circuits surged as much as 755% in its Shanghai debut as investors bet on national champions that could emerge as viable local competitors to Nvidia. The company manufactures graphics processing units, a rapidly growing industry as more consumers and businesses adopt AI services.",
+      "pubDate": "2025-12-17T05:01:23Z",
+      "displayTime": "",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://s.yimg.com/uu/api/res/1.2/VEz3.6i2Y8MAV50XI1JS0g--~B/aD03MjA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://cf-images.us-east-1.prod.boltdns.net/v1/jit/6415665815001/3f6cac0f-2576-42bf-a2b7-17f1e0e71b04/main/1280x720/3m27s180ms/match/image.jpg",
+        "originalWidth": 1280,
+        "originalHeight": 720,
+        "caption": "",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/VEz3.6i2Y8MAV50XI1JS0g--~B/aD03MjA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://cf-images.us-east-1.prod.boltdns.net/v1/jit/6415665815001/3f6cac0f-2576-42bf-a2b7-17f1e0e71b04/main/1280x720/3m27s180ms/match/image.jpg",
+            "width": 1280,
+            "height": 720,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/nQv7_w0GM2447SbXs4_TDg--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://cf-images.us-east-1.prod.boltdns.net/v1/jit/6415665815001/3f6cac0f-2576-42bf-a2b7-17f1e0e71b04/main/1280x720/3m27s180ms/match/image.jpg",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Bloomberg",
+        "url": "https://www.bloomberg.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://finance.yahoo.com/video/red-hot-stock-debut-chinese-050123225.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/video/red-hot-stock-debut-chinese-050123225.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
     "id": "2726b9b8-789b-3d00-8ef3-494b9b80d8bf",
     "content": {
       "id": "2726b9b8-789b-3d00-8ef3-494b9b80d8bf",
@@ -165,6 +470,67 @@
         "lang": "en-US"
       },
       "clickThroughUrl": null,
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "a674f823-b6f6-3ec8-9cee-d9b9b6bda961",
+    "content": {
+      "id": "a674f823-b6f6-3ec8-9cee-d9b9b6bda961",
+      "contentType": "STORY",
+      "title": "Amazon in talks to invest about $10 billion in OpenAI, source says",
+      "description": "",
+      "summary": "Amazon.com Inc is in talks to invest in ChatGPT-maker OpenAI in a potential deal that could value the artificial intelligence firm at more ​than $500 billion, a source familiar with the matter said on Tuesday.  Amazon may invest about $10 ‌billion in OpenAI, but the talks between the two firms are \"very fluid\", the source said on condition of anonymity ‌because the matter is private.  The potential deal highlights the AI sector's relentless demand for computing power as companies race to build systems rivaling or surpassing human intelligence.",
+      "pubDate": "2025-12-17T02:34:16Z",
+      "displayTime": "2025-12-17T02:34:16Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://s.yimg.com/os/creatr-uploaded-images/2025-11/b0479c60-b90a-11f0-beb5-94463b45f8cc",
+        "originalWidth": 5088,
+        "originalHeight": 3392,
+        "caption": "",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/JApcPNVJNdZCA9zrkcxWnA--~B/aD0zMzkyO3c9NTA4ODthcHBpZD15dGFjaHlvbg--/https://s.yimg.com/os/creatr-uploaded-images/2025-11/b0479c60-b90a-11f0-beb5-94463b45f8cc",
+            "width": 5088,
+            "height": 3392,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/IceYsDlDt3gbGzfy_pGgpg--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://s.yimg.com/os/creatr-uploaded-images/2025-11/b0479c60-b90a-11f0-beb5-94463b45f8cc",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Reuters",
+        "url": "http://www.reuters.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://finance.yahoo.com/news/openai-talks-raise-least-10-023416764.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/openai-talks-raise-least-10-023416764.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
       "metadata": {
         "editorsPick": false
       },
@@ -222,372 +588,6 @@
       },
       "clickThroughUrl": {
         "url": "https://finance.yahoo.com/news/had-invested-1-000-nvidia-023200760.html",
-        "site": "finance",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "metadata": {
-        "editorsPick": false
-      },
-      "finance": {
-        "premiumFinance": {
-          "isPremiumNews": false,
-          "isPremiumFreeNews": false
-        }
-      },
-      "storyline": null
-    }
-  },
-  {
-    "id": "d8688e51-cd47-3f65-b0b1-248f6dd33193",
-    "content": {
-      "id": "d8688e51-cd47-3f65-b0b1-248f6dd33193",
-      "contentType": "STORY",
-      "title": "Chinese AI chipmaker MetaX shares jump nearly 600% in market debut",
-      "description": "",
-      "summary": "SHANGHAI, Dec 17 (Reuters) - MetaX Integrated Circuits shares jumped nearly 600% in their Shanghai debut on Wednesday, as China speeds up flotation by homegrown AI chipmakers to reduce reliance on U.S",
-      "pubDate": "2025-12-17T02:19:11Z",
-      "displayTime": "2025-12-17T02:19:11Z",
-      "isHosted": true,
-      "bypassModal": false,
-      "previewUrl": null,
-      "thumbnail": {
-        "originalUrl": "https://media.zenfs.com/en/reuters.com/f92279f8a9a57764397f8f7dddb3db5a",
-        "originalWidth": 800,
-        "originalHeight": 533,
-        "caption": "People visit a Metax booth during the World Artificial Intelligence Conference in Shanghai, China July 26, 2025.  REUTERS/Go Nakamura",
-        "resolutions": [
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/Rzs2WjMiXflmKgt_fwyWTw--~B/aD01MzM7dz04MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters.com/f92279f8a9a57764397f8f7dddb3db5a",
-            "width": 800,
-            "height": 533,
-            "tag": "original"
-          },
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/JEe26NpZw9Kmzhx9rYvQWg--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters.com/f92279f8a9a57764397f8f7dddb3db5a",
-            "width": 170,
-            "height": 128,
-            "tag": "170x128"
-          }
-        ]
-      },
-      "provider": {
-        "displayName": "Reuters",
-        "url": "https://www.reuters.com/"
-      },
-      "canonicalUrl": {
-        "url": "https://www.yahoo.com/news/articles/chinese-ai-chipmaker-metax-shares-021911517.html",
-        "site": "news",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "clickThroughUrl": {
-        "url": "https://www.yahoo.com/news/articles/chinese-ai-chipmaker-metax-shares-021911517.html",
-        "site": "finance",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "metadata": {
-        "editorsPick": false
-      },
-      "finance": {
-        "premiumFinance": {
-          "isPremiumNews": false,
-          "isPremiumFreeNews": false
-        }
-      },
-      "storyline": null
-    }
-  },
-  {
-    "id": "aeb8bda2-90ef-3b27-8aa1-6b9cc72637b9",
-    "content": {
-      "id": "aeb8bda2-90ef-3b27-8aa1-6b9cc72637b9",
-      "contentType": "STORY",
-      "title": "MetaX shares rocket 700% in debut as China AI chips push gathers speed",
-      "description": "",
-      "summary": "MetaX shares opened at 700 yuan apiece in Shanghai versus an IPO price of 104.66 yuan, before surging as far as 895 yuan in ‌early trade, stirring persistent AI bubble concern. \"It's another IPO tale in China that turns a crow into a phoenix,\" said fund manager Yang Tingwu at Tongheng Investment. The price surge \"creates huge arbitrage opportunities\" for pre-IPO investors, Yang said, and \"we're likely witnessing the stock's peak level for the next five years\".",
-      "pubDate": "2025-12-17T02:19:11Z",
-      "displayTime": "2025-12-17T02:19:11Z",
-      "isHosted": true,
-      "bypassModal": false,
-      "previewUrl": null,
-      "thumbnail": {
-        "originalUrl": "https://media.zenfs.com/en/reuters-finance.com/31a670f1b4f9eeb6d6040fd6e99d7025",
-        "originalWidth": 800,
-        "originalHeight": 533,
-        "caption": "People visit Metax booth during WAIC in Shanghai",
-        "resolutions": [
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/sXpfE5Dc7E5k12xtTAFzPA--~B/aD01MzM7dz04MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters-finance.com/31a670f1b4f9eeb6d6040fd6e99d7025",
-            "width": 800,
-            "height": 533,
-            "tag": "original"
-          },
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/fHhnQwxPIDpe_dyRWOz2rw--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters-finance.com/31a670f1b4f9eeb6d6040fd6e99d7025",
-            "width": 170,
-            "height": 128,
-            "tag": "170x128"
-          }
-        ]
-      },
-      "provider": {
-        "displayName": "Reuters",
-        "url": "http://www.reuters.com/"
-      },
-      "canonicalUrl": {
-        "url": "https://finance.yahoo.com/news/chinese-ai-chipmaker-metax-shares-021911316.html",
-        "site": "finance",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "clickThroughUrl": {
-        "url": "https://finance.yahoo.com/news/chinese-ai-chipmaker-metax-shares-021911316.html",
-        "site": "finance",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "metadata": {
-        "editorsPick": false
-      },
-      "finance": {
-        "premiumFinance": {
-          "isPremiumNews": false,
-          "isPremiumFreeNews": false
-        }
-      },
-      "storyline": null
-    }
-  },
-  {
-    "id": "29f1fdb5-ad2f-33c2-b7da-f930f8930c5a",
-    "content": {
-      "id": "29f1fdb5-ad2f-33c2-b7da-f930f8930c5a",
-      "contentType": "STORY",
-      "title": "Nvidia's Depreciation Time Bomb: Jim Chanos Warns Of 'Massive Financial Risk' For CoreWeave, Oracle",
-      "description": "",
-      "summary": "Legendary short-seller Jim Chanos is sounding the alarm on the AI infrastructure boom, warning that a critical accounting oversight regarding Nvidia Corp. (NASDAQ:NVDA) chips creates a “massive financial risk” for the sector's aggressive ...",
-      "pubDate": "2025-12-17T00:31:06Z",
-      "displayTime": "2025-12-17T00:31:06Z",
-      "isHosted": true,
-      "bypassModal": false,
-      "previewUrl": null,
-      "thumbnail": {
-        "originalUrl": "https://media.zenfs.com/en/benzinga_79/05254ae888353987595dcede2e3b1669",
-        "originalWidth": 720,
-        "originalHeight": 480,
-        "caption": "",
-        "resolutions": [
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/PHxpRkB3NYON2Txp_fi9FA--~B/aD00ODA7dz03MjA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/benzinga_79/05254ae888353987595dcede2e3b1669",
-            "width": 720,
-            "height": 480,
-            "tag": "original"
-          },
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/iS.TL63yvbzvwKyJDzIVfA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/benzinga_79/05254ae888353987595dcede2e3b1669",
-            "width": 170,
-            "height": 128,
-            "tag": "170x128"
-          }
-        ]
-      },
-      "provider": {
-        "displayName": "Benzinga",
-        "url": "https://www.benzinga.com/"
-      },
-      "canonicalUrl": {
-        "url": "https://finance.yahoo.com/news/nvidias-depreciation-time-bomb-jim-003106193.html",
-        "site": "finance",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "clickThroughUrl": {
-        "url": "https://finance.yahoo.com/news/nvidias-depreciation-time-bomb-jim-003106193.html",
-        "site": "finance",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "metadata": {
-        "editorsPick": false
-      },
-      "finance": {
-        "premiumFinance": {
-          "isPremiumNews": false,
-          "isPremiumFreeNews": false
-        }
-      },
-      "storyline": null
-    }
-  },
-  {
-    "id": "385df063-df65-3f38-b9cd-55a8420f17e0",
-    "content": {
-      "id": "385df063-df65-3f38-b9cd-55a8420f17e0",
-      "contentType": "STORY",
-      "title": "Prediction: Nvidia Will Become a $15 Trillion Company in 2030",
-      "description": "",
-      "summary": "Nvidia should continue beating the market, but investors should also expect the unexpected over the next five years.",
-      "pubDate": "2025-12-17T00:25:00Z",
-      "displayTime": "2025-12-17T00:25:00Z",
-      "isHosted": true,
-      "bypassModal": false,
-      "previewUrl": null,
-      "thumbnail": {
-        "originalUrl": "https://media.zenfs.com/en/motleyfool.com/1f9a8a436ac08ebf693a7e17e507c10b",
-        "originalWidth": 1400,
-        "originalHeight": 840,
-        "caption": "Inside an Nvidia data center.",
-        "resolutions": [
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/m5blF_ZZIFWmfYt9SHnF5Q--~B/aD04NDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/1f9a8a436ac08ebf693a7e17e507c10b",
-            "width": 1400,
-            "height": 840,
-            "tag": "original"
-          },
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/vy3Jpn.r4dhIS5KWiciaIA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/1f9a8a436ac08ebf693a7e17e507c10b",
-            "width": 170,
-            "height": 128,
-            "tag": "170x128"
-          }
-        ]
-      },
-      "provider": {
-        "displayName": "Motley Fool",
-        "url": "http://www.fool.com/"
-      },
-      "canonicalUrl": {
-        "url": "https://www.fool.com/investing/2025/12/16/prediction-nvidia-will-become-15-trillion-company/",
-        "site": "finance",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "clickThroughUrl": {
-        "url": "https://finance.yahoo.com/news/prediction-nvidia-become-15-trillion-002500813.html",
-        "site": "finance",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "metadata": {
-        "editorsPick": false
-      },
-      "finance": {
-        "premiumFinance": {
-          "isPremiumNews": false,
-          "isPremiumFreeNews": false
-        }
-      },
-      "storyline": null
-    }
-  },
-  {
-    "id": "83c6d819-2971-361b-8f41-b7c56cb195d3",
-    "content": {
-      "id": "83c6d819-2971-361b-8f41-b7c56cb195d3",
-      "contentType": "STORY",
-      "title": "Rivian Doesn't Need Nvidia for Self-Driving Cars. Should Nvidia Investors Be Worried?",
-      "description": "",
-      "summary": "Rivian's plan to ship an in-house autonomy chip is another sign that customers want options beyond Nvidia.",
-      "pubDate": "2025-12-16T23:38:00Z",
-      "displayTime": "2025-12-16T23:38:00Z",
-      "isHosted": true,
-      "bypassModal": false,
-      "previewUrl": null,
-      "thumbnail": {
-        "originalUrl": "https://media.zenfs.com/en/motleyfool.com/44555dafd5c41a477a6550f1242f7512",
-        "originalWidth": 1400,
-        "originalHeight": 840,
-        "caption": "Rivian trucks in a parking lot.",
-        "resolutions": [
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/cQtNNcxfGXdqLvIn3i04gA--~B/aD04NDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/44555dafd5c41a477a6550f1242f7512",
-            "width": 1400,
-            "height": 840,
-            "tag": "original"
-          },
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/Whujk5R5hefoJljoVO2jcA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/44555dafd5c41a477a6550f1242f7512",
-            "width": 170,
-            "height": 128,
-            "tag": "170x128"
-          }
-        ]
-      },
-      "provider": {
-        "displayName": "Motley Fool",
-        "url": "http://www.fool.com/"
-      },
-      "canonicalUrl": {
-        "url": "https://www.fool.com/investing/2025/12/16/rivian-doesnt-need-nvidia-for-self-driving-cars-sh/",
-        "site": "finance",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "clickThroughUrl": {
-        "url": "https://finance.yahoo.com/news/rivian-doesnt-nvidia-self-driving-233800309.html",
-        "site": "finance",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "metadata": {
-        "editorsPick": false
-      },
-      "finance": {
-        "premiumFinance": {
-          "isPremiumNews": false,
-          "isPremiumFreeNews": false
-        }
-      },
-      "storyline": null
-    }
-  },
-  {
-    "id": "4c819587-9493-3042-af7e-52515cb3688a",
-    "content": {
-      "id": "4c819587-9493-3042-af7e-52515cb3688a",
-      "contentType": "STORY",
-      "title": "2 Trillion-Dollar Tech Stocks to Double Up on Right Now",
-      "description": "",
-      "summary": "Nvidia and Meta Platforms are still safe buys in this frothy market.",
-      "pubDate": "2025-12-16T22:45:00Z",
-      "displayTime": "2025-12-16T22:45:00Z",
-      "isHosted": true,
-      "bypassModal": false,
-      "previewUrl": null,
-      "thumbnail": {
-        "originalUrl": "https://media.zenfs.com/en/motleyfool.com/e9e8bf724396fbe8ba25eca93ade88d0",
-        "originalWidth": 1400,
-        "originalHeight": 738,
-        "caption": "A trader cheers while looking at multiple trading screens.",
-        "resolutions": [
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/I42cjJ6GuB_LqJGfxnBeoQ--~B/aD03Mzg7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/e9e8bf724396fbe8ba25eca93ade88d0",
-            "width": 1400,
-            "height": 738,
-            "tag": "original"
-          },
-          {
-            "url": "https://s.yimg.com/uu/api/res/1.2/cA6568S5AujHZuYEz3WP_g--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/e9e8bf724396fbe8ba25eca93ade88d0",
-            "width": 170,
-            "height": 128,
-            "tag": "170x128"
-          }
-        ]
-      },
-      "provider": {
-        "displayName": "Motley Fool",
-        "url": "http://www.fool.com/"
-      },
-      "canonicalUrl": {
-        "url": "https://www.fool.com/investing/2025/12/16/2-trillion-dollar-tech-stocks-to-double-up-on-righ/",
-        "site": "finance",
-        "region": "US",
-        "lang": "en-US"
-      },
-      "clickThroughUrl": {
-        "url": "https://finance.yahoo.com/news/2-trillion-dollar-tech-stocks-224500956.html",
         "site": "finance",
         "region": "US",
         "lang": "en-US"

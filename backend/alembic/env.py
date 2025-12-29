@@ -27,7 +27,20 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 # อ่าน DATABASE_URL จาก environment variable
-database_url = os.getenv("DATABASE_URL", "postgresql+asyncpg://user:password@localhost:5432/trading_db")
+raw_database_url = os.getenv(
+    "DATABASE_URL",
+    "postgresql+asyncpg://user:password@localhost:5432/trading_db",
+)
+
+# ให้ใช้ asyncpg เสมอสำหรับ Alembic async engine
+if raw_database_url.startswith("postgres://"):
+    raw_database_url = "postgresql+asyncpg://" + raw_database_url[len("postgres://") :]
+elif raw_database_url.startswith("postgresql://"):
+    raw_database_url = "postgresql+asyncpg://" + raw_database_url[len("postgresql://") :]
+elif "+psycopg2" in raw_database_url:
+    raw_database_url = raw_database_url.replace("+psycopg2", "+asyncpg")
+
+database_url = raw_database_url
 
 
 def run_migrations_offline() -> None:

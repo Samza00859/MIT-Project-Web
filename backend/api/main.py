@@ -825,9 +825,9 @@ async def startup_event():
         await init_db()
         logger.info("✅ Database initialized successfully")
     except Exception as e:
-        logger.error(f"❌ Failed to initialize database: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.warning(f"⚠️ Database connection failed (server will continue without database features): {e}")
+        # Don't print full traceback - just log the warning
+        # The server can still function without the database for basic features
 
 app.include_router(history_router)
 app.include_router(report_router)

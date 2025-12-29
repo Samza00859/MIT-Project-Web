@@ -20,6 +20,13 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Backend / API connectivity (local dev)
+
+- API base URL comes from `frontend/.env.local` → `NEXT_PUBLIC_API_URL`. Default is `http://localhost:8000`.
+- Changing env vars requires restarting `npm run dev` because Next.js inlines `NEXT_PUBLIC_*` at build time.
+- All fetches use the helper in `frontend/lib/api.ts`, which forces `http://` for localhost, logs the resolved base URL in dev, and only shows “Backend unreachable” on real network failures (distinct message for CORS blocks).
+- To verify: start backend on `http://localhost:8000`, start frontend on `http://localhost:3000`, open browser DevTools Network tab, hit `/api/health`, and confirm no CORS/ERR_CONNECTION_REFUSED.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

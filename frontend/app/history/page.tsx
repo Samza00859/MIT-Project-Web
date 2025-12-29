@@ -5,6 +5,7 @@ import { jsPDF } from "jspdf";
 import Sidebar from "../../components/Sidebar";
 import { useGeneration } from "../../context/GenerationContext";
 import { getApiUrl } from "../../lib/api";
+import { useTheme } from "@/context/ThemeContext";
 
 // Import from shared modules for better code splitting
 import { HISTORY_REPORT_ORDER as REPORT_ORDER, TITLE_MAP } from "../../lib/constants";
@@ -106,7 +107,7 @@ export default function HistoryPage() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isDarkMode, setIsDarkMode] = useState(true);
+    const { isDarkMode, toggleTheme } = useTheme();
     const [viewMode, setViewMode] = useState<"summary" | "detailed">("detailed");
 
     // Search and Filters State
@@ -160,7 +161,6 @@ export default function HistoryPage() {
         return matchesSearch && matchesStatus && matchesTime;
     });
 
-    const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
     const getGroupedSections = (item: HistoryItem) => {
         const sectionsMap: Record<string, { sum?: any, full?: any }> = {};
