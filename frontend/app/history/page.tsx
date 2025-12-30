@@ -29,19 +29,34 @@ interface HistoryItem {
 }
 
 // Logo component for history items
+// Logo component for history items with robust fallback
 function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean }) {
-    const [logoSrc, setLogoSrc] = useState<string>("");
-    const [logoError, setLogoError] = useState(false);
+    const [currentSrc, setCurrentSrc] = useState<string>("");
+    const [isError, setIsError] = useState(false);
+    const [candidateIndex, setCandidateIndex] = useState(0);
+    const [candidates, setCandidates] = useState<string[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchLogo = async () => {
+        let mounted = true;
+
+        const fetchCandidates = async () => {
             if (!ticker) return;
+            setLoading(true);
+            setIsError(false);
+            setCandidates([]);
+            setCandidateIndex(0);
+
             const cleanTicker = ticker.trim().toUpperCase();
+            const symbol = cleanTicker.split('.')[0].split('-')[0]; // Handle PTT.BK -> PTT, BTC-USD -> BTC
+
+            const urls: string[] = [];
 
             try {
+                // 1. Try fetching metadata from backend (includes cached logo_url or website)
                 const apiUrl = getApiUrl();
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 4000); // 4 sec timeout
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
 
                 const res = await fetch(`${apiUrl}/quote/${cleanTicker}`, {
                     signal: controller.signal
@@ -50,47 +65,79 @@ function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean
 
                 if (res.ok) {
                     const data = await res.json();
-                    if (data.logo_url && !data.logo_url.includes("clearbit.com")) {
-                        // Clearbit is often unreliable, prefer backend choice if it's not clearbit
-                        setLogoSrc(data.logo_url);
-                    } else if (data.website) {
-                        try {
-                            // URL constructor needs protocol
-                            const website = data.website.startsWith('http') ? data.website : `https://${data.website}`;
-                            const domain = new URL(website).hostname;
-                            setLogoSrc(`https://www.google.com/s2/favicons?domain=${domain}&sz=64`);
-                        } catch (e) {
-                            // Fallback to Parqet for cleaner stock logos if domain fails
-                            setLogoSrc(`https://assets.parqet.com/logos/symbol/${cleanTicker.split('.')[0]}?format=png`);
-                        }
-                    } else {
-                        // Secondary fallback: known public logo API
-                        setLogoSrc(`https://assets.parqet.com/logos/symbol/${cleanTicker.split('.')[0]}?format=png`);
+
+                    // Add Backend Logo (often Clearbit or YFinance provided)
+                    if (data.logo_url) {
+                        urls.push(data.logo_url);
                     }
-                } else {
-                    setLogoSrc(`https://assets.parqet.com/logos/symbol/${cleanTicker.split('.')[0]}?format=png`);
+
+                    // Add Domain-based services
+                    if (data.website) {
+                        try {
+                            const websiteUrl = data.website.startsWith('http') ? data.website : `https://${data.website}`;
+                            const hostname = new URL(websiteUrl).hostname;
+
+                            // Clearbit API
+                            urls.push(`https://logo.clearbit.com/${hostname}`);
+
+                            // Google Favicon (High Res)
+                            urls.push(`https://www.google.com/s2/favicons?domain=${hostname}&sz=128`);
+                        } catch (e) {
+                            // Invalid URL, skip
+                        }
+                    }
                 }
             } catch (e) {
-                // Network error or timeout, try direct fallback
-                setLogoSrc(`https://assets.parqet.com/logos/symbol/${cleanTicker.split('.')[0]}?format=png`);
+                // Ignore backend fetch error, proceed to static fallbacks
+            }
+
+            // 2. Static Fallbacks based on Ticker
+            // Parqet (Good for US/EU stocks)
+            urls.push(`https://assets.parqet.com/logos/symbol/${symbol}?format=png`);
+
+            // Unavatar (Generic fallback)
+            urls.push(`https://unavatar.io/${symbol}`);
+
+            if (mounted) {
+                // Deduplicate URLs
+                const uniqueUrls = Array.from(new Set(urls));
+                setCandidates(uniqueUrls);
+                if (uniqueUrls.length > 0) {
+                    setCurrentSrc(uniqueUrls[0]);
+                } else {
+                    setIsError(true);
+                }
+                setLoading(false);
             }
         };
-        fetchLogo();
+
+        fetchCandidates();
+
+        return () => {
+            mounted = false;
+        };
     }, [ticker]);
 
-    const handleLogoError = () => {
-        // Final fallback to text if all image attempts fail
-        setLogoError(true);
+    const handleImageError = () => {
+        const nextIndex = candidateIndex + 1;
+        if (nextIndex < candidates.length) {
+            setCandidateIndex(nextIndex);
+            setCurrentSrc(candidates[nextIndex]);
+        } else {
+            setIsError(true);
+        }
     };
 
     return (
-        <div className={`flex h-10 w-10 items-center justify-center rounded-full shrink-0 relative overflow-hidden ${logoSrc && !logoError ? "bg-white" : (isDarkMode ? "bg-white/10" : "bg-gray-100")}`}>
-            {logoSrc && !logoError ? (
+        <div className={`flex h-10 w-10 items-center justify-center rounded-full shrink-0 relative overflow-hidden transition-colors ${!isError && !loading ? "bg-white" : (isDarkMode ? "bg-white/10" : "bg-gray-100")
+            }`}>
+            {!loading && !isError && currentSrc ? (
                 <img
-                    src={logoSrc}
+                    src={currentSrc}
                     alt={ticker}
-                    className="h-full w-full object-contain p-1.5"
-                    onError={handleLogoError}
+                    className="h-full w-full object-contain p-0.5 rounded-full"
+                    onError={handleImageError}
+                    loading="lazy"
                 />
             ) : (
                 <span className={`text-xs font-bold ${isDarkMode ? "text-white/40" : "text-gray-400"}`}>
