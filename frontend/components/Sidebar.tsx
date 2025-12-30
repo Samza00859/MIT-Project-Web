@@ -27,7 +27,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function Sidebar() {
     const pathname = usePathname();
-    const { isDarkMode, toggleTheme } = useTheme();
+    const { isDarkMode, toggleTheme, hasMounted } = useTheme();
     const { wsStatus } = useGeneration();
     const { user, isAuthenticated, logout } = useAuth();
     const [isCollapsed, setIsCollapsed] = React.useState(false);
@@ -62,6 +62,9 @@ export default function Sidebar() {
 
     // Hide sidebar on introduction, docs, and all contact pages
     if (pathname === "/introduction" || pathname === "/docs" || pathname === "/contact-public" || pathname === "/Auth/register" || pathname === "/Auth/login") return null;
+
+    // Prevent hydration mismatch by not rendering until theme is determined
+    if (!hasMounted) return null;
 
     return (
         <>

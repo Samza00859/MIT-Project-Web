@@ -7,6 +7,7 @@ export type ThemeMode = "dark" | "light";
 type ThemeContextValue = {
   theme: ThemeMode;
   isDarkMode: boolean;
+  hasMounted: boolean;
   setTheme: (theme: ThemeMode) => void;
   toggleTheme: () => void;
 };
@@ -21,21 +22,27 @@ function normalizeTheme(value: unknown): ThemeMode | null {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeMode>(() => {
-    // Initialize state lazily to avoid useEffect setState warning
-    if (typeof window !== "undefined") {
-      try {
-        const stored = normalizeTheme(window.localStorage.getItem(STORAGE_KEY));
-        if (stored) return stored;
-      } catch {
-        // ignore
-      }
-    }
-    return "dark";
-  });
+  // IMPORTANT: Always initialize with the same value on both server and client
+  // to prevent hydration mismatch. We use "dark" as the default.
+  const [theme, setThemeState] = useState<ThemeMode>("dark");
+  const [hasMounted, setHasMounted] = useState(false);
 
-  // Keep DOM + storage in sync.
+  // Read from localStorage only after hydration is complete
   useEffect(() => {
+    try {
+      const stored = normalizeTheme(window.localStorage.getItem(STORAGE_KEY));
+      if (stored && stored !== theme) {
+        setThemeState(stored);
+      }
+    } catch {
+      // ignore
+    }
+    setHasMounted(true);
+  }, []);
+
+  // Keep DOM + storage in sync (only after mounted to avoid SSR issues)
+  useEffect(() => {
+    if (!hasMounted) return;
     try {
       document.body.setAttribute("data-theme", theme);
     } catch {
@@ -46,7 +53,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore
     }
-  }, [theme]);
+  }, [theme, hasMounted]);
 
   const setTheme = useCallback((next: ThemeMode) => setThemeState(next), []);
   const toggleTheme = useCallback(() => {
@@ -57,10 +64,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     () => ({
       theme,
       isDarkMode: theme === "dark",
+      hasMounted,
       setTheme,
       toggleTheme,
     }),
-    [theme, setTheme, toggleTheme]
+    [theme, hasMounted, setTheme, toggleTheme]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
