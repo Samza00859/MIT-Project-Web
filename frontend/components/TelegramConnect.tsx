@@ -290,7 +290,7 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
                 </button>
 
                 {isOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
                         <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-2xl animate-in zoom-in-95 duration-200">
                             <button
                                 onClick={() => setIsOpen(false)}

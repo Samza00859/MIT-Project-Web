@@ -932,7 +932,7 @@ export default function Home() {
               <div className="flex gap-2">
                 {/* Custom Market Select Dropdown */}
                 <div
-                  className="relative z-100"
+                  className="relative z-30"
                   onBlur={(e) => {
                     // Close dropdown if focus leaves the container
                     if (!e.currentTarget.contains(e.relatedTarget)) {
@@ -953,7 +953,7 @@ export default function Home() {
 
                   {/* Market Dropdown Menu */}
                   {showMarketSelector && (
-                    <div className={`absolute left-0 top-full z-100 mt-1 w-48 rounded-xl border shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100 ${isDarkMode ? "bg-[#1a2133] border-white/10" : "bg-white border-[#E2E8F0] shadow-lg"}`}>
+                    <div className={`absolute left-0 top-full z-30 mt-1 w-48 rounded-xl border shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100 ${isDarkMode ? "bg-[#1a2133] border-white/10" : "bg-white border-[#E2E8F0] shadow-lg"}`}>
                       {Object.entries(MARKET_INFO).map(([key, info]) => (
                         <button
                           key={key}
@@ -974,7 +974,7 @@ export default function Home() {
                 </div>
 
                 {/* Ticker Input */}
-                <div className="relative flex-1 z-100">
+                <div className="relative flex-1 z-30">
                   <input
                     type="text"
                     autoComplete="off"
@@ -998,7 +998,7 @@ export default function Home() {
 
                   {/* Suggestions Dropdown */}
                   {showSuggestions && suggestions.length > 0 && (
-                    <ul className={`absolute left-0 top-full z-100 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-[#E2E8F0] bg-white shadow-lg"}`}>
+                    <ul className={`absolute left-0 top-full z-30 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-[#E2E8F0] bg-white shadow-lg"}`}>
                       {/* Optional Header for List */}
                       <li className={`px-4 py-2 text-[10px] uppercase tracking-wider font-semibold ${isDarkMode ? "bg-white/5 text-gray-400 opacity-50" : "bg-[#F8FAFC] text-[#64748B]"}`}>
                         {ticker.length < 2 ? "Popular Recommendations" : "Search Results"}

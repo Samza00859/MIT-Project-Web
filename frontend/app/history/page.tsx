@@ -814,10 +814,10 @@ export default function HistoryPage() {
                                                     <span
                                                         key={teamName}
                                                         className={`text-[9px] px-1.5 py-0.5 rounded ${isActive
-                                                            ? "bg-yellow-500/20 text-yellow-400 animate-pulse"
+                                                            ? (isDarkMode ? "bg-yellow-500/20 text-yellow-400 animate-pulse" : "bg-yellow-100 text-yellow-700 animate-pulse")
                                                             : completed === total && completed > 0
-                                                                ? "bg-[#2df4c6]/20 text-[#2df4c6]"
-                                                                : "bg-white/10 text-gray-400"
+                                                                ? (isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#2df4c6]/15 text-[#065f46]")
+                                                                : (isDarkMode ? "bg-white/10 text-gray-400" : "bg-gray-100 text-gray-500")
                                                             }`}
                                                     >
                                                         {teamName.charAt(0).toUpperCase() + teamName.slice(1)}: {completed}/{total}
@@ -934,11 +934,11 @@ export default function HistoryPage() {
                                     </div>
                                     <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
                                         <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-bold ${selectedItem.status === "success"
-                                            ? "bg-[#2df4c6]/20 text-[#2df4c6]"
+                                            ? (isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#2df4c6]/20 text-[#065f46]")
                                             : (selectedItem.status === "executing" && selectedItem.reports.length === 0)
                                                 ? "bg-red-500/10 text-red-500"
                                                 : selectedItem.status === "executing"
-                                                    ? "bg-yellow-500/20 text-yellow-400"
+                                                    ? (isDarkMode ? "bg-yellow-500/20 text-yellow-400" : "bg-yellow-500/10 text-yellow-700")
                                                     : "bg-red-500/10 text-red-500"
                                             }`}>
                                             {selectedItem.status === "executing" && selectedItem.reports.length === 0
