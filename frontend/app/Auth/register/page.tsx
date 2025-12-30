@@ -2,17 +2,46 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import AuthSidebar from "@/components/AuthSidebar";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const { register, isLoading: authLoading } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    alert("ระบบสมัครสมาชิกถูกปิดใช้งานในเวอร์ชันนี้");
+    setError("");
+
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const success = await register(name, email, password);
+      if (success) {
+        router.push("/");
+      } else {
+        setError("Registration failed. Please try again.");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -39,36 +68,121 @@ export default function RegisterPage() {
 
           <div className="bg-white/70 backdrop-blur-xl rounded-[28px] px-8 md:px-12 py-12 shadow-[0_28px_80px_rgba(15,23,42,0.14)] w-full border border-white/60">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {[
-                { label: "Name", value: name, setter: setName, type: "text" },
-                { label: "Email", value: email, setter: setEmail, type: "email" },
-                { label: "Password", value: password, setter: setPassword, type: "password" },
-                { label: "Confirm Password", value: confirmPassword, setter: setConfirmPassword, type: "password" },
-              ].map((field) => (
-                <div className="w-full relative" key={field.label}>
-                  <input
-                    className="peer w-full rounded-xl border-[1.5px] border-gray-200 bg-gray-50 px-4 pt-5 pb-2.5 text-gray-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] transition focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/25 focus:bg-white placeholder-transparent"
-                    placeholder={field.label}
-                    type={field.type}
-                    value={field.value}
-                    onChange={(e) => field.setter(e.target.value)}
-                    required
-                  />
-                  <label className="pointer-events-none absolute left-4 top-3 text-sm font-semibold text-gray-500 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-[#0f172a]">
-                    {field.label}<span className="text-red-500">*</span>
-                  </label>
-                  {field.label === "Confirm Password" && confirmPassword && password !== confirmPassword && (
-                    <p className="text-xs text-red-600 mt-2">Passwords do not match (demo only)</p>
+              {/* Name Field */}
+              <div className="w-full relative">
+                <input
+                  className="peer w-full rounded-xl border-[1.5px] border-gray-200 bg-gray-50 px-4 pt-5 pb-2.5 text-gray-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] transition focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/25 focus:bg-white placeholder-transparent"
+                  placeholder="Name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+                <label className="pointer-events-none absolute left-4 top-3 text-sm font-semibold text-gray-500 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-[#0f172a]">
+                  Name<span className="text-red-500">*</span>
+                </label>
+              </div>
+
+              {/* Email Field */}
+              <div className="w-full relative">
+                <input
+                  className="peer w-full rounded-xl border-[1.5px] border-gray-200 bg-gray-50 px-4 pt-5 pb-2.5 text-gray-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] transition focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/25 focus:bg-white placeholder-transparent"
+                  placeholder="Email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <label className="pointer-events-none absolute left-4 top-3 text-sm font-semibold text-gray-500 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-[#0f172a]">
+                  Email<span className="text-red-500">*</span>
+                </label>
+              </div>
+
+              {/* Password Field with Eye Toggle */}
+              <div className="w-full relative">
+                <input
+                  className="peer w-full rounded-xl border-[1.5px] border-gray-200 bg-gray-50 px-4 pt-5 pb-2.5 pr-12 text-gray-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] transition focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/25 focus:bg-white placeholder-transparent"
+                  placeholder="Password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <label className="pointer-events-none absolute left-4 top-3 text-sm font-semibold text-gray-500 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-[#0f172a]">
+                  Password<span className="text-red-500">*</span>
+                </label>
+                {/* Eye Icon Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                      <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
                   )}
+                </button>
+              </div>
+
+              {/* Confirm Password Field with Eye Toggle */}
+              <div className="w-full relative">
+                <input
+                  className="peer w-full rounded-xl border-[1.5px] border-gray-200 bg-gray-50 px-4 pt-5 pb-2.5 pr-12 text-gray-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] transition focus:outline-none focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/25 focus:bg-white placeholder-transparent"
+                  placeholder="Confirm Password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <label className="pointer-events-none absolute left-4 top-3 text-sm font-semibold text-gray-500 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-[#0f172a]">
+                  Confirm Password<span className="text-red-500">*</span>
+                </label>
+                {/* Eye Icon Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                      <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                  )}
+                </button>
+                {confirmPassword && password !== confirmPassword && (
+                  <p className="text-xs text-red-600 mt-2">Passwords do not match</p>
+                )}
+              </div>
+
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm text-center">
+                  {error}
                 </div>
-              ))}
+              )}
 
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="submit"
-                  className="px-7 md:px-8 py-3 rounded-xl bg-linear-to-br from-[#10b981] to-[#059669] text-white font-semibold text-base shadow-[0_12px_28px_rgba(16,185,129,0.35)] hover:shadow-[0_16px_36px_rgba(16,185,129,0.45)] hover:scale-[1.05] focus:outline-none focus:ring-2 focus:ring-[#10b981]/50 transition"
+                  disabled={isSubmitting}
+                  className={`px-7 md:px-8 py-3 rounded-xl bg-linear-to-br from-[#10b981] to-[#059669] text-white font-semibold text-base shadow-[0_12px_28px_rgba(16,185,129,0.35)] hover:shadow-[0_16px_36px_rgba(16,185,129,0.45)] hover:scale-[1.05] focus:outline-none focus:ring-2 focus:ring-[#10b981]/50 transition ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
                 >
-                  Sign up
+                  {isSubmitting ? "Creating Account..." : "Sign up"}
                 </button>
                 <Link href="/Auth/login">
                   <button

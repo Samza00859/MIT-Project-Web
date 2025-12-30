@@ -10,6 +10,9 @@ import { buildApiUrl, buildWsUrl, mapFetchError } from "@/lib/api";
 import { useGeneration } from "../context/GenerationContext";
 import { getApiUrl } from "../lib/api";
 import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import GenerateIcon from "@/image/report_6902377.png";
 
 // Import from shared modules for better code splitting
 import {
@@ -85,6 +88,9 @@ export default function Home() {
     addDebugLog,
   } = useGeneration();
 
+  // Authentication
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+
   // Local State (UI-specific only)
 
   const { isDarkMode, toggleTheme } = useTheme();
@@ -102,11 +108,12 @@ export default function Home() {
   const [showMarketSelector, setShowMarketSelector] = useState(false); // New Dropdown State
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Generate stars once for the night sky effect
+  // Generate stars once for the night sky effect (reduced count for better performance)
   const [stars, setStars] = useState<Star[]>([]);
 
   useEffect(() => {
-    const generatedStars = Array.from({ length: 150 }).map((_, i) => {
+    // Reduced from 150 to 80 stars for better performance
+    const generatedStars = Array.from({ length: 80 }).map((_, i) => {
       const size = Math.random() * 2 + 0.5;
       const left = Math.random() * 100;
       const top = Math.random() * 100;
@@ -807,6 +814,30 @@ export default function Home() {
 
   const recVariant = getRecommendationVariant(contextDecision);
 
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-900 to-slate-800">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-white/70 text-sm">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (AuthContext will handle redirect)
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-900 to-slate-800">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-white/70 text-sm">Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`min-h-full w-full font-sans transition-colors duration-300 relative ${isDarkMode
@@ -1153,14 +1184,18 @@ export default function Home() {
             <button
               onClick={runPipeline}
               disabled={wsStatus !== "connected"}
-              className={`flex w-full flex-row items-center justify-center gap-1.5 rounded-[12px] border-2 py-2 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale ${isDarkMode
+              className={`flex w-full flex-row items-center justify-center gap-2.5 rounded-[12px] border-2 py-2 text-2xl font-bold text-white shadow-lg transition-all hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale ${isDarkMode
                 ? "border-white/20 bg-[#00c05e] hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)]"
                 : "border-[#2563EB] bg-linear-to-r from-[#2563EB] to-[#38BDF8] text-white hover:shadow-[0_10px_25px_rgba(37,99,235,0.3)]"
                 }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="5 3 19 12 5 21 5 3" />
-              </svg>
+              <Image
+                src={GenerateIcon}
+                alt="Generate"
+                width={40}
+                height={40}
+                className="shrink-0"
+              />
               <span>Generate</span>
             </button>
           )}

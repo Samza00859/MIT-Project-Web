@@ -8,6 +8,7 @@ import Logo from "@/image/Logo.png";
 import LogoBlack from "@/image/Logo_black.png";
 import { useTheme } from "@/context/ThemeContext";
 import { useGeneration } from "@/context/GenerationContext";
+import { useAuth } from "@/context/AuthContext";
 import DebugPanel from "./DebugPanel";
 
 interface NavItem {
@@ -18,7 +19,6 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-    { id: "intro", icon: "👋", label: "Intro", href: "/introduction" },
     { id: "generate", icon: "🌐", label: "Generate", href: "/" },
     { id: "history", icon: "📜", label: "History", href: "/history" },
     { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
@@ -29,12 +29,17 @@ export default function Sidebar() {
     const pathname = usePathname();
     const { isDarkMode, toggleTheme } = useTheme();
     const { wsStatus } = useGeneration();
+    const { user, isAuthenticated, logout } = useAuth();
     const [isCollapsed, setIsCollapsed] = React.useState(false);
     const [isMobileOpen, setIsMobileOpen] = React.useState(false);
 
+    const handleLogout = () => {
+        logout();
+        setIsMobileOpen(false);
+    };
+
     // Determine active ID based on pathname
     const activeId = React.useMemo(() => {
-        if (pathname === "/introduction") return "intro";
         if (pathname === "/") return "generate";
         if (pathname.startsWith("/history")) return "history";
         if (pathname === "/contact") return "contact";
@@ -122,9 +127,12 @@ export default function Sidebar() {
                 </button>
 
                 <div className={`flex items-center ${isCollapsed ? "justify-center" : "justify-center"} ${isCollapsed ? "py-2" : "py-2"}`}>
-                    <div
-                        className={`relative flex items-center justify-center shrink-0 transition-all duration-200 rounded-2xl overflow-hidden ${isCollapsed ? "h-12 w-12" : "h-40 w-full max-w-[360px]"
+                    <Link
+                        href="/introduction"
+                        onClick={() => setIsMobileOpen(false)}
+                        className={`relative flex items-center justify-center shrink-0 transition-all duration-200 rounded-2xl overflow-hidden hover:opacity-80 ${isCollapsed ? "h-12 w-12" : "h-40 w-full max-w-[360px]"
                             }`}
+                        title="Go to Introduction"
                     >
                         <Image
                             src={isDarkMode ? Logo : LogoBlack}
@@ -134,7 +142,7 @@ export default function Sidebar() {
                             className="object-contain w-full h-full"
                             priority
                         />
-                    </div>
+                    </Link>
                 </div>
 
                 {/* Divider Line */}
@@ -164,27 +172,75 @@ export default function Sidebar() {
 
                 </nav>
 
-                <div className={`mt-auto flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
-                    {!isCollapsed && <span>{isDarkMode ? "Dark mode" : "Light mode"}</span>}
-                    <label className="relative inline-block h-5 w-10 cursor-pointer shrink-0">
-                        <input
-                            type="checkbox"
-                            checked={!isDarkMode}
-                            onChange={toggleTheme}
-                            className="peer sr-only"
-                        />
-                        <span className={`absolute inset-0 rounded-full transition-all before:absolute before:bottom-[2px] before:left-[2px] before:h-4 before:w-4 before:rounded-full before:bg-white before:transition-all ${isDarkMode
-                            ? "bg-[#394054] peer-checked:bg-[#00d18f] peer-checked:before:translate-x-5"
-                            : "bg-[#CBD5E1] peer-checked:bg-[#2563EB] peer-checked:before:translate-x-5"
-                            }`}></span>
-                    </label>
-                </div>
+                {/* User Info & Logout - Only show when authenticated */}
+                {isAuthenticated && (
+                    <div className={`mt-6 border-t ${isDarkMode ? "border-white/10" : "border-[#E2E8F0]"} pt-4`}>
+                        {/* User Info */}
+                        {!isCollapsed && user && (
+                            <div className={`mb-3 px-2 text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
+                                <span>Welcome, </span>
+                                <span className="font-medium">{user.name || user.email}</span>
+                            </div>
+                        )}
 
-                {/* Render DebugPanel only for Generate page, similar to how it was passed as children */}
-                {pathname === "/" && (
-                    <div className={`mt-6 border-t ${isDarkMode ? "border-white/5" : "border-[#E2E8F0]"} pt-4 text-[0.85rem] ${isCollapsed ? "hidden" : "block"}`}>
-                        <DebugPanel wsStatus={wsStatus} isDarkMode={isDarkMode} />
+                        {/* Logout Button */}
+                        <button
+                            onClick={handleLogout}
+                            className={`flex items-center gap-3 rounded-xl py-3 w-full text-[0.95rem] transition-colors ${isCollapsed ? "justify-center px-2" : "px-4"
+                                } ${isDarkMode
+                                    ? "text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                                    : "text-red-500 hover:bg-red-50 hover:text-red-600"
+                                }`}
+                            title={isCollapsed ? "Logout" : undefined}
+                        >
+                            <span className="text-lg shrink-0">🚪</span>
+                            {!isCollapsed && <span className="whitespace-nowrap overflow-hidden">Logout</span>}
+                        </button>
                     </div>
+                )}
+
+                {/* Dark mode toggle - normal position for non-Generate pages */}
+                {pathname !== "/" && (
+                    <div className={`mt-auto flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
+                        {!isCollapsed && <span>{isDarkMode ? "Dark mode" : "Light mode"}</span>}
+                        <label className="relative inline-block h-5 w-10 cursor-pointer shrink-0">
+                            <input
+                                type="checkbox"
+                                checked={!isDarkMode}
+                                onChange={toggleTheme}
+                                className="peer sr-only"
+                            />
+                            <span className={`absolute inset-0 rounded-full transition-all before:absolute before:bottom-[2px] before:left-[2px] before:h-4 before:w-4 before:rounded-full before:bg-white before:transition-all ${isDarkMode
+                                ? "bg-[#394054] peer-checked:bg-[#00d18f] peer-checked:before:translate-x-5"
+                                : "bg-[#CBD5E1] peer-checked:bg-[#2563EB] peer-checked:before:translate-x-5"
+                                }`}></span>
+                        </label>
+                    </div>
+                )}
+
+                {/* For Generate page: Dark mode toggle right above the divider line */}
+                {pathname === "/" && (
+                    <>
+                        <div className={`mt-auto flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
+                            {!isCollapsed && <span>{isDarkMode ? "Dark mode" : "Light mode"}</span>}
+                            <label className="relative inline-block h-5 w-10 cursor-pointer shrink-0">
+                                <input
+                                    type="checkbox"
+                                    checked={!isDarkMode}
+                                    onChange={toggleTheme}
+                                    className="peer sr-only"
+                                />
+                                <span className={`absolute inset-0 rounded-full transition-all before:absolute before:bottom-[2px] before:left-[2px] before:h-4 before:w-4 before:rounded-full before:bg-white before:transition-all ${isDarkMode
+                                    ? "bg-[#394054] peer-checked:bg-[#00d18f] peer-checked:before:translate-x-5"
+                                    : "bg-[#CBD5E1] peer-checked:bg-[#2563EB] peer-checked:before:translate-x-5"
+                                    }`}></span>
+                            </label>
+                        </div>
+                        {/* Divider line + Debug Panel */}
+                        <div className={`mt-0 border-t ${isDarkMode ? "border-white/5" : "border-[#E2E8F0]"} pt-4 text-[0.85rem] ${isCollapsed ? "hidden" : "block"}`}>
+                            <DebugPanel wsStatus={wsStatus} isDarkMode={isDarkMode} />
+                        </div>
+                    </>
                 )}
             </aside>
 

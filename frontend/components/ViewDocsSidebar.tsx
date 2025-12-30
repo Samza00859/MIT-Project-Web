@@ -136,7 +136,7 @@ export default function ViewDocsSidebar({
     const memoizedCategories = useMemo(() => NAV_STRUCTURE, []);
 
     return (
-        <aside className={`sticky top-0 w-[280px] shrink-0 flex flex-col pt-20 px-6 border-r hidden md:flex z-40 max-h-screen overflow-y-auto backdrop-blur-xl custom-scrollbar ${isDarkMode ? 'bg-[#020617]/80 border-white/10' : 'bg-white/80 border-[#E2E8F0]'}`}>
+        <aside className={`sticky top-0 w-[280px] shrink-0 flex flex-col pt-20 px-6 border-r md:flex z-40 max-h-screen overflow-y-auto backdrop-blur-xl custom-scrollbar ${isDarkMode ? 'bg-[#020617]/80 border-white/10' : 'bg-white/80 border-[#E2E8F0]'}`}>
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <h2 className={`text-lg font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-[#0F172A]'}`}>

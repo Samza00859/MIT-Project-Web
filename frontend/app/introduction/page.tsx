@@ -6,9 +6,11 @@ import Image from "next/image";
 import Logo from "@/image/Logo.png";
 import LogoBlack from "@/image/Logo_black.png";
 import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function IntroductionPage() {
     const { isDarkMode, toggleTheme } = useTheme();
+    const { isAuthenticated, isLoading: authLoading } = useAuth();
     const [mounted, setMounted] = useState(false);
     const [backgroundStars, setBackgroundStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; delay: number; duration: number; twinkle: boolean }>>([]);
     const [midStars, setMidStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; delay: number; duration: number; twinkle: boolean }>>([]);
@@ -18,12 +20,12 @@ export default function IntroductionPage() {
         setMounted(true);
     }, []);
 
-    // Generate enhanced stars for dark mode with layers
+    // Generate enhanced stars for dark mode with layers (reduced count for performance)
     useEffect(() => {
         const generateStars = () => {
-            // Background layer - small stars, slow movement
+            // Background layer - small stars, slow movement (reduced from 120 to 60)
             const bgStars = [];
-            for (let i = 0; i < 120; i++) {
+            for (let i = 0; i < 80; i++) {
                 bgStars.push({
                     id: i,
                     x: Math.random() * 100,
@@ -37,9 +39,9 @@ export default function IntroductionPage() {
             }
             setBackgroundStars(bgStars);
 
-            // Mid layer - medium stars, medium movement
+            // Mid layer - medium stars, medium movement (reduced from 80 to 40)
             const midStarsList = [];
-            for (let i = 0; i < 80; i++) {
+            for (let i = 0; i < 60; i++) {
                 const size = Math.random() < 0.7 ? 1.5 : 2; // Mostly 1.5px, some 2px
                 midStarsList.push({
                     id: i,
@@ -54,9 +56,9 @@ export default function IntroductionPage() {
             }
             setMidStars(midStarsList);
 
-            // Foreground layer - bright stars, faster movement
+            // Foreground layer - bright stars, faster movement (reduced from 30 to 20)
             const fgStars = [];
-            for (let i = 0; i < 30; i++) {
+            for (let i = 0; i < 40; i++) {
                 const size = Math.random() < 0.5 ? 2.5 : 3; // Bright stars
                 fgStars.push({
                     id: i,
@@ -246,15 +248,17 @@ export default function IntroductionPage() {
 
                     {/* CTA Button */}
                     <div className={`flex items-center justify-center mb-20 transition-all duration-700 ease-out delay-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
-                        {/* Get Started - Primary */}
+                        {/* Get Started - Goes to Generate if logged in, otherwise Register */}
                         <Link
-                            href="/Auth/register"
+                            href={isAuthenticated ? "/" : "/Auth/register"}
                             className={`group relative flex items-center justify-center rounded-full px-10 py-5 text-lg font-medium transform-gpu transition-all duration-300 ease-in-out hover:scale-[1.05] hover:-translate-y-1 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${isDarkMode
                                 ? 'bg-linear-to-r from-[#2df4c6] to-[#26dcb2] text-black shadow-md shadow-[#2df4c6]/30 hover:shadow-xl hover:shadow-[#2df4c6]/50 focus-visible:ring-[#2df4c6]'
                                 : 'bg-linear-to-r from-[#2563EB] to-[#38BDF8] text-white shadow-md shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/40 focus-visible:ring-[#2563EB]'
                                 }`}
                         >
-                            <span className="relative z-10">Get Started</span>
+                            <span className="relative z-10">
+                                {isAuthenticated ? "Go to Generate" : "Get Started"}
+                            </span>
                         </Link>
                     </div>
                 </div>
