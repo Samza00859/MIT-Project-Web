@@ -33,12 +33,22 @@ DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/trading_db
 # DEEPSEEK_API_KEY=your-deepseek-api-key
 # ANTHROPIC_API_KEY=your-anthropic-api-key
 
-# Telegram Notifications (optional)
+# Telegram Notification
 # TELEGRAM_TOKEN=your-telegram-bot-token
 # TELEGRAM_CHAT_ID=your-telegram-chat-id
 
-# Alpha Vantage API Key (for fundamental data)
-# ALPHA_VANTAGE_KEY=your-alpha-vantage-key
+# ALPHA_VANTAGE_API_KEY=your-alpha-vantage-key
+# TWELVEDATA_API_KEY=twelve-data-key
+# FINNHUB_API_KEYfinhub-key
+# REDDIT_ID=client id
+# REDDIT_SECRET=client secret
+# REDDIT_USER_AGENT="news-fetcher:v1 (by u/yourname)"
+# TV_USERNAME=user-name-tradingview
+# TV_PASSWORD=password-tradingview
+# BSKY_HANDLE=handle-name
+# BSKY_APP_PW=app-password(setting -> privacy -> app password)
+# MASTODON_BASE_URL="https://mastodon.social"
+# MASTODON_TOKEN=mastodon-token
 
 # ===========================================
 # DOCKER Configuration (docker-compose.yml)
