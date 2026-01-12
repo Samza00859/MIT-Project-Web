@@ -1,147 +1,520 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-
 import Image from "next/image";
+import Logo from "@/image/Logo.png";
+import LogoBlack from "@/image/Logo_black.png";
+import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function IntroductionPage() {
-    const [isDarkMode, setIsDarkMode] = useState(true);
-    const router = useRouter();
+    const { isDarkMode, toggleTheme } = useTheme();
+    const { isAuthenticated, isLoading: authLoading } = useAuth();
+    const [mounted, setMounted] = useState(false);
+    const [backgroundStars, setBackgroundStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; delay: number; duration: number; twinkle: boolean }>>([]);
+    const [midStars, setMidStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; delay: number; duration: number; twinkle: boolean }>>([]);
+    const [foregroundStars, setForegroundStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; delay: number; duration: number; twinkle: boolean }>>([]);
 
-    const toggleTheme = () => {
-        setIsDarkMode(!isDarkMode);
-    };
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Generate enhanced stars for dark mode with layers (reduced count for performance)
+    useEffect(() => {
+        const generateStars = () => {
+            // Background layer - small stars, slow movement (reduced from 120 to 60)
+            const bgStars = [];
+            for (let i = 0; i < 80; i++) {
+                bgStars.push({
+                    id: i,
+                    x: Math.random() * 100,
+                    y: Math.random() * 100,
+                    size: 1, // Small stars
+                    opacity: Math.random() * 0.2 + 0.4, // 0.4-0.6
+                    delay: Math.random() * 5,
+                    duration: 55 + Math.random() * 10, // 55-65s (slow)
+                    twinkle: Math.random() < 0.15, // 15% twinkle
+                });
+            }
+            setBackgroundStars(bgStars);
+
+            // Mid layer - medium stars, medium movement (reduced from 80 to 40)
+            const midStarsList = [];
+            for (let i = 0; i < 60; i++) {
+                const size = Math.random() < 0.7 ? 1.5 : 2; // Mostly 1.5px, some 2px
+                midStarsList.push({
+                    id: i,
+                    x: Math.random() * 100,
+                    y: Math.random() * 100,
+                    size,
+                    opacity: size === 2 ? Math.random() * 0.2 + 0.6 : Math.random() * 0.2 + 0.6, // 0.6-0.8
+                    delay: Math.random() * 5,
+                    duration: 40 + Math.random() * 10, // 40-50s (medium)
+                    twinkle: Math.random() < 0.2, // 20% twinkle
+                });
+            }
+            setMidStars(midStarsList);
+
+            // Foreground layer - bright stars, faster movement (reduced from 30 to 20)
+            const fgStars = [];
+            for (let i = 0; i < 40; i++) {
+                const size = Math.random() < 0.5 ? 2.5 : 3; // Bright stars
+                fgStars.push({
+                    id: i,
+                    x: Math.random() * 100,
+                    y: Math.random() * 100,
+                    size,
+                    opacity: 0.9, // Very bright
+                    delay: Math.random() * 5,
+                    duration: 25 + Math.random() * 10, // 25-35s (faster)
+                    twinkle: Math.random() < 0.3, // 30% twinkle
+                });
+            }
+            setForegroundStars(fgStars);
+        };
+        generateStars();
+    }, []);
 
     return (
-        <div
-            className={`min-h-screen w-full transition-colors duration-500 ${isDarkMode ? "bg-[#111111] text-white" : "bg-[#f0f0f0] text-gray-900"
-                } font-sans overflow-hidden`}
-        >
-            {/* Navigation Bar */}
-            <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6">
-                <div className="flex items-center gap-2">
-                    {/* Logo Placeholder */}
+        <div className={`h-full w-full font-sans overflow-hidden relative ${isDarkMode ? 'bg-[#050B14] text-white' : 'bg-[#F5FAFF] text-[#0F172A]'}`}>
+            {/* Dark Mode - Night Sky Background */}
+            {isDarkMode && (
+                <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
+                    {/* Night Sky Gradient */}
+                    <div className="night-sky-gradient" />
+
+                    {/* Background Star Layer - Slow Movement */}
+                    <div className="star-layer star-layer-bg">
+                        {backgroundStars.map((star) => (
+                            <div
+                                key={`bg-${star.id}`}
+                                className={`star star-small ${star.twinkle ? 'star-twinkle' : ''}`}
+                                style={{
+                                    left: `${star.x}%`,
+                                    top: `${star.y}%`,
+                                    width: `${star.size}px`,
+                                    height: `${star.size}px`,
+                                    opacity: star.opacity,
+                                    animationDelay: `${star.delay}s`,
+                                    animationDuration: `${star.duration}s`,
+                                }}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Mid Star Layer - Medium Movement */}
+                    <div className="star-layer star-layer-mid">
+                        {midStars.map((star) => (
+                            <div
+                                key={`mid-${star.id}`}
+                                className={`star star-medium ${star.twinkle ? 'star-twinkle' : ''}`}
+                                style={{
+                                    left: `${star.x}%`,
+                                    top: `${star.y}%`,
+                                    width: `${star.size}px`,
+                                    height: `${star.size}px`,
+                                    opacity: star.opacity,
+                                    animationDelay: `${star.delay}s`,
+                                    animationDuration: `${star.duration}s`,
+                                }}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Foreground Star Layer - Fast Movement */}
+                    <div className="star-layer star-layer-fg">
+                        {foregroundStars.map((star) => (
+                            <div
+                                key={`fg-${star.id}`}
+                                className={`star star-bright ${star.twinkle ? 'star-twinkle' : ''}`}
+                                style={{
+                                    left: `${star.x}%`,
+                                    top: `${star.y}%`,
+                                    width: `${star.size}px`,
+                                    height: `${star.size}px`,
+                                    opacity: star.opacity,
+                                    animationDelay: `${star.delay}s`,
+                                    animationDuration: `${star.duration}s`,
+                                }}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Faint Nebula Gradient */}
+                    <div className="nebula-gradient" />
                 </div>
-                <div className="flex gap-4 text-sm font-medium tracking-wide">
-                    <Link href="/view-docs" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
-                        }`}>View Docs</Link>
-                    <Link href="/contact" className={`rounded-full px-6 py-2 transition-all hover:scale-105 ${isDarkMode ? "bg-[#1a1a1a] text-white hover:bg-[#252525]" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm border border-gray-200"
-                        }`}>Contact</Link>
+            )}
+
+            {/* Light Mode - Ocean Waves Background */}
+            {!isDarkMode && (
+                <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
+                    {/* Ocean Base Gradient */}
+                    <div className="ocean-base-gradient" />
+
+                    {/* Wave Layer 1 */}
+                    <div className="wave-layer wave-layer-1" />
+
+                    {/* Wave Layer 2 */}
+                    <div className="wave-layer wave-layer-2" />
+
+                    {/* Wave Layer 3 */}
+                    <div className="wave-layer wave-layer-3" />
+                </div>
+            )}
+
+            {/* Navigation Bar - Blurred */}
+            <nav className={`absolute top-0 left-0 right-0 z-50 flex items-center justify-end px-8 py-4 backdrop-blur-xl border-b ${isDarkMode
+                ? 'bg-black/10 border-white/5'
+                : 'bg-white/15 border-[#E2E8F0]/20'
+                }`}>
+                <div className="flex gap-6 items-center">
+                    {/* View Docs Link */}
+                    <Link
+                        href="/docs"
+                        className={`text-sm font-medium transition-colors duration-200 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded ${isDarkMode
+                            ? 'text-white/80 hover:text-[#2df4c6] focus-visible:ring-[#2df4c6]'
+                            : 'text-[#64748B] hover:text-[#2563EB] focus-visible:ring-[#2563EB]'
+                            }`}
+                    >
+                        View Docs
+                    </Link>
+
+                    {/* Contact Link */}
+                    <Link
+                        href="/contact-public"
+                        className={`text-sm font-medium transition-colors duration-200 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded ${isDarkMode
+                            ? 'text-white/80 hover:text-[#2df4c6] focus-visible:ring-[#2df4c6]'
+                            : 'text-[#64748B] hover:text-[#2563EB] focus-visible:ring-[#2563EB]'
+                            }`}
+                    >
+                        Contact
+                    </Link>
+
+                    {/* Theme Toggle */}
+                    <label className="relative inline-flex cursor-pointer items-center">
+                        <input
+                            type="checkbox"
+                            checked={!isDarkMode}
+                            onChange={toggleTheme}
+                            className="peer sr-only"
+                        />
+                        <div className={`peer h-6 w-11 rounded-full after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none peer-focus:ring-2 ${isDarkMode
+                            ? 'bg-gray-700 after:border-gray-300 after:bg-white peer-checked:bg-gray-300 peer-checked:after:border-white peer-focus:ring-[#2df4c6]'
+                            : 'bg-[#CBD5E1] after:border-[#F1F5F9] after:bg-white peer-checked:bg-[#2563EB] peer-checked:after:border-white peer-focus:ring-[#2563EB]'
+                            }`}></div>
+                    </label>
                 </div>
             </nav>
 
-            <div className="grid h-screen w-full grid-cols-1 lg:grid-cols-[40%_60%]">
-                {/* Left Section */}
-                <div className={`relative flex flex-col justify-center px-8 lg:px-12 ${isDarkMode ? "bg-[#111111]" : "bg-[#f0f0f0]"}`}>
-                    <div className="mx-auto w-full max-w-md flex flex-col justify-center h-full">
-                        {/* Header */}
-                        <div className="mb-12">
-                            <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-                                Trading Agents
-                            </h1>
-                            <p className={`mt-2 text-lg ${isDarkMode ? "text-gray-500" : "text-gray-600"}`}>
-                                Multi-Agents LLM Financial Trading
-                            </p>
-                        </div>
-
-                        {/* Feature Bubbles */}
-                        <div className="relative flex flex-col gap-6 py-8">
-                            {/* Bubble 1 */}
-                            <div className={`w-fit rounded-full border px-6 py-2 text-sm font-medium shadow-lg transition-transform hover:scale-105 ${isDarkMode ? "border-gray-700 bg-[#1a1a1a] text-white" : "border-gray-300 bg-white text-gray-900"
-                                }`}>
-                                AI Market Analysis
-                            </div>
-
-                            {/* Bubble 2 - Indented */}
-                            <div className={`ml-16 w-fit rounded-full border px-6 py-2 text-sm font-medium shadow-lg transition-transform hover:scale-105 ${isDarkMode ? "border-gray-700 bg-[#1a1a1a] text-white" : "border-gray-300 bg-white text-gray-900"
-                                }`}>
-                                Autonomous Execution
-                            </div>
-
-                            {/* Bubble 3 */}
-                            <div className={`w-fit rounded-full border px-6 py-2 text-sm font-medium shadow-lg transition-transform hover:scale-105 ${isDarkMode ? "border-gray-700 bg-[#1a1a1a] text-white" : "border-gray-300 bg-white text-gray-900"
-                                }`}>
-                                Risk Management
-                            </div>
-
-                            {/* Bubble 4 - Indented */}
-                            <div className={`ml-24 w-fit rounded-full border px-6 py-2 text-sm font-medium shadow-lg transition-transform hover:scale-105 ${isDarkMode ? "border-gray-700 bg-[#1a1a1a] text-white" : "border-gray-300 bg-white text-gray-900"
-                                }`}>
-                                Backtesting Engine
-                            </div>
-
-                            {/* Bubble 5 */}
-                            <div className={`w-fit rounded-full border px-6 py-2 text-sm font-medium shadow-lg transition-transform hover:scale-105 ${isDarkMode ? "border-gray-700 bg-[#1a1a1a] text-white" : "border-gray-300 bg-white text-gray-900"
-                                }`}>
-                                Supported Markets
-                            </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="mt-12 flex flex-col gap-4 sm:w-64">
-                            <Link href="/Auth/register" className="flex items-center justify-center rounded-full bg-[#2df4c6] px-8 py-3 text-sm font-bold text-black shadow-[0_0_20px_rgba(45,244,198,0.3)] transition-all hover:bg-[#26dcb2] hover:shadow-[0_0_30px_rgba(45,244,198,0.5)]">
-                                Register
-                            </Link>
-                            <Link href="/Auth/login" className="flex items-center justify-center rounded-full bg-[white] px-8 py-3 text-sm font-bold text-black shadow-[0_0_20px_rgba(45,244,198,0.3)] transition-all hover:bg-[white] hover:shadow-[0_0_30px_rgba(45,244,198,0.5)]">
-                                Login
-                            </Link>
-                        </div>
-                    </div>
-
-                    {/* Theme Toggle */}
-                    <div className="absolute bottom-8 left-12">
-                        <label className="relative inline-flex cursor-pointer items-center">
-                            <input type="checkbox" checked={!isDarkMode} onChange={toggleTheme} className="peer sr-only" />
-                            <div className="peer h-6 w-11 rounded-full bg-gray-700 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#2df4c6]"></div>
-                            <span className={`ml-3 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-900"}`}>
-                                {isDarkMode ? "Dark Mode" : "Light Mode"}
-                            </span>
-                        </label>
-                    </div>
-                </div>
-
-                {/* Right Section */}
-                <div className={`relative flex flex-col items-center justify-center px-12 text-center lg:px-20 ${isDarkMode ? "bg-[#0c0c0c]" : "bg-[#e5e5e5]"
-                    }`}>
-                    {/* Circular Graphic */}
-                    <div className="relative mb-12 flex h-64 w-64 items-center justify-center">
-                        {/* Outer Glow */}
-                        <div className="absolute inset-0 animate-pulse rounded-full bg-[#2df4c6] opacity-20 blur-3xl"></div>
-
-                        {/* Rings */}
-                        <div className="absolute h-full w-full rounded-full border border-[#2df4c6]/30"></div>
-                        <div className="absolute h-[80%] w-[80%] rounded-full border border-[#2df4c6]/50"></div>
-                        <div className="absolute h-[60%] w-[60%] rounded-full border border-[#2df4c6]/70"></div>
-
-                        {/* Center Icon/Chart */}
-                        <div className="relative z-10 flex h-32 w-32 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm overflow-hidden">
+            {/* Hero Section - Centered */}
+            <section className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 pt-20 pb-40 md:pt-32 md:pb-64">
+                <div className="w-full max-w-4xl mx-auto text-center">
+                    {/* Logo */}
+                    <div className={`mb-0 flex items-center justify-center transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                        <div className={`relative ${isDarkMode ? '' : ''}`}>
                             <Image
-                                src="/Logo.png"
+                                src={isDarkMode ? Logo : LogoBlack}
                                 alt="Trading Agents Logo"
-                                width={200}
-                                height={200}
-                                className="object-contain"
+                                width={800}
+                                height={300}
+                                className="h-auto w-auto object-contain"
+                                priority
                             />
                         </div>
                     </div>
 
-                    {/* Hero Text */}
-                    <h2 className="mb-6 text-3xl font-bold leading-tight md:text-4xl">
-                        ยกระดับการเทรดด้วย AI อัจฉริยะ<br />
-                        Multi-Agents LLM Financial Trading
-                    </h2>
+                    {/* Headline */}
+                    <h1 className={`-mt-12 mb-4 text-3xl md:text-4xl lg:text-5xl font-bold leading-tight transition-all duration-700 ease-out delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+                        <span className={isDarkMode ? 'text-white' : 'text-[#0F172A]'}>
+                            INTELLIGENT{" "}
+                        </span>
+                        <span className={`bg-clip-text text-transparent ${isDarkMode
+                            ? 'bg-linear-to-r from-[#2df4c6] via-[#26dcb2] to-[#2df4c6]'
+                            : 'bg-linear-to-r from-[#2563EB] via-[#38BDF8] to-[#2563EB]'
+                            }`}>
+                            MULTI-AGENT AI
+                        </span>
+                        <br />
+                        <span className={isDarkMode ? 'text-white' : 'text-[#0F172A]'}>
+                            TRADING SYSTEM
+                        </span>
+                    </h1>
 
-                    <p className={`max-w-lg text-lg leading-relaxed ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                        พบกับ Trading Agent ที่ไม่หยุดนิ่งด้วยสถาปัตยกรรม Multi-Agents LLM Financial Trading
-                        ระบบของเราไม่ใช่แค่บอทธรรมดา แต่คือเครือข่ายของ Agent อัจฉริยะที่สื่อสาร,
-                        แลกเปลี่ยนข้อมูล, และเรียนรู้อาจประสบการณ์การเทรดนับล้าน การทำงานร่วมกันของ AI
-                        เหล่านี้ช่วยให้ Agent ของคุณสามารถปรับตัว, พัฒนากลยุทธ์,
-                        และเพิ่มประสิทธิภาพในการสร้างกำไรได้อย่างต่อเนื่องในทุกสถานการณ์ตลาด
+                    {/* Subheadline */}
+                    <p className={`mb-8 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed transition-all duration-700 ease-out delay-300 ${isDarkMode ? 'text-slate-300/90' : 'text-[#64748B]'} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+                        Autonomous AI agents that analyze, decide, and execute trades collaboratively — 24/7.
                     </p>
+
+                    {/* CTA Button */}
+                    <div className={`flex items-center justify-center mb-20 transition-all duration-700 ease-out delay-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+                        {/* Get Started - Goes to Generate if logged in, otherwise Register */}
+                        <Link
+                            href={isAuthenticated ? "/" : "/Auth/register"}
+                            className={`group relative flex items-center justify-center rounded-full px-10 py-5 text-lg font-medium transform-gpu transition-all duration-300 ease-in-out hover:scale-[1.05] hover:-translate-y-1 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${isDarkMode
+                                ? 'bg-linear-to-r from-[#2df4c6] to-[#26dcb2] text-black shadow-md shadow-[#2df4c6]/30 hover:shadow-xl hover:shadow-[#2df4c6]/50 focus-visible:ring-[#2df4c6]'
+                                : 'bg-linear-to-r from-[#2563EB] to-[#38BDF8] text-white shadow-md shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/40 focus-visible:ring-[#2563EB]'
+                                }`}
+                        >
+                            <span className="relative z-10">
+                                {isAuthenticated ? "Go to Generate" : "Get Started"}
+                            </span>
+                        </Link>
+                    </div>
                 </div>
-            </div>
+            </section>
+
+            {/* Styles */}
+            <style jsx>{`
+                /* ==================== DARK MODE - NIGHT SKY (ENHANCED) ==================== */
+                .night-sky-gradient {
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(180deg, #030712 0%, #050B14 50%, #0B1C2D 100%);
+                    z-index: 0;
+                }
+
+                .star-layer {
+                    position: absolute;
+                    inset: 0;
+                    z-index: 1;
+                }
+
+                .star {
+                    position: absolute;
+                    border-radius: 50%;
+                    transform: translate(-50%, -50%);
+                    will-change: transform, opacity;
+                }
+
+                /* Small Stars - Background Layer */
+                .star-small {
+                    background: rgba(255, 255, 255, 0.5);
+                    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.3));
+                    animation: starDriftSlow linear infinite;
+                }
+
+                /* Medium Stars - Mid Layer */
+                .star-medium {
+                    background: rgba(255, 255, 255, 0.7);
+                    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+                    animation: starDriftMid linear infinite;
+                }
+
+                /* Bright Stars - Foreground Layer */
+                .star-bright {
+                    background: rgba(255, 255, 255, 0.9);
+                    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.2));
+                    animation: starDriftFast linear infinite;
+                }
+
+                /* Parallax Drift Animations */
+                @keyframes starDriftSlow {
+                    0% {
+                        transform: translate(-50%, -50%) translateY(0) translateX(0);
+                    }
+                    100% {
+                        transform: translate(-50%, -50%) translateY(-15px) translateX(8px);
+                    }
+                }
+
+                @keyframes starDriftMid {
+                    0% {
+                        transform: translate(-50%, -50%) translateY(0) translateX(0);
+                    }
+                    100% {
+                        transform: translate(-50%, -50%) translateY(-20px) translateX(12px);
+                    }
+                }
+
+                @keyframes starDriftFast {
+                    0% {
+                        transform: translate(-50%, -50%) translateY(0) translateX(0);
+                    }
+                    100% {
+                        transform: translate(-50%, -50%) translateY(-25px) translateX(15px);
+                    }
+                }
+
+                /* Subtle Twinkle Effect - Applied via inline style delay */
+                .star-twinkle {
+                    animation: twinkleOpacity 8s ease-in-out infinite;
+                }
+
+                /* Combine twinkle with drift for twinkling stars */
+                .star-layer-bg .star-twinkle {
+                    animation: starDriftSlow linear infinite, twinkleOpacity 8s ease-in-out infinite;
+                }
+
+                .star-layer-mid .star-twinkle {
+                    animation: starDriftMid linear infinite, twinkleOpacity 8s ease-in-out infinite;
+                }
+
+                .star-layer-fg .star-twinkle {
+                    animation: starDriftFast linear infinite, twinkleOpacity 8s ease-in-out infinite;
+                }
+
+                @keyframes twinkleOpacity {
+                    0%, 100% {
+                        opacity: 1;
+                    }
+                    50% {
+                        opacity: 0.65;
+                    }
+                }
+
+                .nebula-gradient {
+                    position: absolute;
+                    inset: 0;
+                    background: 
+                        radial-gradient(
+                            ellipse at 20% 30%,
+                            rgba(45, 244, 198, 0.04) 0%,
+                            transparent 50%
+                        ),
+                        radial-gradient(
+                            ellipse at 80% 70%,
+                            rgba(56, 189, 248, 0.03) 0%,
+                            transparent 50%
+                        ),
+                        radial-gradient(
+                            ellipse at 50% 50%,
+                            rgba(45, 244, 198, 0.02) 0%,
+                            transparent 60%
+                        );
+                    z-index: 1;
+                    filter: blur(40px);
+                    opacity: 0.6;
+                }
+
+                /* ==================== LIGHT MODE - OCEAN WAVES ==================== */
+                .ocean-base-gradient {
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(180deg, #F5FAFF 0%, #E0F7FA 50%, #B2EBF2 100%);
+                    z-index: 0;
+                }
+
+                .wave-layer {
+                    position: absolute;
+                    inset: 0;
+                    background-size: 200% 100%;
+                    background-repeat: repeat-x;
+                    z-index: 1;
+                    opacity: 0.4;
+                }
+
+                .wave-layer-1 {
+                    background-image: linear-gradient(
+                        90deg,
+                        transparent 0%,
+                        rgba(128, 222, 234, 0.3) 25%,
+                        rgba(178, 235, 242, 0.2) 50%,
+                        rgba(224, 247, 250, 0.3) 75%,
+                        transparent 100%
+                    );
+                    animation: waveFlow1 50s linear infinite;
+                }
+
+                .wave-layer-2 {
+                    background-image: linear-gradient(
+                        90deg,
+                        transparent 0%,
+                        rgba(178, 235, 242, 0.25) 30%,
+                        rgba(128, 222, 234, 0.2) 60%,
+                        rgba(224, 247, 250, 0.25) 90%,
+                        transparent 100%
+                    );
+                    animation: waveFlow2 60s linear infinite;
+                    animation-delay: -10s;
+                }
+
+                .wave-layer-3 {
+                    background-image: linear-gradient(
+                        90deg,
+                        transparent 0%,
+                        rgba(224, 247, 250, 0.2) 20%,
+                        rgba(178, 235, 242, 0.25) 40%,
+                        rgba(128, 222, 234, 0.2) 60%,
+                        rgba(178, 235, 242, 0.2) 80%,
+                        transparent 100%
+                    );
+                    animation: waveFlow3 70s linear infinite;
+                    animation-delay: -20s;
+                }
+
+                @keyframes waveFlow1 {
+                    0% {
+                        background-position: 0% 0%;
+                    }
+                    100% {
+                        background-position: 200% 0%;
+                    }
+                }
+
+                @keyframes waveFlow2 {
+                    0% {
+                        background-position: 0% 0%;
+                    }
+                    100% {
+                        background-position: -200% 0%;
+                    }
+                }
+
+                @keyframes waveFlow3 {
+                    0% {
+                        background-position: 0% 0%;
+                    }
+                    100% {
+                        background-position: 200% 0%;
+                    }
+                }
+
+                /* Accessibility: Reduced motion support */
+                @media (prefers-reduced-motion: reduce) {
+                    .star,
+                    .star-small,
+                    .star-medium,
+                    .star-bright,
+                    .star-twinkle,
+                    .wave-layer-1,
+                    .wave-layer-2,
+                    .wave-layer-3 {
+                        animation: none !important;
+                    }
+                    .star-twinkle::after {
+                        animation: none !important;
+                    }
+                    .star-small {
+                        opacity: 0.5 !important;
+                    }
+                    .star-medium {
+                        opacity: 0.6 !important;
+                    }
+                    .star-bright {
+                        opacity: 0.7 !important;
+                    }
+                    .wave-layer {
+                        opacity: 0.2 !important;
+                    }
+                    /* Disable button transform animations */
+                    a[href*="/Auth/register"],
+                    a[href*="/view-docs"],
+                    a[href*="/contact-public"] {
+                        transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s !important;
+                    }
+                    a[href*="/Auth/register"]:hover,
+                    a[href*="/view-docs"]:hover,
+                    a[href*="/contact-public"]:hover {
+                        transform: none !important;
+                    }
+                    a[href*="/Auth/register"]:active,
+                    a[href*="/view-docs"]:active,
+                    a[href*="/contact-public"]:active {
+                        transform: none !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 }

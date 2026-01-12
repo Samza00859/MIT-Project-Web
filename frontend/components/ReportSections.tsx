@@ -32,7 +32,8 @@ function escapeHtml(text: string) {
 }
 
 function formatInlineMarkdown(text: string) {
-    return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    // Remove all asterisks for display
+    return escapeHtml(text).replace(/\*+/g, "");
 }
 
 interface ReportSectionsDisplayProps extends ReportSectionsProps {
@@ -307,8 +308,8 @@ export default function ReportSections({
                         <button
                             onClick={() => setReportLength("summary report")}
                             className={`px-4 py-2.5 text-xs font-semibold transition-colors ${reportLength === "summary report"
-                                ? "bg-[#2df4c6]/20 text-[#2df4c6]"
-                                : "text-[#8b94ad] hover:bg-white/5"
+                                ? (isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#DBEAFE] text-[#1D4ED8]")
+                                : (isDarkMode ? "text-[#8b94ad] hover:bg-white/5" : "text-[#334155] hover:bg-white")
                                 }`}
                         >
                             Summary report
@@ -317,8 +318,8 @@ export default function ReportSections({
                         <button
                             onClick={() => setReportLength("full report")}
                             className={`px-4 py-2.5 text-xs font-semibold transition-colors ${reportLength === "full report"
-                                ? "bg-[#2df4c6]/20 text-[#2df4c6]"
-                                : "text-[#8b94ad] hover:bg-white/5"
+                                ? (isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#DBEAFE] text-[#1D4ED8]")
+                                : (isDarkMode ? "text-[#8b94ad] hover:bg-white/5" : "text-[#334155] hover:bg-white")
                                 }`}
                         >
                             Full report
@@ -336,15 +337,17 @@ export default function ReportSections({
                     >
                         {copyFeedback}
                     </button>
-                    <button
-                        onClick={handleDownloadPdf}
-                        className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium text-[#2df4c6] transition-all hover:bg-[#2df4c6]/10 ${isDarkMode
-                            ? "border-white/20 bg-transparent"
-                            : "border-gray-200 bg-gray-50"
-                            }`}
-                    >
-                        Download PDF
-                    </button>
+                    {reportSections.length > 0 && !isRunning && !reportSections.some(s => s.key === "error") && (
+                        <button
+                            onClick={handleDownloadPdf}
+                            className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium text-[#2df4c6] transition-all hover:bg-[#2df4c6]/10 ${isDarkMode
+                                ? "border-white/20 bg-transparent"
+                                : "border-gray-200 bg-gray-50"
+                                }`}
+                        >
+                            Download PDF
+                        </button>
+                    )}
 
                     {/* Compact Telegram Button */}
                     <TelegramConnect variant="header-button" />

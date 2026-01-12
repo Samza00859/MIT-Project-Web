@@ -26,7 +26,7 @@ class TraderDecision(BaseModel):
 # --- Function หลัก ---
 
 def create_trader(llm, memory):
-    async def trader_node(state, name):
+    def trader_node(state, name):
         company_name = state.get("company_of_interest", "Unknown Company")
         investment_plan = state.get("investment_plan", "N/A")
         
@@ -93,7 +93,7 @@ def create_trader(llm, memory):
 
         try:
             # เรียกใช้งาน Chain
-            parsed_result = await chain.ainvoke({
+            parsed_result = chain.invoke({
                 "company_name": company_name,
                 "market_report": market_report,
                 "sentiment_report": sentiment_report,

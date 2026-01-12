@@ -113,9 +113,63 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 # สร้าง object สำหรับ login TradingView (anonymous ก็ได้)
+def get_tv_params(symbol: str, market: str):
+    """
+    แปลง Symbol และ Market ให้เป็น Parameter ที่ TvDatafeed ต้องการ
+    return: (clean_symbol, exchange)
+    """
+    symbol = symbol.upper().strip()
 
+    # --- 1. ตลาดหุ้นไทย (TH) ---
+    if market == "TH":
+        # ตัด .BK ออก, Exchange = SET
+        return symbol.replace(".BK", ""), "SET"
 
-def get_tradingview_indicators(symbol, indicator, curr_date, look_back_days = 30, exchange='NASDAQ'):
+    # --- 2. ตลาดฮ่องกง (HK) ---
+    elif market == "HK":
+        # ตัด .HK ออก, Exchange = HKEX
+        # TradingView มักไม่ชอบเลข 0 นำหน้า (เช่น 0700 -> 700)
+        clean = symbol.replace(".HK", "")
+        return str(int(clean)) if clean.isdigit() else clean, "HKEX"
+
+    # --- 3. ตลาดจีน (CN) ---
+    elif market == "CN":
+        # ตัด suffix .SS/.SZ ออก
+        clean = symbol.split(".")[0]
+        # ถ้าขึ้นต้นด้วย 6 = Shanghai (SSE), อื่นๆ = Shenzhen (SZSE)
+        exchange = "SSE" if clean.startswith("6") else "SZSE"
+        return clean, exchange
+
+    # --- 4. ทองคำ (GOLD) ---
+    elif market == "GOLD":
+        # ใช้ OANDA หรือ FOREXCOM สำหรับ Spot Gold
+        return "XAUUSD", "OANDA" 
+        
+    # --- 5. ตลาด US (Default) ---
+    else:
+        # หุ้น US ส่วนใหญ่ถ้าไม่ NASDAQ ก็ NYSE
+        # เราจะคืนค่า 'NASDAQ' ไปก่อน (เดี๋ยวไปเขียน logic retry ในฟังก์ชันหลัก)
+        return symbol, "NASDAQ"
+
+def auto_detect_market(symbol: str) -> str:
+    symbol = symbol.upper().strip()
+    
+    # ทองคำ/Forex
+    if symbol in ["GOLD", "XAUUSD", "GC=F", "XAU/USD"]: return "GOLD"
+    
+    # หุ้นจีน/ฮ่องกง (ตัวเลข)
+    if symbol.isdigit():
+        if len(symbol) <= 5: return "HK" # ฮ่องกง
+        return "CN" # จีนแผ่นดินใหญ่
+        
+    # หุ้นไทย (เช็ค YF เร็วๆ)
+    try:
+        if yf.Ticker(f"{symbol}.BK").fast_info.market_cap is not None: return "TH"
+    except: pass
+
+    return "US" # Default
+
+def get_tradingview_indicators(symbol, indicator, curr_date, look_back_days = 30, market=None, exchange=None):
 
     indicator_descriptions = {
         "close_50_sma": "50 SMA: A medium-term trend indicator. Usage: Identify trend direction and serve as dynamic support/resistance. Tips: It lags price; combine with faster indicators for timely signals.",
@@ -134,45 +188,74 @@ def get_tradingview_indicators(symbol, indicator, curr_date, look_back_days = 30
 
     tv = TvDatafeed(username=os.getenv('TV_USERNAME'), password=os.getenv('TV_PASSWORD'))
 
-    curr_dt = datetime.strptime(curr_date, "%Y-%m-%d")
-    before_dt = curr_dt - timedelta(days=look_back_days)
+    # 1. จัดการเรื่อง Exchange และ Symbol
+    if exchange is None:
+        if not market:
+            market = auto_detect_market(symbol)
+        tv_symbol, tv_exchange = get_tv_params(symbol, market)
+    else:
+        tv_symbol = symbol
+        tv_exchange = exchange
 
-    # ดึงข้อมูล OHLC จาก TV
-    df = tv.get_hist(symbol, exchange, interval=Interval.in_daily, n_bars=look_back_days + 100)
-    if df.empty:
-        return f"No data found for {symbol}"
+    # 2. ค้นหาข้อมูล (พร้อม Retry สำหรับ US Market)
+    df = None
+    final_exchange = tv_exchange
 
-    df = df.reset_index()  # datetime index → column 'datetime'
+    if market == "US" and exchange is None:
+        us_exchanges = ["NASDAQ", "NYSE", "AMEX"]
+        for ex in us_exchanges:
+            try:
+                # ดึงมาครั้งเดียวแล้วใช้ต่อเลย ไม่ต้องดึงใหม่ข้างล่าง
+                temp_df = tv.get_hist(tv_symbol, ex, interval=Interval.in_daily, n_bars=look_back_days + 100)
+                if temp_df is not None and not temp_df.empty:
+                    df = temp_df
+                    final_exchange = ex
+                    break
+            except:
+                continue
+    else:
+        try:
+            df = tv.get_hist(tv_symbol, tv_exchange, interval=Interval.in_daily, n_bars=look_back_days + 100)
+        except:
+            df = None
+
+    # 3. ตรวจสอบว่าได้ข้อมูลไหม
+    if df is None or df.empty:
+        return f"❌ No data found for {symbol} on TradingView.", None
+
+    print(f"✅ Data found on: {final_exchange}")
+
+    # 4. ประมวลผลข้อมูล (ใช้ df ที่ได้จากข้างบนเลย ไม่ต้อง get_hist ซ้ำ)
+    df = df.reset_index()
     df['datetime'] = pd.to_datetime(df['datetime'])
 
-    # wrap เฉพาะ OHLC + volume
     df_wrap = df[['open', 'high', 'low', 'close', 'volume']].copy()
     df_wrap = wrap(df_wrap)
 
-    # trigger calculation indicator
     try:
         df_wrap[indicator]
     except Exception as e:
-        return f"Indicator {indicator} not available: {e}"
+        return f"Indicator {indicator} not available: {e}", None
 
-    # merge indicator กลับกับ datetime
     df[indicator] = df_wrap[indicator]
 
-    # filter วันย้อนหลัง
+    # Filter วันที่
+    curr_dt = datetime.strptime(curr_date, "%Y-%m-%d")
+    before_dt = curr_dt - timedelta(days=look_back_days)
+    
     df_filtered = df[df['datetime'] <= curr_dt].tail(look_back_days + 1)
-
     df_filtered = df_filtered[df_filtered['datetime'] >= before_dt]
 
-    # สร้าง string output
+    # สร้าง output string
     ind_string = ""
     for _, row in df_filtered.iterrows():
         value = row[indicator]
-        value = "N/A" if pd.isna(value) else value
+        value = "N/A" if pd.isna(value) else f"{value:.2f}"
         ind_string += f"{row['datetime'].strftime('%Y-%m-%d')}: {value}\n"
 
-    # รวมผลลัพธ์ + description
     result_str = (
-        f"\n\n=== tradingview ===\n## {indicator.upper()} values from {before_dt.strftime('%Y-%m-%d')} to {curr_date}:\n\n"
+        f"\n\n=== tradingview ({final_exchange}) ===\n"
+        f"## {indicator.upper()} values for {tv_symbol} ({before_dt.strftime('%Y-%m-%d')} to {curr_date}):\n\n"
         + ind_string
         + "\n\n"
         + indicator_descriptions.get(indicator, "No description available.")

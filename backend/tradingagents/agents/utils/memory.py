@@ -112,6 +112,9 @@
 #     except Exception as e:
 #         print(f"Error during recommendation: {str(e)}")
 
+
+# selection 2
+
 import chromadb
 from chromadb.config import Settings
 # from openai import OpenAI # <--- ไม่ต้องใช้ OpenAI client ที่นี่แล้ว
@@ -245,3 +248,161 @@ if __name__ == "__main__":
 
     except Exception as e:
         print(f"Error during recommendation: {str(e)}")
+
+
+#section 3 
+
+# import chromadb
+# from chromadb.config import Settings
+# import google.generativeai as genai
+# import os, dotenv
+
+# dotenv.load_dotenv()
+
+# class FinancialSituationMemory:
+#     def __init__(self, name, api_key=os.getenv("GOOGLE_API_KEY")):
+        
+#         # --- 1. Setup Google Gemini ---
+#         if not api_key:
+#              # Try to load from .env again if passed explicitly as None but env might have it
+#             dotenv.load_dotenv()
+#             api_key = os.getenv("GOOGLE_API_KEY")
+            
+#         if not api_key:
+#             raise ValueError("GOOGLE_API_KEY not found in environment variables")
+            
+#         genai.configure(api_key=api_key)
+        
+#         # Select model: 'models/text-embedding-004'
+#         self.model_name = 'models/text-embedding-004' 
+#         print(f"Initialized Google Embedding model: {self.model_name}")
+        
+#         # --- 2. Setup ChromaDB ---
+#         self.chroma_client = chromadb.Client(Settings(allow_reset=True))
+#         self.situation_collection = self.chroma_client.get_or_create_collection(name=name)
+
+#     def get_embedding(self, text, task_type="retrieval_document"):
+#         """
+#         Get embedding from Google API
+#         task_type options: 
+#           - 'retrieval_query': for query text
+#           - 'retrieval_document': for storage text
+#         """
+#         if not text:
+#             return []
+            
+#         try:
+#             result = genai.embed_content(
+#                 model=self.model_name,
+#                 content=text,
+#                 task_type=task_type,
+#                 title="Financial Situation" if task_type == "retrieval_document" else None
+#             )
+#             return result['embedding']
+#         except Exception as e:
+#             print(f"Error getting embedding: {e}")
+#             raise e
+
+#     def add_situations(self, situations_and_advice):
+#         """Add situations using Google Embeddings (Batch mode)"""
+#         situations = []
+#         advice = []
+#         ids = []
+        
+#         offset = self.situation_collection.count()
+        
+#         # Prepare data for Batch Embedding
+#         docs_to_embed = [s[0] for s in situations_and_advice]
+        
+#         # Call API for batch embeddings
+#         # For stored documents, use task_type="retrieval_document"
+#         try:
+#             embeddings_result = genai.embed_content(
+#                 model=self.model_name,
+#                 content=docs_to_embed,
+#                 task_type="retrieval_document"
+#             )
+#             embeddings = embeddings_result['embedding']
+#         except Exception as e:
+#              print(f"Batch embedding failed: {e}. Falling back to iterative approach.")
+#              embeddings = []
+#              import time
+#              for doc in docs_to_embed:
+#                  try:
+#                      emb = self.get_embedding(doc, task_type="retrieval_document")
+#                      embeddings.append(emb)
+#                      time.sleep(1) # Rate limiting
+#                  except Exception as inner_e:
+#                      print(f"Iterative embedding failed for doc: {inner_e}")
+#                      raise inner_e
+
+#         for i, (situation, recommendation) in enumerate(situations_and_advice):
+#             situations.append(situation)
+#             advice.append(recommendation)
+#             ids.append(str(offset + i))
+
+#         self.situation_collection.add(
+#             documents=situations,
+#             metadatas=[{"recommendation": rec} for rec in advice],
+#             embeddings=embeddings,
+#             ids=ids,
+#         )
+
+#     def get_memories(self, current_situation, n_matches=1):
+#         """Find matches"""
+        
+#         # For search queries, use 'retrieval_query'
+#         query_embedding = self.get_embedding(current_situation, task_type="retrieval_query")
+
+#         results = self.situation_collection.query(
+#             query_embeddings=[query_embedding],
+#             n_results=n_matches,
+#             include=["metadatas", "documents", "distances"],
+#         )
+
+#         matched_results = []
+#         # Prevent error if no results found
+#         if results["documents"]:
+#             for i in range(len(results["documents"][0])):
+#                 matched_results.append({
+#                     "matched_situation": results["documents"][0][i],
+#                     "recommendation": results["metadatas"][0][i]["recommendation"],
+#                     "similarity_score": 1 - results["distances"][0][i],
+#                 })
+
+#         return matched_results
+
+# # --- Usage Example ---
+# if __name__ == "__main__":
+#     # Load env again to be sure
+#     dotenv.load_dotenv()
+#     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+    
+#     if not GOOGLE_API_KEY:
+#         print("⚠️ Please set your GOOGLE_API_KEY first!")
+#     else:
+#         # Use a localized test collection name to avoid conflicts
+#         matcher = FinancialSituationMemory(name="test_gemini_memory_v2")
+
+#         # Example data
+#         example_data = [
+#             ("High inflation rate with rising interest rates", "Defensive sectors"),
+#             ("Tech sector volatility", "Reduce exposure to growth stocks"),
+#             ("Strong dollar impacting emerging markets", "Hedge currency exposure"),
+#         ]
+
+#         try:
+#             print("Adding situations...")
+#             matcher.add_situations(example_data)
+
+#             current_situation = "Market showing volatility in tech sector with rising rates"
+#             print(f"Querying: {current_situation}")
+            
+#             recommendations = matcher.get_memories(current_situation, n_matches=1)
+#             for rec in recommendations:
+#                 print(f"Score: {rec['similarity_score']:.4f}")
+#                 print(f"Rec: {rec['recommendation']}")
+                
+#         except Exception as e:
+#             print(f"Error: {e}")
+

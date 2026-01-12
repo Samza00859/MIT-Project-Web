@@ -16,8 +16,8 @@ DEFAULT_CONFIG = {
     # "backend_url": "https://api.openai.com/v1",
     # LLM settings
     "llm_provider": "google",
-    "deep_think_llm": "gemini-2.0-flash",
-    "quick_think_llm": "gemini-2.0-flash",
+    "deep_think_llm": "gemini-2.5-flash",
+    "quick_think_llm": "gemini-2.5-flash-lite",
     
     # "llm_provider": "deepseek",
     # "deep_think_llm": "deepseek-reasoner",

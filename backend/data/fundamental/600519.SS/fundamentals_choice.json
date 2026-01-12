@@ -1,0 +1,42 @@
+{
+  "symbol": "600519.SS",
+  "chosen_source": "yfinance",
+  "scores": {
+    "yfinance": 0,
+    "finnhub": 0,
+    "alphavantage": 0
+  },
+  "completeness": {
+    "yfinance": 13,
+    "finnhub": 0,
+    "alphavantage": 0
+  },
+  "final_payload": {
+    "overview": {
+      "marketCap": 1791998679096.0,
+      "sharesOutstanding": null,
+      "peRatio": null,
+      "currency": "CNY",
+      "exchange": "SHH",
+      "name": "KWEICHOW MOUTAI",
+      "sector": "Consumer Defensive",
+      "industry": "Beverages - Wineries & Distilleries"
+    },
+    "balancesheet": {
+      "totalAssets": 298944579918.7,
+      "totalLiabilities": 56933264798.1,
+      "shareholderEquity": 242011315120.6
+    },
+    "cashflow": {
+      "operatingCashFlow": 92463692168.43,
+      "freeCashFlow": 87784980114.87,
+      "capitalExpenditures": null
+    },
+    "incomestatement": {
+      "totalRevenue": 174144069958.25,
+      "netIncome": 86228146421.62,
+      "eps": null
+    }
+  },
+  "timestamp": "2025-12-18T07:17:54.775305+00:00"
+}

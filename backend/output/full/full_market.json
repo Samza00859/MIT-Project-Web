@@ -1,9 +1,8 @@
 {
-    "ticker": "SPY",
-    "date": "2025-12-17",
+    "ticker": "PTT.BK",
+    "date": "2025-12-26",
     "selected_indicators": [
         "close_50_sma",
-        "close_200_sma",
         "close_10_ema",
         "macd",
         "macds",
@@ -16,108 +15,86 @@
         "vwma"
     ],
     "market_overview": {
-        "trend_direction": "Bullish",
-        "momentum_state": "Diverging",
+        "trend_direction": "Sideways",
+        "momentum_state": "Neutral",
         "volatility_level": "Moderate",
         "volume_condition": "Neutral"
     },
     "indicator_analysis": [
         {
             "indicator": "close_50_sma",
-            "indicator_full_name": "50-day Simple Moving Average",
-            "signal": "Price at $678.87 above 50 SMA at $674.79, indicating medium-term bullish trend",
-            "implication": "Positive medium-term trend support, with 50 SMA acting as dynamic support"
-        },
-        {
-            "indicator": "close_200_sma",
-            "indicator_full_name": "200-day Simple Moving Average",
-            "signal": "Price significantly above 200 SMA at $619.17, confirming long-term bullish trend",
-            "implication": "Strong long-term uptrend established, with 200 SMA providing major support level"
+            "indicator_full_name": "50-Day Simple Moving Average",
+            "signal": "Price is above the 50-day SMA.",
+            "implication": "Slightly bullish short-term indication, but needs confirmation from other indicators."
         },
         {
             "indicator": "close_10_ema",
-            "indicator_full_name": "10-day Exponential Moving Average",
-            "signal": "Price at $678.87 below 10 EMA at $681.94, showing short-term weakness",
-            "implication": "Short-term bearish pressure, potential resistance at 10 EMA level"
+            "indicator_full_name": "10-Day Exponential Moving Average",
+            "signal": "Price is above the 10-day EMA.",
+            "implication": "Indicates recent upward price movement and potential short-term bullishness."
         },
         {
             "indicator": "macd",
             "indicator_full_name": "Moving Average Convergence Divergence",
-            "signal": "MACD at 2.95 below Signal line at 3.15, bearish crossover forming",
-            "implication": "Momentum turning negative, potential for further downside pressure"
-        },
-        {
-            "indicator": "macds",
-            "indicator_full_name": "MACD Signal Line",
-            "signal": "Signal line at 3.15 trending downward from recent highs",
-            "implication": "Bullish momentum weakening, trend reversal signal emerging"
-        },
-        {
-            "indicator": "macdh",
-            "indicator_full_name": "MACD Histogram",
-            "signal": "Histogram at -0.20, negative and declining from recent positive values",
-            "implication": "Bearish momentum accelerating, confirming MACD crossover signal"
+            "signal": "MACD line (0.20) is above the MACD Signal line (0.17) and the MACD Histogram (0.04) is positive.",
+            "implication": "Bullish momentum is present, though it appears to be waning slightly."
         },
         {
             "indicator": "rsi",
             "indicator_full_name": "Relative Strength Index",
-            "signal": "RSI at 50.51 in neutral territory, declining from recent peak of 62.20",
-            "implication": "Momentum cooling off from overbought conditions, room for further decline"
+            "signal": "RSI is at 50.0.",
+            "implication": "Neutral reading, indicating neither overbought nor oversold conditions."
         },
         {
             "indicator": "boll",
-            "indicator_full_name": "Bollinger Middle Band",
-            "signal": "Price at $678.87 near middle band at $677.08, within normal range",
-            "implication": "Price consolidating near mean, neither overbought nor oversold"
+            "indicator_full_name": "Bollinger Bands",
+            "signal": "Price is trading near the middle Bollinger Band (31.375).",
+            "implication": "Indicates a period of consolidation or sideways movement."
         },
         {
             "indicator": "boll_ub",
-            "indicator_full_name": "Bollinger Upper Band",
-            "signal": "Upper band at $697.69, price well below resistance level",
-            "implication": "Significant upside room before overbought conditions, resistance at $697 area"
+            "indicator_full_name": "Upper Bollinger Band",
+            "signal": "Upper Bollinger Band is at 32.07.",
+            "implication": "Acts as a potential resistance level."
         },
         {
             "indicator": "boll_lb",
-            "indicator_full_name": "Bollinger Lower Band",
-            "signal": "Lower band at $656.47, providing support below current price",
-            "implication": "Support zone at $656-660 area if decline continues"
+            "indicator_full_name": "Lower Bollinger Band",
+            "signal": "Lower Bollinger Band is at 30.68.",
+            "implication": "Acts as a potential support level."
         },
         {
             "indicator": "atr",
             "indicator_full_name": "Average True Range",
-            "signal": "ATR at 7.30, declining from recent highs, indicating moderate volatility",
-            "implication": "Volatility normalizing, typical daily moves around $7-8, useful for stop-loss placement"
+            "signal": "ATR is 0.48.",
+            "implication": "Indicates moderate volatility in the recent trading periods."
         },
         {
             "indicator": "vwma",
             "indicator_full_name": "Volume Weighted Moving Average",
-            "signal": "Price at $678.87 below VWMA at $682.82, indicating volume-weighted selling pressure",
-            "implication": "Recent volume-weighted price action slightly bearish, suggesting institutional selling"
+            "signal": "Price is trading slightly above the VWMA (31.38).",
+            "implication": "Suggests that recent trading activity has had a slightly positive influence on the price."
         }
     ],
     "price_action_summary": {
-        "recent_high_low": "Price at $678.87, down from recent high of $689.17 (Dec 11) but above recent low of $652.53 (Nov 20)",
+        "recent_high_low": "Price is currently below recent highs and above recent lows.",
         "support_levels": [
-            "$674.79 (50 SMA)",
-            "$656.47 (Bollinger Lower Band)",
-            "$652.53 (Recent Low)"
+            "30.68 (Lower Bollinger Band)",
+            "30.50"
         ],
         "resistance_levels": [
-            "$681.94 (10 EMA)",
-            "$689.17 (Recent High)",
-            "$697.69 (Bollinger Upper Band)"
+            "32.07 (Upper Bollinger Band)",
+            "32.25"
         ],
-        "short_term_behavior": "Consolidating after recent pullback, testing support near 50 SMA with bearish momentum signals emerging"
+        "short_term_behavior": "The price has been consolidating within a range, showing indecision between buyers and sellers."
     },
     "market_sentiment": {
-        "sentiment_label": "Bearish"
+        "sentiment_label": "Neutral"
     },
     "key_risks": [
-        "MACD bearish crossover suggesting momentum shift",
-        "Price below short-term 10 EMA indicating near-term weakness",
-        "RSI declining from overbought levels",
-        "Volume-weighted price action showing selling pressure",
-        "Potential test of 50 SMA support at $674.79"
+        "The price is trading between the 50-day SMA and the 10-day EMA, indicating a lack of clear trend.",
+        "The RSI is at 50, suggesting a neutral market sentiment without strong conviction.",
+        "MACD is showing weakening bullish momentum."
     ],
-    "short_term_outlook": "Cautiously bearish with price consolidating below short-term moving averages; watch for break below 50 SMA at $674.79 for further downside toward $656 support, while resistance at $682-689 zone needs to be overcome for bullish resumption"
+    "short_term_outlook": "The stock is expected to trade sideways in the short term, with potential for minor fluctuations within the current trading range. A breakout above the upper Bollinger Band or a breakdown below the lower Bollinger Band would be needed to indicate a change in trend."
 }

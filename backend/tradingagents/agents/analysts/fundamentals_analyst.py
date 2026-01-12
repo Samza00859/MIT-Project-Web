@@ -5,12 +5,10 @@ from pydantic import BaseModel, Field
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import JsonOutputParser
 
-from tradingagents.agents.utils.agent_utils import (
-    get_fundamentals,
-    get_balance_sheet,
-    get_cashflow,
-    get_income_statement
+from tradingagents.agents.utils.fundamental_data_tools import (
+    get_all_fundamentals_batch
 )
+from tradingagents.dataflows.local_call import get_10years_fundamentals
 
 
 # ===================== PYDANTIC MODELS ======================
@@ -39,30 +37,23 @@ def create_fundamentals_analyst(llm):
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
 
-        tools = [
-            get_fundamentals,
-            # get_balance_sheet,
-            # get_cashflow,
-            # get_income_statement
-        ]
+        # ===================== PRE-FETCH DATA ======================
+        fundamentals_data = await get_10years_fundamentals(ticker)
 
         # ===================== SYSTEM MESSAGE ======================
         system_message = f"""
             Act as a Senior Fundamental Analyst specializing in financial statement analysis and company valuation.
 
-            **CRITICAL INSTRUCTION:**
-            - You **DO NOT** have current financial data in your internal knowledge.
-            - You **MUST CALL** `get_fundamentals(ticker='{ticker}')` immediately to retrieve real data.
-            - **DO NOT** generate any report without calling at least `get_fundamentals` first.
+            **FINANCIAL DATA (CURRENT):**
+            {fundamentals_data}
 
-            **MANDATORY WORKFLOW:**
-            1. Call `get_fundamentals(ticker='{ticker}')` to get comprehensive financial metrics.
-            2. Analyze the data thoroughly.
-            3. Output the result strictly in JSON format.
+            **INSTRUCTIONS:**
+            1. Analyze the provided financial data thoroughly.
+            2. Output the result strictly in JSON format.
 
             **ANALYSIS GUIDELINES:**
             - Focus on long-term financial health and sustainability
-            - Compare metrics to industry averages when relevant
+            - Compare metrics to implied industry standards where possible
             - Assess both growth potential and downside risks
             - Consider debt levels, profitability, and cash generation
 
@@ -88,27 +79,19 @@ def create_fundamentals_analyst(llm):
         prompt = ChatPromptTemplate.from_messages([
             (
                 "system",
-                "You are a helpful AI assistant, collaborating with other assistants. "
-                "Use the provided tools to progress towards answering the question. "
-                "You have access to the following tools: {tool_names}. \n\n"
-                "{system_message}\n\n"
-                "For your reference, the current date is {current_date}. "
-                "The company we want to look at is {ticker}."
+                "{system_message}"
             ),
             MessagesPlaceholder(variable_name="messages"),
         ])
 
-        prompt = prompt.partial(
-            system_message=system_message,
-            tool_names=", ".join([tool.name for tool in tools]),
-            current_date=current_date,
-            ticker=ticker
-        )
+        prompt = prompt.partial(system_message=system_message)
 
         # ===================== CHAIN ======================
-        chain = prompt | llm.bind_tools(tools)
+        # NO TOOL BINDING
+        chain = prompt | llm
 
         # Execute
+        print("🤖 Fundamentals Analyst: Analyzing pre-fetched data...")
         result = await chain.ainvoke(state["messages"])
         
         print("Fundamentals Analysis Result:", result)
