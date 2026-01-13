@@ -28,6 +28,7 @@ import {
 } from "../lib/constants";
 import { MARKET_INFO } from "../components/MarketIcons";
 import { deepClone, extractDecision, toISODate } from "@/lib/helpers";
+import { translateBatch, getThaiLabel } from "@/lib/translation";
 
 // --- Components ---
 
@@ -107,6 +108,70 @@ export default function Home() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMarketSelector, setShowMarketSelector] = useState(false); // New Dropdown State
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Language and Translation State
+  const [language, setLanguage] = useState<"en" | "th">("en");
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translatedSections, setTranslatedSections] = useState<{ key: string; label: string; text: string }[]>([]);
+
+  // Track previous isRunning to detect when generation completes
+  const prevIsRunningRef = useRef<boolean>(false);
+
+  // Fetch Thai content from database when generation completes
+  useEffect(() => {
+    const fetchThaiContent = async () => {
+      if (prevIsRunningRef.current === true && isRunning === false && ticker) {
+        // Generation just completed - fetch Thai content from history
+        setIsTranslating(true);
+        try {
+          const apiUrl = getApiUrl();
+          const res = await fetch(`${apiUrl}/api/history/`);
+          if (res.ok) {
+            const history = await res.json();
+            // Find the latest entry for this ticker
+            const latestEntry = history.find((h: any) =>
+              h.ticker.toUpperCase() === ticker.toUpperCase() &&
+              h.status === "success"
+            );
+
+            if (latestEntry && latestEntry.reports) {
+              // Build translated sections from Thai content
+              const thaiSections: { key: string; label: string; text: string }[] = [];
+
+              latestEntry.reports.forEach((report: any) => {
+                if (report.content_th && report.title_th) {
+                  let textContent = "";
+                  if (typeof report.content_th === "object") {
+                    textContent = "```json\n" + JSON.stringify(report.content_th, null, 2) + "\n```";
+                  } else {
+                    textContent = String(report.content_th);
+                  }
+
+                  thaiSections.push({
+                    key: report.report_type === "sum_report" ? `${report.title.toLowerCase().replace(/\s+/g, "_")}_sum` : report.title.toLowerCase().replace(/\s+/g, "_"),
+                    label: report.title_th,
+                    text: textContent,
+                  });
+                }
+              });
+
+              if (thaiSections.length > 0) {
+                setTranslatedSections(thaiSections);
+                console.log(`Loaded ${thaiSections.length} Thai sections from database`);
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch Thai content:", error);
+        } finally {
+          setIsTranslating(false);
+        }
+      }
+      prevIsRunningRef.current = isRunning;
+    };
+
+    fetchThaiContent();
+  }, [isRunning, ticker]);
 
   // Generate stars once for the night sky effect (reduced count for better performance)
   const [stars, setStars] = useState<Star[]>([]);
@@ -803,6 +868,205 @@ export default function Home() {
     doc.save(`TradingAgents_${ticker}_${analysisDate}.pdf`);
   };
 
+  // Handle Thai PDF Download - Translates content first using Typhoon API
+  const handleDownloadPdfThai = async () => {
+    setIsTranslating(true);
+
+    try {
+      // Extract all text content from report sections
+      const textsToTranslate: string[] = [];
+      const jsonContents: (object | null)[] = [];
+
+      contextReportSections.forEach((section) => {
+        if (typeof section.text === 'string') {
+          // Try to parse JSON first
+          const trimmed = section.text.trim();
+          if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+            try {
+              const parsed = JSON.parse(trimmed.replace(/```json/g, '').replace(/```/g, ''));
+              // Flatten object values for translation
+              const textValues: string[] = [];
+              const extractTexts = (obj: object): void => {
+                Object.values(obj).forEach((val) => {
+                  if (typeof val === 'string' && val.trim()) {
+                    textValues.push(val);
+                  } else if (typeof val === 'object' && val !== null) {
+                    extractTexts(val);
+                  }
+                });
+              };
+              extractTexts(parsed);
+              textsToTranslate.push(textValues.join('\n\n---SEPARATOR---\n\n'));
+              jsonContents.push(parsed);
+            } catch {
+              textsToTranslate.push(section.text);
+              jsonContents.push(null);
+            }
+          } else {
+            textsToTranslate.push(section.text);
+            jsonContents.push(null);
+          }
+        } else {
+          textsToTranslate.push(String(section.text));
+          jsonContents.push(null);
+        }
+      });
+
+      // Translate all texts in batch
+      const translatedTexts = await translateBatch(textsToTranslate, "stock market financial analysis report");
+
+      // Create translated sections with Thai labels
+      const thaiSections = contextReportSections.map((section, idx) => ({
+        key: section.key,
+        label: getThaiLabel(section.label),
+        text: translatedTexts[idx] || section.text,
+      }));
+
+      setTranslatedSections(thaiSections);
+
+      // Generate Thai PDF using jsPDF
+      const doc = new jsPDF({ unit: "pt", format: "a4" });
+
+      // Load Thai fonts
+      const loadFont = async (url: string): Promise<string | null> => {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) return null;
+          const blob = await response.blob();
+          if (blob.size < 1000) return null;
+          return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const base64data = (reader.result as string).split(",")[1];
+              resolve(base64data);
+            };
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        } catch {
+          return null;
+        }
+      };
+
+      const sarabunRegular = await loadFont("/fonts/Sarabun-Regular.ttf");
+      const sarabunBold = await loadFont("/fonts/Sarabun-Bold.ttf");
+
+      if (sarabunRegular) {
+        doc.addFileToVFS("Sarabun-Regular.ttf", sarabunRegular);
+        doc.addFont("Sarabun-Regular.ttf", "Sarabun", "normal");
+      }
+      if (sarabunBold) {
+        doc.addFileToVFS("Sarabun-Bold.ttf", sarabunBold);
+        doc.addFont("Sarabun-Bold.ttf", "Sarabun", "bold");
+      }
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 40;
+      const maxWidth = pageWidth - margin * 2;
+      const lineHeight = 14;
+      let yPosition = margin + 20;
+
+      const checkPageBreak = (neededHeight: number) => {
+        if (yPosition + neededHeight > pageHeight - margin) {
+          doc.setFontSize(8);
+          doc.setFont("Sarabun", "normal");
+          doc.setTextColor(150);
+          doc.text(`หน้า ${doc.getNumberOfPages()}`, pageWidth / 2, pageHeight - 20, { align: 'center' });
+          doc.addPage();
+          yPosition = margin + 20;
+          return true;
+        }
+        return false;
+      };
+
+      const addThaiText = (text: string, fontSize = 10, isBold = false, indent = 0, color: [number, number, number] = [50, 50, 50]) => {
+        doc.setFontSize(fontSize);
+        doc.setTextColor(color[0], color[1], color[2]);
+        doc.setFont("Sarabun", isBold ? "bold" : "normal");
+
+        const cleanText = text.replace(/\*\*/g, "").replace(/---SEPARATOR---/g, "\n");
+        const lines = doc.splitTextToSize(cleanText, maxWidth - indent);
+
+        for (const line of lines) {
+          checkPageBreak(lineHeight);
+          doc.text(line, margin + indent, yPosition);
+          yPosition += lineHeight;
+        }
+      };
+
+      // Header
+      doc.setFontSize(18);
+      doc.setFont("Sarabun", "bold");
+      doc.setTextColor(0, 51, 102);
+      doc.text(`รายงาน TradingAgents: ${ticker}`, margin, yPosition);
+      yPosition += 20;
+
+      doc.setFontSize(10);
+      doc.setFont("Sarabun", "normal");
+      doc.setTextColor(100);
+      doc.text(`วันที่วิเคราะห์: ${analysisDate}`, margin, yPosition);
+      yPosition += 25;
+
+      doc.setDrawColor(200);
+      doc.setLineWidth(1);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 25;
+
+      // Recommendation
+      if (contextDecision) {
+        yPosition += lineHeight * 1.5;
+        doc.setFont("Sarabun", "bold");
+        doc.setFontSize(14);
+        doc.setTextColor(0, 200, 0);
+        doc.text(`คำแนะนำ: ${contextDecision}`, margin, yPosition);
+        yPosition += lineHeight * 2;
+      }
+
+      // Render sections
+      thaiSections.forEach((section) => {
+        checkPageBreak(60);
+
+        doc.setFillColor(245, 245, 245);
+        doc.rect(margin, yPosition - 12, maxWidth, 24, 'F');
+
+        doc.setFontSize(13);
+        doc.setFont("Sarabun", "bold");
+        doc.setTextColor(0);
+        doc.text(section.label, margin + 8, yPosition + 5);
+        yPosition += 30;
+
+        addThaiText(section.text, 10, false, 0, [50, 50, 50]);
+        yPosition += 25;
+      });
+
+      // Footer
+      doc.setFontSize(8);
+      doc.setFont("Sarabun", "normal");
+      doc.setTextColor(150);
+      doc.text(`หน้า ${doc.getNumberOfPages()}`, pageWidth / 2, pageHeight - 20, { align: 'center' });
+      doc.text("สร้างโดย TradingAgents", pageWidth - margin, pageHeight - 20, { align: 'right' });
+
+      doc.save(`TradingAgents_${ticker}_${analysisDate}_TH.pdf`);
+
+    } catch (error) {
+      console.error("Thai PDF generation failed:", error);
+      alert("การสร้าง PDF ภาษาไทยล้มเหลว กรุณาลองใหม่อีกครั้ง");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  // Handle language change (for viewing translated content in UI)
+  // Thai content should already be pre-translated during report generation
+  // For reports generated after the update, Thai content will be available
+  // For old reports, we just switch to show Thai labels (content stays English)
+  const handleLanguageChange = (lang: "en" | "th") => {
+    setLanguage(lang);
+    // No need to call translation API - Thai content is pre-loaded from database
+    // or already translated during generation
+  };
+
   // Render Helpers
   const getRecommendationVariant = (decision: string) => {
     const d = decision.toLowerCase();
@@ -1319,7 +1583,7 @@ export default function Home() {
 
         {/* Report Panel */}
         <ReportSections
-          reportSections={contextReportSections}
+          reportSections={language === "th" && translatedSections.length > 0 ? translatedSections : contextReportSections}
           isDarkMode={isDarkMode}
           ticker={ticker}
           analysisDate={analysisDate}
@@ -1328,8 +1592,13 @@ export default function Home() {
           setCopyFeedback={setCopyFeedback}
           handleCopyReport={handleCopyReport}
           handleDownloadPdf={handleDownloadPdf}
+          handleDownloadPdfThai={handleDownloadPdfThai}
           reportLength={reportLength}
           setReportLength={setReportLength}
+          isRunning={isRunning}
+          language={language}
+          setLanguage={handleLanguageChange}
+          isTranslating={isTranslating}
         />
 
         {/* Summary Panel */}

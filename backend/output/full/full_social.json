@@ -1,8 +1,28 @@
 {
-    "sentiment_score": 50,
-    "sentiment_verdict": "Neutral (Data Unavailable)",
-    "social_volume_analysis": "Unable to retrieve social media data.",
-    "dominant_narrative": "No clear narrative identified.",
-    "top_discussion_topics": [],
-    "retail_psychology_assessment": "Insufficient data for psychological assessment."
+    "sentiment_verdict": "Bullish",
+    "social_volume": "High volume driven by major AI partnership news and market cap milestones.",
+    "dominant_narrative": "Apple's strategic partnership with Google to integrate Gemini AI into Siri is generating significant excitement, positioning the company for a strong AI future. This news, coupled with Google reaching a $4 trillion market cap, has fueled optimism around Apple's own AI advancements and future growth prospects.",
+    "top_topics": [
+        {
+            "topic": "Apple-Google AI Partnership (Siri)",
+            "sentiment": "Positive",
+            "analysis_snippet": "The integration of Google's Gemini AI into Apple's Siri is viewed as a significant positive development, promising enhanced AI capabilities for Apple users and a strategic win for both companies."
+        },
+        {
+            "topic": "Market Capitalization Milestones",
+            "sentiment": "Positive",
+            "analysis_snippet": "Apple's market capitalization is being closely watched, with discussions around its position relative to other tech giants like Nvidia, Microsoft, and Google highlighting its significant market presence and potential for growth."
+        },
+        {
+            "topic": "AI Integration and Future Growth",
+            "sentiment": "Positive",
+            "analysis_snippet": "There is a strong narrative around Apple's commitment to AI, with the Gemini partnership seen as a key step in enhancing its product ecosystem and driving future revenue growth."
+        },
+        {
+            "topic": "Institutional Options Activity",
+            "sentiment": "Neutral",
+            "analysis_snippet": "Significant institutional activity in Apple options is noted, indicating substantial interest and potential strategic positioning by large investors."
+        }
+    ],
+    "psychology": "Greed and Optimism, driven by the significant AI partnership news and the perception of Apple capitalizing on the AI revolution."
 }

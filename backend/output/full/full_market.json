@@ -1,13 +1,13 @@
 {
-    "ticker": "PTT.BK",
-    "date": "2025-12-26",
+    "ticker": "AAPL",
+    "date": "2025-03-13",
     "selected_indicators": [
         "close_50_sma",
         "close_10_ema",
+        "rsi",
         "macd",
         "macds",
         "macdh",
-        "rsi",
         "boll",
         "boll_ub",
         "boll_lb",
@@ -15,86 +15,74 @@
         "vwma"
     ],
     "market_overview": {
-        "trend_direction": "Sideways",
-        "momentum_state": "Neutral",
+        "trend_direction": "Bearish",
+        "momentum_state": "Weak",
         "volatility_level": "Moderate",
-        "volume_condition": "Neutral"
+        "volume_condition": "Falling"
     },
     "indicator_analysis": [
         {
             "indicator": "close_50_sma",
             "indicator_full_name": "50-Day Simple Moving Average",
-            "signal": "Price is above the 50-day SMA.",
-            "implication": "Slightly bullish short-term indication, but needs confirmation from other indicators."
+            "signal": "Price is below the 50-day SMA.",
+            "implication": "Indicates a potential downtrend or weakening of the short-term trend."
         },
         {
             "indicator": "close_10_ema",
             "indicator_full_name": "10-Day Exponential Moving Average",
-            "signal": "Price is above the 10-day EMA.",
-            "implication": "Indicates recent upward price movement and potential short-term bullishness."
-        },
-        {
-            "indicator": "macd",
-            "indicator_full_name": "Moving Average Convergence Divergence",
-            "signal": "MACD line (0.20) is above the MACD Signal line (0.17) and the MACD Histogram (0.04) is positive.",
-            "implication": "Bullish momentum is present, though it appears to be waning slightly."
+            "signal": "Price is below the 10-day EMA.",
+            "implication": "Suggests bearish short-term momentum."
         },
         {
             "indicator": "rsi",
             "indicator_full_name": "Relative Strength Index",
-            "signal": "RSI is at 50.0.",
-            "implication": "Neutral reading, indicating neither overbought nor oversold conditions."
+            "signal": "RSI is 53.07, indicating a neutral to slightly bullish momentum.",
+            "implication": "Momentum is not strongly in either direction, suggesting a potential consolidation or reversal if it moves out of this range."
+        },
+        {
+            "indicator": "macd",
+            "indicator_full_name": "Moving Average Convergence Divergence",
+            "signal": "MACD is -0.14, MACD Signal is -0.41, MACD Histogram is 0.26. The MACD line is above the signal line and the histogram is positive but decreasing.",
+            "implication": "Suggests waning bullish momentum or a potential bearish crossover if the MACD line falls below the signal line."
         },
         {
             "indicator": "boll",
             "indicator_full_name": "Bollinger Bands",
-            "signal": "Price is trading near the middle Bollinger Band (31.375).",
-            "implication": "Indicates a period of consolidation or sideways movement."
-        },
-        {
-            "indicator": "boll_ub",
-            "indicator_full_name": "Upper Bollinger Band",
-            "signal": "Upper Bollinger Band is at 32.07.",
-            "implication": "Acts as a potential resistance level."
-        },
-        {
-            "indicator": "boll_lb",
-            "indicator_full_name": "Lower Bollinger Band",
-            "signal": "Lower Bollinger Band is at 30.68.",
-            "implication": "Acts as a potential support level."
+            "signal": "Price is trading near the middle Bollinger Band (230.98).",
+            "implication": "Indicates a period of consolidation or moderate volatility. The upper band is at 241.73 and the lower band is at 220.22."
         },
         {
             "indicator": "atr",
             "indicator_full_name": "Average True Range",
-            "signal": "ATR is 0.48.",
-            "implication": "Indicates moderate volatility in the recent trading periods."
+            "signal": "ATR is 7.60.",
+            "implication": "Suggests moderate volatility in the stock price over the recent period."
         },
         {
             "indicator": "vwma",
             "indicator_full_name": "Volume Weighted Moving Average",
-            "signal": "Price is trading slightly above the VWMA (31.38).",
-            "implication": "Suggests that recent trading activity has had a slightly positive influence on the price."
+            "signal": "Price is above the VWMA (230.60).",
+            "implication": "Indicates that on average, the stock has traded at a higher price when there was higher volume, suggesting some underlying buying interest despite the current price action."
         }
     ],
     "price_action_summary": {
-        "recent_high_low": "Price is currently below recent highs and above recent lows.",
+        "recent_high_low": "Price is currently below recent highs observed in late February 2025.",
         "support_levels": [
-            "30.68 (Lower Bollinger Band)",
-            "30.50"
+            "209.68 (March 13, 2025 close)",
+            "208.42 (March 13, 2025 low)"
         ],
         "resistance_levels": [
-            "32.07 (Upper Bollinger Band)",
-            "32.25"
+            "216.98 (March 12, 2025 close)",
+            "220.84 (March 10, 2025 close)"
         ],
-        "short_term_behavior": "The price has been consolidating within a range, showing indecision between buyers and sellers."
+        "short_term_behavior": "The stock has experienced a recent decline, trading below its key moving averages and showing signs of weakening momentum. Volume has been mixed but generally lower than peak periods."
     },
     "market_sentiment": {
-        "sentiment_label": "Neutral"
+        "sentiment_label": "Bearish"
     },
     "key_risks": [
-        "The price is trading between the 50-day SMA and the 10-day EMA, indicating a lack of clear trend.",
-        "The RSI is at 50, suggesting a neutral market sentiment without strong conviction.",
-        "MACD is showing weakening bullish momentum."
+        "Breakdown below the 50-day SMA could signal further downside.",
+        "A bearish crossover of the MACD line below its signal line would confirm negative momentum.",
+        "Declining volume on price decreases suggests a lack of conviction from sellers, but also a lack of strong buying interest."
     ],
-    "short_term_outlook": "The stock is expected to trade sideways in the short term, with potential for minor fluctuations within the current trading range. A breakout above the upper Bollinger Band or a breakdown below the lower Bollinger Band would be needed to indicate a change in trend."
+    "short_term_outlook": "The short-term outlook for AAPL appears bearish, with the stock trading below key moving averages and exhibiting signs of weakening momentum. A break below recent support levels could lead to further declines, while a move back above the 10-day EMA and MACD bullish crossover would be needed to signal a potential reversal."
 }

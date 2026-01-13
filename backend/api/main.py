@@ -548,21 +548,261 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             sum_dir.mkdir(parents=True, exist_ok=True)
             full_dir.mkdir(parents=True, exist_ok=True)
 
-            # Run summarizers and update state
-            logger.info("📝 Running Summarizers...")
-            for key, summarizer_func in summarizers.items():
+            # ============================================================
+            # PARALLEL PROCESSING: Summarization + Full Report Translation
+            # ============================================================
+            # 1. Start translating FULL reports immediately (background)
+            # 2. Run summarizers in parallel
+            # 3. When summarizers complete, translate summaries in parallel
+            # ============================================================
+            
+            from api.translation_service import translate_text, get_thai_title
+            
+            logger.info("🚀 Starting PARALLEL processing: Summarization + Full Translation...")
+            
+            # Prepare full reports for translation (from final_state_graph)
+            full_report_keys = [
+                ("fundamentals_report", "Fundamentals Review"),
+                ("market_report", "Market Analysis"),
+                ("sentiment_report", "Social Sentiment"),
+                ("news_report", "News Analysis"),
+                ("investment_debate_state", "Research Team Decision"),
+                ("trader_investment_plan", "Trader Plan"),
+                ("risk_debate_state", "Portfolio Management Decision"),
+            ]
+            
+            # Storage for translated content
+            full_translations = {}  # key -> {title_th, content_th}
+            summary_translations = {}  # key -> {title_th, content_th}
+            
+            async def translate_single_report(key: str, title: str, content, report_type: str):
+                """Translate a single report while preserving JSON structure - uses batch processing for speed"""
                 try:
-                    # Summarizers return async functions, so we need to await them
+                    if content is None:
+                        return (key, report_type, None)
+                    
+                    # Get Thai title
+                    title_th = get_thai_title(title)
+                    
+                    # For string content, translate directly
+                    if isinstance(content, str):
+                        content_th = await translate_text(content, f"stock analysis - {title}")
+                        logger.info(f"✅ Translated {report_type}: {title}")
+                        return (key, report_type, {"title": title, "title_th": title_th, "content_th": content_th})
+                    
+                    # For complex structures (dict/list), collect all strings and translate in batch
+                    strings_to_translate = []
+                    string_paths = []  # Track path to each string for reconstruction
+                    
+
+
+                    # Pre-process content: Recursively parse any strings that look like JSON
+                    def deep_parse_json_strings(obj):
+                        if isinstance(obj, str):
+                            stripped = obj.strip()
+                            
+                            # Handle markdown code blocks first (aggressive regex)
+                            import re
+                            if "```" in stripped:
+                                match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', stripped, re.DOTALL)
+                                if match:
+                                    stripped = match.group(1).strip()
+                            
+                            # Check if it looks like a JSON object/array
+                            if (stripped.startswith('{') and stripped.endswith('}')) or \
+                               (stripped.startswith('[') and stripped.endswith(']')):
+                                try:
+                                    # 1. Try simple parse
+                                    parsed = json.loads(stripped)
+                                    return deep_parse_json_strings(parsed)
+                                except (json.JSONDecodeError, TypeError):
+                                    # 2. Try unescaping if simple parse failed
+                                    # This handles cases where the LLM output escaped quotes/newlines like: {\n \"key\": \"val\"}
+                                    if '\\"' in stripped or '\\n' in stripped:
+                                        try:
+                                            # Attempt to fix common escape sequences for structure
+                                            # CAUTION: This is a heuristic. It assumes the outer structure quotes are escaped.
+                                            # Be careful not to break valid inner json strings.
+                                            # Safe bet: python's unicode_escape might help, or simple replacement for structure keys.
+                                            
+                                            # Heuristic: Replace \" with " and \n with real newline, but only if json.loads fails otherwise
+                                            unescaped = stripped.replace('\\"', '"').replace('\\n', '\n')
+                                            parsed = json.loads(unescaped)
+                                            return deep_parse_json_strings(parsed)
+                                        except:
+                                            pass
+                                    pass
+                                    
+                            return stripped # Return the cleaned string even if not parsed as object
+                        
+                        elif isinstance(obj, dict):
+                            return {k: deep_parse_json_strings(v) for k, v in obj.items()}
+                        elif isinstance(obj, list):
+                            return [deep_parse_json_strings(item) for item in obj]
+                        else:
+                            return obj
+
+                    # Apply deep parsing to raw content first
+                    content = deep_parse_json_strings(content)
+
+                    def collect_strings(obj, path=""):
+                        """Collect all strings and their paths from nested structure"""
+                        if isinstance(obj, str):
+                            if len(obj.strip()) > 0:
+                                strings_to_translate.append(obj)
+                                string_paths.append(path)
+                        elif isinstance(obj, dict):
+                            for k, v in obj.items():
+                                collect_strings(v, f"{path}.{k}" if path else k)
+                        elif isinstance(obj, list):
+                            for i, item in enumerate(obj):
+                                collect_strings(item, f"{path}[{i}]")
+                    
+                    collect_strings(content)
+                    
+                    # Translate all strings in parallel (batch)
+                    if strings_to_translate:
+                        translation_tasks = [
+                            translate_text(s, f"stock analysis - {title}")
+                            for s in strings_to_translate
+                        ]
+                        try:
+                            translated_strings = await asyncio.gather(*translation_tasks, return_exceptions=True)
+                        except Exception as e:
+                            logger.warning(f"Batch translation failed for {title}: {e}")
+                            translated_strings = strings_to_translate  # Fallback to original
+                        
+                        # Build translation map
+                        translation_map = {}
+                        for i, (orig, trans) in enumerate(zip(strings_to_translate, translated_strings)):
+                            if isinstance(trans, Exception):
+                                translation_map[string_paths[i]] = orig  # Keep original on error
+                            else:
+                                translation_map[string_paths[i]] = trans
+                    else:
+                        translation_map = {}
+                    
+                    def reconstruct(obj, path=""):
+                        """Reconstruct structure with translated strings"""
+                        if isinstance(obj, str):
+                            full_path = path
+                            return translation_map.get(full_path, obj)
+                        elif isinstance(obj, dict):
+                            return {k: reconstruct(v, f"{path}.{k}" if path else k) for k, v in obj.items()}
+                        elif isinstance(obj, list):
+                            return [reconstruct(item, f"{path}[{i}]") for i, item in enumerate(obj)]
+                        else:
+                            return obj
+                    
+                    content_th = reconstruct(content)
+                    
+                    logger.info(f"✅ Translated {report_type}: {title} ({len(strings_to_translate)} strings)")
+                    return (key, report_type, {"title": title, "title_th": title_th, "content_th": content_th})
+                    
+                except Exception as e:
+                    logger.error(f"❌ Translation failed for {title}: {e}")
+                    return (key, report_type, None)
+            
+            async def run_single_summarizer(key: str, summarizer_func):
+                """Run a single summarizer and return (key, result)"""
+                try:
                     update_dict = await summarizer_func(final_state_graph)
                     if update_dict:
-                        final_state_graph.update(update_dict)
-                        logger.info(f"✅ Summarizer {key} completed successfully")
+                        logger.info(f"✅ Summarizer {key} completed")
+                        return (key, update_dict)
                     else:
-                        logger.warning(f"⚠️ Summarizer {key} returned empty result")
+                        logger.warning(f"⚠️ Summarizer {key} returned empty")
+                        return (key, None)
                 except Exception as e:
-                    logger.error(f"❌ Error running summarizer {key}: {e}")
-                    import traceback
-                    traceback.print_exc()
+                    logger.error(f"❌ Summarizer {key} error: {e}")
+                    return (key, None)
+            
+            # --- PHASE 1: Run Full Translation + Summarization in PARALLEL ---
+            logger.info("📝 PHASE 1: Full Translation + Summarization (parallel)...")
+            
+            # Create full translation tasks
+            full_translation_tasks = []
+            for key, title in full_report_keys:
+                content = final_state_graph.get(key)
+                if content:
+                    full_translation_tasks.append(
+                        translate_single_report(key, title, content, "full")
+                    )
+            
+            # Create summarizer tasks
+            summarizer_tasks = [
+                run_single_summarizer(key, func) 
+                for key, func in summarizers.items()
+            ]
+            
+            # Run ALL tasks in parallel (translations + summarizers)
+            all_phase1_tasks = full_translation_tasks + summarizer_tasks
+            phase1_results = await asyncio.gather(*all_phase1_tasks, return_exceptions=True)
+            
+            # Process results
+            for result in phase1_results:
+                if isinstance(result, Exception):
+                    logger.error(f"❌ Task failed: {result}")
+                    continue
+                    
+                if result is None:
+                    continue
+                    
+                # Check if it's a translation result (3 items) or summarizer result (2 items)
+                if len(result) == 3:
+                    # Translation result: (key, report_type, data)
+                    key, report_type, data = result
+                    if data:
+                        full_translations[key] = data
+                elif len(result) == 2:
+                    # Summarizer result: (key, update_dict)
+                    key, update_dict = result
+                    if update_dict:
+                        final_state_graph.update(update_dict)
+            
+            logger.info(f"✅ PHASE 1 complete: {len(full_translations)} full translations, summarizers updated")
+            
+            # --- PHASE 2: Translate Summaries in PARALLEL ---
+            logger.info("📝 PHASE 2: Summary Translation (parallel)...")
+            
+            summary_keys = [
+                ("Summarize_fundamentals_report", "Fundamentals Review"),
+                ("Summarize_market_report", "Market Analysis"),
+                ("Summarize_social_report", "Social Sentiment"),
+                ("Summarize_news_report", "News Analysis"),
+                ("bull_researcher_summarizer", "Bull Case"),
+                ("bear_researcher_summarizer", "Bear Case"),
+                ("Summarize_conservative_report", "Risk: Conservative"),
+                ("Summarize_aggressive_report", "Risk: Aggressive"),
+                ("Summarize_neutral_report", "Risk: Neutral"),
+                ("trader_summarizer", "Trader Plan"),
+                ("Summarize_investment_plan_report", "Research Team Decision"),
+                ("Summarize_final_trade_decision_report", "Portfolio Management Decision"),
+            ]
+            
+            summary_translation_tasks = []
+            for key, title in summary_keys:
+                content = final_state_graph.get(key)
+                if content:
+                    summary_translation_tasks.append(
+                        translate_single_report(key, title, content, "summary")
+                    )
+            
+            # Run all summary translations in parallel
+            if summary_translation_tasks:
+                phase2_results = await asyncio.gather(*summary_translation_tasks, return_exceptions=True)
+                
+                for result in phase2_results:
+                    if isinstance(result, Exception):
+                        logger.error(f"❌ Summary translation failed: {result}")
+                        continue
+                    if result and len(result) == 3:
+                        key, report_type, data = result
+                        if data:
+                            summary_translations[key] = data
+            
+            logger.info(f"✅ PHASE 2 complete: {len(summary_translations)} summary translations")
+            logger.info(f"🎉 All parallel processing complete!")
 
             # Define file mappings (Key in State -> (Sum Filename, Full Filename, Full Key in State))
             file_mappings = [
@@ -613,6 +853,10 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             if execution_id:
                 try:
                     logger.info(f"💾 Updating execution {execution_id} to success and saving reports from files...")
+                    
+                    # Import translation service
+                    from api.translation_service import get_thai_title
+                    
                     async with AsyncSessionLocal() as db:
                         # Get the record
                         stmt = select(ExecutionHistory).where(ExecutionHistory.id == execution_id)
@@ -636,7 +880,8 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                                 full_files_list = list(full_dir.iterdir())
                                 logger.info(f"📄 Files in full_dir: {[f.name for f in full_files_list]}")
                             
-                            reports_to_add = []
+                            # Collect reports for translation
+                            reports_data = []
                             
                             # File mapping: (filename, report_type, title)
                             sum_files = [
@@ -669,7 +914,7 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                                 ("final_decision.json", "full_report", "Portfolio Management Decision"),
                             ]
                             
-                            # Read and save summary reports
+                            # Read summary reports
                             for filename, report_type, title in sum_files:
                                 filepath = sum_dir / filename
                                 if filepath.exists():
@@ -677,17 +922,17 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                                         with open(filepath, 'r', encoding='utf-8') as f:
                                             content = f.read()
                                         if content.strip():
-                                            reports_to_add.append(ReportResult(
-                                                execution_id=execution_id,
-                                                report_type=report_type,
-                                                title=title,
-                                                content={"text": content}
-                                            ))
-                                            logger.info(f"📄 Added sum: {title}")
+                                            reports_data.append({
+                                                "execution_id": execution_id,
+                                                "report_type": report_type,
+                                                "title": title,
+                                                "content": {"text": content}
+                                            })
+                                            logger.info(f"📄 Collected sum: {title}")
                                     except Exception as read_err:
                                         logger.warning(f"⚠️ Failed to read {filename}: {read_err}")
                             
-                            # Read and save full reports
+                            # Read full reports
                             for filename, report_type, title in full_files:
                                 filepath = full_dir / filename
                                 if filepath.exists():
@@ -696,7 +941,6 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                                             raw_content = f.read()
                                         
                                         if raw_content.strip():
-                                            # Parse JSON files, keep text files as is
                                             if filename.endswith('.json'):
                                                 try:
                                                     content = json.loads(raw_content)
@@ -705,17 +949,86 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                                             else:
                                                 content = {"text": raw_content}
                                             
-                                            reports_to_add.append(ReportResult(
-                                                execution_id=execution_id,
-                                                report_type=report_type,
-                                                title=title,
-                                                content=content
-                                            ))
-                                            logger.info(f"📄 Added full: {title}")
+                                            reports_data.append({
+                                                "execution_id": execution_id,
+                                                "report_type": report_type,
+                                                "title": title,
+                                                "content": content
+                                            })
+                                            logger.info(f"📄 Collected full: {title}")
                                     except Exception as read_err:
                                         logger.warning(f"⚠️ Failed to read {filename}: {read_err}")
                             
-                            logger.info(f"📊 Adding {len(reports_to_add)} reports to database...")
+                            # Use PRE-TRANSLATED content from parallel processing
+                            # No need to call translate_reports_batch again!
+                            logger.info(f"🇹🇭 Using pre-translated content: {len(full_translations)} full, {len(summary_translations)} summary")
+                            
+                            # Map titles to translation keys
+                            title_to_full_key = {
+                                "Fundamentals Review": "fundamentals_report",
+                                "Market Analysis": "market_report",
+                                "Social Sentiment": "sentiment_report",
+                                "News Analysis": "news_report",
+                                "Research Team Decision": "investment_debate_state",
+                                "Trader Plan": "trader_investment_plan",
+                                "Portfolio Management Decision": "risk_debate_state",
+                                "Bull Case": "investment_debate_state",
+                                "Bear Case": "investment_debate_state",
+                                "Risk: Conservative": "risk_debate_state",
+                                "Risk: Aggressive": "risk_debate_state",
+                                "Risk: Neutral": "risk_debate_state",
+                            }
+                            
+                            title_to_sum_key = {
+                                "Fundamentals Review": "Summarize_fundamentals_report",
+                                "Market Analysis": "Summarize_market_report",
+                                "Social Sentiment": "Summarize_social_report",
+                                "News Analysis": "Summarize_news_report",
+                                "Bull Case": "bull_researcher_summarizer",
+                                "Bear Case": "bear_researcher_summarizer",
+                                "Risk: Conservative": "Summarize_conservative_report",
+                                "Risk: Aggressive": "Summarize_aggressive_report",
+                                "Risk: Neutral": "Summarize_neutral_report",
+                                "Trader Plan": "trader_summarizer",
+                                "Research Team Decision": "Summarize_investment_plan_report",
+                                "Portfolio Management Decision": "Summarize_final_trade_decision_report",
+                            }
+                            
+                            # Create ReportResult objects with Thai translations from pre-processed data
+                            reports_to_add = []
+                            for report in reports_data:
+                                title = report["title"]
+                                report_type = report["report_type"]
+                                
+                                # Get pre-translated content
+                                title_th = get_thai_title(title)
+                                content_th = None
+                                
+                                if report_type == "full_report":
+                                    # Look up in full_translations
+                                    full_key = title_to_full_key.get(title)
+                                    if full_key and full_key in full_translations:
+                                        trans_data = full_translations[full_key]
+                                        title_th = trans_data.get("title_th", title_th)
+                                        content_th = trans_data.get("content_th")
+                                elif report_type == "sum_report":
+                                    # Look up in summary_translations
+                                    sum_key = title_to_sum_key.get(title)
+                                    if sum_key and sum_key in summary_translations:
+                                        trans_data = summary_translations[sum_key]
+                                        title_th = trans_data.get("title_th", title_th)
+                                        content_th = trans_data.get("content_th")
+                                
+                                reports_to_add.append(ReportResult(
+                                    execution_id=report["execution_id"],
+                                    report_type=report["report_type"],
+                                    title=report["title"],
+                                    title_th=title_th,
+                                    content=report["content"],
+                                    content_th=content_th
+                                ))
+                            
+                            logger.info(f"📊 Adding {len(reports_to_add)} reports to database (with pre-translated Thai)...")
                             db.add_all(reports_to_add)
                             await db.commit()
                             logger.info(f"✅ Database update complete for execution {execution_id} - Saved {len(reports_to_add)} reports")
@@ -811,6 +1124,7 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
 
 from api.history_router import router as history_router
 from api.report_router import router as report_router
+from api.translation_router import router as translation_router
 # ↑ path ต้องตรงจริง ๆ
 
 # Create FastAPI app
@@ -831,6 +1145,7 @@ async def startup_event():
 
 app.include_router(history_router)
 app.include_router(report_router)
+app.include_router(translation_router)
 
 # Configure CORS
 app.add_middleware(

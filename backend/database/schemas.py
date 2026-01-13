@@ -11,7 +11,9 @@ from datetime import datetime
 class ReportResultBase(BaseModel):
     report_type: str           # full_report / sum_report
     title: Optional[str] = None
+    title_th: Optional[str] = None  # Thai title
     content: Any               # JSON
+    content_th: Optional[Any] = None  # Thai content (JSON)
 
 
 class ReportResultCreate(ReportResultBase):

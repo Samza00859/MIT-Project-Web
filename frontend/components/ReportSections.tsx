@@ -39,9 +39,13 @@ function formatInlineMarkdown(text: string) {
 interface ReportSectionsDisplayProps extends ReportSectionsProps {
     handleCopyReport: () => void;
     handleDownloadPdf: () => void;
+    handleDownloadPdfThai?: () => void;
     reportLength: "summary report" | "full report";
     setReportLength: (length: "summary report" | "full report") => void;
     isRunning?: boolean;
+    language?: "en" | "th";
+    setLanguage?: (lang: "en" | "th") => void;
+    isTranslating?: boolean;
 }
 
 // Helper to render Markdown text (with bold/list support)
@@ -79,15 +83,47 @@ function RenderMarkdown({ text }: { text: string }) {
 
 // Helper to render JSON Data Beautifully
 function RenderJsonData({ data, isDarkMode }: { data: any; isDarkMode: boolean }) {
-    if (Array.isArray(data)) {
+    // Handle string data - parse as JSON if possible
+    let parsedData = data;
+    if (typeof data === "string") {
+        let trimmed = data.trim();
+
+        // Handle markdown code blocks (```json ... ```)
+        if (trimmed.startsWith("```json")) {
+            trimmed = trimmed
+                .replace(/^```json\s*/, "")
+                .replace(/\s*```$/, "")
+                .trim();
+        } else if (trimmed.startsWith("```")) {
+            trimmed = trimmed
+                .replace(/^```\s*/, "")
+                .replace(/\s*```$/, "")
+                .trim();
+        }
+
+        if (
+            (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+            (trimmed.startsWith("[") && trimmed.endsWith("]"))
+        ) {
+            try {
+                parsedData = JSON.parse(trimmed);
+            } catch {
+                return <RenderMarkdown text={data} />;
+            }
+        } else {
+            return <RenderMarkdown text={data} />;
+        }
+    }
+
+    if (Array.isArray(parsedData)) {
         // Optimization: If array contains only primitives (strings/numbers), render as a tag cloud/list in ONE box
-        const isPrimitives = data.every(item => ['string', 'number', 'boolean'].includes(typeof item));
+        const isPrimitives = parsedData.every(item => ['string', 'number', 'boolean'].includes(typeof item));
 
         if (isPrimitives) {
             return (
                 <div className={`flex w-fit max-w-full flex-wrap gap-2 rounded-xl border p-4 ${isDarkMode ? "border-white/10 bg-white/5" : "border-gray-200 bg-white"
                     }`}>
-                    {data.length > 0 ? data.map((item, idx) => (
+                    {parsedData.length > 0 ? parsedData.map((item, idx) => (
                         <span key={idx} className={`rounded px-2.5 py-1 text-sm font-medium ${isDarkMode
                             ? "bg-white/10 text-gray-200"
                             : "bg-gray-100 text-gray-700"
@@ -101,7 +137,7 @@ function RenderJsonData({ data, isDarkMode }: { data: any; isDarkMode: boolean }
 
         return (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {data.map((item, idx) => {
+                {parsedData.map((item: any, idx: number) => {
                     // Smart Card Logic: Try to find a "Title" key
                     let title = "";
                     let content = item;
@@ -171,10 +207,10 @@ function RenderJsonData({ data, isDarkMode }: { data: any; isDarkMode: boolean }
         );
     }
 
-    if (typeof data === "object" && data !== null) {
+    if (typeof parsedData === "object" && parsedData !== null) {
         return (
             <div className="flex flex-col gap-6">
-                {Object.entries(data).map(([key, value]) => {
+                {Object.entries(parsedData).map(([key, value]) => {
                     // Hide specific sections requested by user
                     if (["selected_indicators", "memory_application", "count"].includes(key)) return null;
 
@@ -273,7 +309,7 @@ function RenderJsonData({ data, isDarkMode }: { data: any; isDarkMode: boolean }
         );
     }
 
-    return <p>{String(data)}</p>;
+    return <p>{String(parsedData)}</p>;
 }
 
 export default function ReportSections({
@@ -286,9 +322,13 @@ export default function ReportSections({
     setCopyFeedback,
     handleCopyReport,
     handleDownloadPdf,
+    handleDownloadPdfThai,
     reportLength,
     setReportLength,
     isRunning = false,
+    language = "en",
+    setLanguage,
+    isTranslating = false,
 }: ReportSectionsDisplayProps) {
     return (
         <section
@@ -328,6 +368,31 @@ export default function ReportSections({
 
                     <div className={`h-6 w-px ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`} />
 
+                    {/* Language Toggle - Only show when not running (Thai content is available after completion via History page) */}
+                    {setLanguage && !isRunning && (
+                        <div className={`flex overflow-hidden rounded-full border ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-gray-200 bg-gray-50"}`}>
+                            <button
+                                onClick={() => setLanguage("en")}
+                                className={`px-3 py-2 text-xs font-semibold transition-colors ${language === "en"
+                                    ? (isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#DBEAFE] text-[#1D4ED8]")
+                                    : (isDarkMode ? "text-[#8b94ad] hover:bg-white/5" : "text-[#334155] hover:bg-white")
+                                    }`}
+                            >
+                                EN
+                            </button>
+                            <div className={`w-px ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`} />
+                            <button
+                                onClick={() => setLanguage("th")}
+                                className={`px-3 py-2 text-xs font-semibold transition-colors ${language === "th"
+                                    ? (isDarkMode ? "bg-[#f59e0b]/20 text-[#f59e0b]" : "bg-[#fef3c7] text-[#b45309]")
+                                    : (isDarkMode ? "text-[#8b94ad] hover:bg-white/5" : "text-[#334155] hover:bg-white")
+                                    }`}
+                            >
+                                TH 🇹🇭
+                            </button>
+                        </div>
+                    )}
+
                     <button
                         onClick={handleCopyReport}
                         className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium transition-all hover:opacity-80 ${isDarkMode
@@ -338,15 +403,29 @@ export default function ReportSections({
                         {copyFeedback}
                     </button>
                     {reportSections.length > 0 && !isRunning && !reportSections.some(s => s.key === "error") && (
-                        <button
-                            onClick={handleDownloadPdf}
-                            className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium text-[#2df4c6] transition-all hover:bg-[#2df4c6]/10 ${isDarkMode
-                                ? "border-white/20 bg-transparent"
-                                : "border-gray-200 bg-gray-50"
-                                }`}
-                        >
-                            Download PDF
-                        </button>
+                        <>
+                            <button
+                                onClick={handleDownloadPdf}
+                                className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium text-[#2df4c6] transition-all hover:bg-[#2df4c6]/10 ${isDarkMode
+                                    ? "border-white/20 bg-transparent"
+                                    : "border-gray-200 bg-gray-50"
+                                    }`}
+                            >
+                                PDF (EN)
+                            </button>
+                            {handleDownloadPdfThai && (
+                                <button
+                                    onClick={handleDownloadPdfThai}
+                                    disabled={isTranslating}
+                                    className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium transition-all hover:bg-[#f59e0b]/10 ${isDarkMode
+                                        ? "border-[#f59e0b]/30 bg-transparent text-[#f59e0b]"
+                                        : "border-[#f59e0b]/30 bg-[#fef3c7] text-[#b45309]"
+                                        } ${isTranslating ? "opacity-50 cursor-wait" : ""}`}
+                                >
+                                    {isTranslating ? "กำลังแปล..." : "PDF (TH) 🇹🇭"}
+                                </button>
+                            )}
+                        </>
                     )}
 
                     {/* Compact Telegram Button */}

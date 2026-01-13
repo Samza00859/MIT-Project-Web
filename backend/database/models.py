@@ -35,7 +35,9 @@ class ReportResult(Base):
     execution_id = Column(Integer, ForeignKey("execution_history.id"))
     report_type = Column(String)  # full_report / sum_report
     title = Column(String, nullable=True)
+    title_th = Column(String, nullable=True)  # Thai title
     content = Column(JSON)
+    content_th = Column(JSON, nullable=True)  # Thai translation of content
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationship to execution history
@@ -47,7 +49,9 @@ class ReportResult(Base):
             "execution_id": self.execution_id,
             "report_type": self.report_type,
             "title": self.title,
+            "title_th": self.title_th,
             "content": self.content,
+            "content_th": self.content_th,
             "created_at": self.created_at.isoformat()
         }
 

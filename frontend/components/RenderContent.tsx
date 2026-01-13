@@ -48,10 +48,80 @@ export function RenderJsonData({
     data: any;
     isDarkMode: boolean;
 }) {
+    // Helper: Try to parse a string as JSON (handles escaped strings too)
+    const tryParseJson = (str: string): any => {
+        if (typeof str !== 'string') return null;
+        let trimmed = str.trim();
+
+        // Strip markdown code blocks
+        if (trimmed.startsWith("```json")) {
+            trimmed = trimmed.replace(/^```json\s*\n?/, "").replace(/\n?```$/, "").trim();
+        } else if (trimmed.startsWith("```")) {
+            trimmed = trimmed.replace(/^```\s*\n?/, "").replace(/\n?```$/, "").trim();
+        }
+
+        if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) return null;
+
+        try {
+            return JSON.parse(trimmed);
+        } catch {
+            // Try to handle escaped JSON strings (with literal \n and \")
+            if (trimmed.includes('\\n') || trimmed.includes('\\"')) {
+                try {
+                    // Unescape by parsing as a JSON string first
+                    const unescaped = trimmed
+                        .replace(/\\n/g, '\n')
+                        .replace(/\\"/g, '"')
+                        .replace(/\\\\/g, '\\');
+                    return JSON.parse(unescaped);
+                } catch {
+                    return null;
+                }
+            }
+            return null;
+        }
+    };
+
+    // Helper: Recursively deep-parse JSON strings within objects
+    const deepParseJson = (obj: any): any => {
+        if (typeof obj === 'string') {
+            const parsed = tryParseJson(obj);
+            if (parsed !== null) {
+                return deepParseJson(parsed); // Recursively parse
+            }
+            return obj;
+        }
+        if (Array.isArray(obj)) {
+            return obj.map(item => deepParseJson(item));
+        }
+        if (typeof obj === 'object' && obj !== null) {
+            const result: Record<string, any> = {};
+            for (const [key, value] of Object.entries(obj)) {
+                result[key] = deepParseJson(value);
+            }
+            return result;
+        }
+        return obj;
+    };
+
     // If data is a string, try to parse it as JSON first
     let parsedData = data;
     if (typeof data === "string") {
-        const trimmed = data.trim();
+        let trimmed = data.trim();
+
+        // Handle markdown code blocks (```json ... ```)
+        if (trimmed.startsWith("```json")) {
+            trimmed = trimmed
+                .replace(/^```json\s*/, "")
+                .replace(/\s*```$/, "")
+                .trim();
+        } else if (trimmed.startsWith("```")) {
+            trimmed = trimmed
+                .replace(/^```\s*/, "")
+                .replace(/\s*```$/, "")
+                .trim();
+        }
+
         if (
             (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
             (trimmed.startsWith("[") && trimmed.endsWith("]"))
@@ -65,6 +135,9 @@ export function RenderJsonData({
             return <RenderMarkdown text={data} />;
         }
     }
+
+    // Deep-parse any nested JSON strings in the parsed data
+    parsedData = deepParseJson(parsedData);
 
     if (Array.isArray(parsedData)) {
         // Optimization: If array contains only primitives, render as a tag cloud
@@ -189,11 +262,44 @@ export function RenderJsonData({
         const keys = Object.keys(parsedData).filter((k) => !skipKeys.includes(k));
         if (keys.length === 1 && keys[0] === "text") {
             const textContent = parsedData["text"];
-            // Try to extract JSON from markdown-style text
+
             if (typeof textContent === "string") {
+                let content = textContent.trim();
+
+                // Strip markdown code blocks if present (more flexible regex)
+                const codeBlockMatch = content.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?```$/);
+                if (codeBlockMatch) {
+                    content = codeBlockMatch[1].trim();
+                }
+
+                // Check if it looks like JSON (starts with { or [)
+                if (content.startsWith("{") || content.startsWith("[")) {
+                    try {
+                        const jsonData = JSON.parse(content);
+                        // Recursively render the parsed JSON
+                        return <RenderJsonData data={jsonData} isDarkMode={isDarkMode} />;
+                    } catch (e) {
+                        // Try to extract just the JSON part
+                        const jsonMatch = content.match(/^(\{[\s\S]*\}|\[[\s\S]*\])/);
+                        if (jsonMatch) {
+                            try {
+                                const jsonData = JSON.parse(jsonMatch[1]);
+                                return <RenderJsonData data={jsonData} isDarkMode={isDarkMode} />;
+                            } catch {
+                                // Still not valid JSON
+                            }
+                        }
+                        // Not valid JSON, render as markdown
+                        const cleanedText = extractAndCleanContent(textContent);
+                        return <RenderMarkdown text={cleanedText} />;
+                    }
+                }
+
+                // Not JSON, render as markdown
                 const cleanedText = extractAndCleanContent(textContent);
                 return <RenderMarkdown text={cleanedText} />;
             }
+
             return <RenderJsonData data={textContent} isDarkMode={isDarkMode} />;
         }
 
@@ -205,11 +311,29 @@ export function RenderJsonData({
                     // Skip "text" key if we're rendering full object
                     if (key === "text" && keys.length > 1) return null;
 
-                    // Handle nested JSON strings
+                    // Handle nested JSON strings (including escaped ones)
                     let parsedValue = value;
                     if (typeof value === "string") {
-                        const trimmed = value.trim();
-                        if (
+                        let trimmed = value.trim();
+
+                        // Handle escaped JSON strings (e.g., "{\n \"key\": \"value\"}")
+                        // These have literal \n and \" characters that need to be unescaped
+                        if (trimmed.includes('\\n') || trimmed.includes('\\"')) {
+                            try {
+                                // First try to parse as a JSON string (to unescape)
+                                const unescaped = JSON.parse(`"${trimmed.replace(/"/g, '\\"')}"`);
+                                if (unescaped.startsWith('{') || unescaped.startsWith('[')) {
+                                    parsedValue = JSON.parse(unescaped);
+                                }
+                            } catch {
+                                // Try direct parse if the above fails
+                                try {
+                                    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+                                        parsedValue = JSON.parse(trimmed);
+                                    }
+                                } catch { /* ignore */ }
+                            }
+                        } else if (
                             (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
                             (trimmed.startsWith("[") && trimmed.endsWith("]"))
                         ) {

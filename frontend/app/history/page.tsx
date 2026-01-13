@@ -14,7 +14,9 @@ interface ReportResult {
     id: number;
     report_type: string;
     title: string;
+    title_th?: string;  // Thai title
     content: any;
+    content_th?: any;   // Thai content
     created_at: string;
 }
 
@@ -157,6 +159,9 @@ export default function HistoryPage() {
     const { isDarkMode, toggleTheme } = useTheme();
     const [viewMode, setViewMode] = useState<"summary" | "detailed">("detailed");
 
+    // Language toggle for EN/TH (Thai content is pre-loaded from database)
+    const [language, setLanguage] = useState<"en" | "th">("en");
+
     // Search and Filters State
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -210,12 +215,84 @@ export default function HistoryPage() {
 
 
 
-    const getGroupedSections = (item: HistoryItem) => {
-        const sectionsMap: Record<string, { sum?: any, full?: any }> = {};
+    // Helper function to properly parse Thai content which may be wrapped in {text: "```json...```"}
+    const parseThaiContent = (content: any): any => {
+        if (!content) return content;
+
+        // Helper to parse JSON from markdown code block string
+        const parseFromMarkdown = (str: string): any => {
+            let textValue = str.trim();
+
+            // Strip markdown code blocks (```json...``` or ```...```)
+            const codeBlockMatch = textValue.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?```$/);
+            if (codeBlockMatch) {
+                textValue = codeBlockMatch[1].trim();
+            }
+
+            // Try to parse as JSON
+            if (textValue.startsWith('{') || textValue.startsWith('[')) {
+                try {
+                    return JSON.parse(textValue);
+                } catch (e) {
+                    // Try to handle escaped JSON strings (with literal \n and \")
+                    if (textValue.includes('\\n') || textValue.includes('\\"')) {
+                        try {
+                            const unescaped = textValue
+                                .replace(/\\n/g, '\n')
+                                .replace(/\\"/g, '"')
+                                .replace(/\\\\/g, '\\');
+                            return JSON.parse(unescaped);
+                        } catch {
+                            console.log('[parseThaiContent] JSON parse failed after unescape');
+                            return null;
+                        }
+                    }
+                    console.log('[parseThaiContent] JSON parse failed:', e);
+                    return null;
+                }
+            }
+            return null;
+        };
+
+        // Recursive deep parser
+        const deepParse = (obj: any): any => {
+            // If it's a string, try to parse it
+            if (typeof obj === 'string') {
+                const parsed = parseFromMarkdown(obj);
+                if (parsed !== null) {
+                    return deepParse(parsed); // Recursively parse the result
+                }
+                return obj;
+            }
+
+            // If it's an array, recursively parse each element
+            if (Array.isArray(obj)) {
+                return obj.map(item => deepParse(item));
+            }
+
+            // If it's an object, recursively parse each value
+            if (typeof obj === 'object' && obj !== null) {
+                const result: Record<string, any> = {};
+                for (const [key, value] of Object.entries(obj)) {
+                    result[key] = deepParse(value);
+                }
+                return result;
+            }
+
+            return obj;
+        };
+
+        return deepParse(content);
+    };
+
+    const getGroupedSections = (item: HistoryItem, lang: "en" | "th" = "en") => {
+        const sectionsMap: Record<string, { sum?: any, full?: any, sum_th?: any, full_th?: any, label_th?: string }> = {};
         const titlesFound = new Set<string>();
 
         item.reports.forEach(report => {
             let title = report.title || "Report";
+            let title_th = report.title_th || title;
+
             // Map known short titles to full titles
             if (TITLE_MAP[title.toLowerCase()]) {
                 title = TITLE_MAP[title.toLowerCase()];
@@ -223,15 +300,37 @@ export default function HistoryPage() {
 
             if (!sectionsMap[title]) sectionsMap[title] = {};
 
+            // Store Thai title
+            if (title_th) {
+                sectionsMap[title].label_th = title_th;
+            }
+
+            // Process English content
             let content = report.content;
             if (typeof content === 'object' && content !== null) {
                 content = content.summary || content.text || content.reasoning || content;
             }
 
+            // Process Thai content (if available) - apply parseThaiContent to handle ```json wrappers
+            let content_th = report.content_th;
+            if (content_th) {
+                // First parse the content to extract JSON from markdown blocks
+                content_th = parseThaiContent(content_th);
+                // Then extract summary/text/reasoning if it's an object
+                if (typeof content_th === 'object' && content_th !== null) {
+                    content_th = content_th.summary || content_th.text || content_th.reasoning || content_th;
+                }
+            }
+
             if (report.report_type === "sum_report") {
                 sectionsMap[title].sum = content;
+                if (content_th) sectionsMap[title].sum_th = content_th;
             } else if (report.report_type === "full_report") {
                 sectionsMap[title].full = report.content;
+                if (report.content_th) {
+                    // Parse Thai content to extract JSON from markdown blocks
+                    sectionsMap[title].full_th = parseThaiContent(report.content_th);
+                }
             }
             titlesFound.add(title);
         });
@@ -240,14 +339,25 @@ export default function HistoryPage() {
         const orderedTitles = REPORT_ORDER.filter(title => sectionsMap[title]);
         const otherTitles = Array.from(titlesFound).filter(t => !REPORT_ORDER.includes(t));
 
-        return [...orderedTitles, ...otherTitles].map(title => ({
-            label: title,
-            sum: sectionsMap[title].sum,
-            full: sectionsMap[title].full
-        }));
+        return [...orderedTitles, ...otherTitles].map(title => {
+            const section = sectionsMap[title];
+            // Return content based on selected language
+            if (lang === "th") {
+                return {
+                    label: section.label_th || title,
+                    sum: section.sum_th || section.sum,
+                    full: section.full_th || section.full
+                };
+            }
+            return {
+                label: title,
+                sum: section.sum,
+                full: section.full
+            };
+        });
     };
 
-    const getSummary = (item: HistoryItem) => {
+    const getSummary = (item: HistoryItem, lang: "en" | "th" = "en") => {
         const portSummary = item.reports.find(r =>
             (r.title === "Portfolio Management Decision" || r.title?.toLowerCase() === "risk") &&
             r.report_type === "sum_report"
@@ -259,23 +369,36 @@ export default function HistoryPage() {
 
         if (!portSummary) return null;
 
-        let content = portSummary.content;
+        // Determine content based on language
+        let content;
+        if (lang === "th" && portSummary.content_th) {
+            content = portSummary.content_th;
+        } else {
+            content = portSummary.content;
+        }
+
         if (typeof content === 'object' && content !== null) {
             content = content.summary || content.text || content.reasoning || content;
         }
 
         let decision = "N/A";
-        if (portFull && typeof portFull.content === 'object' && portFull.content !== null) {
+        // Decision usually stays in original report structure unless translated separately?
+        // Assuming decision keyword (Buy/Sell) might need translation or mapped
+        // Ideally, decision logic logic relies on structured data in full_report.content
+
+        let decisionSource = portFull ? portFull.content : null;
+
+        if (decisionSource && typeof decisionSource === 'object' && decisionSource !== null) {
             // 1. Try direct keys
-            decision = portFull.content.judge_decision ||
-                portFull.content.decision ||
-                portFull.content.recommendation ||
-                (portFull.content.score ? `SCORE: ${portFull.content.score}` : "N/A");
+            decision = decisionSource.judge_decision ||
+                decisionSource.decision ||
+                decisionSource.recommendation ||
+                (decisionSource.score ? `SCORE: ${decisionSource.score}` : "N/A");
 
             // 2. If still N/A, try to parse JSON from 'text' (e.g. if it had markdown headers)
-            if (decision === "N/A" && typeof portFull.content.text === 'string') {
+            if (decision === "N/A" && typeof decisionSource.text === 'string') {
                 try {
-                    const text = portFull.content.text;
+                    const text = decisionSource.text;
                     const firstBrace = text.indexOf('{');
                     const lastBrace = text.lastIndexOf('}');
                     if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
@@ -498,6 +621,80 @@ export default function HistoryPage() {
         // Note: 'text' is NOT skipped because full_report content is in 'text' key
         const KEYS_TO_SKIP = ['raw', 'raw_content', 'markdown', 'metadata'];
 
+        // Thai Translation Map for Keys
+        const THAI_KEY_MAP: Record<string, string> = {
+            "executive_summary": "บทสรุปผู้บริหาร",
+            "valuation_status": "สถานะมูลค่า",
+            "comprehensive_metrics": "ตัวชี้วัดที่ครอบคลุม",
+            "revenue_growth_year_over_year": "การเติบโตของรายได้ (YOY)",
+            "net_profit_margin": "อัตรากำไรสุทธิ",
+            "price_to_earnings_ratio": "อัตราส่วน P/E",
+            "debt_to_equity_ratio": "อัตราส่วนหนี้สินต่อทุน",
+            "return_on_equity": "ผลตอบแทนต่อส่วนผู้ถือหุ้น",
+            "free_cash_flow_status": "สถานะกระแสเงินสดอิสระ",
+            "key_strengths_analysis": "วิเคราะห์จุดแข็งหลัก",
+            "key_risks_analysis": "วิเคราะห์ความเสี่ยงหลัก",
+            "technical_outlook": "มุมมองทางเทคนิค",
+            "trend_analysis": "การวิเคราะห์แนวโน้ม",
+            "support_resistance_analysis": "การวิเคราะห์แนวรับแนวต้าน",
+            "key_levels": "ระดับสำคัญ",
+            "chart_patterns": "รูปแบบกราฟ",
+            "indicators_summary": "สรุปอินดิเคเตอร์",
+            "market_breadth": "ความกว้างของตลาด",
+            "sector_performance": "ผลการดำเนินงานรายกลุ่ม",
+            "sentiment_score": "คะแนนความรู้สึก",
+            "sentiment_analysis": "การวิเคราะห์ความรู้สึก",
+            "social_volume": "ปริมาณโซเชียล",
+            "key_topics": "หัวข้อสำคัญ",
+            "news_summary": "สรุปข่าว",
+            "impact_assessment": "การประเมินผลกระทบ",
+            "bull_case": "กรณีขาขึ้น",
+            "bear_case": "กรณีขาลง",
+            "risk_factors": "ปัจจัยเสี่ยง",
+            "mitigation_strategies": "กลยุทธ์การลดความเสี่ยง",
+            "investment_horizon": "ระยะเวลาการลงทุน",
+            "verdict": "คำตัดสิน",
+            "confidence_level": "ระดับความมั่นใจ",
+            "recommendation": "คำแนะนำ",
+            "decision": "การตัดสินใจ",
+            "market_overview": "ภาพรวมตลาด",
+            "trend_direction": "ทิศทางแนวโน้ม",
+            "momentum_state": "สถานะโมเมนตัม",
+            "volatility_level": "ระดับความผันผวน",
+            "volume_condition": "สภาวะปริมาณการซื้อขาย",
+            "indicator_analysis": "การวิเคราะห์อินดิเคเตอร์",
+            "indicator_full_name": "ชื่ออินดิเคเตอร์",
+            "signal": "สัญญาณ",
+            "implication": "นัยสำคัญ",
+            "ticker": "ชื่อหุ้น",
+            "date": "วันที่",
+            "key_support_levels": "ระดับแนวรับสำคัญ",
+            "key_resistance_levels": "ระดับแนวต้านสำคัญ",
+            "primary_trend": "แนวโน้มหลัก",
+            "price_action_summary": "สรุปพฤติกรรมราคา",
+            "recent_high_low": "จุดสูงสุด/ต่ำสุด ล่าสุด",
+            "support_levels": "ระดับแนวรับ",
+            "resistance_levels": "ระดับแนวต้าน",
+            "short_term_behavior": "พฤติกรรมระยะสั้น",
+            "market_sentiment": "ความรู้สึกตลาด",
+            "sentiment_label": "สถานะความรู้สึก",
+            "key_risks": "ความเสี่ยงหลัก",
+            "short_term_outlook": "แนวโน้มระยะสั้น",
+            "sentiment_verdict": "คำตัดสินความรู้สึก",
+            "dominant_narrative": "กระแสหลัก",
+            "top_topics": "หัวข้อเด่น",
+            "topic": "หัวข้อ",
+            "sentiment": "ความรู้สึก",
+            "analysis_snippet": "รายละเอียดการวิเคราะห์"
+        };
+
+        const getLabel = (key: string) => {
+            if (language === "th") {
+                return THAI_KEY_MAP[key.toLowerCase()] || toSentenceCase(key);
+            }
+            return toSentenceCase(key);
+        };
+
         const processData = (data: any, indent = 0) => {
             if (!data) return;
 
@@ -537,7 +734,7 @@ export default function HistoryPage() {
                     if (KEYS_TO_HIDE.includes(key)) return;
                     if (KEYS_TO_SKIP.includes(key.toLowerCase())) return;
 
-                    const label = toSentenceCase(key);
+                    const label = getLabel(key);
                     let valToProcess = value;
 
                     if (typeof value === 'string' && (value.trim().startsWith('{') || value.trim().startsWith('['))) {
@@ -649,16 +846,25 @@ export default function HistoryPage() {
         doc.setFontSize(18);
         doc.setFont("Sarabun", "bold");
         doc.setTextColor(0, 51, 102);
-        doc.text(`TradingAgents Report: ${item.ticker}`, margin, yPosition);
+
+        const reportTitle = language === "th"
+            ? `รายงาน TradingAgents: ${item.ticker}`
+            : `TradingAgents Report: ${item.ticker}`;
+
+        doc.text(reportTitle, margin, yPosition);
         yPosition += 20;
 
         // Sub-header
         doc.setFontSize(10);
         doc.setFont("Sarabun", "normal");
         doc.setTextColor(100, 100, 100);
-        doc.text(`Analysis Date: ${item.analysis_date}`, margin, yPosition);
+
+        const dateLabel = language === "th" ? "วันที่วิเคราะห์" : "Analysis Date";
+        const generatedLabel = language === "th" ? "สร้างเมื่อ" : "Generated";
+
+        doc.text(`${dateLabel}: ${item.analysis_date}`, margin, yPosition);
         yPosition += 15;
-        doc.text(`Generated: ${formatDate(item.timestamp)}`, margin, yPosition);
+        doc.text(`${generatedLabel}: ${formatDate(item.timestamp)}`, margin, yPosition);
         yPosition += 25;
 
         // Separator line
@@ -668,13 +874,16 @@ export default function HistoryPage() {
         yPosition += 25;
 
         // 2. Recommendation Section
-        const summary = getSummary(item);
+        const summary = getSummary(item, language);
         if (summary && summary.decision) {
             yPosition += lineHeight * 1.5;
             doc.setFont("Sarabun", "bold");
             doc.setFontSize(14);
             doc.setTextColor(0, 200, 0);
-            doc.text(`Recommendation: ${summary.decision}`, margin, yPosition);
+
+            const recLabel = language === "th" ? "คำแนะนำ" : "Recommendation";
+
+            doc.text(`${recLabel}: ${summary.decision}`, margin, yPosition);
             yPosition += lineHeight * 2;
         }
 
@@ -682,7 +891,7 @@ export default function HistoryPage() {
         doc.setFont("Sarabun", "normal");
         doc.setFontSize(11);
 
-        const sections = getGroupedSections(item);
+        const sections = getGroupedSections(item, language);
         const currentViewMode = viewMode;
 
         sections.forEach((section, idx) => {
@@ -939,7 +1148,7 @@ export default function HistoryPage() {
                 </div>
 
                 {/* Detail View - Hidden on mobile when no item selected */}
-                <div className={`${selectedItem ? 'flex' : 'hidden xl:flex'} flex-1 flex-col overflow-y-auto p-4 pt-24 md:p-8 md:pt-24 xl:p-8 xl:pt-8`}>
+                <div className={`${selectedItem ? 'flex' : 'hidden xl:flex'} flex-1 flex-col overflow-y-auto p-4 pt-24 md:p-8 md:pt-24 xl:p-8 xl:pt-0`}>
                     {selectedItem ? (
                         <div className="max-w-5xl mx-auto">
                             {/* Back button for mobile */}
@@ -952,7 +1161,7 @@ export default function HistoryPage() {
                                 </svg>
                                 Back to list
                             </button>
-                            <header className="flex flex-wrap justify-between items-end gap-4 mb-8">
+                            <header className={`sticky top-0 z-20 flex flex-wrap justify-between items-end gap-4 pb-4 mb-4 -mx-8 px-8 pt-4 border-b ${isDarkMode ? "bg-[#03161b] border-white/5" : "bg-[#f5f8fa] border-gray-200"}`}>
                                 <div>
                                     <div className="flex flex-wrap items-center gap-4 mb-2">
                                         <h1 className="text-4xl font-bold">{selectedItem.ticker}</h1>
@@ -996,6 +1205,24 @@ export default function HistoryPage() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
+                                    {/* Language Toggle */}
+                                    {selectedItem.status === "success" && (
+                                        <div className={`flex rounded-full border p-1 ${isDarkMode ? "border-white/10 bg-white/5" : "border-gray-200 bg-gray-100"}`}>
+                                            <button
+                                                onClick={() => setLanguage("en")}
+                                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${language === "en" ? "bg-white/20 text-white" : "opacity-50"}`}
+                                            >
+                                                EN
+                                            </button>
+                                            <button
+                                                onClick={() => setLanguage("th")}
+                                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${language === "th" ? "bg-[#f59e0b] text-black" : "opacity-50"}`}
+                                            >
+                                                TH 🇹🇭
+                                            </button>
+                                        </div>
+                                    )}
+
                                     {/* Download PDF Button */}
                                     {selectedItem.reports.length > 0 && selectedItem.status === "success" && (
                                         <button
@@ -1007,7 +1234,7 @@ export default function HistoryPage() {
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
-                                            Download PDF
+                                            PDF ({language === "th" ? "TH" : "EN"})
                                         </button>
                                     )}
 
@@ -1018,13 +1245,13 @@ export default function HistoryPage() {
                                                 onClick={() => setViewMode("summary")}
                                                 className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "summary" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
                                             >
-                                                Summary report
+                                                {language === "th" ? "สรุป" : "Summary"}
                                             </button>
                                             <button
                                                 onClick={() => setViewMode("detailed")}
                                                 className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "detailed" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
                                             >
-                                                Full report
+                                                {language === "th" ? "ฉบับเต็ม" : "Full"}
                                             </button>
                                         </div>
                                     )}
@@ -1062,7 +1289,7 @@ export default function HistoryPage() {
                                 <div className="space-y-8">
                                     {/* Final Summary Card */}
                                     {(() => {
-                                        const summary = getSummary(selectedItem);
+                                        const summary = getSummary(selectedItem, language);
                                         if (!summary) return null;
                                         return (
                                             <section className={`p-6 rounded-[20px] border ${isDarkMode ? "bg-[#111726] border-white/5" : "bg-white border-gray-200 shadow-sm"}`}>
@@ -1084,7 +1311,7 @@ export default function HistoryPage() {
 
                                     {/* Selected View Content */}
                                     <div className="space-y-8">
-                                        {getGroupedSections(selectedItem).map((section, idx) => {
+                                        {getGroupedSections(selectedItem, language).map((section, idx) => {
                                             const hasContent = (viewMode === "summary" && section.sum) || (viewMode === "detailed" && section.full);
                                             if (!hasContent) return null;
 
