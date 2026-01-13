@@ -7,6 +7,7 @@ import json
 import os
 import datetime
 import logging
+import importlib.metadata
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from contextlib import asynccontextmanager

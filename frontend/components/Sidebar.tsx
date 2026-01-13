@@ -21,7 +21,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
     { id: "generate", icon: "🌐", label: "Generate", href: "/" },
     { id: "history", icon: "📜", label: "History", href: "/history" },
-    { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
+    // { id: "contact", icon: "📬", label: "Contact", href: "/contact" },
     { id: "docs", icon: "📄", label: "View Docs", href: "/view-docs" },
 ];
 
@@ -42,7 +42,7 @@ export default function Sidebar() {
     const activeId = React.useMemo(() => {
         if (pathname === "/") return "generate";
         if (pathname.startsWith("/history")) return "history";
-        if (pathname === "/contact") return "contact";
+        // if (pathname === "/contact") return "contact";
         if (pathname.startsWith("/view-docs")) return "docs";
         return "";
     }, [pathname]);
@@ -93,7 +93,7 @@ export default function Sidebar() {
 
             <aside
                 className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col gap-8 border-r transition-all duration-300 ease-in-out lg:sticky lg:top-0 lg:inset-y-auto lg:h-auto lg:max-h-screen lg:translate-x-0 overflow-y-auto overflow-x-hidden no-scrollbar ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
-                    } ${isCollapsed ? "w-20 px-2 py-8" : "w-[300px] px-4 py-8"
+                    } ${isCollapsed ? "w-20 px-2 py-8" : "w-64 px-4 py-8"
                     } ${isDarkMode
                         ? "border-white/5 bg-linear-to-b from-[#0f1216] to-[#141922]"
                         : "border-[#E2E8F0] bg-[#F1F5F9]"
@@ -133,7 +133,7 @@ export default function Sidebar() {
                     <Link
                         href="/introduction"
                         onClick={() => setIsMobileOpen(false)}
-                        className={`relative flex items-center justify-center shrink-0 transition-all duration-200 rounded-2xl overflow-hidden hover:opacity-80 ${isCollapsed ? "h-12 w-12" : "h-40 w-full max-w-[360px]"
+                        className={`relative flex items-center justify-center shrink-0 transition-all duration-200 rounded-2xl overflow-hidden hover:opacity-80 ${isCollapsed ? "h-12 w-12" : "h-32 w-full max-w-[360px]"
                             }`}
                         title="Go to Introduction"
                     >
