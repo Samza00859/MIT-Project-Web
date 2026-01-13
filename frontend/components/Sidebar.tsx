@@ -42,7 +42,7 @@ export default function Sidebar() {
     const activeId = React.useMemo(() => {
         if (pathname === "/") return "generate";
         if (pathname.startsWith("/history")) return "history";
-        // if (pathname === "/contact") return "contact";
+        if (pathname === "/contact") return "contact";
         if (pathname.startsWith("/view-docs")) return "docs";
         return "";
     }, [pathname]);
