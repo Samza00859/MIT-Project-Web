@@ -35,9 +35,15 @@ def get_thai_title(english_title: str) -> str:
     return TITLE_EN_TO_TH.get(english_title, english_title)
 
 
+# Rate Limit Configuration
+# Limit based on Typhoon API: 5 RPS. We use 4 for safety margin.
+MAX_CONCURRENT_REQUESTS = 4
+import asyncio
+_typhoon_semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
+
 async def translate_text(text: str, context: str = "financial analysis") -> str:
     """
-    Translate a single text from English to Thai using Typhoon API.
+    Translate a single text from English to Thai using Typhoon API with Rate Limiting.
     Returns original text if translation fails.
     """
     if not text or not text.strip():
@@ -64,42 +70,77 @@ Text to translate:
 
 Provide ONLY the translated text, no explanations or additional content."""
     
-    try:
-        async with httpx.AsyncClient(timeout=120.0) as client:
-            response = await client.post(
-                TYPHOON_API_URL,
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {api_key}"
-                },
-                json={
-                    "model": TYPHOON_MODEL,
-                    "messages": [
-                        {
-                            "role": "system",
-                            "content": "You are a professional translator. Translate accurately and naturally."
+    # Acquire semaphore to respect concurrency limit
+    async with _typhoon_semaphore:
+        max_retries = 3
+        base_delay = 2.0
+        
+        for attempt in range(max_retries):
+            try:
+                # Add small delay to enforce RPS limits
+                await asyncio.sleep(0.25) 
+                
+                async with httpx.AsyncClient(timeout=120.0) as client:
+                    response = await client.post(
+                        TYPHOON_API_URL,
+                        headers={
+                            "Content-Type": "application/json",
+                            "Authorization": f"Bearer {api_key}"
                         },
-                        {
-                            "role": "user",
-                            "content": prompt
+                        json={
+                            "model": TYPHOON_MODEL,
+                            "messages": [
+                                {
+                                    "role": "system",
+                                    "content": "You are a professional translator. Translate accurately and naturally."
+                                },
+                                {
+                                    "role": "user",
+                                    "content": prompt
+                                }
+                            ],
+                            "max_tokens": 8192,
+                            "temperature": 0.3,
+                            "top_p": 0.95,
                         }
-                    ],
-                    "max_tokens": 8192,
-                    "temperature": 0.3,
-                    "top_p": 0.95,
-                }
-            )
-            
-            if response.status_code != 200:
-                logger.error(f"Typhoon API error: {response.status_code}")
+                    )
+                    
+                    if response.status_code == 200:
+                        result = response.json()
+                        translated_text = result["choices"][0]["message"]["content"].strip()
+                        return translated_text
+                    
+                    # Handle Rate Limits (429) specifically
+                    elif response.status_code == 429:
+                        wait_time = base_delay * (2 ** attempt)  # Exponential backoff: 2s, 4s, 8s
+                        logger.warning(f"⚠️ Rate limit hit (429). Retrying in {wait_time}s... (Attempt {attempt+1}/{max_retries})")
+                        await asyncio.sleep(wait_time)
+                        continue
+                        
+                    # Handle Server Errors (5xx)
+                    elif response.status_code >= 500:
+                        wait_time = base_delay * (2 ** attempt)
+                        logger.warning(f"⚠️ Typhoon Server Error ({response.status_code}). Retrying in {wait_time}s... (Attempt {attempt+1}/{max_retries})")
+                        await asyncio.sleep(wait_time)
+                        continue
+                        
+                    else:
+                        logger.error(f"Typhoon API error: {response.status_code}")
+                        # Client errors (4xx except 429) usually shouldn't be retried, but for now break
+                        return text
+                    
+            except (httpx.TimeoutException, httpx.ConnectError) as e:
+                wait_time = base_delay * (2 ** attempt)
+                logger.warning(f"⚠️ Connection/Timeout error: {e}. Retrying in {wait_time}s... (Attempt {attempt+1}/{max_retries})")
+                await asyncio.sleep(wait_time)
+                continue
+                
+            except Exception as e:
+                logger.error(f"Translation error: {str(e)}")
                 return text
-            
-            result = response.json()
-            translated_text = result["choices"][0]["message"]["content"].strip()
-            return translated_text
-            
-    except Exception as e:
-        logger.error(f"Translation error: {str(e)}")
+        
+        # If all retries failed
+        logger.error(f"❌ All {max_retries} translation attempts failed for text. Returning original.")
         return text
 
 

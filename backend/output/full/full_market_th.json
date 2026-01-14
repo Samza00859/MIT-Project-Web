@@ -1,3 +1,4 @@
+```json
 {
     "ticker": "AMZN",
     "date": "2026-01-13",
@@ -15,96 +16,78 @@
         "vwma"
     ],
     "market_overview": {
-        "trend_direction": "Bullish",
-        "momentum_state": "Strong",
-        "volatility_level": "Moderate",
-        "volume_condition": "Neutral"
+        "trend_direction": "ขาขึ้น",
+        "momentum_state": "แข็งแกร่ง",
+        "volatility_level": "ปานกลาง",
+        "volume_condition": "เป็นกลาง"
     },
     "indicator_analysis": [
         {
             "indicator": "close_50_sma",
-            "indicator_full_name": "50-Day Simple Moving Average",
-            "signal": "Price (242.60) is above the 50-day SMA (234.0394).",
-            "implication": "Indicates a bullish intermediate-term trend."
+            "indicator_full_name": "ค่าเฉลี่ยเคลื่อนที่แบบง่าย 50 วัน",
+            "signal": "ราคา (242.60) อยู่เหนือค่าเฉลี่ยเคลื่อนที่แบบง่าย 50 วัน (234.04) ค่าเฉลี่ยเคลื่อนที่กำลังมีแนวโน้มเพิ่มขึ้น",
+            "implication": "ยืนยันแนวโน้มระยะกลางที่เป็นขาขึ้น"
         },
         {
             "indicator": "close_10_ema",
-            "indicator_full_name": "10-Day Exponential Moving Average",
-            "signal": "Price (242.60) is above the 10-day EMA (240.23863).",
-            "implication": "Suggests bullish short-term momentum."
+            "indicator_full_name": "ค่าเฉลี่ยเคลื่อนที่แบบเอ็กซ์โพเนนเชียล 10 วัน",
+            "signal": "ราคาอยู่เหนือค่าเฉลี่ยเคลื่อนที่แบบเอ็กซ์โพเนนเชียล 10 วัน (240.24) ค่าเฉลี่ยเคลื่อนที่แบบเอ็กซ์โพเนนเชียลอยู่เหนือค่าเฉลี่ยเคลื่อนที่แบบง่าย 50 วัน",
+            "implication": "สนับสนุนแนวโน้มระยะสั้นที่เป็นขาขึ้น"
         },
         {
             "indicator": "macd",
-            "indicator_full_name": "Moving Average Convergence Divergence",
-            "signal": "MACD (4.04657) is above its signal line (2.399283) and positive.",
-            "implication": "Bullish momentum is present."
-        },
-        {
-            "indicator": "macdh",
-            "indicator_full_name": "MACD Histogram",
-            "signal": "Histogram (1.647287) is positive but has declined from recent highs.",
-            "implication": "Bullish momentum is slowing, suggesting a potential consolidation."
+            "indicator_full_name": "การเบี่ยงเบนระหว่างเส้นค่าเฉลี่ยเคลื่อนที่",
+            "signal": "MACD (4.047) อยู่เหนือเส้นสัญญาณ (2.399) และเป็นบวก แต่ฮิสโตแกรม (1.647) ลดลงจากจุดสูงสุดก่อนหน้านี้",
+            "implication": "โมเมนตัมขาขึ้นยังคงอยู่ แต่ดูเหมือนจะชะลอตัวลง"
         },
         {
             "indicator": "rsi",
-            "indicator_full_name": "Relative Strength Index",
-            "signal": "RSI at 60.69, above 50 but below overbought threshold (70).",
-            "implication": "Indicates bullish momentum without being overbought."
+            "indicator_full_name": "ดัชนีความแข็งแกร่งสัมพัทธ์",
+            "signal": "RSI อยู่ที่ 60.69 ลดลงจากระดับซื้อมากเกินไปในช่วงต้นเดือน",
+            "implication": "โมเมนตัมลดลงจากระดับซื้อมากเกินไป ตอนนี้อยู่ในเขตที่เป็นกลางถึงขาขึ้น"
         },
         {
             "indicator": "boll",
-            "indicator_full_name": "Bollinger Band Middle",
-            "signal": "Price is trading above the middle band (233.308).",
-            "implication": "Price is in the upper half of the recent volatility range, favoring bulls."
-        },
-        {
-            "indicator": "boll_ub",
-            "indicator_full_name": "Bollinger Band Upper",
-            "signal": "Price (242.60) is below the upper band (249.7778).",
-            "implication": "Not in overbought territory based on bands; room to move higher."
-        },
-        {
-            "indicator": "boll_lb",
-            "indicator_full_name": "Bollinger Band Lower",
-            "signal": "Lower band is at 216.8382, well below current price.",
-            "implication": "Significant downside buffer before a bearish signal from the lower band."
+            "indicator_full_name": "แถบ Bollinger",
+            "signal": "ราคาซื้อขายใกล้กับแถวกลาง (233.31) หลังจากถอยออกจากแถบบน (249.78)",
+            "implication": "ราคาอยู่ในช่วงความผันผวนปกติหลังจากมีการปรับฐานจากจุดสูงสุดล่าสุด"
         },
         {
             "indicator": "atr",
-            "indicator_full_name": "Average True Range",
-            "signal": "ATR at 5.292, moderate compared to recent price levels.",
-            "implication": "Indicates moderate daily volatility, typical for the stock."
+            "indicator_full_name": "ค่าเฉลี่ยช่วงจริง",
+            "signal": "ATR อยู่ที่ 5.29 ลดลงจากจุดสูงสุดในเดือนพฤศจิกายน",
+            "implication": "ความผันผวนรายวันลดลงจากจุดสูงสุดล่าสุด"
         },
         {
             "indicator": "vwma",
-            "indicator_full_name": "Volume Weighted Moving Average",
-            "signal": "Price (242.60) is above the VWMA (232.7937).",
-            "implication": "Recent price gains are supported by volume, a bullish confirmation."
+            "indicator_full_name": "ค่าเฉลี่ยเคลื่อนที่ถ่วงน้ำหนักตามปริมาณ",
+            "signal": "ราคา (242.60) อยู่เหนือ VWMA (232.79)",
+            "implication": "การเคลื่อนไหวของราคาล่าสุดได้รับการสนับสนุนจากปริมาณ ซึ่งเป็นสัญญาณที่เป็นขาขึ้น"
         }
     ],
     "price_action_summary": {
-        "recent_high_low": "Price is near recent highs from early January 2026 (peak ~247.38) but has pulled back from that level.",
+        "recent_high_low": "ราคาต่ำกว่าจุดสูงสุดล่าสุดที่ประมาณ 250.20 (ต้นเดือนพฤศจิกายน) แต่สูงกว่าจุดต่ำสุดล่าสุดที่ประมาณ 213.04 (กลางเดือนตุลาคม)",
         "support_levels": [
-            "240.24 (10-day EMA)",
-            "234.04 (50-day SMA)",
             "232.79 (VWMA)",
-            "226.19 (Recent low from 2025-12-12)"
+            "230.82 (จุดต่ำสุดเมื่อวันที่ 31 ธันวาคม)",
+            "226.50 (จุดต่ำสุดเมื่อวันที่ 2 มกราคม)"
         ],
         "resistance_levels": [
-            "247.38 (Recent high, 2026-01-09)",
-            "249.78 (Bollinger Upper Band)",
-            "254.00 (All-time high from 2025-11-03)"
+            "246.29 (จุดสูงสุดเมื่อวันที่ 8 มกราคม)",
+            "249.78 (แถบบน Bollinger)",
+            "250.20 (จุดสูงสุดในเดือนพฤศจิกายน)"
         ],
-        "short_term_behavior": "Price retreated from the 247.38 resistance on 2026-01-13, forming a bearish candle. This suggests a short-term consolidation or pullback within the broader uptrend."
+        "short_term_behavior": "ราคาเริ่มรวมตัวหลังจากที่ราคาดีดตัวขึ้นอย่างรุนแรงจากจุดต่ำสุดในเดือนตุลาคม แสดงให้เห็นถึงการปรับฐานจากจุดสูงสุดเมื่อวันที่ 8 มกราคม"
     },
     "market_sentiment": {
-        "sentiment_label": "Bullish"
+        "sentiment_label": "ขาขึ้น"
     },
     "key_risks": [
-        "MACD histogram shows declining bullish momentum, a potential warning of trend exhaustion.",
-        "RSI, while not overbought, is elevated and may limit near-term upside.",
-        "Failure to break above the 247.38 resistance could lead to a deeper pullback towards the 50-day SMA.",
-        "Increased volatility (as seen in recent ATR) may lead to sharp corrections."
+        "RSI ถอยลงจากระดับซื้อมากเกินไป บ่งบอกถึงความเป็นไปได้ที่จะมีการปรับฐานหรือถอยตัวเพิ่มเติม",
+        "ฮิสโตแกรม MACD ลดลงบ่งบอกว่าโมเมนตัมขาขึ้นอาจลดลง",
+        "ราคาไม่สามารถรักษาไว้ได้ใกล้กับแถบบน Bollinger บ่งบอกถึงแนวต้าน",
+        "การหลุดต่ำกว่า EMA 10 วันและ VWMA อาจเป็นสัญญาณของการแก้ไขที่ลึกขึ้น"
     ],
-    "short_term_outlook": "The technical picture remains bullish with price above key moving averages and positive MACD. However, the recent rejection at the 247.38 resistance and slowing momentum suggest a period of consolidation or a shallow pullback is likely in the near term before another attempt to challenge higher resistance levels."
+    "short_term_outlook": "แนวโน้มขาขึ้นยังคงอยู่ แต่กำลังเผชิญกับการปรับฐานระยะสั้น จับตาดูแนวรับใกล้กับ EMA 10 วันและ VWMA การรักษาระดับเหล่านี้ไว้ได้อาจนำไปสู่การทดสอบจุดสูงสุดล่าสุด"
 }
+```
