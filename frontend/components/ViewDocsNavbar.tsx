@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import Logo from "@/image/Logo.png";
-import LogoBlack from "@/image/Logo_black.png";
+
 import { Download, Menu, X } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -55,15 +53,7 @@ export default function ViewDocsNavbar({ activeSection, onSelectItem, language, 
                 {/* Logo Area */}
                 <div className="flex items-center gap-3">
                     <Link href="/" className="flex items-center gap-2">
-                        <div className="relative h-8 w-8 overflow-hidden rounded-lg">
-                            <Image
-                                src={isDarkMode ? Logo : LogoBlack}
-                                alt="TradingAgents Logo"
-                                fill
-                                className="object-contain"
-                            />
-                        </div>
-                        <span className={`text-xl font-bold tracking-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>
+                        <span className={`text-2xl font-bold tracking-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>
                             TRADINGAGENTS<span className="text-[#2df4c6]">.AI</span>
                         </span>
                     </Link>

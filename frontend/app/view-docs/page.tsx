@@ -9,7 +9,8 @@ import {
     Flame, Shield, Scale, Gavel,
     BrainCircuit, Activity, Zap, HelpCircle,
     Search, Users, Briefcase, ArrowRight,
-    Target, RefreshCw, CheckCircle2
+    Target, RefreshCw, CheckCircle2,
+    Calendar, Send, FileText, Download, Smartphone
 } from 'lucide-react';
 
 const TRANSLATIONS = {
@@ -60,11 +61,39 @@ const TRANSLATIONS = {
             levels: { aggressive: "Aggressive", neutral: "Neutral", conservative: "Conservative" }
         },
         tutorials: {
-            header: "Platform Tutorials",
-            step1: { title: "Starting an Analysis", desc: "Enter a ticker (e.g., AAPL), select your date range, and click Generate to start the swarm." },
-            step2: { title: "Understanding Reports", desc: "Review individual agent outputs, observe the Bull/Bear debate, and check the final verdict." },
-            step3: { title: "Connecting Telegram Alerts", desc: "Link your account to our Telegram bot to receive real-time notifications when reports are ready." },
-            step4: { title: "Exporting to PDF", desc: "Once analysis is complete, download a professional-grade PDF report for offline application." }
+            header: "Tutorial",
+            subheader: "A comprehensive guide to leveraging our multi-agent AI system for institutional-grade market analysis and automated execution.",
+            step1: {
+                title: "Configure & Generate",
+                desc: "Begin by setting up your simulation parameters on the Dashboard. The system requires a target asset and a specific reference date.",
+                points: [
+                    { title: "Market Selection", desc: "Choose your target market (US, TH, etc.) and enter a Ticker Symbol (e.g., AAPL, PTT)." },
+                    { title: "Run Analysis", desc: "Select an 'Analysis Date' and click 'Generate' to deploy the agent fleet." }
+                ]
+            },
+            step2: {
+                title: "Monitor & Review",
+                desc: "Watch the specialized teams (Analyst, Research, Trader) execute tasks in real-time, then review the final consensus.",
+                points: [
+                    { title: "Agent Progress", desc: "Track the status of each team as they gather data and debate." },
+                    { title: "Final Verdict", desc: "Review the 'Recommendation' (Buy/Sell) and the detailed Bull vs Bear arguments." }
+                ]
+            },
+            step3: {
+                title: "Real-time Alerts",
+                desc: "Stay updated without staring at the screen. Connect your account to Telegram to receive instant notifications when analyses complete.",
+                points: [
+                    { title: "Webhook Integration", desc: "Supports private channels and individual DMs for instant signals." }
+                ]
+            },
+            step4: {
+                title: "Export & History",
+                desc: "Access past analyses or export current results for external use.",
+                points: [
+                    { title: "PDF Report", desc: "Download a professional white-labeled PDF with full logs and charts." },
+                    { title: "History Log", desc: "Review previous trading signals and agent performance over time." }
+                ]
+            }
         }
     },
     TH: {
@@ -114,11 +143,39 @@ const TRANSLATIONS = {
             levels: { aggressive: "สายซิ่ง", neutral: "ปานกลาง", conservative: "ปลอดภัยไว้ก่อน" }
         },
         tutorials: {
-            header: "วิธีใช้งาน",
-            step1: { title: "เริ่มใช้งาน", desc: "พิมพ์ชื่อหุ้น (เช่น AAPL) เลือกวันที่ แล้วกดปุ่ม Generate" },
-            step2: { title: "อ่านผลลัพธ์", desc: "ดูสิ่งที่ AI แต่ละตัวคุยกัน และดูผลสรุปสุดท้าย" },
-            step3: { title: "รับแจ้งเตือน", desc: "เชื่อมต่อกับ Telegram เพื่อรับการแจ้งเตือนเมื่อวิเคราะห์เสร็จ" },
-            step4: { title: "โหลดรายงาน", desc: "โหลดไฟล์ PDF เก็บไว้อ่านหรือนำไปใช้งานต่อได้เลย" }
+            header: "Tutorial",
+            subheader: "คู่มือฉบับสมบูรณ์สำหรับการใช้ระบบ Multi-Agent AI เพื่อวิเคราะห์ตลาด",
+            step1: {
+                title: "ตั้งค่าและเริ่มวิเคราะห์",
+                desc: "เริ่มต้นใช้งานที่หน้า Dashboard โดยกำหนดค่าพารามิเตอร์สำหรับการจำลองการเทรด",
+                points: [
+                    { title: "เลือกตลาดและหุ้น", desc: "เลือกตลาด (เช่น US, TH) และพิมพ์ชื่อหุ้นที่ต้องการ (เช่น AAPL, PTT)" },
+                    { title: "สั่งเริ่มทำงาน", desc: "เลือกวันที่ที่ต้องการวิเคราะห์ แล้วกดปุ่ม 'Generate' เพื่อปลุกทีม AI" }
+                ]
+            },
+            step2: {
+                title: "ติดตามและอ่านผลลัพธ์",
+                desc: "ดูการทำงานของทีม Agent แต่ละทีมแบบเรียลไทม์ และอ่านสรุปคำแนะนำการลงทุน",
+                points: [
+                    { title: "สถานะการทำงาน", desc: "แถบความคืบหน้าจะแสดงสถานะของ Analyst, Research และ Trader" },
+                    { title: "คำแนะนำสุดท้าย", desc: "ดูสรุป Recommendation (ซื้อ/ขาย) พร้อมบทวิเคราะห์ Bull vs Bear" }
+                ]
+            },
+            step3: {
+                title: "รับแจ้งเตือนผ่าน Telegram",
+                desc: "ไม่พลาดทุกผลการวิเคราะห์ เชื่อมต่อกับ Telegram เพื่อรับข้อความแจ้งเตือนทันทีที่ AI ทำงานเสร็จ",
+                points: [
+                    { title: "Webhook Integration", desc: "รองรับการส่งข้อความเข้ามือถือโดยตรง" }
+                ]
+            },
+            step4: {
+                title: "ประวัติและรายงาน",
+                desc: "ดูย้อนหลังหรือนำข้อมูลไปใช้ต่อข้างนอก",
+                points: [
+                    { title: "รายงาน PDF", desc: "โหลดไฟล์ PDF ฉบับสมบูรณ์เพื่อนำไปนำเสนอหรือเก็บเป็นหลักฐาน" },
+                    { title: "ประวัติย้อนหลัง", desc: "ดูรายการวิเคราะห์ทั้งหมดที่ผ่านมาได้ที่หน้า History" }
+                ]
+            }
         }
     }
 };
@@ -398,28 +455,216 @@ export default function ViewDocsPage() {
 
                 {/* TUTORIALS SECTION */}
                 <section id="tutorials-header" className="pt-16 pb-32">
-                    <h2 className="text-3xl font-bold mb-12 text-center">{t.tutorials.header}</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <TutorialCard
-                            step="01"
-                            title={t.tutorials.step1.title}
-                            desc={t.tutorials.step1.desc}
-                        />
-                        <TutorialCard
-                            step="02"
-                            title={t.tutorials.step2.title}
-                            desc={t.tutorials.step2.desc}
-                        />
-                        <TutorialCard
-                            step="03"
-                            title={t.tutorials.step3.title}
-                            desc={t.tutorials.step3.desc}
-                        />
-                        <TutorialCard
-                            step="04"
-                            title={t.tutorials.step4.title}
-                            desc={t.tutorials.step4.desc}
-                        />
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-linear-to-r from-white via-slate-200 to-slate-400">
+                            {t.tutorials.header}
+                        </h2>
+                        <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+                            {t.tutorials.subheader}
+                        </p>
+                    </div>
+
+                    <div className="space-y-24">
+                        {/* Step 1: Search / Start */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-4 mb-2">
+                                    <div className="text-green-500 bg-green-500/10 p-3 rounded-full font-bold">1</div>
+                                    <h3 className="text-2xl font-bold">{t.tutorials.step1.title}</h3>
+                                </div>
+                                <p className="text-slate-400 text-lg leading-relaxed">
+                                    {t.tutorials.step1.desc}
+                                </p>
+                                <ul className="space-y-4 pt-4">
+                                    {t.tutorials.step1.points.map((point, idx) => (
+                                        <li key={idx} className="flex gap-4">
+                                            <div className="mt-1 text-green-400"><CheckCircle2 size={20} /></div>
+                                            <div>
+                                                <div className="font-bold text-white">{point.title}</div>
+                                                <div className="text-slate-500 text-sm">{point.desc}</div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="bg-[#1e232b] p-6 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden group hover:border-[#2df4c6]/30 transition-all">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-[#2df4c6] to-blue-500" />
+                                <div className="flex justify-between items-center mb-6">
+                                    <div className="text-xs font-mono text-slate-500">DEFINED AI ANALYSIS TASK</div>
+                                    <div className="flex gap-1">
+                                        <div className="w-2 h-2 rounded-full bg-red-500" />
+                                        <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="bg-[#0b0e14] p-4 rounded-lg border border-white/5">
+                                        <label className="text-xs text-slate-500 mb-1 block">SYMBOL SELECTION</label>
+                                        <div className="flex items-center gap-3 text-white">
+                                            <Search size={16} className="text-[#2df4c6]" />
+                                            <span className="font-mono">AAPL / NASDAQ</span>
+                                        </div>
+                                    </div>
+                                    <div className="bg-[#0b0e14] p-4 rounded-lg border border-white/5">
+                                        <label className="text-xs text-slate-500 mb-1 block">ANALYSIS DATE</label>
+                                        <div className="flex items-center gap-3 text-white">
+                                            <Calendar size={16} className="text-blue-400" />
+                                            <span className="font-mono">25/11/2025</span>
+                                        </div>
+                                    </div>
+                                    <button className="w-full bg-[#2df4c6] hover:bg-[#25dbae] text-black font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                                        <Zap size={18} /> GENERATE ANALYSIS
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Step 2: Reports */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            <div className="lg:order-2 space-y-6">
+                                <div className="flex items-center gap-4 mb-2">
+                                    <div className="text-orange-500 bg-orange-500/10 p-3 rounded-full font-bold">2</div>
+                                    <h3 className="text-2xl font-bold">{t.tutorials.step2.title}</h3>
+                                </div>
+                                <p className="text-slate-400 text-lg leading-relaxed">{t.tutorials.step2.desc}</p>
+                                <ul className="space-y-4 pt-4">
+                                    {t.tutorials.step2.points.map((point, idx) => (
+                                        <li key={idx} className="flex gap-4">
+                                            <div className="mt-1 text-orange-400"><CheckCircle2 size={20} /></div>
+                                            <div>
+                                                <div className="font-bold text-white">{point.title}</div>
+                                                <div className="text-slate-500 text-sm">{point.desc}</div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="lg:order-1 bg-[#1e232b] p-6 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden hover:border-orange-500/30 transition-all">
+                                <div className="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+                                    <h4 className="font-bold text-white">Current Report</h4>
+                                    <span className="text-xs bg-slate-800 text-slate-300 px-2 py-1 rounded">Daily</span>
+                                </div>
+                                <div className="space-y-6">
+                                    <div>
+                                        <div className="flex justify-between text-xs text-slate-400 mb-2">
+                                            <span>SIGNAL STRENGTH</span>
+                                            <span className="text-orange-400">STRONG SELL</span>
+                                        </div>
+                                        <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                                            <div className="h-full w-[80%] bg-linear-to-r from-red-500 to-orange-500" />
+                                        </div>
+                                    </div>
+                                    <div className="bg-[#2d1b1b] p-4 rounded-lg border border-red-500/20 text-sm text-red-100">
+                                        <div className="font-bold text-red-400 mb-1 flex items-center gap-2"><Flame size={14} /> Bearish Consensus</div>
+                                        "The analysis reveals critical valuation concerns... favoring selling out with limit steps. SELL/Exit range rejection based on 50MA divergence."
+                                    </div>
+                                    <button className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                                        RECOMMENDATION: SELL
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Step 3: Telegram */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-4 mb-2">
+                                    <div className="text-blue-500 bg-blue-500/10 p-3 rounded-full font-bold">3</div>
+                                    <h3 className="text-2xl font-bold">{t.tutorials.step3.title}</h3>
+                                </div>
+                                <p className="text-slate-400 text-lg leading-relaxed">{t.tutorials.step3.desc}</p>
+                                <ul className="space-y-4 pt-4">
+                                    {t.tutorials.step3.points.map((point, idx) => (
+                                        <li key={idx} className="flex gap-4">
+                                            <div className="mt-1 text-blue-400"><Smartphone size={20} /></div>
+                                            <div>
+                                                <div className="font-bold text-white">{point.title}</div>
+                                                <div className="text-slate-500 text-sm">{point.desc}</div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="flex justify-center">
+                                <div className="w-[300px] h-[500px] bg-[#0b0e14] rounded-[3rem] border-[8px] border-slate-800 relative overflow-hidden shadow-2xl">
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-xl z-20" />
+                                    <div className="p-6 pt-12 space-y-4">
+                                        <div className="flex items-start gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xs">AI</div>
+                                            <div className="bg-[#1e232b] p-3 rounded-2xl rounded-tl-none text-sm text-slate-300 border border-white/5">
+                                                <div className="font-bold text-blue-400 mb-1">NEW SIGNAL: AAPL</div>
+                                                Action: SELL<br />
+                                                Confidence: 82%<br />
+                                                Target: $145.50
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3 flex-row-reverse">
+                                            <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-xs">U</div>
+                                            <div className="bg-[#2df4c6] p-3 rounded-2xl rounded-tr-none text-sm text-black font-medium">
+                                                <div className="flex items-center gap-1">
+                                                    View Report <ArrowRight size={12} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="absolute bottom-6 left-6 right-6">
+                                            <button className="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 rounded-full flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20">
+                                                <Send size={16} /> Send to Telegram
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Step 4: Export */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            <div className="lg:order-2 space-y-6">
+                                <div className="flex items-center gap-4 mb-2">
+                                    <div className="text-slate-400 bg-slate-500/10 p-3 rounded-full font-bold">4</div>
+                                    <h3 className="text-2xl font-bold">{t.tutorials.step4.title}</h3>
+                                </div>
+                                <p className="text-slate-400 text-lg leading-relaxed">{t.tutorials.step4.desc}</p>
+                                <ul className="space-y-4 pt-4">
+                                    {t.tutorials.step4.points.map((point, idx) => (
+                                        <li key={idx} className="flex gap-4">
+                                            <div className="mt-1 text-slate-400"><FileText size={20} /></div>
+                                            <div>
+                                                <div className="font-bold text-white">{point.title}</div>
+                                                <div className="text-slate-500 text-sm">{point.desc}</div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="lg:order-1 bg-white p-2 rounded-xl border border-slate-200 shadow-xl rotate-1 hover:rotate-0 transition-all duration-300 max-w-sm mx-auto">
+                                <div className="bg-white rounded border border-slate-100 p-8 min-h-[300px] flex flex-col">
+                                    <div className="flex justify-between items-center mb-8">
+                                        <div className="font-bold text-xl text-slate-800">TRADING<span className="text-[#2df4c6]">AGENTS</span></div>
+                                        <div className="text-xs text-slate-400">Nov 25, 2025</div>
+                                    </div>
+                                    <div className="space-y-4 mb-auto">
+                                        <div className="h-4 bg-slate-100 rounded w-3/4" />
+                                        <div className="h-4 bg-slate-100 rounded w-full" />
+                                        <div className="h-4 bg-slate-100 rounded w-5/6" />
+                                        <div className="mt-8 flex gap-2">
+                                            <div className="flex-1 h-24 bg-blue-50 rounded" />
+                                            <div className="flex-1 h-24 bg-[#2df4c6]/10 rounded" />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4 mt-8">
+                                        <div className="bg-slate-900 text-white p-3 rounded-lg text-center text-sm font-medium flex flex-col items-center">
+                                            <BarChart size={16} className="mb-1 text-[#2df4c6]" />
+                                            Visual Charts
+                                        </div>
+                                        <div className="bg-slate-100 text-slate-600 p-3 rounded-lg text-center text-sm font-medium flex flex-col items-center">
+                                            <FileText size={16} className="mb-1" />
+                                            Full Logs
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </section>
 
@@ -438,18 +683,6 @@ function TeamMemberCard({ title, icon, desc, color }: { title: string, icon: Rea
                 <h4 className="font-bold text-sm tracking-wide">{title}</h4>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">{desc}</p>
-        </div>
-    );
-}
-
-function TutorialCard({ step, title, desc }: { step: string, title: string, desc: string }) {
-    return (
-        <div className="flex gap-6 p-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors">
-            <div className="text-4xl font-black text-white/5 select-none font-mono">{step}</div>
-            <div>
-                <h3 className="text-xl font-bold mb-2 text-[#2df4c6]">{title}</h3>
-                <p className="text-sm text-slate-400">{desc}</p>
-            </div>
         </div>
     );
 }
