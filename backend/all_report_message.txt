@@ -13,3 +13,51 @@ TradingView Score: 0
 
 🏆 Best Source: YFINANCE
 
+
+🌐 Social Media News: 
+Bluesky news fetched for AAPL: 27 posts found.
+Mastodon news fetched for AAPL: 120 posts found.
+
+🌐 Social Media News: 
+Bluesky news fetched for AAPL: 27 posts found.
+Mastodon news fetched for AAPL: 120 posts found.
+📰 News :
+Fetched 50 news items for AAPL from Finnhub.
+Yfinance global news have : 47 posts.
+Fetched 10 news items for AAPL from YFinance.
+Finnhub global news have : 50 posts.
+
+Fetched 50 news items for AAPL from Alpha Vantage.
+
+🌐 Social Media News: 
+Bluesky news fetched for AAPL: 27 posts found.
+Mastodon news fetched for AAPL: 120 posts found.
+Yfinance global news have : 48 posts.
+📰 News :
+Fetched 50 news items for AAPL from Finnhub.
+Finnhub global news have : 50 posts.
+
+Fetched 10 news items for AAPL from YFinance.
+Fetched 50 news items for AAPL from Alpha Vantage.
+
+🌐 Social Media News: 
+Bluesky news fetched for MSFT: 31 posts found.
+Mastodon news fetched for MSFT: 120 posts found.
+📰 News :
+Fetched 50 news items for MSFT from Finnhub.
+Yfinance global news have : 47 posts.
+Fetched 10 news items for MSFT from YFinance.
+Finnhub global news have : 50 posts.
+
+Fetched 50 news items for MSFT from Alpha Vantage.
+
+🌐 Social Media News: 
+Bluesky news fetched for AMZN: 32 posts found.
+Mastodon news fetched for AMZN: 120 posts found.
+Yfinance global news have : 47 posts.
+📰 News :
+Fetched 50 news items for AMZN from Finnhub.
+Fetched 10 news items for AMZN from YFinance.
+Fetched 50 news items for AMZN from Alpha Vantage.
+Finnhub global news have : 50 posts.
+

@@ -1,28 +1,28 @@
 {
-    "sentiment_verdict": "Bullish",
-    "social_volume": "High volume driven by major AI partnership news and market cap milestones.",
-    "dominant_narrative": "Apple's strategic partnership with Google to integrate Gemini AI into Siri is generating significant excitement, positioning the company for a strong AI future. This news, coupled with Google reaching a $4 trillion market cap, has fueled optimism around Apple's own AI advancements and future growth prospects.",
+    "sentiment_verdict": "Neutral",
+    "social_volume": "Moderate volume with promotional posts, earnings mentions, and AI/options chatter.",
+    "dominant_narrative": "Amazon is viewed as a multi-theme giant (e-commerce, AWS, AI infrastructure, advertising) with solid fundamentals, but near-term sentiment is tempered by concerns over AI capital expenditure burdens and regulatory risks.",
     "top_topics": [
         {
-            "topic": "Apple-Google AI Partnership (Siri)",
-            "sentiment": "Positive",
-            "analysis_snippet": "The integration of Google's Gemini AI into Apple's Siri is viewed as a significant positive development, promising enhanced AI capabilities for Apple users and a strategic win for both companies."
+            "topic": "AI and Cloud Infrastructure Investment",
+            "sentiment": "Mixed",
+            "analysis_snippet": "AWS growth is praised, but massive capital expenditure plans cause investor concern over near-term margins and returns."
         },
         {
-            "topic": "Market Capitalization Milestones",
+            "topic": "E-commerce and Retail Promotions",
             "sentiment": "Positive",
-            "analysis_snippet": "Apple's market capitalization is being closely watched, with discussions around its position relative to other tech giants like Nvidia, Microsoft, and Google highlighting its significant market presence and potential for growth."
-        },
-        {
-            "topic": "AI Integration and Future Growth",
-            "sentiment": "Positive",
-            "analysis_snippet": "There is a strong narrative around Apple's commitment to AI, with the Gemini partnership seen as a key step in enhancing its product ecosystem and driving future revenue growth."
+            "analysis_snippet": "Frequent posts highlight product deals and Amazon's core retail strength, indicating steady consumer engagement."
         },
         {
             "topic": "Institutional Options Activity",
             "sentiment": "Neutral",
-            "analysis_snippet": "Significant institutional activity in Apple options is noted, indicating substantial interest and potential strategic positioning by large investors."
+            "analysis_snippet": "AMZN appears in high-volume and unusual options activity lists, signaling significant institutional trading interest."
+        },
+        {
+            "topic": "Regulatory and Political Risk",
+            "sentiment": "Negative",
+            "analysis_snippet": "Mentions of antitrust lawsuits, tariffs, and political scrutiny contribute to a cautious undercurrent."
         }
     ],
-    "psychology": "Greed and Optimism, driven by the significant AI partnership news and the perception of Apple capitalizing on the AI revolution."
+    "psychology": "Cautious optimism with a focus on long-term growth potential, balanced by near-term uncertainty and valuation sensitivity."
 }

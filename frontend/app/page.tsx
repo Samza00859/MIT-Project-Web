@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -87,6 +87,8 @@ export default function Home() {
     wsStatus,
     debugLogs,
     addDebugLog,
+    // Thai Report Sections (from WebSocket)
+    thaiReportSections,
   } = useGeneration();
 
   // Authentication
@@ -112,66 +114,66 @@ export default function Home() {
   // Language and Translation State
   const [language, setLanguage] = useState<"en" | "th">("en");
   const [isTranslating, setIsTranslating] = useState(false);
-  const [translatedSections, setTranslatedSections] = useState<{ key: string; label: string; text: string }[]>([]);
+  const [translatedSections, setTranslatedSections] = useState<{ key: string; label: string; text: string; report_type: string }[]>([]);
 
   // Track previous isRunning to detect when generation completes
   const prevIsRunningRef = useRef<boolean>(false);
 
-  // Fetch Thai content from database when generation completes
+  // Build translated sections from WebSocket thaiReportSections when generation completes
   useEffect(() => {
-    const fetchThaiContent = async () => {
-      if (prevIsRunningRef.current === true && isRunning === false && ticker) {
-        // Generation just completed - fetch Thai content from history
-        setIsTranslating(true);
-        try {
-          const apiUrl = getApiUrl();
-          const res = await fetch(`${apiUrl}/api/history/`);
-          if (res.ok) {
-            const history = await res.json();
-            // Find the latest entry for this ticker
-            const latestEntry = history.find((h: any) =>
-              h.ticker.toUpperCase() === ticker.toUpperCase() &&
-              h.status === "success"
-            );
+    if (prevIsRunningRef.current === true && isRunning === false && thaiReportSections.length > 0) {
+      // Generation just completed - use Thai content from WebSocket
+      setIsTranslating(true);
+      try {
+        // Build translated sections from WebSocket Thai reports
+        const thaiSections: { key: string; label: string; text: string; report_type: string }[] = [];
 
-            if (latestEntry && latestEntry.reports) {
-              // Build translated sections from Thai content
-              const thaiSections: { key: string; label: string; text: string }[] = [];
-
-              latestEntry.reports.forEach((report: any) => {
-                if (report.content_th && report.title_th) {
-                  let textContent = "";
-                  if (typeof report.content_th === "object") {
-                    textContent = "```json\n" + JSON.stringify(report.content_th, null, 2) + "\n```";
-                  } else {
-                    textContent = String(report.content_th);
-                  }
-
-                  thaiSections.push({
-                    key: report.report_type === "sum_report" ? `${report.title.toLowerCase().replace(/\s+/g, "_")}_sum` : report.title.toLowerCase().replace(/\s+/g, "_"),
-                    label: report.title_th,
-                    text: textContent,
-                  });
-                }
-              });
-
-              if (thaiSections.length > 0) {
-                setTranslatedSections(thaiSections);
-                console.log(`Loaded ${thaiSections.length} Thai sections from database`);
-              }
-            }
+        thaiReportSections.forEach((report) => {
+          let textContent = "";
+          if (typeof report.content === "object") {
+            textContent = "```json\n" + JSON.stringify(report.content, null, 2) + "\n```";
+          } else {
+            textContent = String(report.content);
           }
-        } catch (error) {
-          console.error("Failed to fetch Thai content:", error);
-        } finally {
-          setIsTranslating(false);
-        }
-      }
-      prevIsRunningRef.current = isRunning;
-    };
 
-    fetchThaiContent();
-  }, [isRunning, ticker]);
+          thaiSections.push({
+            key: report.section,
+            label: report.label,
+            text: textContent,
+            report_type: report.report_type,
+          });
+        });
+
+        if (thaiSections.length > 0) {
+          setTranslatedSections(thaiSections);
+          console.log(`Loaded ${thaiSections.length} Thai sections from WebSocket`);
+        }
+      } catch (error) {
+        console.error("Failed to process Thai content:", error);
+      } finally {
+        setIsTranslating(false);
+      }
+    }
+    prevIsRunningRef.current = isRunning;
+  }, [isRunning, thaiReportSections]);
+
+  // Filter translated sections based on reportLength (like English sections)
+  const filteredTranslatedSections = useMemo(() => {
+    if (translatedSections.length === 0) return [];
+
+    return translatedSections.filter((section) => {
+      // Check if section key indicates summary or full
+      const isSummary = section.key.startsWith("Summarize_") ||
+        section.key.includes("_summarizer") ||
+        section.report_type === "summary";
+
+      if (reportLength === "summary report") {
+        return isSummary;
+      } else {
+        return !isSummary;
+      }
+    });
+  }, [translatedSections, reportLength]);
 
   // Generate stars once for the night sky effect (reduced count for better performance)
   const [stars, setStars] = useState<Star[]>([]);
@@ -454,6 +456,10 @@ export default function Home() {
       backendUrl: getApiUrl(),
       shallowThinker: SHALLOW_AGENTS.google[0][1],
       deepThinker: DEEP_AGENTS.google[0][1],
+      // llmProvider: "deepseek",
+      // backendUrl: "https://api.deepseek.com",
+      // shallowThinker: SHALLOW_AGENTS.deepseek[0][1],
+      // deepThinker: DEEP_AGENTS.deepseek[0][1],
       reportLength,
     });
   }, [isRunning, wsStatus, startGeneration, ticker, analysisDate, researchDepth, reportLength]);
@@ -920,6 +926,7 @@ export default function Home() {
         key: section.key,
         label: getThaiLabel(section.label),
         text: translatedTexts[idx] || section.text,
+        report_type: section.key.includes("sum_") ? "summary" : "full",
       }));
 
       setTranslatedSections(thaiSections);
@@ -1583,7 +1590,7 @@ export default function Home() {
 
         {/* Report Panel */}
         <ReportSections
-          reportSections={language === "th" && translatedSections.length > 0 ? translatedSections : contextReportSections}
+          reportSections={language === "th" && filteredTranslatedSections.length > 0 ? filteredTranslatedSections : contextReportSections}
           isDarkMode={isDarkMode}
           ticker={ticker}
           analysisDate={analysisDate}

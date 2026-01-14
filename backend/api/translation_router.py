@@ -102,7 +102,7 @@ async def translate_single(request: TranslationRequest):
     )
     
     try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.post(
                 TYPHOON_API_URL,
                 headers={
@@ -121,7 +121,7 @@ async def translate_single(request: TranslationRequest):
                             "content": prompt
                         }
                     ],
-                    "max_tokens": 4096,
+                    "max_tokens": 8192,
                     "temperature": 0.3,  # Lower temperature for more consistent translation
                     "top_p": 0.95,
                 }
@@ -179,7 +179,7 @@ async def translate_batch(request: BatchTranslationRequest):
         )
         
         try:
-            async with httpx.AsyncClient(timeout=60.0) as client:
+            async with httpx.AsyncClient(timeout=120.0) as client:
                 response = await client.post(
                     TYPHOON_API_URL,
                     headers={
@@ -198,7 +198,7 @@ async def translate_batch(request: BatchTranslationRequest):
                                 "content": prompt
                             }
                         ],
-                        "max_tokens": 4096,
+                        "max_tokens": 8192,
                         "temperature": 0.3,
                         "top_p": 0.95,
                     }

@@ -566,9 +566,11 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                 ("market_report", "Market Analysis"),
                 ("sentiment_report", "Social Sentiment"),
                 ("news_report", "News Analysis"),
-                ("investment_debate_state", "Research Team Decision"),
+                ("investment_debate_state", "Bull/Bear Debate"),
                 ("trader_investment_plan", "Trader Plan"),
-                ("risk_debate_state", "Portfolio Management Decision"),
+                ("risk_debate_state", "Risk Debate"),
+                ("investment_plan", "Research Team Decision"),
+                ("final_trade_decision", "Portfolio Management Decision"),
             ]
             
             # Storage for translated content
@@ -609,6 +611,17 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                                     stripped = match.group(1).strip()
                             
                             # Check if it looks like a JSON object/array
+                            # Improved: Try to find JSON structure even if surrounded by text (e.g. headers)
+                            json_match = re.search(r'(\{[\s\S]*\}|\[[\s\S]*\])', stripped)
+                            if json_match:
+                                candidate = json_match.group(1).strip()
+                                try:
+                                    # 1. Try simple parse of candidate
+                                    parsed = json.loads(candidate)
+                                    return deep_parse_json_strings(parsed)
+                                except (json.JSONDecodeError, TypeError):
+                                    pass
+                                    
                             if (stripped.startswith('{') and stripped.endswith('}')) or \
                                (stripped.startswith('[') and stripped.endswith(']')):
                                 try:
@@ -661,24 +674,46 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                     collect_strings(content)
                     
                     # Translate all strings in parallel (batch)
+                    # Translate all strings in parallel (batch)
                     if strings_to_translate:
                         translation_tasks = [
                             translate_text(s, f"stock analysis - {title}")
                             for s in strings_to_translate
                         ]
-                        try:
-                            translated_strings = await asyncio.gather(*translation_tasks, return_exceptions=True)
-                        except Exception as e:
-                            logger.warning(f"Batch translation failed for {title}: {e}")
-                            translated_strings = strings_to_translate  # Fallback to original
                         
+                        # 1. Initial Attempt
+                        results = await asyncio.gather(*translation_tasks, return_exceptions=True)
+                        translated_strings = list(results) # Convert to mutable list
+
+                        # 2. Check for failures
+                        retry_indices = [i for i, res in enumerate(translated_strings) if isinstance(res, Exception)]
+                        
+                        # 3. Retry loop (Sequential to be kind to rate limits)
+                        if retry_indices:
+                            logger.warning(f"⚠️ {len(retry_indices)} translations failed initially in {title}. Retrying...")
+                            await asyncio.sleep(2) # Cooldown
+                            
+                            for i in retry_indices:
+                                try:
+                                    # Retry individual string
+                                    translated_strings[i] = await translate_text(strings_to_translate[i], f"stock analysis - {title}")
+                                except Exception as e:
+                                    logger.error(f"❌ Retry failed for part of {title}: {e}")
+                                    # Still an exception, will fallback below
+
                         # Build translation map
                         translation_map = {}
+                        failed_translations = []
                         for i, (orig, trans) in enumerate(zip(strings_to_translate, translated_strings)):
                             if isinstance(trans, Exception):
                                 translation_map[string_paths[i]] = orig  # Keep original on error
+                                failed_translations.append(string_paths[i])
                             else:
                                 translation_map[string_paths[i]] = trans
+                        
+                        # Log failed translations
+                        if failed_translations:
+                            logger.error(f"❌ Final Failure: {len(failed_translations)} strings failed to translate in {title}")
                     else:
                         translation_map = {}
                     
@@ -784,9 +819,12 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             for key, title in summary_keys:
                 content = final_state_graph.get(key)
                 if content:
+                    logger.info(f"📝 Summary key '{key}' has content, will translate")
                     summary_translation_tasks.append(
                         translate_single_report(key, title, content, "summary")
                     )
+                else:
+                    logger.warning(f"⚠️ Summary key '{key}' is MISSING content, skipping translation")
             
             # Run all summary translations in parallel
             if summary_translation_tasks:
@@ -802,6 +840,7 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                             summary_translations[key] = data
             
             logger.info(f"✅ PHASE 2 complete: {len(summary_translations)} summary translations")
+            logger.info(f"📋 Summary translations keys: {list(summary_translations.keys())}")
             logger.info(f"🎉 All parallel processing complete!")
 
             # Define file mappings (Key in State -> (Sum Filename, Full Filename, Full Key in State))
@@ -821,13 +860,26 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
             ]
 
             for sum_key, sum_file, full_file, full_key in file_mappings:
-                # Write Summary
+                # Write Summary (English)
                 sum_content = final_state_graph.get(sum_key)
                 if sum_content:
                     with open(sum_dir / sum_file, 'w', encoding='utf-8') as f:
                         f.write(str(sum_content))
                 
-                # Write Full
+                # Write Summary (Thai) - _th version
+                if sum_key in summary_translations and summary_translations[sum_key].get("content_th"):
+                    th_content = summary_translations[sum_key]["content_th"]
+                    # Generate Thai filename: sum_funda.txt -> sum_funda_th.txt
+                    name_parts = sum_file.rsplit('.', 1)
+                    th_sum_file = f"{name_parts[0]}_th.{name_parts[1]}" if len(name_parts) == 2 else f"{sum_file}_th"
+                    
+                    with open(sum_dir / th_sum_file, 'w', encoding='utf-8') as f:
+                        if isinstance(th_content, (dict, list)):
+                            json.dump(th_content, f, ensure_ascii=False, indent=4)
+                        else:
+                            f.write(str(th_content))
+                
+                # Write Full (English)
                 full_content = final_state_graph.get(full_key)
                 if full_content:
                     with open(full_dir / full_file, 'w', encoding='utf-8') as f:
@@ -843,8 +895,58 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                                 f.write(full_content)
                         else:
                              f.write(str(full_content))
+                
+                # Write Full (Thai) - _th version
+                if full_key in full_translations and full_translations[full_key].get("content_th"):
+                    th_content = full_translations[full_key]["content_th"]
+                    # Generate Thai filename: full_bear.json -> full_bear_th.json
+                    name_parts = full_file.rsplit('.', 1)
+                    th_full_file = f"{name_parts[0]}_th.{name_parts[1]}" if len(name_parts) == 2 else f"{full_file}_th"
+                    
+                    with open(full_dir / th_full_file, 'w', encoding='utf-8') as f:
+                        if th_full_file.endswith(".json"):
+                            if isinstance(th_content, (dict, list)):
+                                json.dump(th_content, f, ensure_ascii=False, indent=4)
+                            elif isinstance(th_content, str):
+                                try:
+                                    json_obj = json.loads(th_content)
+                                    json.dump(json_obj, f, ensure_ascii=False, indent=4)
+                                except:
+                                    f.write(th_content)
+                            else:
+                                f.write(str(th_content))
+                        else:
+                            f.write(str(th_content))
 
-            logger.info("✅ Summaries generated and saved directly to backend/output")
+            logger.info("✅ Summaries generated and saved directly to backend/output (EN + TH)")
+            
+            # Send Thai translations via WebSocket for real-time frontend display
+            # This includes both full and summary translations
+            logger.info("📡 Sending Thai translations via WebSocket...")
+            
+            # Send full translations
+            for full_key, trans_data in full_translations.items():
+                if trans_data and trans_data.get("content_th"):
+                    await send_update(websocket, "thai_report", {
+                        "section": full_key,
+                        "report_type": "full",
+                        "label": trans_data.get("title_th", trans_data.get("title", full_key)),
+                        "content": trans_data["content_th"]
+                    })
+                    await asyncio.sleep(0.02)
+            
+            # Send summary translations
+            for sum_key, trans_data in summary_translations.items():
+                if trans_data and trans_data.get("content_th"):
+                    await send_update(websocket, "thai_report", {
+                        "section": sum_key,
+                        "report_type": "summary",
+                        "label": trans_data.get("title_th", trans_data.get("title", sum_key)),
+                        "content": trans_data["content_th"]
+                    })
+                    await asyncio.sleep(0.02)
+            
+            logger.info(f"📡 Sent {len(full_translations)} full + {len(summary_translations)} summary Thai reports")
 
             # ==========================================================
             # 💾 Database Completion Block - Read from output files

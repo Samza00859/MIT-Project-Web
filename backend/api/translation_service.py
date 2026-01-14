@@ -65,7 +65,7 @@ Text to translate:
 Provide ONLY the translated text, no explanations or additional content."""
     
     try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.post(
                 TYPHOON_API_URL,
                 headers={
@@ -84,7 +84,7 @@ Provide ONLY the translated text, no explanations or additional content."""
                             "content": prompt
                         }
                     ],
-                    "max_tokens": 4096,
+                    "max_tokens": 8192,
                     "temperature": 0.3,
                     "top_p": 0.95,
                 }

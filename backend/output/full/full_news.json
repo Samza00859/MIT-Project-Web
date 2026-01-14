@@ -1,42 +1,49 @@
 {
-    "executive_summary": "Apple's strategic partnership with Google for AI integration in Siri and its broader AI strategy, coupled with strong iPhone sales and services growth, are key drivers. This AI collaboration is a significant development, potentially boosting Apple's competitive edge in the AI race, though it also raises questions about its long-term AI development independence.",
-    "market_sentiment_verdict": "Bullish",
+    "executive_summary": "Amazon faces mixed sentiment with BofA projecting improved AI sentiment for 2026, but this is countered by ongoing antitrust pressure in Europe, competitive threats to AWS from enterprise software sell-offs, and a challenging macro environment of regulatory scrutiny on tech and tariffs.",
+    "market_sentiment_verdict": "Neutral",
     "global_macro_context": {
-        "macro_summary": "Geopolitical tensions, particularly concerning Iran, are driving up oil prices and influencing Asian markets. Concerns about global economic stability persist, with central bank policies and interest rate expectations remaining a key focus for investors. Geopolitical risks are influencing market sentiment, leading to a cautious but generally positive outlook in European markets as they open higher."
+        "macro_summary": "Global central banks are uniting in defense of Fed Chair Powell amid a DOJ investigation, signaling institutional stability concerns. The Trump administration's policies are creating volatility, with threats of credit card rate caps pressuring financials, tariff uncertainties impacting trade, and pressure on tech giants to bear AI data center costs. Geopolitical tensions in Iran and Venezuela are adding to oil market volatility, while China's record trade surplus defies slowdown expectations."
     },
     "top_news_developments": [
         {
-            "headline": "Apple taps Google AI to power Siri in multi-year deal",
-            "source": "CNBC",
-            "date": "2026-01-12",
-            "sentiment": "Positive",
-            "implication": "Apple's partnership with Google for AI integration in Siri and its broader AI strategy could significantly enhance its competitive position and user experience, potentially driving future growth."
-        },
-        {
-            "headline": "Apple leads global smartphone market in 2025, says Counterpoint",
-            "source": "Yahoo Finance",
-            "date": "2026-01-12",
-            "sentiment": "Positive",
-            "implication": "Apple's continued market leadership in smartphones, driven by strong iPhone sales and emerging market demand, reinforces its market position and revenue stability."
-        },
-        {
-            "headline": "Alphabet hits $4 trillion valuation as AI refocus lifts sentiment",
-            "source": "GMA Network",
-            "date": "2026-01-12",
-            "sentiment": "Positive",
-            "implication": "Google's significant valuation surge, partly driven by its AI advancements and partnerships like the one with Apple, indicates a positive market reception for AI-driven growth strategies in the tech sector."
-        },
-        {
-            "headline": "Qualcomm (QCOM) Stock Trades Down, Here Is Why",
-            "source": "Finviz",
-            "date": "2026-01-12",
+            "headline": "Amazon to appeal against Italian antitrust fine, even after it was cut",
+            "source": "Reuters",
+            "date": "2026-01-14",
             "sentiment": "Negative",
-            "implication": "Qualcomm faces headwinds from Apple's potential in-house modem development, suggesting a risk to its future revenue streams from Apple, despite current partnerships."
+            "implication": "Ongoing regulatory battles in Europe create legal overhang and potential for future fines, weighing on investor sentiment."
+        },
+        {
+            "headline": "AI Sentiment on Amazon (AMZN) Could Improve in 2026, BofA Says",
+            "source": "Finviz",
+            "date": "2026-01-13",
+            "sentiment": "Positive",
+            "implication": "Analyst optimism on AWS AI capacity growth and leadership changes provides a bullish catalyst for the stock's 2026 performance."
+        },
+        {
+            "headline": "Amazon holds talks with suppliers on pricing following tariff changes",
+            "source": "Yahoo",
+            "date": "2026-01-13",
+            "sentiment": "Neutral",
+            "implication": "Adjusting supplier costs in response to tariff reductions could protect margins but may strain vendor relationships."
+        },
+        {
+            "headline": "Delivery giants face share loss, Amazon threat, leading BNP Paribas to downgrade FedEx and UPS",
+            "source": "Seeking Alpha",
+            "date": "2026-01-13",
+            "sentiment": "Positive",
+            "implication": "Amazon's expanding logistics capabilities are seen as a direct competitive threat, potentially capturing more market share and revenue."
+        },
+        {
+            "headline": "Walmart makes bold move to challenge Amazon for customers",
+            "source": "TheStreet",
+            "date": "2026-01-13",
+            "sentiment": "Negative",
+            "implication": "Intensifying competition in retail and grocery from a key rival pressures Amazon's core e-commerce market share and pricing power."
         }
     ],
     "key_risks": [
-        "Dependence on Google for AI advancements could pose long-term strategic risks for Apple's AI development independence.",
-        "Regulatory scrutiny on tech giants' AI partnerships and market dominance could create future challenges.",
-        "The sustainability of Apple's premium pricing strategy and iPhone upgrade cycles in a competitive market remains a consideration."
+        "Persistent antitrust and regulatory scrutiny in key markets like the EU, leading to fines and operational constraints.",
+        "Intensifying competition in core retail from Walmart and in cloud/AI from other tech giants, threatening growth and margins.",
+        "Macro policy volatility under the Trump administration, including tariffs and potential tech regulations, creating supply chain and cost uncertainties."
     ]
 }

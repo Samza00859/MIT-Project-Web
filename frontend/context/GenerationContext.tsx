@@ -39,6 +39,13 @@ export interface ReportSection {
     text: string;
 }
 
+export interface ThaiReportSection {
+    section: string;
+    report_type: string;
+    label: string;
+    content: any;
+}
+
 export interface GenerationRequest {
     ticker: string;
     analysisDate: string;
@@ -62,6 +69,7 @@ export interface GenerationContextType {
     progress: number;
     teamState: TeamState;
     reportSections: ReportSection[];
+    thaiReportSections: ThaiReportSection[];
     finalReportData: Record<string, any> | null;
     decision: string;
 
@@ -178,6 +186,7 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
     const [progress, setProgress] = useState(0);
     const [teamState, setTeamState] = useState<TeamState>(deepClone(TEAM_TEMPLATE));
     const [reportSections, setReportSections] = useState<ReportSection[]>([]);
+    const [thaiReportSections, setThaiReportSections] = useState<ThaiReportSection[]>([]);
     const [finalReportData, setFinalReportData] = useState<Record<string, any> | null>(null);
     const [decision, setDecision] = useState("Awaiting run");
 
@@ -345,6 +354,25 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
                             // Handle intermediate reports if needed
                             break;
 
+                        case "thai_report":
+                            // Handle Thai translation reports from backend
+                            if (data && data.content) {
+                                setThaiReportSections((prev) => {
+                                    // Avoid duplicates
+                                    const exists = prev.find(
+                                        (r) => r.section === data.section && r.report_type === data.report_type
+                                    );
+                                    if (exists) return prev;
+                                    return [...prev, {
+                                        section: data.section,
+                                        report_type: data.report_type,
+                                        label: data.label,
+                                        content: data.content
+                                    }];
+                                });
+                            }
+                            break;
+
                         case "complete":
                             if (data.final_state) {
                                 setFinalReportData(data.final_state);
@@ -447,6 +475,7 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
             setCurrentTicker(request.ticker);
             setTeamState(deepClone(TEAM_TEMPLATE));
             setReportSections([]);
+            setThaiReportSections([]);
             setDecision("Awaiting run");
             setDebugLogs([]);
             setMsgCount(0);
@@ -500,6 +529,7 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
         setProgress(0);
         setTeamState(deepClone(TEAM_TEMPLATE));
         setReportSections([]);
+        setThaiReportSections([]);
         setFinalReportData(null);
         setDecision("Awaiting run");
         setDebugLogs([]);
@@ -518,6 +548,7 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
         progress,
         teamState,
         reportSections: activeReportSections,
+        thaiReportSections,
         finalReportData,
         decision,
 
