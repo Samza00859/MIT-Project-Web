@@ -1,8 +1,28 @@
 {
-    "sentiment_score": 50,
-    "sentiment_verdict": "Neutral (Data Unavailable)",
-    "social_volume_analysis": "Unable to retrieve social media data.",
-    "dominant_narrative": "No clear narrative identified.",
-    "top_discussion_topics": [],
-    "retail_psychology_assessment": "Insufficient data for psychological assessment."
+    "sentiment_verdict": "Neutral",
+    "social_volume": "Moderate increase in social volume, driven by news related to China export regulations and AI developments.",
+    "dominant_narrative": "The dominant narrative revolves around NVIDIA's AI chip exports to China, with conflicting reports suggesting both eased restrictions and outright bans. Simultaneously, news of NVIDIA's involvement in AI-driven drug discovery and autonomous vehicle technology highlights ongoing innovation and partnerships.",
+    "top_topics": [
+        {
+            "topic": "NVIDIA Chip Exports to China",
+            "sentiment": "Mixed",
+            "analysis_snippet": "Conflicting reports regarding the approval and restriction of NVIDIA's H200 chip exports to China created uncertainty and influenced market sentiment."
+        },
+        {
+            "topic": "AI in Drug Discovery and Autonomous Vehicles",
+            "sentiment": "Positive",
+            "analysis_snippet": "Announcements of NVIDIA's co-innovation labs for drug discovery and integration of their AI platforms in autonomous vehicles showcased continued technological advancement and strategic partnerships."
+        },
+        {
+            "topic": "Analyst Ratings and Market Sentiment",
+            "sentiment": "Mixed",
+            "analysis_snippet": "Analyst opinions varied, with some suggesting NVIDIA might be 'overheating' while others viewed its valuation as 'attractive,' reflecting a divided market outlook."
+        },
+        {
+            "topic": "Institutional Options Activity",
+            "sentiment": "Neutral",
+            "analysis_snippet": "Significant institutional options volume was observed, indicating substantial interest and activity in NVIDIA, though the directional sentiment of these trades was not explicitly clear from the data."
+        }
+    ],
+    "psychology": "A mix of caution due to regulatory uncertainties surrounding China exports and optimism stemming from ongoing AI advancements and strategic partnerships."
 }

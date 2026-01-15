@@ -785,8 +785,8 @@ async def run_analysis_stream(websocket: WebSocket, request: AnalysisRequest):
                         logger.info(f"💾 Updated history {execution_id} with cancelled status.")
             except Exception as db_cancel_err:
                 logger.error(f"❌ Failed to update history status on cancel: {db_cancel_err}")
-        await send_update(websocket, "error", {"message": "Analysis cancelled."})
-        raise
+            await send_update(websocket, "message", {"type": "System", "content": "Analysis cancelled by user."})
+            raise
 
     except Exception as e:
         logger.error(f"❌ Analysis failed for {request.ticker}: {e}")
@@ -900,7 +900,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     except asyncio.CancelledError:
                         pass
                     analysis_task = None
-                    await send_update(websocket, "error", {"message": "Analysis stopped. System ready."})
+                    await send_update(websocket, "message", {"type": "System", "content": "Analysis stopped. System ready."})
                     logger.info("🛑 Analysis stopped by user. System reset and ready.")
                 
             elif action == "ping":

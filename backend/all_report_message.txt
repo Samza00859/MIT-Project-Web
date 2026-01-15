@@ -1,15 +1,21 @@
 🏷️ Stock Data Source Comparison Result:
 
-===== TOTAL RECORDS CHECK (IBM - US) =====
-YFinance (IBM):      250
-TwelveData (IBM):    250
-TradingView (IBM):   0
+===== TOTAL RECORDS CHECK (NVDA - US) =====
+YFinance (NVDA):      251
+TwelveData (NVDA):    251
+TradingView (NVDA):   251
 
 
 ===== SIMILARITY SCORE =====
-YFinance Score: 64
-TwelveData Score: 64
-TradingView Score: 0
+YFinance Score: 112
+TwelveData Score: 536
+TradingView Score: 540
 
-🏆 Best Source: YFINANCE
+🏆 Best Source: TRADINGVIEW
 
+
+🌐 Social Media News: 
+Bluesky news fetched for NVDA: 24 posts found.
+Subreddit news fetched for NVDA: 18 posts found.
+
+Mastodon news fetched for NVDA: 120 posts found.
