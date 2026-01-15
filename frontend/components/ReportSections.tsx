@@ -39,7 +39,6 @@ function formatInlineMarkdown(text: string) {
 interface ReportSectionsDisplayProps extends ReportSectionsProps {
     handleCopyReport: () => void;
     handleDownloadPdf: () => void;
-    handleDownloadPdfThai?: () => void;
     reportLength: "summary report" | "full report";
     setReportLength: (length: "summary report" | "full report") => void;
     isRunning?: boolean;
@@ -322,7 +321,6 @@ export default function ReportSections({
     setCopyFeedback,
     handleCopyReport,
     handleDownloadPdf,
-    handleDownloadPdfThai,
     reportLength,
     setReportLength,
     isRunning = false,
@@ -374,7 +372,7 @@ export default function ReportSections({
                             <button
                                 onClick={() => setLanguage("en")}
                                 className={`px-3 py-2 text-xs font-semibold transition-colors ${language === "en"
-                                    ? (isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#DBEAFE] text-[#1D4ED8]")
+                                    ? (isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#DBEAFE] text-[#1e3a8a]")
                                     : (isDarkMode ? "text-[#8b94ad] hover:bg-white/5" : "text-[#334155] hover:bg-white")
                                     }`}
                             >
@@ -403,29 +401,15 @@ export default function ReportSections({
                         {copyFeedback}
                     </button>
                     {reportSections.length > 0 && !isRunning && !reportSections.some(s => s.key === "error") && (
-                        <>
-                            <button
-                                onClick={handleDownloadPdf}
-                                className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium text-[#2df4c6] transition-all hover:bg-[#2df4c6]/10 ${isDarkMode
-                                    ? "border-white/20 bg-transparent"
-                                    : "border-gray-200 bg-gray-50"
-                                    }`}
-                            >
-                                PDF (EN)
-                            </button>
-                            {handleDownloadPdfThai && (
-                                <button
-                                    onClick={handleDownloadPdfThai}
-                                    disabled={isTranslating}
-                                    className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium transition-all hover:bg-[#f59e0b]/10 ${isDarkMode
-                                        ? "border-[#f59e0b]/30 bg-transparent text-[#f59e0b]"
-                                        : "border-[#f59e0b]/30 bg-[#fef3c7] text-[#b45309]"
-                                        } ${isTranslating ? "opacity-50 cursor-wait" : ""}`}
-                                >
-                                    {isTranslating ? "กำลังแปล..." : "PDF (TH) 🇹🇭"}
-                                </button>
-                            )}
-                        </>
+                        <button
+                            onClick={handleDownloadPdf}
+                            className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium text-[#2df4c6] transition-all hover:bg-[#2df4c6]/10 ${isDarkMode
+                                ? "border-white/20 bg-transparent"
+                                : "border-gray-200 bg-gray-50"
+                                }`}
+                        >
+                            Download PDF
+                        </button>
                     )}
 
                     {/* Compact Telegram Button */}
@@ -496,7 +480,72 @@ export default function ReportSections({
                                         }
                                     }
 
-                                    // 2. Default Markdown Rendering (Fallback) - Wrapped in Card Style
+                                    // 2. Enhanced Markdown Rendering with Section Parsing
+                                    // If the text contains markdown headers (###), split and render as pseudo-sections
+                                    if (typeof section.text === 'string' && section.text.includes("###")) {
+                                        const parts = section.text.split(/(?=###)/g);
+                                        return (
+                                            <div className="flex flex-col gap-6">
+                                                {parts.map((part, pIdx) => {
+                                                    const match = part.match(/###\s*(.+)\n([\s\S]*)/);
+                                                    if (match) {
+                                                        const title = match[1].trim();
+                                                        const content = match[2].trim();
+
+                                                        // Detect if this is a "Decision" or "Recommendation" section
+                                                        // Keywords for both English and Thai
+                                                        const isDecision = /decision|recommendation|verdict|summary|overview|ตัดสินใจ|แนะนำ|สรุป|ภาพรวม/i.test(title);
+
+                                                        if (isDecision) {
+                                                            // Render as Box (like Judge Decision)
+                                                            return (
+                                                                <div
+                                                                    key={pIdx}
+                                                                    className={`w-fit max-w-full rounded-xl border p-5 shadow-sm ${isDarkMode
+                                                                        ? "border-white/10"
+                                                                        : "border-gray-200"
+                                                                        }`}
+                                                                >
+                                                                    <h4 className="mb-3 text-sm font-bold uppercase tracking-widest opacity-70">
+                                                                        {title}
+                                                                    </h4>
+                                                                    <div className="text-lg font-medium leading-relaxed opacity-90">
+                                                                        <RenderMarkdown text={content} />
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        } else {
+                                                            // Render as Indented Section (like History/Analysis)
+                                                            return (
+                                                                <div
+                                                                    key={pIdx}
+                                                                    className={`border-l-2 pl-4 ${isDarkMode ? "border-white/10" : "border-gray-200"}`}
+                                                                >
+                                                                    <h4 className="mb-2 text-sm font-bold uppercase tracking-wider opacity-60">
+                                                                        {title}
+                                                                    </h4>
+                                                                    <div className="text-base leading-relaxed opacity-90">
+                                                                        <RenderMarkdown text={content} />
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        }
+                                                    }
+                                                    // Content without header (intro text)
+                                                    if (part.trim()) {
+                                                        return (
+                                                            <div key={pIdx} className={`rounded-xl border p-5 ${isDarkMode ? "border-white/10 bg-white/5" : "border-gray-200 bg-white"}`}>
+                                                                <RenderMarkdown text={part} />
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })}
+                                            </div>
+                                        );
+                                    }
+
+                                    // 3. Default Fallback
                                     return (
                                         <div className={`rounded-xl border p-5 ${isDarkMode
                                             ? "border-white/10 bg-white/5"

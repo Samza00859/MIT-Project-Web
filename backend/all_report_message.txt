@@ -61,3 +61,36 @@ Fetched 10 news items for AMZN from YFinance.
 Fetched 50 news items for AMZN from Alpha Vantage.
 Finnhub global news have : 50 posts.
 
+
+🌐 Social Media News: 
+Bluesky news fetched for TSLA: 30 posts found.
+Mastodon news fetched for TSLA: 120 posts found.
+Yfinance global news have : 49 posts.
+📰 News :
+Fetched 50 news items for TSLA from Finnhub.
+Finnhub global news have : 50 posts.
+
+Fetched 10 news items for TSLA from YFinance.
+Fetched 50 news items for TSLA from Alpha Vantage.
+Mastodon news fetched for AMD: 120 posts found.
+
+🌐 Social Media News: 
+Bluesky news fetched for AMD: 32 posts found.
+Yfinance global news have : 49 posts.
+Finnhub global news have : 50 posts.
+
+📰 News :
+Fetched 50 news items for AMD from Finnhub.
+Fetched 10 news items for AMD from YFinance.
+Fetched 50 news items for AMD from Alpha Vantage.
+Mastodon news fetched for AMD: 120 posts found.
+
+🌐 Social Media News: 
+Bluesky news fetched for AMD: 32 posts found.
+Yfinance global news have : 49 posts.
+📰 News :
+Fetched 50 news items for AMD from Finnhub.
+Finnhub global news have : 50 posts.
+
+Fetched 10 news items for AMD from YFinance.
+Fetched 50 news items for AMD from Alpha Vantage.

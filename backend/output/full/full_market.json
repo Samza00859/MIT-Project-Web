@@ -1,6 +1,6 @@
 {
-    "ticker": "AMZN",
-    "date": "2026-01-13",
+    "ticker": "AMD",
+    "date": "2026-01-14",
     "selected_indicators": [
         "close_50_sma",
         "close_10_ema",
@@ -24,68 +24,76 @@
         {
             "indicator": "close_50_sma",
             "indicator_full_name": "50-Day Simple Moving Average",
-            "signal": "Price (242.60) is above the 50-day SMA (234.04). The SMA is trending upward.",
-            "implication": "Confirms a bullish intermediate-term trend."
+            "signal": "Price is above the 50-day SMA.",
+            "implication": "Indicates a generally bullish trend."
         },
         {
             "indicator": "close_10_ema",
             "indicator_full_name": "10-Day Exponential Moving Average",
-            "signal": "Price is above the 10-day EMA (240.24). The EMA is above the 50-day SMA.",
-            "implication": "Supports a bullish short-term trend."
+            "signal": "Price is above the 10-day EMA.",
+            "implication": "Suggests short-term upward momentum."
         },
         {
             "indicator": "macd",
             "indicator_full_name": "Moving Average Convergence Divergence",
-            "signal": "MACD (4.047) is above its signal line (2.399) and positive, but the histogram (1.647) has decreased from recent highs.",
-            "implication": "Bullish momentum is present but may be slowing."
+            "signal": "MACD line is above the signal line, and the histogram is positive.",
+            "implication": "Bullish signal, indicating increasing upward momentum."
         },
         {
             "indicator": "rsi",
             "indicator_full_name": "Relative Strength Index",
-            "signal": "RSI at 60.69, down from overbought levels above 70 earlier in the month.",
-            "implication": "Momentum has cooled from overbought, now in neutral-bullish territory."
+            "signal": "RSI is 56.99, indicating a neutral to slightly bullish reading.",
+            "implication": "Suggests the asset is neither overbought nor oversold, with room for upward movement."
         },
         {
             "indicator": "boll",
             "indicator_full_name": "Bollinger Bands",
-            "signal": "Price is trading near the middle band (233.31), having retreated from the upper band (249.78).",
-            "implication": "Price is in a normal volatility range after a recent pullback from the high."
+            "signal": "Price is trading near the upper Bollinger Band.",
+            "implication": "Indicates strong upward price pressure and potential for continued gains, but also a possibility of a short-term pullback if it touches the upper band."
+        },
+        {
+            "indicator": "boll_ub",
+            "indicator_full_name": "Upper Bollinger Band",
+            "signal": "Price is below the upper Bollinger Band.",
+            "implication": "Suggests there is still room for price appreciation before reaching potential resistance."
+        },
+        {
+            "indicator": "boll_lb",
+            "indicator_full_name": "Lower Bollinger Band",
+            "signal": "Price is well above the lower Bollinger Band.",
+            "implication": "Confirms the absence of strong downward pressure."
         },
         {
             "indicator": "atr",
             "indicator_full_name": "Average True Range",
-            "signal": "ATR at 5.29, down from peaks above 7 in November.",
-            "implication": "Daily volatility has moderated from recent highs."
+            "signal": "ATR is 9.10, indicating moderate volatility.",
+            "implication": "Suggests that price movements are within a normal range, not excessively volatile."
         },
         {
             "indicator": "vwma",
             "indicator_full_name": "Volume Weighted Moving Average",
-            "signal": "Price (242.60) is above the VWMA (232.79).",
-            "implication": "Recent price action is supported by volume, a bullish sign."
+            "signal": "Price is above the VWMA.",
+            "implication": "Indicates that the average price, weighted by volume, is lower than the current price, suggesting bullish pressure."
         }
     ],
     "price_action_summary": {
-        "recent_high_low": "Price is below the recent high of ~250.20 (early Nov) but well above the recent low of ~213.04 (mid-Oct).",
+        "recent_high_low": "The current price is near the recent high, showing strong upward momentum.",
         "support_levels": [
-            "232.79 (VWMA)",
-            "230.82 (Recent Low on 12/31)",
-            "226.50 (Low on 1/2)"
+            "214.95",
+            "213.43"
         ],
         "resistance_levels": [
-            "246.29 (Recent High on 1/8)",
-            "249.78 (Bollinger Upper Band)",
-            "250.20 (Nov High)"
+            "223.47",
+            "227.15"
         ],
-        "short_term_behavior": "Price is consolidating after a strong rally from October lows, showing a pullback from the 1/8 high."
+        "short_term_behavior": "The price has shown a strong upward trend in the last few trading days, breaking above key moving averages and indicators."
     },
     "market_sentiment": {
         "sentiment_label": "Bullish"
     },
     "key_risks": [
-        "RSI retreat from overbought levels suggests potential for further consolidation or pullback.",
-        "MACD histogram decline indicates bullish momentum may be waning.",
-        "Price failed to hold near the upper Bollinger Band, indicating resistance.",
-        "A break below the 10-day EMA and VWMA could signal a deeper correction."
+        "Potential for overbought conditions if the price continues to rise rapidly towards the upper Bollinger Band.",
+        "A sharp increase in volatility could lead to a swift price reversal."
     ],
-    "short_term_outlook": "Bullish trend intact but experiencing a short-term pullback. Watch for support near the 10-day EMA and VWMA. A hold above these levels could lead to a retest of recent highs."
+    "short_term_outlook": "The technical indicators suggest a bullish short-term outlook for AMD, with upward momentum supported by MACD and RSI readings above 50. The price trading above key moving averages and near the upper Bollinger Band indicates potential for further gains, though caution is advised regarding potential pullbacks."
 }

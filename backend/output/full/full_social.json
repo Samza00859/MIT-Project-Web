@@ -1,28 +1,28 @@
 {
-    "sentiment_verdict": "Neutral",
-    "social_volume": "Moderate and consistent volume, primarily from promotional deal posts and financial data feeds, with a notable spike in positive sentiment mentions on 2026-01-13.",
-    "dominant_narrative": "Amazon is widely discussed in two distinct contexts: as a routine e-commerce platform for product deals and as a core component of major tech/AI investment portfolios. There is no single dominant market-moving narrative, but underlying positive sentiment is tied to its inclusion in AI and cloud computing themes.",
+    "sentiment_verdict": "Mixed",
+    "social_volume": "High - Spike due to CES announcements and US tariff news.",
+    "dominant_narrative": "AMD is aggressively pursuing the AI market with new product launches and strategic initiatives showcased at CES 2026, including advancements in Ryzen AI processors and data center solutions. This positive outlook is tempered by news of US tariffs on advanced chips, potentially impacting global market access and supply chains.",
     "top_topics": [
         {
-            "topic": "AI and Cloud Computing Strategy",
-            "sentiment": "Positive",
-            "analysis_snippet": "Amazon is consistently grouped with other major tech leaders (MSFT, NVDA, GOOG) as a key beneficiary of AI infrastructure and cloud services growth."
-        },
-        {
-            "topic": "E-commerce and Product Promotions",
-            "sentiment": "Neutral",
-            "analysis_snippet": "A high volume of posts are simple advertisements for game, toy, and media deals on Amazon's retail platform, reflecting routine commercial activity."
-        },
-        {
-            "topic": "Institutional Trading Activity",
-            "sentiment": "Mixed",
-            "analysis_snippet": "Data feeds highlight significant institutional options and sweep activity in AMZN, indicating professional investor interest but not conveying a unified directional bias."
-        },
-        {
-            "topic": "Regulatory and Legal Scrutiny",
+            "topic": "US Tariffs on Advanced Chips",
             "sentiment": "Negative",
-            "analysis_snippet": "Isolated mentions reference potential future regulatory actions ('NurembergTrials-2') and past issues, contributing a minor undercurrent of risk."
+            "analysis_snippet": "News of US tariffs on high-performance AI chips, including AMD's, generated significant discussion regarding market access and geopolitical implications."
+        },
+        {
+            "topic": "AMD's CES 2026 AI Announcements",
+            "sentiment": "Positive",
+            "analysis_snippet": "AMD's unveiling of new Ryzen AI processors, Instinct accelerators, and AI software solutions at CES 2026 was met with considerable interest and positive sentiment regarding their AI strategy."
+        },
+        {
+            "topic": "New Product Launches and Performance",
+            "sentiment": "Positive",
+            "analysis_snippet": "Discussions focused on specific AMD products like Ryzen AI, Radeon, and Instinct, highlighting performance benchmarks and competitive positioning."
+        },
+        {
+            "topic": "AM4 Platform and RAM Prices",
+            "sentiment": "Mixed",
+            "analysis_snippet": "Speculation emerged about AMD potentially re-releasing older AM4 chips due to soaring RAM prices, offering an affordable upgrade path."
         }
     ],
-    "psychology": "Apathy and Routine Engagement; the crowd shows no signs of Fear Of Missing Out or panic, treating Amazon as a stable, evergreen component of the tech and retail landscape."
+    "psychology": "A blend of Greed (driven by AI opportunities and product innovation) and Fear Uncertainty and Doubt (FUD) due to geopolitical news on tariffs."
 }

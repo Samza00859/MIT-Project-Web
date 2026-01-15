@@ -1,49 +1,49 @@
 {
-    "executive_summary": "Amazon's stock outlook is primarily driven by AI sentiment improvement and AWS margin expansion, but faces headwinds from regulatory fines, competitive pressures in enterprise software, and potential margin compression from tariff-related supplier price renegotiations.",
+    "executive_summary": "New U.S. tariffs on AI chips, including those from AMD and Nvidia, alongside TSMC's strong earnings outlook, are key drivers. AMD's stock is reacting to analyst upgrades and new partnerships, but faces challenges from tariffs and insider selling, creating a mixed sentiment.",
     "market_sentiment_verdict": "Neutral",
     "global_macro_context": {
-        "macro_summary": "Geopolitical tensions are high with U.S.-China trade dynamics and Iran turmoil impacting oil lanes, while the ECB warns markets are underpricing these risks. Central bank unity is evident in defense of Fed Chair Powell, but Trump administration policies on credit card rates and military spending are creating sector-specific volatility. China's record trade surplus and oil imports defy tariff expectations, indicating resilient global trade flows."
+        "macro_summary": "Geopolitical tensions are rising, particularly concerning U.S.-Iran relations and U.S. trade policies impacting China and Taiwan. The EU and Mercosur are solidifying a large free-trade zone, while domestic economic indicators show mixed signals with ongoing inflation pressures. Central bank independence remains a point of discussion amid political discourse."
     },
     "top_news_developments": [
         {
-            "headline": "AI Sentiment on Amazon (AMZN) Could Improve in 2026, BofA Says",
+            "headline": "Trump imposes 25% tariff on imports of some AI chips",
+            "source": "Reuters Videos",
+            "date": "2026-01-15",
+            "sentiment": "Negative",
+            "implication": "The new tariffs on AI chips, including those from AMD and Nvidia, will increase costs for these companies and potentially impact their competitiveness in the Chinese market."
+        },
+        {
+            "headline": "TSMC Earnings Beat Expectations in First 2026 Test for AI Boom",
+            "source": "Barrons.com",
+            "date": "2026-01-15",
+            "sentiment": "Positive",
+            "implication": "TSMC's strong earnings and positive outlook for 2026 reinforce the sustained demand for AI chips, benefiting key suppliers like AMD."
+        },
+        {
+            "headline": "Stock Market Today, Jan. 14: Intel Jumps on Sold Out 2026 Server CPU Capacity",
+            "source": "Motley Fool",
+            "date": "2026-01-14",
+            "sentiment": "Positive",
+            "implication": "Strong demand for server CPUs, as indicated by Intel's sold-out capacity, suggests a healthy market for AMD's server products as well."
+        },
+        {
+            "headline": "AMD stock trades up, here is why",
             "source": "Yahoo Finance",
             "date": "2026-01-13",
             "sentiment": "Positive",
-            "implication": "Positive analyst outlook based on AWS growth and AI capacity could support stock price appreciation."
+            "implication": "Analyst upgrades and strong demand for AMD's AI server chips are driving positive sentiment and stock price increases."
         },
         {
-            "headline": "Amazon to appeal against Italian fine, even after it was cut, paper says",
-            "source": "Yahoo",
+            "headline": "Advanced Micro Devices, Inc. $AMD Shares Bought by Summa Corp.",
+            "source": "MarketBeat",
             "date": "2026-01-14",
-            "sentiment": "Negative",
-            "implication": "Ongoing regulatory battles and a €752 million fine pose a financial and reputational overhang."
-        },
-        {
-            "headline": "Amazon holds talks with suppliers on pricing following tariff changes",
-            "source": "Yahoo",
-            "date": "2026-01-13",
-            "sentiment": "Negative",
-            "implication": "Seeking to reverse tariff concessions could squeeze supplier margins and disrupt supply chain relationships, impacting costs."
-        },
-        {
-            "headline": "Amazon's AWS Margin Expansion Accelerates: More Upside for the Stock?",
-            "source": "Yahoo",
-            "date": "2026-01-13",
-            "sentiment": "Positive",
-            "implication": "Strong AWS profitability and a $200 billion backlog are fundamental bullish drivers for earnings and valuation."
-        },
-        {
-            "headline": "Delivery giants face share loss, Amazon threat, leading BNP Paribas to downgrade FedEx and UPS",
-            "source": "Seeking Alpha",
-            "date": "2026-01-13",
-            "sentiment": "Positive",
-            "implication": "Amazon's growing logistics capabilities are seen as a competitive threat, signaling strength in its internal shipping network."
+            "sentiment": "Neutral",
+            "implication": "Significant institutional buying of AMD shares is countered by insider selling and concerns about valuation, creating a mixed signal for investors."
         }
     ],
     "key_risks": [
-        "Regulatory and antitrust fines in Europe (e.g., Italy) creating financial and operational uncertainty.",
-        "Potential margin pressure and supply chain friction from renegotiating supplier prices post-tariff reductions.",
-        "Broad competitive anxiety in cloud and enterprise software sectors could weigh on tech valuations, including AMZN."
+        "New U.S. tariffs on AI chips increase costs and may impact international sales for AMD.",
+        "Insider selling and high valuation metrics for AMD present potential headwinds despite positive analyst ratings.",
+        "Geopolitical tensions and trade policies between the U.S., China, and Taiwan could disrupt the semiconductor supply chain."
     ]
 }

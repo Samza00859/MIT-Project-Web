@@ -1210,7 +1210,7 @@ export default function HistoryPage() {
                                         <div className={`flex rounded-full border p-1 ${isDarkMode ? "border-white/10 bg-white/5" : "border-gray-200 bg-gray-100"}`}>
                                             <button
                                                 onClick={() => setLanguage("en")}
-                                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${language === "en" ? "bg-white/20 text-white" : "opacity-50"}`}
+                                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${language === "en" ? (isDarkMode ? "bg-white/20 text-white" : "bg-white text-[#1e3a8a] shadow-sm") : "opacity-50"}`}
                                             >
                                                 EN
                                             </button>
