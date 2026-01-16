@@ -1298,22 +1298,41 @@ export default function Home() {
         {contextDecision && (
           <section
             className={`flex flex-col md:flex-row items-center justify-between gap-6 rounded-[20px] px-8 py-5 ${
-              isDarkMode ? "bg-[#0f172a] border border-white/5" : "bg-[#1e293b] border border-white/10 shadow-lg"
+              isDarkMode ? "bg-[#0f172a] border border-white/5" : "bg-white border-[#E2E8F0] shadow-sm"
             }`}
           >
             {/* Selected Asset */}
             <div className="flex flex-col gap-1 min-w-[150px]">
-               <span className="text-[10px] font-bold uppercase tracking-widest text-[#64748b]">
+               <span
+                 className={`text-[10px] font-bold uppercase tracking-widest ${
+                   isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                 }`}
+               >
                  Selected Asset
                </span>
-               <div className="text-xl font-bold tracking-wide text-white">
-                 {ticker || "—"}<span className="text-[#64748b] ml-1">{selectedMarket ? `:${selectedMarket.toUpperCase()}` : ""}</span>
+               <div
+                 className={`text-xl font-bold tracking-wide ${
+                   isDarkMode ? "text-white" : "text-[#0F172A]"
+                 }`}
+               >
+                 {ticker || "—"}
+                 <span
+                   className={`ml-1 text-sm ${
+                     isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                   }`}
+                 >
+                   {selectedMarket ? `:${selectedMarket.toUpperCase()}` : ""}
+                 </span>
                </div>
             </div>
 
             {/* Signal Strength */}
             <div className="flex flex-col items-center gap-2 flex-1">
-               <span className="text-[10px] font-bold uppercase tracking-widest text-[#64748b]">
+               <span
+                 className={`text-[10px] font-bold uppercase tracking-widest ${
+                   isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                 }`}
+               >
                  Signal Strength
                </span>
                <div className="flex flex-col items-center gap-1">
@@ -1347,10 +1366,17 @@ export default function Home() {
                   </div>
                   
                   {/* Status Text Below Bars */}
-                  <span className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${
-                      Number(marketData?.percentChange || 0) > 0 ? "text-[#2df4c6]" : 
-                      Number(marketData?.percentChange || 0) < 0 ? "text-[#ff4500]" : "text-gray-400"
-                  }`}>
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${
+                      Number(marketData?.percentChange || 0) > 0
+                        ? "text-[#2df4c6]"
+                        : Number(marketData?.percentChange || 0) < 0
+                        ? "text-[#ff4500]"
+                        : isDarkMode
+                        ? "text-gray-400"
+                        : "text-[#64748B]"
+                    }`}
+                  >
                     {(() => {
                       const pc = Number(marketData?.percentChange);
                       if (!Number.isFinite(pc)) return "—";
@@ -1366,7 +1392,11 @@ export default function Home() {
 
             {/* Recommendation */}
             <div className="flex flex-col items-end gap-2 min-w-[150px]">
-               <span className="text-[10px] font-bold uppercase tracking-widest text-[#64748b]">
+               <span
+                 className={`text-[10px] font-bold uppercase tracking-widest ${
+                   isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                 }`}
+               >
                  Recommendation
                </span>
               
