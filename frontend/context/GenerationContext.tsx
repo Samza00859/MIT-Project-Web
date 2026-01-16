@@ -212,6 +212,56 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
     const [lastUpdate, setLastUpdate] = useState<string | null>(null);
     const [lastType, setLastType] = useState<string | null>(null);
 
+    // --- Persistence Effects ---
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const savedTicker = localStorage.getItem("ticker");
+            if (savedTicker) setTicker(savedTicker);
+
+            const savedMarket = localStorage.getItem("selectedMarket");
+            if (savedMarket) setSelectedMarket(savedMarket);
+
+            const savedDate = localStorage.getItem("analysisDate");
+            if (savedDate) setAnalysisDate(savedDate);
+
+            const savedDepth = localStorage.getItem("researchDepth");
+            if (savedDepth) setResearchDepth(parseInt(savedDepth, 10));
+
+            const savedLength = localStorage.getItem("reportLength");
+            if (savedLength) setReportLength(savedLength as "summary report" | "full report");
+        }
+    }, []);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            localStorage.setItem("ticker", ticker);
+        }
+    }, [ticker]);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            localStorage.setItem("selectedMarket", selectedMarket);
+        }
+    }, [selectedMarket]);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            localStorage.setItem("analysisDate", analysisDate);
+        }
+    }, [analysisDate]);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            localStorage.setItem("researchDepth", researchDepth.toString());
+        }
+    }, [researchDepth]);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            localStorage.setItem("reportLength", reportLength);
+        }
+    }, [reportLength]);
+
     // Use useMemo for derived sections logic to render immediately and avoid effect loop
     const derivedReportSections = useMemo(() => {
         if (!finalReportData) return [];
@@ -391,18 +441,52 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
                                 setDecision(finalDecision);
                             }
 
+                            let hasIncompleteAgents = false;
                             setTeamState((prev) => {
                                 const newState = deepClone(prev);
-                                Object.keys(newState).forEach((key) => {
-                                    newState[key as keyof TeamState].forEach((m) => {
-                                        m.status = "completed";
-                                    });
-                                });
+                                (Object.keys(newState) as (keyof TeamState)[]).forEach(
+                                    (teamKey) => {
+                                        newState[teamKey] = newState[teamKey].map((m) => {
+                                            if (m.status === "completed") {
+                                                return m;
+                                            }
+                                            hasIncompleteAgents = true;
+                                            return { ...m, status: "error" };
+                                        });
+                                    }
+                                );
+                                if (!hasIncompleteAgents) {
+                                    (Object.keys(newState) as (keyof TeamState)[]).forEach(
+                                        (teamKey) => {
+                                            newState[teamKey] = newState[teamKey].map((m) => ({
+                                                ...m,
+                                                status: "completed",
+                                            }));
+                                        }
+                                    );
+                                }
                                 return newState;
                             });
 
+                            if (hasIncompleteAgents) {
+                                setReportSections((prev) => [
+                                    ...prev,
+                                    {
+                                        key: "agents-incomplete",
+                                        label: "Agents Incomplete",
+                                        text: "Analysis reported completion but some agents did not finish. Please review the logs.",
+                                    },
+                                ]);
+                                addDebugLog(
+                                    "error",
+                                    "Analysis completed but some agents did not finish.",
+                                    true
+                                );
+                            } else {
+                                addDebugLog("system", "Analysis completed!", false);
+                            }
+
                             setIsRunning(false);
-                            addDebugLog("system", "Analysis completed!", false);
                             break;
 
                         case "error":
@@ -415,6 +499,21 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
                                     text: `Error: ${data.message}`,
                                 },
                             ]);
+                            setTeamState((prev) => {
+                                const newState = deepClone(prev);
+                                (Object.keys(newState) as (keyof TeamState)[]).forEach(
+                                    (teamKey) => {
+                                        newState[teamKey] = newState[teamKey].map((m) => ({
+                                            ...m,
+                                            status:
+                                                m.status === "completed"
+                                                    ? m.status
+                                                    : "error",
+                                        }));
+                                    }
+                                );
+                                return newState;
+                            });
                             setIsRunning(false);
                             break;
                     }
@@ -519,6 +618,16 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
 
         wsRef.current.send(JSON.stringify({ action: "stop" }));
         addDebugLog("system", "Stopping analysis...", true);
+        setTeamState((prev) => {
+            const newState = deepClone(prev);
+            (Object.keys(newState) as (keyof TeamState)[]).forEach((teamKey) => {
+                newState[teamKey] = newState[teamKey].map((m) => ({
+                    ...m,
+                    status: m.status === "completed" ? m.status : "error",
+                }));
+            });
+            return newState;
+        });
         setIsRunning(false);
     }, [addDebugLog]);
 

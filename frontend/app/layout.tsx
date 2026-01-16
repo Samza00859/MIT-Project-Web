@@ -33,7 +33,7 @@ export default function RootLayout({
         <Providers>
           <div className="flex h-screen overflow-hidden bg-transparent">
             <Sidebar />
-            <main id="main-content" className="flex-1 overflow-auto bg-transparent relative w-full h-full">
+            <main id="main-content" className="flex-1 overflow-hidden bg-transparent relative w-full h-full">
               {children}
             </main>
           </div>

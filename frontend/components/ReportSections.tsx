@@ -330,7 +330,7 @@ export default function ReportSections({
 }: ReportSectionsDisplayProps) {
     return (
         <section
-            className={`flex-1 rounded-[20px] border p-6 md:p-8 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"
+            className={`flex h-full flex-col rounded-[20px] border p-4 md:p-6 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"
                 }`}
         >
             <header className="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -403,10 +403,11 @@ export default function ReportSections({
                     {reportSections.length > 0 && !isRunning && !reportSections.some(s => s.key === "error") && (
                         <button
                             onClick={handleDownloadPdf}
-                            className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium text-[#2df4c6] transition-all hover:bg-[#2df4c6]/10 ${isDarkMode
-                                ? "border-white/20 bg-transparent"
-                                : "border-gray-200 bg-gray-50"
-                                }`}
+                            className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium transition-all ${
+                                isDarkMode
+                                    ? "text-[#2df4c6] border-white/20 bg-transparent hover:bg-[#2df4c6]/10"
+                                    : "text-white border-[#1D4ED8] bg-[#1D4ED8] hover:bg-[#1E40AF]"
+                            }`}
                         >
                             Download PDF
                         </button>
@@ -417,7 +418,7 @@ export default function ReportSections({
                 </div>
             </header>
             <article
-                className={`min-h-[300px] max-h-[500px] overflow-auto rounded-2xl p-4 text-sm leading-relaxed text-[#8b94ad] md:max-h-[700px] md:p-6 md:text-base xl:max-h-[85vh] lg:p-8 ${isDarkMode ? "bg-[#090d17]" : "bg-gray-50"
+                className={`flex-1 min-h-0 overflow-auto rounded-2xl p-4 text-sm leading-relaxed text-[#8b94ad] md:p-6 md:text-base lg:p-6 ${isDarkMode ? "bg-[#090d17]" : "bg-gray-50"
                     }`}
             >
                 {reportSections.length === 0 ? (

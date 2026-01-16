@@ -109,7 +109,12 @@ export default function Home() {
   const [marketTickers, setMarketTickers] = useState<TickerSuggestion[]>([]); // Cache for backend list
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMarketSelector, setShowMarketSelector] = useState(false); // New Dropdown State
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [logoCandidates, setLogoCandidates] = useState<string[]>([]);
+  const [logoCandidateIndex, setLogoCandidateIndex] = useState(0);
+
+  // Scroll position preservation for Popular Recommendations
+  const popularListScrollPos = useRef(0);
+  const listRef = useRef<HTMLUListElement>(null);
 
   // Language and Translation State
   const [language, setLanguage] = useState<"en" | "th">("en");
@@ -220,18 +225,20 @@ export default function Home() {
       if (res.ok) {
         const data = await res.json();
         setMarketTickers(data);
-        if (ticker.length < 2) {
-          setSuggestions(data);
-        }
+        // Don't override suggestions here, let the effect handle it based on ticker state
+        // Reset scroll position when market changes
+        popularListScrollPos.current = 0;
       }
     } catch (error) {
       console.error("Error fetching market tickers:", error);
     }
-  }, [ticker]);
+  }, []);
 
   const fetchSuggestions = useCallback(async (query: string) => {
     if (!query || query.length < 2) {
       setSuggestions(marketTickers);
+      // Ensure suggestions are shown when reverting to default list
+      if (marketTickers.length > 0) setShowSuggestions(true);
       return;
     }
 
@@ -252,34 +259,43 @@ export default function Home() {
   // Logic: When Market changes -> Fetch Tickers for that market
   useEffect(() => {
     fetchMarketTickers(selectedMarket);
-    // Note: we don't clear suggestions immediately here because fetch will update them
   }, [selectedMarket, fetchMarketTickers]);
+
+  // Handle ticker changes (typing or restoration) and sync suggestions
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (ticker && ticker.length >= 2) {
+        fetchSuggestions(ticker);
+      } else {
+        // If ticker is empty/short, show market tickers if available
+        if (marketTickers.length > 0) {
+          setSuggestions(marketTickers);
+          setShowSuggestions(true);
+        }
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [ticker, marketTickers, fetchSuggestions]);
+
+  // Restore scroll position for Popular Recommendations
+  useEffect(() => {
+    if (showSuggestions && listRef.current) {
+      if (suggestions === marketTickers) {
+        listRef.current.scrollTop = popularListScrollPos.current;
+      } else {
+        listRef.current.scrollTop = 0;
+      }
+    }
+  }, [showSuggestions, suggestions, marketTickers]);
 
   const handleTickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.toUpperCase();
     setTicker(val);
-
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-
-    if (val.length < 2) {
-      // Revert to backend list if input cleared
-      setSuggestions(marketTickers);
-      setShowSuggestions(true);
-      return;
-    }
-
-    searchTimeoutRef.current = setTimeout(() => {
-      fetchSuggestions(val);
-    }, 300);
   };
 
   const handleInputFocus = (e: React.FocusEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement>) => {
-    setShowSuggestions(true);
-    // Always show the full list on focus so user can switch easily
-    setSuggestions(marketTickers);
-
-    // Optional: Select text (if it's a focus event) for quick replacement, 
-    // unless it's a click where user might want to place cursor
+    // Only select text on focus, don't auto-show suggestions (wait for click or type)
     if (e.type === 'focus') {
       (e.target as HTMLInputElement).select();
     }
@@ -311,6 +327,8 @@ export default function Home() {
           setMarketData(null); // Reset while loading
           setLogoError(false); // Reset logo error
           setLogoSrc(""); // Reset logo source
+          setLogoCandidates([]);
+          setLogoCandidateIndex(0);
         }
 
         const controller = new AbortController();
@@ -327,23 +345,24 @@ export default function Home() {
             setMarketData(data);
             lastFetchedTickerRef.current = ticker;
 
-            // Smarter Logo Logic:
-            // 1. Try provided logo_url
-            // 2. If website exists, try Google Favicon (reliable for global sites)
-            // 3. Fallback to clearbit in JSX onError
-            if (data.logo_url) {
-              setLogoSrc(data.logo_url);
-            } else if (data.website) {
-              // Clean website url to get domain
+            const cleanTicker = ticker.trim().toUpperCase();
+            const symbol = cleanTicker.split(".")[0].split("-")[0];
+            const urls: string[] = [];
+            if (data.logo_url) urls.push(data.logo_url);
+            if (data.website) {
               try {
-                const domain = new URL(data.website).hostname;
-                setLogoSrc(`https://www.google.com/s2/favicons?domain=${domain}&sz=64`);
-              } catch (e) {
-                setLogoSrc("");
-              }
-            } else {
-              setLogoSrc("");
+                const websiteUrl = data.website.startsWith("http") ? data.website : `https://${data.website}`;
+                const hostname = new URL(websiteUrl).hostname;
+                urls.push(`https://logo.clearbit.com/${hostname}`);
+                urls.push(`https://www.google.com/s2/favicons?domain=${hostname}&sz=128`);
+              } catch { }
             }
+            urls.push(`https://assets.parqet.com/logos/symbol/${symbol}?format=png`);
+            urls.push(`https://unavatar.io/${symbol}`);
+            const uniqueUrls = Array.from(new Set(urls));
+            setLogoCandidates(uniqueUrls);
+            setLogoCandidateIndex(0);
+            setLogoSrc(uniqueUrls[0] || "");
           }
         } else {
           throw new Error(`Status: ${res.status}`);
@@ -384,17 +403,13 @@ export default function Home() {
 
   // Handle Logo Error with Fallback
   const handleLogoError = () => {
-    // If current logo failed, try fallback strategy
-    if (marketData?.website && !logoSrc.includes("google.com")) {
-      try {
-        const domain = new URL(marketData.website).hostname;
-        setLogoSrc(`https://www.google.com/s2/favicons?domain=${domain}&sz=64`);
-        return;
-      } catch (e) {
-        // Failed to parse URL, proceed to error
-      }
+    const nextIndex = logoCandidateIndex + 1;
+    if (nextIndex < logoCandidates.length) {
+      setLogoCandidateIndex(nextIndex);
+      setLogoSrc(logoCandidates[nextIndex]);
+    } else {
+      setLogoError(true);
     }
-    setLogoError(true);
   };
 
   // Helper to create sparkline path
@@ -902,15 +917,6 @@ export default function Home() {
   };
 
   // Render Helpers
-  const getRecommendationVariant = (decision: string) => {
-    const d = decision.toLowerCase();
-    if (d.includes("buy")) return "buy";
-    if (d.includes("sell")) return "sell";
-    if (d.includes("reduce")) return "reduce";
-    return "text-gray-500";
-  };
-
-  const recVariant = getRecommendationVariant(contextDecision);
 
   // Show loading state while checking authentication
   if (authLoading) {
@@ -938,7 +944,7 @@ export default function Home() {
 
   return (
     <div
-      className={`min-h-full w-full font-sans transition-colors duration-300 relative ${isDarkMode
+      className={`h-full w-full font-sans transition-colors duration-300 relative flex flex-col ${isDarkMode
         ? "bg-[#020617] text-[#f8fbff]"
         : "bg-[#F6F9FC] text-[#0F172A]"
         }`}
@@ -999,15 +1005,17 @@ export default function Home() {
 
 
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col gap-8 px-4 py-6 md:px-9 md:py-8 md:pb-12 pt-20 md:pt-24 xl:pt-8 relative z-10">
-        <header className="flex flex-wrap items-center justify-between gap-4">
+      <main className="flex-1 flex flex-col gap-4 px-4 py-4 md:px-8 md:py-6 relative z-10 overflow-hidden">
+        <header className="flex flex-wrap items-start justify-between gap-3 shrink-0">
           <div>
-            <p className={`text-[0.85rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
-              Trading workflow
-            </p>
-            <h1 className={`text-2xl font-semibold ${isDarkMode ? "" : "text-[#0F172A]"}`}>Generate</h1>
+            <h1
+              className={`text-2xl md:text-3xl font-semibold tracking-tight ${isDarkMode ? "text-[#f8fbff]" : "text-[#0F172A]"
+                }`}
+            >
+              Generate Analysis
+            </h1>
           </div>
+
         </header>
 
         {connectionError && (
@@ -1016,23 +1024,20 @@ export default function Home() {
           </div>
         )}
 
-        {/* Step Grid */}
-        <section className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
-          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
-            <header>
-              <p className={`text-[0.7rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
-                Step 1
-              </p>
-              <h2 className={`text-lg font-semibold ${isDarkMode ? "" : "text-[#0F172A]"}`}>Ticker Symbol</h2>
-            </header>
-            <div className={`flex flex-col gap-1.5 text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>
-              <span>Select Market & Ticker</span>
-              <div className="flex gap-2">
-                {/* Custom Market Select Dropdown */}
+        <div className="flex flex-col gap-4 shrink-0">
+          {/* Step Grid */}
+          <section className="grid grid-cols-12 gap-4 h-[140px]">
+            {/* Step 1: Symbol Selection */}
+            <article className={`col-span-12 md:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
+              <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
+                Step 1: Symbol Selection
+              </h2>
+
+              <div className="flex items-center gap-3">
+                {/* Custom Market Select Dropdown - Compact Flag Only */}
                 <div
-                  className="relative z-30"
+                  className="relative z-30 shrink-0"
                   onBlur={(e) => {
-                    // Close dropdown if focus leaves the container
                     if (!e.currentTarget.contains(e.relatedTarget)) {
                       setShowMarketSelector(false);
                     }
@@ -1041,9 +1046,9 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setShowMarketSelector(!showMarketSelector)}
-                    className={`flex items-center gap-2 h-full rounded-xl border px-3 py-2.5 transition-colors cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] hover:bg-white/5" : "border-[#E2E8F0] bg-white hover:border-[#2563EB]/30"}`}
+                    className={`flex items-center justify-center gap-2 h-[46px] w-[70px] rounded-xl border transition-colors cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] hover:bg-white/5" : "border-[#E2E8F0] bg-white hover:border-[#2563EB]/30"}`}
                   >
-                    {MARKET_INFO[selectedMarket]?.icon || <span>?</span>}
+                    <span className="text-xl">{MARKET_INFO[selectedMarket]?.icon || "?"}</span>
                     <svg className={`w-3 h-3 ${isDarkMode ? "text-gray-400" : "text-[#64748B]"} transition-transform ${showMarketSelector ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -1058,7 +1063,11 @@ export default function Home() {
                           type="button"
                           onClick={() => {
                             setSelectedMarket(key);
+                            setTicker("");
+                            setSuggestions([]);
+                            setShowSuggestions(true);
                             setShowMarketSelector(false);
+                            fetchMarketTickers(key);
                           }}
                           className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${key === selectedMarket ? (isDarkMode ? "bg-white/10 text-white" : "bg-[#EFF6FF] text-[#2563EB]") : (isDarkMode ? "text-gray-300 hover:bg-white/5" : "text-[#334155] hover:bg-[#F8FAFC]")}`}
                         >
@@ -1073,10 +1082,13 @@ export default function Home() {
 
                 {/* Ticker Input */}
                 <div className="relative flex-1 z-30">
+                  <div className={`absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-400"}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  </div>
                   <input
                     type="text"
                     autoComplete="off"
-                    placeholder="Select or Type Symbol"
+                    placeholder="AAPL"
                     value={ticker}
                     onChange={handleTickerChange}
                     onFocus={handleInputFocus}
@@ -1087,17 +1099,20 @@ export default function Home() {
                       }
                     }}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    className={`w-full min-w-[120px] rounded-xl border pl-3 pr-8 py-2.5 cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff]" : "border-[#E2E8F0] bg-white text-[#0F172A]"}`}
+                    className={`w-full rounded-xl border pl-10 pr-4 py-2.5 h-[46px] cursor-pointer font-medium ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff] placeholder-gray-500" : "border-[#E2E8F0] bg-white text-[#0F172A]"}`}
                   />
-                  {/* Chevron Icon */}
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                  </div>
 
                   {/* Suggestions Dropdown */}
                   {showSuggestions && suggestions.length > 0 && (
-                    <ul className={`absolute left-0 top-full z-30 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-[#E2E8F0] bg-white shadow-lg"}`}>
-                      {/* Optional Header for List */}
+                    <ul
+                      ref={listRef}
+                      onScroll={(e) => {
+                        if (suggestions === marketTickers) {
+                          popularListScrollPos.current = e.currentTarget.scrollTop;
+                        }
+                      }}
+                      className={`absolute left-0 top-full z-30 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-[#E2E8F0] bg-white shadow-lg"}`}
+                    >
                       <li className={`px-4 py-2 text-[10px] uppercase tracking-wider font-semibold ${isDarkMode ? "bg-white/5 text-gray-400 opacity-50" : "bg-[#F8FAFC] text-[#64748B]"}`}>
                         {ticker.length < 2 ? "Popular Recommendations" : "Search Results"}
                       </li>
@@ -1118,189 +1133,141 @@ export default function Home() {
                   )}
                 </div>
               </div>
-            </div>
-          </article>
+            </article>
 
-          <article className={`flex flex-col gap-3.5 rounded-[20px] border p-5 h-[210px] ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
-            <header>
-              <p className={`text-[0.7rem] uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
-                Step 2
-              </p>
-              <h2 className={`text-lg font-semibold ${isDarkMode ? "" : "text-[#0F172A]"}`}>Analysis Date</h2>
-            </header>
-            <div className="flex items-end gap-3">
-              <label className={`flex flex-1 flex-col gap-1.5 text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>
-                <span>Select Date (DD-MM-YYYY)</span>
-                <div className="relative w-full">
-                  {/* Visual Input (DD/MM/YYYY) */}
-                  <input
-                    type="text"
-                    readOnly
-                    value={analysisDate.split('-').reverse().join('/')}
-                    onClick={() => dateInputRef.current?.showPicker()}
-                    className={`w-full cursor-pointer rounded-xl border px-3 py-2.5 shadow-inner outline-none transition-all ${isDarkMode
-                      ? "border-white/10 bg-[#1a2133] text-[#f8fbff] placeholder-gray-600 focus:border-[#2df4c6]/50"
-                      : "border-[#E2E8F0] bg-white text-[#0F172A] focus:border-[#2563EB]"
-                      }`}
-                  />
-                  {/* Hidden Actual Date Input */}
-                  <input
-                    ref={dateInputRef}
-                    type="date"
-                    value={analysisDate}
-                    onChange={(e) => setAnalysisDate(e.target.value)}
-                    className="absolute inset-0 -z-10 opacity-0"
-                  />
-                </div>
-              </label>
-              <button
-                onClick={() => dateInputRef.current?.showPicker()}
-                className={`flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-xl border-2 transition-all hover:scale-105 active:scale-95 ${isDarkMode
-                  ? "border-[#2df4c6]/30 bg-[#2df4c6]/10 text-[#2df4c6] hover:bg-[#2df4c6]/20 hover:shadow-[0_0_15px_rgba(45,244,198,0.3)]"
-                  : "border-[#2563EB]/50 bg-[#EFF6FF] text-[#2563EB] hover:bg-[#DBEAFE] hover:shadow-[0_0_15px_rgba(37,99,235,0.2)]"
+            {/* Step 2: Analysis Date */}
+            <article className={`col-span-12 md:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
+              <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
+                Step 2: Analysis Date
+              </h2>
+
+              <div className="relative w-full">
+                {/* Visual Input (DD/MM/YYYY) */}
+                <div className={`flex items-center w-full rounded-xl border px-3 py-2.5 h-[46px] cursor-pointer transition-all ${isDarkMode
+                  ? "border-white/10 bg-[#1a2133] text-[#f8fbff] hover:border-[#2df4c6]/50"
+                  : "border-[#E2E8F0] bg-white text-[#0F172A] hover:border-[#2563EB]"
                   }`}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                  <line x1="3" y1="10" x2="21" y2="10"></line>
-                </svg>
-              </button>
-            </div>
-          </article>
+                  onClick={() => dateInputRef.current?.showPicker()}
+                >
+                  <div className={`mr-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  </div>
+                  <span className="flex-1 font-medium">
+                    {analysisDate ? analysisDate.split('-').reverse().join('/') : "Select Date"}
+                  </span>
+                  <div className="opacity-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 15l5 5 5-5" /><path d="M7 9l5-5 5 5" /></svg>
+                  </div>
+                </div>
 
+                {/* Hidden Actual Date Input */}
+                <input
+                  ref={dateInputRef}
+                  type="date"
+                  value={analysisDate}
+                  onChange={(e) => setAnalysisDate(e.target.value)}
+                  className="absolute inset-0 -z-10 opacity-0"
+                />
+              </div>
+            </article>
 
-
-          {/* Live Market Data Card */}
-          <article className={`relative flex flex-col overflow-hidden rounded-[20px] border p-5 h-auto min-h-[210px] transition-all duration-300 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
-            {/* Header */}
-            <div className="relative z-10 flex items-start justify-between">
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2df4c6] opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#2df4c6]"></span>
-                </span>
-                <span className={`text-[0.7rem] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"}`}>
-                  Live Market Data
+            {/* Live Market Data Card */}
+            <article className={`col-span-12 md:col-span-8 lg:col-span-4 relative flex flex-col justify-between overflow-hidden rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
+              {/* Header */}
+              <div className="relative z-10 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2df4c6] opacity-75"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-[#2df4c6]"></span>
+                  </span>
+                  <span className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
+                    Live Market Data
+                  </span>
+                </div>
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? "text-[#8b94ad] opacity-70" : "text-[#64748B]"}`}>
+                  {marketData?.sector || "SECTOR"}
                 </span>
               </div>
-              <span className={`rounded-lg border px-2 py-1 text-[0.65rem] font-semibold uppercase ${isDarkMode ? "border-white/10 text-[#8b94ad]" : "border-[#E2E8F0] bg-white text-[#334155]"}`}>
-                {marketData?.sector || "Loading..."}
-              </span>
-            </div>
 
-            {/* Main Info */}
-            <div className="relative z-10 mt-4 flex flex-col gap-1">
-              <div className="flex items-center gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-full overflow-hidden shrink-0 ${isDarkMode ? "bg-white text-black" : "bg-white text-gray-700 shadow-md border border-gray-200"}`}>
-                  {logoSrc && !logoError ? (
-                    <img
-                      src={logoSrc}
-                      alt="logo"
-                      className="h-full w-full object-cover"
-                      onError={handleLogoError}
-                    />
+              {/* Main Info Row */}
+              <div className="relative z-10 flex items-center justify-between mt-1">
+                {/* Price & Change */}
+                <div className="flex flex-col">
+                  {marketData ? (
+                    <div className="flex items-baseline gap-3">
+                      <span className={`text-3xl font-bold tracking-tight ${isDarkMode ? "text-white" : "text-[#0F172A]"}`}>${marketData.price?.toFixed(2)}</span>
+                      <span className={`text-sm font-bold ${marketData.change >= 0 ? "text-[#2df4c6]" : "text-[#ff4d6d]"}`}>
+                        {marketData.change > 0 ? "↑" : "↓"} {Math.abs(marketData.percentChange).toFixed(2)}%
+                      </span>
+                    </div>
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
-                      <path d="M12 2a10 10 0 0 1 10 10H12V2z" fill="currentColor"></path>
-                      <path d="M21.18 10.98a10.05 10.05 0 0 0-9.16-8.96"></path>
-                    </svg>
+                    <span className={`animate-pulse text-2xl font-bold opacity-50 ${isDarkMode ? "" : "text-[#334155]"}`}>Loading...</span>
+                  )}
+
+                  {marketData && (
+                    <span className="text-xs text-[#8b94ad] mt-1 font-medium uppercase tracking-wide">
+                      Vol: {formatVolume(marketData.volume)}
+                    </span>
                   )}
                 </div>
-                <h3 className="text-lg font-bold truncate">
-                  {/* Prioritize full name from our curated list, then market data name */}
-                  {marketTickers.find(t => t.symbol === ticker)?.name || marketData?.name || marketData?.shortName || ticker}
-                </h3>
-              </div>
-              <div className="mt-2 min-h-[40px]">
-                {marketData ? (
-                  <span className={`text-4xl font-bold tracking-tight ${isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"}`}>${marketData.price?.toFixed(2)}</span>
-                ) : (
-                  <span className={`animate-pulse text-2xl font-bold opacity-50 ${isDarkMode ? "" : "text-[#334155]"}`}>Loading...</span>
-                )}
-              </div>
-            </div>
 
-            {/* Footer / Stats */}
-            <div className="relative z-10 mt-4 flex items-center justify-between">
-              {marketData && (
-                <div className="flex items-center gap-3">
-                  <span className={`flex items-center rounded-md px-2 py-1 text-xs font-bold ${marketData.change >= 0
-                    ? isDarkMode ? "bg-[#2df4c6]/10 text-[#2df4c6]" : "bg-[#EFF6FF] text-[#2563EB]"
-                    : "bg-[#ff4d6d]/10 text-[#ff4d6d]"
-                    }`}>
-                    {marketData.change >= 0 ? "↑" : "↓"} {marketData.change > 0 ? "+" : ""}{marketData.percentChange}%
-                  </span>
-                  <span className="text-xs text-[#8b94ad]">
-                    Vol: {formatVolume(marketData.volume)}
-                  </span>
+                {/* Sparkline (Right side) */}
+                <div className="w-[200px] h-[60px] -mr-4">
+                  <svg viewBox="0 0 100 50" className="h-full w-full overflow-visible" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} stopOpacity="0.4" />
+                        <stop offset="100%" stopColor={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    {marketData?.sparkline ? (
+                      <>
+                        <path d={createSparklinePath(marketData.sparkline)} fill="url(#chartGradient)" stroke="none" />
+                        <path d={createLinePath(marketData.sparkline)} fill="none" stroke={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} strokeWidth="2" />
+                      </>
+                    ) : (
+                      <>
+                        <path d="M0 40 Q 20 35, 40 38 T 70 20 T 100 5 L 100 50 L 0 50 Z" fill="url(#chartGradient)" stroke="none" />
+                        <path d="M0 40 Q 20 35, 40 38 T 70 20 T 100 5" fill="none" stroke={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} strokeWidth="2" />
+                      </>
+                    )}
+                  </svg>
                 </div>
-              )}
-            </div>
-
-            {/* Mini Chart SVG (Absolute Background) */}
-            <div className="absolute bottom-0 right-0 h-24 w-40 translate-x-4 translate-y-2 pointer-events-none">
-              <svg viewBox="0 0 100 50" className="h-full w-full overflow-visible" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} stopOpacity="0.5" />
-                    <stop offset="100%" stopColor={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                {marketData?.sparkline && (
-                  <>
-                    {/* Area */}
-                    <path d={createSparklinePath(marketData.sparkline)} fill="url(#chartGradient)" />
-                    {/* Line */}
-                    <path d={createLinePath(marketData.sparkline)} fill="none" stroke={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} strokeWidth="2" />
-                  </>
-                )}
-                {!marketData?.sparkline && (
-                  <>
-                    <path d="M0 40 Q 20 35, 40 38 T 70 20 T 100 5 L 100 50 L 0 50 Z" fill="url(#chartGradient)" />
-                    <path d="M0 40 Q 20 35, 40 38 T 70 20 T 100 5" fill="none" stroke={marketData?.change < 0 ? "#ff4d6d" : "#2df4c6"} strokeWidth="2" />
-                  </>
-                )}
-              </svg>
-            </div>
-          </article>
-
-          {/* Generate / Stop Button */}
-          {isRunning ? (
-            <button
-              onClick={stopPipeline}
-              className="flex w-full flex-row items-center justify-center gap-2 rounded-[16px] border-2 border-white/20 bg-[#ff4d6d] py-2.5 text-lg font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#ff3355] hover:shadow-[0_10px_25px_rgba(255,77,109,0.35)]"
-            >
-              <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-transparent">
-                <div className="h-2 w-2 rounded-[1px] bg-white" />
               </div>
-              <span>Stop Generating</span>
-            </button>
-          ) : (
-            <button
-              onClick={runPipeline}
-              disabled={wsStatus !== "connected"}
-              className={`flex w-full flex-row items-center justify-center gap-2.5 rounded-[12px] border-2 py-2 text-2xl font-bold text-white shadow-lg transition-all hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale ${isDarkMode
-                ? "border-white/20 bg-[#00c05e] hover:bg-[#00b056] hover:shadow-[0_10px_25px_rgba(0,192,94,0.35)]"
-                : "border-[#2563EB] bg-linear-to-r from-[#2563EB] to-[#38BDF8] text-white hover:shadow-[0_10px_25px_rgba(37,99,235,0.3)]"
-                }`}
-            >
-              <Image
-                src={GenerateIcon}
-                alt="Generate"
-                width={40}
-                height={40}
-                className="shrink-0"
-              />
-              <span>Generate</span>
-            </button>
-          )}
-        </section>
+            </article>
+
+            {/* Generate / Stop Button */}
+            <article className={`col-span-12 md:col-span-4 lg:col-span-2 flex items-center justify-center rounded-[20px] overflow-hidden relative shadow-lg shadow-[#00dc82]/20`}>
+              {isRunning ? (
+                <button
+                  onClick={stopPipeline}
+                  className="flex w-full h-full flex-col items-center justify-center gap-2 bg-[#ff4d6d] text-white transition-all hover:bg-[#ff3355]"
+                >
+                  <div className="h-3 w-3 rounded-[1px] bg-white mb-1" />
+                  <span className="text-sm font-bold uppercase tracking-widest">Stop</span>
+                </button>
+              ) : (
+                <button
+                  onClick={runPipeline}
+                  disabled={wsStatus !== "connected"}
+                  className={`flex w-full h-full flex-col items-center justify-center gap-2 bg-[#00dc82] text-white disabled:cursor-not-allowed disabled:opacity-40 hover:bg-[#00c976] transition-all`}
+                >
+                  <div className="mb-1">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M8 5v14l11-7-11-7z" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-bold uppercase tracking-widest">Generate</span>
+                </button>
+              )}
+            </article>
+          </section>
+
+          {/* Symbol / Signal / Recommendation */}
+        </div>
 
         {/* Teams Grid */}
-        <section className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5 relative z-0">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 relative z-0 rounded-[16px]">
           {TEAM_KEYS.map((teamKey, index) => {
             const members = teamState[teamKey];
             const completedCount = members.filter(
@@ -1320,6 +1287,13 @@ export default function Home() {
               : false;
 
             const showGreenCompletion = isTeamFinished || isNextTeamStarted;
+
+            // Logic: Show "Error" (Red) only if:
+            // 1. The generation is complete (not running and decision exists)
+            // 2. AND all members of this team are still pending
+            const isGenerationComplete = !isRunning && contextDecision && contextDecision !== "Awaiting run";
+            const isAllPending = members.every((m) => m.status === "pending");
+            const showError = isGenerationComplete && isAllPending;
 
             let headerTitle = "";
             let headerSub = "";
@@ -1343,7 +1317,12 @@ export default function Home() {
             return (
               <article
                 key={teamKey}
-                className={`flex flex-col gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#f59e0b]/30 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(245,158,11,0.1)]"}`}
+                className={`flex flex-col gap-4 rounded-[20px] border p-5 ${showError
+                    ? "border-red-500 bg-red-50/10"
+                    : isDarkMode
+                      ? "border-white/5 bg-[#111726]"
+                      : "border-[#2563EB]/25 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(37,99,235,0.15)]"
+                  }`}
               >
                 <header className="flex items-center justify-between gap-4">
                   <div>
@@ -1373,14 +1352,10 @@ export default function Home() {
                     let statusColorClass = "";
 
                     if (member.status === "completed") {
-                      if (showGreenCompletion) {
-                        statusColorClass = isDarkMode ? "bg-[#2df4c6]/10 text-[#2df4c6]" : "bg-[#f59e0b]/15 text-[#d97706]";
-                      } else {
-                        statusLabel = "Completed";
-                        statusColorClass = isDarkMode
-                          ? "bg-green-600/10 text-green-600"
-                          : "bg-green-600/15 text-green-700";
-                      }
+                      statusLabel = "Completed";
+                      statusColorClass = isDarkMode
+                        ? "bg-[#1D4ED8]/20 text-[#BFDBFE]"
+                        : "bg-[#DBEAFE] text-[#1D4ED8]";
                     } else if (member.status === "pending") {
                       statusColorClass = isDarkMode ? "bg-[#f9a826]/10 text-[#f9a826]" : "bg-[#EFF6FF] text-[#2563EB]";
                     } else if (member.status === "in_progress") {
@@ -1415,75 +1390,142 @@ export default function Home() {
           })}
         </section>
 
-        {/* Report Panel */}
-        <ReportSections
-          reportSections={language === "th" && filteredTranslatedSections.length > 0 ? filteredTranslatedSections : contextReportSections}
-          isDarkMode={isDarkMode}
-          ticker={ticker}
-          analysisDate={analysisDate}
-          decision={contextDecision}
-          copyFeedback={copyFeedback}
-          setCopyFeedback={setCopyFeedback}
-          handleCopyReport={handleCopyReport}
-          handleDownloadPdf={handleDownloadPdf}
-          reportLength={reportLength}
-          setReportLength={setReportLength}
-          isRunning={isRunning}
-          language={language}
-          setLanguage={handleLanguageChange}
-          isTranslating={isTranslating}
-        />
-
-        {/* Summary Panel */}
-        <section className={`flex flex-col lg:flex-row items-center justify-between gap-4 rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
-          <div className="w-full lg:w-auto">
-            <p className="mb-2">Summary</p>
-            <div className="flex flex-wrap gap-6">
-              <div>
-                <span className={`block text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
-                  Symbol
-                </span>
-                <strong className={`text-xl ${isDarkMode ? "" : "text-[#0F172A]"}`}>{ticker}</strong>
-              </div>
-              <div>
-                <span className={`block text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
-                  Date
-                </span>
-                <strong className={`text-xl ${isDarkMode ? "" : "text-[#0F172A]"}`}>{analysisDate}</strong>
-              </div>
-              <div>
-                <span className={`block text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-gray-600"}`}>
-                  Research depth
-                </span>
-                <strong className={`text-xl ${isDarkMode ? "" : "text-[#0F172A]"}`}>
-                  {
-                    RESEARCH_DEPTH_OPTIONS.find(
-                      (o) => o.value === researchDepth
-                    )?.label
-                  }
-                </strong>
-              </div>
-            </div>
-          </div>
-          <div
-            className={`rounded-2xl border px-8 py-4 text-center ${recVariant === "buy"
-              ? isDarkMode ? "border-[#2df4c6]/40 bg-[#2df4c6]/10" : "border-[#2563EB]/40 bg-[#EFF6FF]"
-              : recVariant === "sell" || recVariant === "reduce"
-                ? "border-[#ff4d6d]/40 bg-[#ff4d6d]/10"
-                : "border-[#ff4d6d]/40 bg-[#ff4d6d]/10"
+        {/* Symbol / Signal / Recommendation - Only show after generation */}
+        {contextDecision && (
+          <section
+            className={`flex flex-col md:flex-row items-center justify-between gap-6 rounded-[20px] px-8 py-5 ${isDarkMode ? "bg-[#0f172a] border border-white/5" : "bg-white border-[#E2E8F0] shadow-sm"
               }`}
           >
-            <span className={`block ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>Recommendation</span>
-            <strong
-              className={`text-2xl ${recVariant === "buy"
-                ? isDarkMode ? "text-[#2df4c6]" : "text-[#2563EB]"
-                : "text-[#ff4d6d]"
-                }`}
-            >
-              {contextDecision}
-            </strong>
-          </div>
-        </section>
+            {/* Selected Asset */}
+            <div className="flex flex-col gap-1 min-w-[150px]">
+              <span
+                className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                  }`}
+              >
+                Selected Asset
+              </span>
+              <div
+                className={`text-xl font-bold tracking-wide ${isDarkMode ? "text-white" : "text-[#0F172A]"
+                  }`}
+              >
+                {ticker || "—"}
+                <span
+                  className={`ml-1 text-sm ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                    }`}
+                >
+                  {selectedMarket ? `:${selectedMarket.toUpperCase()}` : ""}
+                </span>
+              </div>
+            </div>
+
+            {/* Signal Strength */}
+            <div className="flex flex-col items-center gap-2 flex-1">
+              <span
+                className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                  }`}
+              >
+                Signal Strength
+              </span>
+              <div className="flex flex-col items-center gap-1">
+                {/* Visual Bars */}
+                <div className="flex gap-1.5">
+                  {[1, 2, 3, 4, 5].map((i) => {
+                    const pc = Number(marketData?.percentChange || 0);
+                    let active = false;
+                    let colorClass = "bg-[#334155]"; // Inactive color (slate-700)
+
+                    if (pc > 0) { // Bullish
+                      if (i === 1) active = true;
+                      if (i === 2 && pc > 0.5) active = true;
+                      if (i === 3 && pc > 1.5) active = true;
+                      if (i === 4 && pc > 3.0) active = true;
+                      if (i === 5 && pc > 5.0) active = true;
+                      if (active) colorClass = "bg-[#2df4c6] shadow-[0_0_8px_rgba(45,244,198,0.4)]";
+                    } else if (pc < 0) { // Bearish
+                      if (i === 1) active = true;
+                      if (i === 2 && pc < -0.5) active = true;
+                      if (i === 3 && pc < -1.5) active = true;
+                      if (i === 4 && pc < -3.0) active = true;
+                      if (i === 5 && pc < -5.0) active = true;
+                      if (active) colorClass = "bg-[#ff4500] shadow-[0_0_8px_rgba(255,69,0,0.4)]"; // Orange-Red style
+                    }
+
+                    return (
+                      <div key={i} className={`h-1 w-12 rounded-sm transition-all duration-500 ${colorClass}`} />
+                    );
+                  })}
+                </div>
+
+                {/* Status Text Below Bars */}
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${Number(marketData?.percentChange || 0) > 0
+                      ? "text-[#2df4c6]"
+                      : Number(marketData?.percentChange || 0) < 0
+                        ? "text-[#ff4500]"
+                        : isDarkMode
+                          ? "text-gray-400"
+                          : "text-[#64748B]"
+                    }`}
+                >
+                  {(() => {
+                    const pc = Number(marketData?.percentChange);
+                    if (!Number.isFinite(pc)) return "—";
+                    if (pc <= -2) return "Strong Bearish";
+                    if (pc < 0) return "Bearish";
+                    if (pc >= 2) return "Strong Bullish";
+                    if (pc > 0) return "Bullish";
+                    return "Neutral";
+                  })()}
+                </span>
+              </div>
+            </div>
+
+            {/* Recommendation */}
+            <div className="flex flex-col items-end gap-2 min-w-[150px]">
+              <span
+                className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                  }`}
+              >
+                Recommendation
+              </span>
+
+              <button
+                type="button"
+                className={`h-[36px] px-6 rounded-lg text-sm font-bold uppercase tracking-wide transition-transform active:scale-95 ${(contextDecision || "").toLowerCase().includes("sell")
+                    ? "bg-[#ff4500] text-white shadow-lg shadow-[#ff4500]/25"
+                    : (contextDecision || "").toLowerCase().includes("buy")
+                      ? "bg-[#2df4c6] text-[#0f172a] shadow-lg shadow-[#2df4c6]/25"
+                      : "bg-[#334155] text-white"
+                  }`}
+              >
+                {contextDecision || "—"}
+              </button>
+            </div>
+          </section>
+        )}
+
+        {/* Report Panel */}
+        <div className="flex-1 min-h-0 mt-2">
+          <ReportSections
+            reportSections={language === "th" && filteredTranslatedSections.length > 0 ? filteredTranslatedSections : contextReportSections}
+            isDarkMode={isDarkMode}
+            ticker={ticker}
+            analysisDate={analysisDate}
+            decision={contextDecision}
+            copyFeedback={copyFeedback}
+            setCopyFeedback={setCopyFeedback}
+            handleCopyReport={handleCopyReport}
+            handleDownloadPdf={handleDownloadPdf}
+            reportLength={reportLength}
+            setReportLength={setReportLength}
+            isRunning={isRunning}
+            language={language}
+            setLanguage={handleLanguageChange}
+            isTranslating={isTranslating}
+          />
+        </div>
+
+
       </main>
     </div>
   );
