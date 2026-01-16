@@ -1,6 +1,6 @@
 {
-    "ticker": "AMD",
-    "date": "2026-01-14",
+    "ticker": "TSLA",
+    "date": "2026-01-15",
     "selected_indicators": [
         "close_50_sma",
         "close_10_ema",
@@ -15,85 +15,98 @@
         "vwma"
     ],
     "market_overview": {
-        "trend_direction": "Bullish",
-        "momentum_state": "Strong",
+        "trend_direction": "Sideways",
+        "momentum_state": "Weak",
         "volatility_level": "Moderate",
-        "volume_condition": "Neutral"
+        "volume_condition": "Falling"
     },
     "indicator_analysis": [
         {
             "indicator": "close_50_sma",
             "indicator_full_name": "50-Day Simple Moving Average",
             "signal": "Price is above the 50-day SMA.",
-            "implication": "Indicates a generally bullish trend."
+            "implication": "Indicates a generally positive longer-term trend, but the current price action is not strongly confirming it."
         },
         {
             "indicator": "close_10_ema",
             "indicator_full_name": "10-Day Exponential Moving Average",
-            "signal": "Price is above the 10-day EMA.",
-            "implication": "Suggests short-term upward momentum."
+            "signal": "Price is below the 10-day EMA.",
+            "implication": "Suggests short-term downward pressure or consolidation."
         },
         {
             "indicator": "macd",
             "indicator_full_name": "Moving Average Convergence Divergence",
-            "signal": "MACD line is above the signal line, and the histogram is positive.",
-            "implication": "Bullish signal, indicating increasing upward momentum."
+            "signal": "MACD line is below the MACD Signal line and both are negative.",
+            "implication": "Bearish momentum is present, with the MACD histogram also negative, indicating weakening downward momentum."
+        },
+        {
+            "indicator": "macds",
+            "indicator_full_name": "MACD Signal Line",
+            "signal": "MACD Signal line is negative.",
+            "implication": "Confirms bearish sentiment in the short to medium term."
+        },
+        {
+            "indicator": "macdh",
+            "indicator_full_name": "MACD Histogram",
+            "signal": "MACD Histogram is negative and decreasing.",
+            "implication": "Downward momentum is present but appears to be slowing down."
         },
         {
             "indicator": "rsi",
             "indicator_full_name": "Relative Strength Index",
-            "signal": "RSI is 56.99, indicating a neutral to slightly bullish reading.",
-            "implication": "Suggests the asset is neither overbought nor oversold, with room for upward movement."
+            "signal": "RSI is at 44.87, below 50.",
+            "implication": "Indicates a lack of strong buying pressure and a bearish bias in the short term."
         },
         {
             "indicator": "boll",
-            "indicator_full_name": "Bollinger Bands",
-            "signal": "Price is trading near the upper Bollinger Band.",
-            "implication": "Indicates strong upward price pressure and potential for continued gains, but also a possibility of a short-term pullback if it touches the upper band."
+            "indicator_full_name": "Bollinger Bands Centerline",
+            "signal": "Price is below the Bollinger Bands centerline (20-day SMA).",
+            "implication": "Suggests downward price pressure relative to the recent average."
         },
         {
             "indicator": "boll_ub",
-            "indicator_full_name": "Upper Bollinger Band",
-            "signal": "Price is below the upper Bollinger Band.",
-            "implication": "Suggests there is still room for price appreciation before reaching potential resistance."
+            "indicator_full_name": "Bollinger Bands Upper Band",
+            "signal": "Price is significantly below the upper Bollinger Band.",
+            "implication": "Indicates the price is not overextended to the upside."
         },
         {
             "indicator": "boll_lb",
-            "indicator_full_name": "Lower Bollinger Band",
-            "signal": "Price is well above the lower Bollinger Band.",
-            "implication": "Confirms the absence of strong downward pressure."
+            "indicator_full_name": "Bollinger Bands Lower Band",
+            "signal": "Price is above the lower Bollinger Band.",
+            "implication": "Suggests that the price is not oversold based on this indicator."
         },
         {
             "indicator": "atr",
             "indicator_full_name": "Average True Range",
-            "signal": "ATR is 9.10, indicating moderate volatility.",
-            "implication": "Suggests that price movements are within a normal range, not excessively volatile."
+            "signal": "ATR is at 15.10.",
+            "implication": "Indicates moderate volatility in the recent trading periods."
         },
         {
             "indicator": "vwma",
             "indicator_full_name": "Volume Weighted Moving Average",
-            "signal": "Price is above the VWMA.",
-            "implication": "Indicates that the average price, weighted by volume, is lower than the current price, suggesting bullish pressure."
+            "signal": "Price is below the VWMA.",
+            "implication": "Suggests that the average price, weighted by volume, is higher than the current price, indicating potential selling pressure."
         }
     ],
     "price_action_summary": {
-        "recent_high_low": "The current price is near the recent high, showing strong upward momentum.",
+        "recent_high_low": "Price is trading below recent highs and above recent lows, indicating a consolidation phase.",
         "support_levels": [
-            "214.95",
-            "213.43"
+            "430.00",
+            "417.00"
         ],
         "resistance_levels": [
-            "223.47",
-            "227.15"
+            "450.00",
+            "460.00"
         ],
-        "short_term_behavior": "The price has shown a strong upward trend in the last few trading days, breaking above key moving averages and indicators."
+        "short_term_behavior": "The price has been trading within a range, showing signs of consolidation after a recent decline. Volume has been decreasing, suggesting a lack of conviction from either buyers or sellers."
     },
     "market_sentiment": {
-        "sentiment_label": "Bullish"
+        "sentiment_label": "Bearish"
     },
     "key_risks": [
-        "Potential for overbought conditions if the price continues to rise rapidly towards the upper Bollinger Band.",
-        "A sharp increase in volatility could lead to a swift price reversal."
+        "MACD and RSI indicate bearish momentum.",
+        "Price is below the 10-day EMA and VWMA.",
+        "Decreasing trading volume suggests a lack of strong conviction."
     ],
-    "short_term_outlook": "The technical indicators suggest a bullish short-term outlook for AMD, with upward momentum supported by MACD and RSI readings above 50. The price trading above key moving averages and near the upper Bollinger Band indicates potential for further gains, though caution is advised regarding potential pullbacks."
+    "short_term_outlook": "The stock is exhibiting sideways movement with bearish undertones. A break below the support level of 430.00 could lead to further downside, while a move above the resistance level of 450.00 might signal a shift towards a more neutral or bullish stance."
 }

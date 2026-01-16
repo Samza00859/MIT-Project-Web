@@ -1,28 +1,28 @@
 {
-    "sentiment_verdict": "Mixed",
-    "social_volume": "High - Spike due to CES announcements and US tariff news.",
-    "dominant_narrative": "AMD is aggressively pursuing the AI market with new product launches and strategic initiatives showcased at CES 2026, including advancements in Ryzen AI processors and data center solutions. This positive outlook is tempered by news of US tariffs on advanced chips, potentially impacting global market access and supply chains.",
+    "sentiment_verdict": "Bearish",
+    "social_volume": "Moderate",
+    "dominant_narrative": "Concerns are mounting regarding Tesla's valuation due to weakening sales and unfulfilled promises, leading to a perception of being overpriced.",
     "top_topics": [
         {
-            "topic": "US Tariffs on Advanced Chips",
+            "topic": "Valuation Concerns",
             "sentiment": "Negative",
-            "analysis_snippet": "News of US tariffs on high-performance AI chips, including AMD's, generated significant discussion regarding market access and geopolitical implications."
+            "analysis_snippet": "Analysts and users express that Tesla is grossly overpriced, citing weakening sales and unfulfilled promises as reasons for concern."
         },
         {
-            "topic": "AMD's CES 2026 AI Announcements",
-            "sentiment": "Positive",
-            "analysis_snippet": "AMD's unveiling of new Ryzen AI processors, Instinct accelerators, and AI software solutions at CES 2026 was met with considerable interest and positive sentiment regarding their AI strategy."
+            "topic": "Elon Musk's Antics",
+            "sentiment": "Negative",
+            "analysis_snippet": "Elon Musk's actions and statements are frequently cited as a negative influence on the company's performance and public perception."
         },
         {
-            "topic": "New Product Launches and Performance",
-            "sentiment": "Positive",
-            "analysis_snippet": "Discussions focused on specific AMD products like Ryzen AI, Radeon, and Instinct, highlighting performance benchmarks and competitive positioning."
+            "topic": "xAI/Grok Controversy",
+            "sentiment": "Negative",
+            "analysis_snippet": "Discussions around xAI's Grok generating explicit material and subsequent backlash are present, linking back to Tesla and its CEO."
         },
         {
-            "topic": "AM4 Platform and RAM Prices",
-            "sentiment": "Mixed",
-            "analysis_snippet": "Speculation emerged about AMD potentially re-releasing older AM4 chips due to soaring RAM prices, offering an affordable upgrade path."
+            "topic": "Institutional Options Trading",
+            "sentiment": "Neutral",
+            "analysis_snippet": "Mentions of institutional options trading activity for TSLA, alongside other tech stocks, appear without clear directional sentiment."
         }
     ],
-    "psychology": "A blend of Greed (driven by AI opportunities and product innovation) and Fear Uncertainty and Doubt (FUD) due to geopolitical news on tariffs."
+    "psychology": "Fear and Doubt"
 }

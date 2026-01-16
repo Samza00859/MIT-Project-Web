@@ -1,49 +1,49 @@
 {
-    "executive_summary": "New U.S. tariffs on AI chips, including those from AMD and Nvidia, alongside TSMC's strong earnings outlook, are key drivers. AMD's stock is reacting to analyst upgrades and new partnerships, but faces challenges from tariffs and insider selling, creating a mixed sentiment.",
+    "executive_summary": "Tesla's shift to a subscription-only model for Full Self-Driving (FSD) by February 14th is a significant strategic move. Combined with continued analyst scrutiny on valuation amidst declining sales and positive news on its 7-seater Model Y launch in the US, Tesla presents a mixed but cautiously optimistic outlook.",
     "market_sentiment_verdict": "Neutral",
     "global_macro_context": {
-        "macro_summary": "Geopolitical tensions are rising, particularly concerning U.S.-Iran relations and U.S. trade policies impacting China and Taiwan. The EU and Mercosur are solidifying a large free-trade zone, while domestic economic indicators show mixed signals with ongoing inflation pressures. Central bank independence remains a point of discussion amid political discourse."
+        "macro_summary": "Global markets are navigating a complex environment with geopolitical tensions, including potential shifts in international trade deals (US-Taiwan tariffs) and strategic partnerships (Canada-China). Energy sector news highlights both expansion (Chevron gas) and transition challenges (BP impairments), while AI development continues to be a major theme influencing tech stocks. Inflation worries are resurfacing among portfolio managers, adding to market uncertainty."
     },
     "top_news_developments": [
         {
-            "headline": "Trump imposes 25% tariff on imports of some AI chips",
-            "source": "Reuters Videos",
+            "headline": "Tesla to End One-Time Full Self-Driving Sales After Feb. 14",
+            "source": "Yahoo Finance",
+            "date": "2026-01-15",
+            "sentiment": "Neutral",
+            "implication": "This shift to a subscription-only model for FSD could provide more predictable recurring revenue but may face customer adoption hurdles and continued scrutiny over the technology's actual capabilities and Elon Musk's compensation-related targets."
+        },
+        {
+            "headline": "Top Analyst Questions Tesla's Valuation Amid Declining Sales: 'Doesn't Make Mathematical Sense'",
+            "source": "Benzinga",
+            "date": "2026-01-16",
+            "sentiment": "Negative",
+            "implication": "Persistent analyst concerns about Tesla's valuation, especially when juxtaposed with declining sales figures, highlight potential headwinds and investor skepticism regarding the company's current market price."
+        },
+        {
+            "headline": "Tesla Model Y Emerges As Best-Selling EV In US For 2025 Despite 15% Drop In Q4 Sales — Ford F150 Lightning Edges Out Cybertruck",
+            "source": "Benzinga",
+            "date": "2026-01-16",
+            "sentiment": "Neutral",
+            "implication": "While the Model Y's best-selling status is positive, the reported sales drop in Q4 and the comparison with competitors like the Ford F-150 Lightning introduce a nuanced picture of Tesla's market position, suggesting increasing competition."
+        },
+        {
+            "headline": "Tesla Inc. Unveils First Lithium Refinery in Texas to Boost Battery Production",
+            "source": "Intellectia AI",
+            "date": "2026-01-15",
+            "sentiment": "Positive",
+            "implication": "The opening of Tesla's first lithium refinery in Texas is a significant step towards vertical integration and securing battery supply chains, potentially improving production efficiency and reducing costs, which could positively impact future profitability."
+        },
+        {
+            "headline": "Cathie Wood Dumps $38 Million Worth Of Tesla Stock Amid Robotaxi Optimism, Buys Shares of This Chipmaker Despite China Crackdown",
+            "source": "Benzinga",
             "date": "2026-01-15",
             "sentiment": "Negative",
-            "implication": "The new tariffs on AI chips, including those from AMD and Nvidia, will increase costs for these companies and potentially impact their competitiveness in the Chinese market."
-        },
-        {
-            "headline": "TSMC Earnings Beat Expectations in First 2026 Test for AI Boom",
-            "source": "Barrons.com",
-            "date": "2026-01-15",
-            "sentiment": "Positive",
-            "implication": "TSMC's strong earnings and positive outlook for 2026 reinforce the sustained demand for AI chips, benefiting key suppliers like AMD."
-        },
-        {
-            "headline": "Stock Market Today, Jan. 14: Intel Jumps on Sold Out 2026 Server CPU Capacity",
-            "source": "Motley Fool",
-            "date": "2026-01-14",
-            "sentiment": "Positive",
-            "implication": "Strong demand for server CPUs, as indicated by Intel's sold-out capacity, suggests a healthy market for AMD's server products as well."
-        },
-        {
-            "headline": "AMD stock trades up, here is why",
-            "source": "Yahoo Finance",
-            "date": "2026-01-13",
-            "sentiment": "Positive",
-            "implication": "Analyst upgrades and strong demand for AMD's AI server chips are driving positive sentiment and stock price increases."
-        },
-        {
-            "headline": "Advanced Micro Devices, Inc. $AMD Shares Bought by Summa Corp.",
-            "source": "MarketBeat",
-            "date": "2026-01-14",
-            "sentiment": "Neutral",
-            "implication": "Significant institutional buying of AMD shares is countered by insider selling and concerns about valuation, creating a mixed signal for investors."
+            "implication": "Cathie Wood's significant divestment from Tesla, even amidst optimistic robotaxi predictions, signals a potential lack of conviction from a prominent growth investor, while her increased investment in Broadcom suggests a shift in focus."
         }
     ],
     "key_risks": [
-        "New U.S. tariffs on AI chips increase costs and may impact international sales for AMD.",
-        "Insider selling and high valuation metrics for AMD present potential headwinds despite positive analyst ratings.",
-        "Geopolitical tensions and trade policies between the U.S., China, and Taiwan could disrupt the semiconductor supply chain."
+        "Sustained analyst concerns regarding Tesla's valuation in light of declining sales figures could pressure the stock price.",
+        "The transition to a subscription-only FSD model faces potential adoption challenges and regulatory scrutiny, impacting revenue streams.",
+        "Increasing competition in the EV market, particularly from traditional automakers and Chinese manufacturers, poses a threat to Tesla's market share and pricing power."
     ]
 }

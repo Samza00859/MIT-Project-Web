@@ -115,6 +115,7 @@ export default function Home() {
   // Scroll position preservation for Popular Recommendations
   const popularListScrollPos = useRef(0);
   const listRef = useRef<HTMLUListElement>(null);
+  const marketSelectorRef = useRef<HTMLDivElement>(null);
 
   // Language and Translation State
   const [language, setLanguage] = useState<"en" | "th">("en");
@@ -216,6 +217,23 @@ export default function Home() {
     setStars(generatedStars);
   }, []);
 
+  // Close market selector when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (marketSelectorRef.current && !marketSelectorRef.current.contains(event.target as Node)) {
+        setShowMarketSelector(false);
+      }
+    };
+
+    if (showMarketSelector) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMarketSelector]);
+
   // Fetch Full Ticker List from Backend
   const fetchMarketTickers = useCallback(async (market: string) => {
     try {
@@ -237,8 +255,7 @@ export default function Home() {
   const fetchSuggestions = useCallback(async (query: string) => {
     if (!query || query.length < 2) {
       setSuggestions(marketTickers);
-      // Ensure suggestions are shown when reverting to default list
-      if (marketTickers.length > 0) setShowSuggestions(true);
+      // Don't auto-show - let user interaction control visibility
       return;
     }
 
@@ -249,7 +266,7 @@ export default function Home() {
       if (res.ok) {
         const data = await res.json();
         setSuggestions(data);
-        setShowSuggestions(true);
+        // Don't auto-show - only show when user is typing
       }
     } catch (error) {
       console.error("Error fetching suggestions:", error);
@@ -267,10 +284,10 @@ export default function Home() {
       if (ticker && ticker.length >= 2) {
         fetchSuggestions(ticker);
       } else {
-        // If ticker is empty/short, show market tickers if available
+        // If ticker is empty/short, prepare market tickers but don't auto-show
         if (marketTickers.length > 0) {
           setSuggestions(marketTickers);
-          setShowSuggestions(true);
+          // Don't auto-show on page load - only show when user interacts
         }
       }
     }, 300);
@@ -1036,12 +1053,8 @@ export default function Home() {
               <div className="flex items-center gap-3">
                 {/* Custom Market Select Dropdown - Compact Flag Only */}
                 <div
+                  ref={marketSelectorRef}
                   className="relative z-30 shrink-0"
-                  onBlur={(e) => {
-                    if (!e.currentTarget.contains(e.relatedTarget)) {
-                      setShowMarketSelector(false);
-                    }
-                  }}
                 >
                   <button
                     type="button"
@@ -1063,9 +1076,8 @@ export default function Home() {
                           type="button"
                           onClick={() => {
                             setSelectedMarket(key);
-                            setTicker("");
+                            // Don't clear ticker - let user keep their selection
                             setSuggestions([]);
-                            setShowSuggestions(true);
                             setShowMarketSelector(false);
                             fetchMarketTickers(key);
                           }}
@@ -1142,31 +1154,16 @@ export default function Home() {
               </h2>
 
               <div className="relative w-full">
-                {/* Visual Input (DD/MM/YYYY) */}
-                <div className={`flex items-center w-full rounded-xl border px-3 py-2.5 h-[46px] cursor-pointer transition-all ${isDarkMode
-                  ? "border-white/10 bg-[#1a2133] text-[#f8fbff] hover:border-[#2df4c6]/50"
-                  : "border-[#E2E8F0] bg-white text-[#0F172A] hover:border-[#2563EB]"
-                  }`}
-                  onClick={() => dateInputRef.current?.showPicker()}
-                >
-                  <div className={`mr-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                  </div>
-                  <span className="flex-1 font-medium">
-                    {analysisDate ? analysisDate.split('-').reverse().join('/') : "Select Date"}
-                  </span>
-                  <div className="opacity-50">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 15l5 5 5-5" /><path d="M7 9l5-5 5 5" /></svg>
-                  </div>
-                </div>
-
-                {/* Hidden Actual Date Input */}
+                {/* Styled Date Input */}
                 <input
                   ref={dateInputRef}
                   type="date"
                   value={analysisDate}
                   onChange={(e) => setAnalysisDate(e.target.value)}
-                  className="absolute inset-0 -z-10 opacity-0"
+                  className={`w-full rounded-xl border px-3 py-2.5 h-[46px] cursor-pointer font-medium transition-all ${isDarkMode
+                    ? "border-white/10 bg-[#1a2133] text-[#f8fbff] hover:border-[#2df4c6]/50 [color-scheme:dark]"
+                    : "border-[#E2E8F0] bg-white text-[#0F172A] hover:border-[#2563EB] [color-scheme:light]"
+                    }`}
                 />
               </div>
             </article>
@@ -1318,10 +1315,10 @@ export default function Home() {
               <article
                 key={teamKey}
                 className={`flex flex-col gap-4 rounded-[20px] border p-5 ${showError
-                    ? "border-red-500 bg-red-50/10"
-                    : isDarkMode
-                      ? "border-white/5 bg-[#111726]"
-                      : "border-[#2563EB]/25 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(37,99,235,0.15)]"
+                  ? "border-red-500 bg-red-50/10"
+                  : isDarkMode
+                    ? "border-white/5 bg-[#111726]"
+                    : "border-[#2563EB]/25 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(37,99,235,0.15)]"
                   }`}
               >
                 <header className="flex items-center justify-between gap-4">
@@ -1459,12 +1456,12 @@ export default function Home() {
                 {/* Status Text Below Bars */}
                 <span
                   className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${Number(marketData?.percentChange || 0) > 0
-                      ? "text-[#2df4c6]"
-                      : Number(marketData?.percentChange || 0) < 0
-                        ? "text-[#ff4500]"
-                        : isDarkMode
-                          ? "text-gray-400"
-                          : "text-[#64748B]"
+                    ? "text-[#2df4c6]"
+                    : Number(marketData?.percentChange || 0) < 0
+                      ? "text-[#ff4500]"
+                      : isDarkMode
+                        ? "text-gray-400"
+                        : "text-[#64748B]"
                     }`}
                 >
                   {(() => {
@@ -1492,10 +1489,10 @@ export default function Home() {
               <button
                 type="button"
                 className={`h-[36px] px-6 rounded-lg text-sm font-bold uppercase tracking-wide transition-transform active:scale-95 ${(contextDecision || "").toLowerCase().includes("sell")
-                    ? "bg-[#ff4500] text-white shadow-lg shadow-[#ff4500]/25"
-                    : (contextDecision || "").toLowerCase().includes("buy")
-                      ? "bg-[#2df4c6] text-[#0f172a] shadow-lg shadow-[#2df4c6]/25"
-                      : "bg-[#334155] text-white"
+                  ? "bg-[#ff4500] text-white shadow-lg shadow-[#ff4500]/25"
+                  : (contextDecision || "").toLowerCase().includes("buy")
+                    ? "bg-[#2df4c6] text-[#0f172a] shadow-lg shadow-[#2df4c6]/25"
+                    : "bg-[#334155] text-white"
                   }`}
               >
                 {contextDecision || "—"}
