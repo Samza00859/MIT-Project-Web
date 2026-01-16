@@ -4,6 +4,7 @@ import React, { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { Sun, Moon } from "lucide-react";
 import Logo from "@/image/Logo.png";
 import LogoBlack from "@/image/Logo_black.png";
 import { useTheme } from "@/context/ThemeContext";
@@ -213,10 +214,13 @@ export default function Sidebar() {
                                 onChange={toggleTheme}
                                 className="peer sr-only"
                             />
-                            <span className={`absolute inset-0 rounded-full transition-all before:absolute before:bottom-[2px] before:left-[2px] before:h-4 before:w-4 before:rounded-full before:bg-white before:transition-all ${isDarkMode
-                                ? "bg-[#394054] peer-checked:bg-[#00d18f] peer-checked:before:translate-x-5"
-                                : "bg-[#CBD5E1] peer-checked:bg-[#2563EB] peer-checked:before:translate-x-5"
-                                }`}></span>
+                            <div className={`absolute inset-0 rounded-full transition-all flex items-center justify-between px-1 ${isDarkMode
+                                ? "bg-[#394054] peer-checked:bg-[#00d18f]"
+                                : "bg-[#CBD5E1] peer-checked:bg-[#2563EB]"
+                                } after:absolute after:bottom-[2px] after:left-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-5`}>
+                                <Moon size={10} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1`} />
+                                <Sun size={10} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1`} />
+                            </div>
                         </label>
                     </div>
                 )}
@@ -233,10 +237,13 @@ export default function Sidebar() {
                                     onChange={toggleTheme}
                                     className="peer sr-only"
                                 />
-                                <span className={`absolute inset-0 rounded-full transition-all before:absolute before:bottom-[2px] before:left-[2px] before:h-4 before:w-4 before:rounded-full before:bg-white before:transition-all ${isDarkMode
-                                    ? "bg-[#394054] peer-checked:bg-[#00d18f] peer-checked:before:translate-x-5"
-                                    : "bg-[#CBD5E1] peer-checked:bg-[#2563EB] peer-checked:before:translate-x-5"
-                                    }`}></span>
+                                <div className={`absolute inset-0 rounded-full transition-all flex items-center justify-between px-1 ${isDarkMode
+                                    ? "bg-[#394054] peer-checked:bg-[#00d18f]"
+                                    : "bg-[#CBD5E1] peer-checked:bg-[#2563EB]"
+                                    } after:absolute after:bottom-[2px] after:left-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-5`}>
+                                    <Moon size={10} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1`} />
+                                    <Sun size={10} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1`} />
+                                </div>
                             </label>
                         </div>
                         {/* Divider line + Debug Panel */}

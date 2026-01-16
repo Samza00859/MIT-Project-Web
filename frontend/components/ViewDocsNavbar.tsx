@@ -34,7 +34,7 @@ export default function ViewDocsNavbar({ activeSection, onSelectItem, language, 
     const navItems = [
         { id: 'introduction', label: 'How it Works' },
         { id: 'role-specialization', label: 'Agent Roles' },
-        { id: 'tutorials-header', label: 'Tutorial' },
+        { id: 'tutorials-header', label: 'User Guide' },
     ];
 
     const handleNavClick = (id: string) => {
@@ -44,9 +44,9 @@ export default function ViewDocsNavbar({ activeSection, onSelectItem, language, 
 
     return (
         <nav
-            className={`sticky top-0 z-40 transition-all duration-300 ${isScrolled || isMobileMenuOpen
-                ? isDarkMode ? "bg-[#0b0e14]/90 backdrop-blur-md border-b border-white/10" : "bg-white/90 backdrop-blur-md border-b border-slate-200"
-                : "bg-transparent"
+            className={`sticky top-0 z-40 transition-all duration-300 ${isDarkMode
+                ? "bg-[#0b0e14] border-b border-white/10"
+                : "bg-white border-b border-slate-200"
                 }`}
         >
             <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
