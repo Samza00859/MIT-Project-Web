@@ -1,240 +1,197 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import ViewDocsSidebar from "../../components/ViewDocsSidebar";
+import React, { useState, useEffect, useMemo } from "react";
+import ViewDocsNavbar from "../../components/ViewDocsNavbar";
 import { useTheme } from "@/context/ThemeContext";
 import {
-    Download,
     BarChart, BookOpen, Newspaper, Globe,
-    TrendingUp, TrendingDown, ArrowLeftRight,
-    Flame, Shield, Scale, Gavel, Users,
-    BrainCircuit, Activity, Zap, HelpCircle
+    TrendingUp, TrendingDown,
+    Flame, Shield, Scale, Gavel,
+    BrainCircuit, Activity, Zap, HelpCircle,
+    Search, Users, Briefcase, ArrowRight,
+    Target, RefreshCw, CheckCircle2,
+    Calendar, Send, FileText, Download, Smartphone
 } from 'lucide-react';
 
-// --- 1. Document Content ---
-const DOCUMENT_SECTIONS = [
-    {
-        id: 'introduction',
-        title: 'Introduction',
-        content: (
-            <div className="space-y-4 text-zinc-300 leading-relaxed">
-                <p>
-                    Significant progress has been made in automated problem-solving using societies of agents powered by <Tooltip text="Large Language Models - advanced AI systems that can understand and generate human-like text"><strong className="text-white">LLMs</strong></Tooltip>. While single-agent systems handle specific tasks well, complex financial markets require collaborative dynamics similar to real-world trading firms.
-                </p>
-                <p>
-                    <strong className="text-white">TradingAgents</strong> proposes a novel stock trading framework inspired by professional trading firms, featuring LLM-powered agents in specialized roles. By simulating a dynamic, collaborative trading environment, this framework aims to replicate the multi-faceted decision-making process of successful investment houses.
-                </p>
-                <p>
-                    This comprehensive multi-agent system moves beyond simple data gathering, integrating diverse perspectives from fundamental analysis to technical indicators, debating insights, and synthesizing them into informed trading decisions.
-                </p>
-            </div>
-        )
-    },
-    {
-        id: 'related-work',
-        title: 'Related Work',
-        content: (
-            <div className="space-y-4 text-zinc-300 leading-relaxed">
-                <p>
-                    In the domain of financial trading, efforts have historically focused on quantitative models and, more recently, single-agent LLM systems.
-                </p>
-                <ul className="list-disc pl-5 space-y-2">
-                    <li>
-                        <strong className="text-white">Single-Agent Systems:</strong> Often limited to handling specific, isolated tasks such as sentiment analysis of news headlines or pattern recognition in price charts.
-                    </li>
-                    <li>
-                        <strong className="text-white">Traditional Multi-Agent Frameworks:</strong> Previous attempts have largely operated independently, with agents gathering data in silos without true collaborative synthesis.
-                    </li>
-                    <li>
-                        <strong className="text-white">TradingAgents Approach:</strong> Unlike predecessors, this framework emphasizes the <em>collaborative dynamics</em> found in institutional firms. It introduces structured debates and hierarchical decision-making, allowing agents to challenge and refine each other's insights before a trade is executed.
-                    </li>
-                </ul>
-            </div>
-        )
-    },
-    {
-        id: 'role-specialization',
-        title: 'TradingAgents: Role Specialization',
-        content: (
-            <div className="space-y-4 text-zinc-300 leading-relaxed">
-                <p>
-                    The framework assigns specialized roles to LLM agents, ensuring expert-level analysis across all market dimensions:
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                    <div className="p-4 bg-zinc-800/40 rounded-lg border border-zinc-700/60">
-                        <h3 className="font-bold text-cyan-400 mb-2">Fundamental Analysts</h3>
-                        <p className="text-sm">Analyze company financial health, earnings reports, and macroeconomic indicators to determine long-term value.</p>
-                    </div>
-                    <div className="p-4 bg-zinc-800/40 rounded-lg border border-zinc-700/60">
-                        <h3 className="font-bold text-cyan-400 mb-2">Technical Analysts</h3>
-                        <p className="text-sm">Study price action, trends, and volume patterns to identify optimal entry and exit points.</p>
-                    </div>
-                    <div className="p-4 bg-zinc-800/40 rounded-lg border border-zinc-700/60">
-                        <h3 className="font-bold text-cyan-400 mb-2">Sentiment Analysts</h3>
-                        <p className="text-sm">Process news, social media, and market chatter to gauge market psychology and potential volatility.</p>
-                    </div>
-                    <div className="p-4 bg-zinc-800/40 rounded-lg border border-zinc-700/60">
-                        <h3 className="font-bold text-cyan-400 mb-2">Risk Management</h3>
-                        <p className="text-sm">Monitor portfolio exposure and set strict limits to preserve capital and manage downside risk.</p>
-                    </div>
-                </div>
-            </div>
-        )
-    },
-    {
-        id: 'agent-workflow',
-        title: 'TradingAgents: Agent Workflow',
-        content: (
-            <div className="space-y-4 text-zinc-300 leading-relaxed">
-                <p>
-                    The decision-making process follows a structured workflow designed to mimic an investment committee:
-                </p>
-                <ol className="list-decimal pl-5 space-y-3">
-                    <li>
-                        <strong className="text-white">Data Gathering:</strong> Individual specialists (Fundamental, Technical, Sentiment) independently gather data and form initial hypotheses.
-                    </li>
-                    <li>
-                        <strong className="text-white">Bull & Bear Debate:</strong> Dedicated <strong>Bull</strong> and <strong>Bear</strong> researcher agents assess market conditions from opposing viewpoints, challenging assumptions to uncover blind spots.
-                    </li>
-                    <li>
-                        <strong className="text-white">Synthesis:</strong> Traders synthesize the diverse insights from the debate and analyst reports, weighing conflicting evidence.
-                    </li>
-                    <li>
-                        <strong className="text-white">Execution:</strong> Informed decisions are made, with final checks by the Risk Management team to ensure alignment with portfolio constraints before execution.
-                    </li>
-                </ol>
-            </div>
-        )
-    },
-];
+const TRANSLATIONS = {
+    EN: {
+        tagline: "Trading Agents",
+        title: "MULTI-AGENT SYSTEM",
+        description: "Simulating a professional trading firm through collaborative AI. Moving beyond single-agent systems to mimic the multi-faceted decision-making process of successful investment houses.",
+        features: {
+            collab: { title: "Collaborative AI", desc: "Specialized agents (Market, Fundamental, Researcher) working in a DAG (Directed Acyclic Graph) workflow." },
+            diverse: { title: "Multi-Modal Analysis", desc: "Integrates Quantitative Technicals (RSI, MACD), Fundamental Ratios (P/E, ROE), and News Sentiment." },
+            debate: { title: "Adversarial Review", desc: "Bull & Bear agents debate the thesis to eliminate hallucination and bias before execution." }
+        },
+        workflow: {
+            header: "Agent Workflow Pipeline",
+            subheader: "From raw data to executed trade: a 4-step automated process",
+            steps: [
+                { title: "Data Mining", desc: "Analysts fetch & process raw market/financial data" },
+                { title: "Thesis Generation", desc: "Bull & Bear researchers form opposing arguments" },
+                { title: "Synthesis", desc: "Trader Agent weighs evidence to form a consensus" },
+                { title: "Risk Check", desc: "Final validation of entry/exit points against risk rules" }
+            ]
+        },
+        teams: {
+            header: "Specialized Agent Teams",
+            analyst: {
+                title: "Analyst Team",
+                desc: "The Data Layer. Responsible for fetching, cleaning, and calculating raw metrics.",
+                market: { title: "Technical Analyst", desc: "Calculates SMA-50, EMA-10, RSI, MACD, and Bollinger Bands to identify Trend & Momentum." },
+                fundamental: { title: "Fundamental Analyst", desc: "Analyzes 10-year financials: Revenue Growth, P/E Ratio, Debt-to-Equity, and Free Cash Flow." },
+                news: { title: "News Analyst", desc: "Scrapes global headlines to assess Macro sentiment and specific catalysts." },
+                social: { title: "Social Analyst", desc: "Quantifies retail sentiment (Fear/Greed index) from social platforms." }
+            },
+            research: {
+                title: "Research Team",
+                desc: "The Logic Layer. Interprets the data to form coherent investment theses.",
+                manager: { title: "Research Manager", desc: "Orchestrator. Assigns tasks and ensures the debate stays fact-based." },
+                bull: { title: "Bull Researcher", desc: "Constructs a Growth Thesis focusing on upside potential and undervalued assets." },
+                bear: { title: "Bear Researcher", desc: "Constructs a Risk Thesis focusing on overvaluation, weak financials, or technical breakdown." }
+            },
 
-// --- 2. Tutorials Content ---
-const TUTORIAL_SECTIONS = [
-    {
-        id: 'start-analysis',
-        title: 'Starting an Analysis',
-        steps: [
-            "Navigate to the Homepage: Open the main dashboard where you'll see the input panel.",
-            "Enter Stock Ticker: Type the symbol of the company you want to analyze (e.g., 'AAPL' for Apple, 'TSLA' for Tesla).",
-            "Select Date Range: Choose the start and end dates for the historical data analysis.",
-            "Click Generate: Hit the 'Generate Analysis' button to initialize the multi-agent system. The agents will begin gathering data immediately."
-        ]
+        },
+        execution: {
+            header: "Execution & Risk Management",
+            subheader: "The Decision Layer. Converting analysis into actionable orders.",
+            trader: { title: "Chief Trader", desc: "Synthesizes the Bull vs Bear debate. Determines the final Signal (Buy/Sell/Hold) and Confidence Score." },
+            submit: "Submit Plan",
+            risk: { title: "Risk Controller", desc: "Validates the trade. Calculates Position Size, Stop Loss, and Take Profit levels based on volatility (ATR)." },
+            manager: { title: "Portfolio Manager", desc: "Final Sign-off. Executes the approved order into the system." },
+            levels: { aggressive: "Aggressive", neutral: "Neutral", conservative: "Conservative" }
+        },
+        tutorials: {
+            header: "User Guide",
+            subheader: "A step-by-step guide to generating and reviewing AI trading analysis.",
+            step1: {
+                title: "Generate Analysis",
+                desc: "Navigate to the Dashboard to start a new simulation.",
+                points: [
+                    { title: "Input Parameters", desc: "Select a Market (e.g. US), enter a Ticker (e.g. AAPL), and pick an Analysis Date." },
+                    { title: "Start Simulation", desc: "Click the 'Generate' button to initialize the agent fleet." }
+                ]
+            },
+            step2: {
+                title: "Monitor Progress",
+                desc: "Watch the analysis unfold in real-time.",
+                points: [
+                    { title: "Progress Bar", desc: "Track the completion status of Data Gathering, Research, and Trading phases." },
+                    { title: "Live Logs", desc: "View detailed internal logs to see what each agent is doing." }
+                ]
+            },
+            step3: {
+                title: "Review Results",
+                desc: "Analyze the generated report.",
+                points: [
+                    { title: "Recommendation", desc: "See the final Buy/Sell signal and Confidence Score." },
+                    { title: "Detailed Report", desc: "Read the full thesis, including Bull vs Bear arguments and financial metrics." }
+                ]
+            },
+            step4: {
+                title: "View History",
+                desc: "Access past analyses.",
+                points: [
+                    { title: "History Page", desc: "Navigate to the 'History' tab to see a list of all previous runs." },
+                    { title: "Re-visit Reports", desc: "Click on any past item to view the full PDF report or summary." }
+                ]
+            }
+        }
     },
-    {
-        id: 'understanding-reports',
-        title: 'Understanding the Report',
-        steps: [
-            "Agent Insights: Review the individual outputs from Fundamental, Technical, and Sentiment agents. Each provides a unique perspective on the stock.",
-            "Conversation Flow: Observe the internal dialogue and debate between specialized agents. You can see how the Bull and Bear agents argue their cases and how the Risk Manager weighs in before a final decision is made.",
-            "Consensus Verdict: The consensus verdict is the final decision of the system. It is the aggregated decision from all agents."
-        ]
-    },
-    {
-        id: 'telegram-alerts',
-        title: 'Connecting Telegram Alerts',
-        steps: [
-            "Open Connect Menu: Click the sent telegram button in the generate page.",
-            "Start the Bot: Click the 'Open Telegram & Connect' to open 'TradingAgentsBot' in Telegram and tap 'Start'.",
-            "Auto-Connect: Return to the website. The system will detect your Chat and pair your account instantly.",
-            "Receive Alerts: You will now get real-time notifications whenever a report is ready."
-        ]
-    },
-    {
-        id: 'exporting-pdf',
-        title: 'Exporting Reports to PDF',
-        steps: [
-            "Complete Analysis: Wait for the progress bar to reach 100% and the report to be fully generated.",
-            "Locate Download Button: Look for the 'Download Report' button usually located at the top-right of the report card.",
-            "Save File: Click the button to generate a clean, professional PDF version of the analysis, suitable for printing or sharing."
-        ]
-    },
-];
-
-// --- 3. Our Agent Content ---
-const AGENT_TEAMS = [
-    {
-        id: 'analyst-team',
-        title: 'Analyst Team',
-        description: 'The foundation. specialized agents collect and process raw data from multiple sources—quantitative, fundamental, technical, and sentiment—to create a unified view of the market.',
-        agents: [
-            { id: 'market-data', title: 'Market Data Agent', icon: <BarChart size={24} className="text-cyan-400" />, role: 'Market Aggregator', content: 'Fetches raw financial data including historical prices, trading volumes, and key financial ratios.' },
-            { id: 'fundamental', title: 'Fundamental Agent', icon: <BookOpen size={24} className="text-blue-400" />, role: 'Fundamental Aggregator', content: 'Parses reports and balance sheets. Calculates intrinsic value metrics.' },
-            { id: 'news', title: 'News Agent', icon: <Newspaper size={24} className="text-green-400" />, role: 'News Aggregator', content: 'Monitors global newswires/RSS feeds. Filters noise to find high-impact economic events.' },
-            { id: 'social', title: 'Social Agent', icon: <Globe size={24} className="text-purple-400" />, role: 'Social Media Aggregator', content: 'Quantifies market psychology by scanning social platforms. Detects accumulating fear or greed trends.' }
-        ]
-    },
-    {
-        id: 'research-team',
-        title: 'Research Team',
-        description: 'The war room. Here, the Research Manager (CIO) moderates a fierce debate between the Bull and Bear to form a balanced initial thesis.',
-        agents: [
-            { id: 'bull', title: 'Bull Researcher', icon: <TrendingUp size={24} className="text-green-500" />, role: 'Growth Strategist', content: 'The Optimist. Focuses purely on upside catalysts, growth potential, and reasons why the asset could outperform.' },
-            { id: 'bear', title: 'Bear Researcher', icon: <TrendingDown size={24} className="text-red-500" />, role: 'Risk Strategist', content: 'The Skeptic. Focuses on valuation gaps, macro headwinds, and flaws in the bullish thesis to expose downside risks.' }
-        ]
-    },
-    {
-        id: 'trader-team',
-        title: 'Trader Team',
-        description: 'The execution arm. This agent takes the final plan and executes the trade with precision.',
-        agents: [
-            { id: 'trader', title: 'Trader', icon: <ArrowLeftRight size={24} className="text-yellow-500" />, role: 'Executor', content: 'The Trader. It listens to the Bull and Bear arguments, synthesizing the conflicting data into a coherent "Investment Plan".' }
-        ]
-    },
-    {
-        id: 'risk-team',
-        title: 'Risk Team',
-        description: 'The stress test. Before execution, the trade must survive the "Council of Risks" where the Risk Manager adjudicates between conflicting risk perspectives.',
-        agents: [
-            { id: 'risky-agent', title: 'Aggressive Risk Agent', icon: <Flame size={24} className="text-red-400" />, role: 'Risk Taker', content: 'Advocates for maximizing exposure when conviction is high. Argues for wider stops.' },
-            { id: 'safe-agent', title: 'Conservative Risk Agent', icon: <Shield size={24} className="text-green-400" />, role: 'Capital Preserver', content: 'Prioritizes capital preservation above all. Argues for tight stops and hedging.' },
-            { id: 'neutral-agent', title: 'Neutral Risk Agent', icon: <Scale size={24} className="text-gray-400" />, role: 'Balancer', content: 'Provides the middle ground, balancing aggressive profit-seeking against conservative fears.' }
-        ]
-    },
-    {
-        id: 'manager-team',
-        title: 'Manager Team',
-        description: 'The manager. Once the plan is approved and risk-adjusted, the Trader Agent executes the order with surgical precision.',
-        agents: [
-            { id: 'manager', title: 'Manager', icon: <Gavel size={24} className="text-blue-500" />, role: 'Decision Maker', content: 'The Manager. Takes the final "Risk-Adjusted Plan" and executes the trade.' }
-        ]
+    TH: {
+        tagline: "Trading Agents",
+        title: "MULTI-AGENT SYSTEM",
+        description: "ระบบจำลองทีมวิเคราะห์การลงทุนระดับสถาบันด้วย AI ที่ทำงานร่วมกัน (Cooperative AI) เพื่อเลียนแบบกระบวนการตัดสินใจที่รัดกุมและตรวจสอบได้",
+        features: {
+            collab: { title: "Collaborative AI", desc: "การทำงานร่วมกันของ Agent ผู้เชี่ยวชาญเฉพาะด้าน (Technical, Fundamental, Research) แบบเป็นขั้นเป็นตอน" },
+            diverse: { title: "Multi-Modal Analysis", desc: "วิเคราะห์ครบทุกมิติ: ปัจจัยทางเทคนิค (RSI, MACD), ปัจจัยพื้นฐาน (งบการเงิน), และข่าวสาร (Sentiment)" },
+            debate: { title: "Adversarial Review", desc: "กระบวนการ Debates ระหว่างทีม Bull และ Bear เพื่อลบความลำเอียง (Bias) ก่อนตัดสินใจ" }
+        },
+        workflow: {
+            header: "Agent Workflow Pipeline",
+            subheader: "กระบวนการทำงานอัตโนมัติ 4 ขั้นตอน: จากข้อมูลดิบสู่คำสั่งซื้อขาย",
+            steps: [
+                { title: "Data Mining", desc: "Analyst ดึงข้อมูลราคาและงบการเงิน พร้อมคำนวณตัวชี้วัด" },
+                { title: "Thesis Generation", desc: "Research สร้างสมมติฐานการลงทุนทั้งฝั่งบวกและลบ" },
+                { title: "Synthesis", desc: "Trader ชั่งน้ำหนักข้อมูลทั้งหมดเพื่อหาข้อสรุป (Consensus)" },
+                { title: "Risk Check", desc: "ตรวจสอบความเสี่ยงและกำหนดจุดซื้อขายที่เหมาะสม" }
+            ]
+        },
+        teams: {
+            header: "Specialized Agent Teams",
+            analyst: {
+                title: "Analyst Team",
+                desc: "หน่วยรวบรวมข้อมูล: เปรียบเสมือน Junior Analyst ที่คอยเตรียมข้อมูลดิบให้พร้อม",
+                market: { title: "Technical Analyst", desc: "คำนวณอินดิเคเตอร์เชิงเทคนิค: SMA, EMA, RSI, MACD, Bollinger Bands เพื่อหาแนวโน้ม (Trend)" },
+                fundamental: { title: "Fundamental Analyst", desc: "วิเคราะห์สุขภาพการเงิน 10 ปีย้อนหลัง: การเติบโตของรายได้, P/E, D/E Ratio และ ROE" },
+                news: { title: "News Analyst", desc: "รวบรวมข่าวเศรษฐกิจรอบโลกเพื่อวิเคราะห์ Sentiment ตลาด" },
+                social: { title: "Social Analyst", desc: "จับอารมณ์นักลงทุนรายย่อย (Fear & Greed) จากโซเชียลมีเดีย" }
+            },
+            research: {
+                title: "Research Team",
+                desc: "หน่วยวิเคราะห์: แปรผลข้อมูลดิบให้เป็นบทวิเคราะห์ที่มีเหตุผลรองรับ",
+                manager: { title: "Research Manager", desc: "ผู้คุมกฎ: จัดการการประชุมและดูแลให้การถกเถียงอยู่บนพื้นฐานของข้อมูล" },
+                bull: { title: "Bull Researcher", desc: "ทีมมองขึ้น: หาเหตุผลสนับสนุนให้ 'ซื้อ' (Growth, Undervalued)" },
+                bear: { title: "Bear Researcher", desc: "ทีมมองลง: หาจุดอ่อนและความเสี่ยง เพื่อสนับสนุนให้ 'ขาย' หรือ 'Wait'" }
+            }
+        },
+        execution: {
+            header: "Execution & Risk Management",
+            subheader: "หน่วยตัดสินใจ: แปลงบทวิเคราะห์ให้เป็นแผนการเทรดจริง",
+            trader: { title: "Chief Trader", desc: "ผู้ติดสินใจ: ฟังเหตุผลของ Bull/Bear แล้วสรุปเป็น Signal (Buy/Sell) พร้อมระดับความมั่นใจ" },
+            submit: "ส่งแผน",
+            risk: { title: "Risk Controller", desc: "ฝ่ายบริหารความเสี่ยง: คำนวณ Position Size, Stop Loss และ Take Profit ตามค่าความผันผวน (ATR)" },
+            manager: { title: "Portfolio Manager", desc: "ผู้อนุมัติ: ตรวจสอบครั้งสุดท้ายและส่งคำสั่งเข้าระบบ" },
+            levels: { aggressive: "Aggressive", neutral: "Neutral", conservative: "Conservative" }
+        },
+        tutorials: {
+            header: "User Guide",
+            subheader: "คู่มือการใช้งานระบบ: ตั้งแต่การสร้างคำสั่งจนถึงการดูประวัติย้อนหลัง",
+            step1: {
+                title: "Generate Analysis",
+                desc: "เริ่มการวิเคราะห์หุ้นโดยไปที่หน้า Generate",
+                points: [
+                    { title: "ระบุข้อมูล", desc: "เลือกตลาด (Market), พิมพ์ชื่อหุ้น (Ticker) และเลือกวันที่ที่ต้องการวิเคราะห์" },
+                    { title: "กดปุ่ม Generate", desc: "เพื่อเริ่มกระบวนการจำลองการเทรดของทีม AI" }
+                ]
+            },
+            step2: {
+                title: "Monitor Progress",
+                desc: "ติดตามการทำงานของระบบแบบเรียลไทม์",
+                points: [
+                    { title: "ดู Progress Bar", desc: "เพื่อดูความคืบหน้าของแต่ละขั้นตอน (Data, Research, Trading)" },
+                    { title: "อ่าน Live Logs", desc: "เพื่อดูรายละเอียดสิ่งที่ Agent กำลังทำอยู่เบื้องหลัง" }
+                ]
+            },
+            step3: {
+                title: "Review Results",
+                desc: "ดูผลสรุปการวิเคราะห์เมื่อระบบทำงานเสร็จ",
+                points: [
+                    { title: "Recommendation", desc: "ดูคำแนะนำ (Buy/Sell) และคะแนนความมั่นใจ" },
+                    { title: "Full Report", desc: "อ่านเหตุผลประกอบการตัดสินใจของแต่ละฝ่ายอย่างละเอียด" }
+                ]
+            },
+            step4: {
+                title: "View History",
+                desc: "ดูประวัติการวิเคราะห์ย้อนหลัง",
+                points: [
+                    { title: "ไปที่หน้า History", desc: "เพื่อดูรายการหุ้นทั้งหมดที่เคยวิเคราะห์ไปแล้ว" },
+                    { title: "ดูรายละเอียด", desc: "กดที่รายการเพื่อดูรายงานฉบับเต็มหรือดาวน์โหลด PDF" }
+                ]
+            }
+        }
     }
-];
-
-
-
-// Tooltip Component for Explain-on-Hover
-function Tooltip({ text, children }: { text: string; children: React.ReactNode }) {
-    const { isDarkMode } = useTheme();
-    const [show, setShow] = useState(false);
-    return (
-        <span className="relative inline-block group">
-            <span
-                className="underline decoration-dotted cursor-help"
-                onMouseEnter={() => setShow(true)}
-                onMouseLeave={() => setShow(false)}
-            >
-                {children}
-            </span>
-            {show && (
-                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 px-3 py-2 rounded-lg text-xs max-w-xs shadow-lg ${isDarkMode ? 'bg-gray-800 text-white border border-gray-700' : 'bg-gray-900 text-white border border-gray-600'
-                    }`}>
-                    {text}
-                    <div className={`absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-l-transparent border-r-transparent border-b-transparent ${isDarkMode ? 'border-t-gray-800' : 'border-t-gray-900'
-                        }`} />
-                </div>
-            )}
-        </span>
-    );
-}
+};
 
 export default function ViewDocsPage() {
-    const { isDarkMode, toggleTheme } = useTheme();
+    const { isDarkMode } = useTheme();
     const [activeSection, setActiveSection] = useState('introduction');
-    const [expandedCategories, setExpandedCategories] = useState<string[]>(['document', 'tutorials', 'our-agent']);
-    const [focusedSection, setFocusedSection] = useState<string | null>(null);
     const [mounted, setMounted] = useState(false);
+    const [language, setLanguage] = useState<'EN' | 'TH'>('EN');
 
-    // Generate stars once for the night sky effect (matching home page)
+    const t = TRANSLATIONS[language];
+
+    // Generate stars for background
     const stars = useMemo(() => {
         return Array.from({ length: 150 }).map((_, i) => {
             const size = Math.random() * 2 + 0.5;
@@ -243,16 +200,7 @@ export default function ViewDocsPage() {
             const delay = Math.random() * 3;
             const duration = Math.random() * 3 + 2;
             const opacity = Math.random() * 0.8 + 0.2;
-
-            return {
-                id: i,
-                size,
-                left,
-                top,
-                delay,
-                duration,
-                opacity,
-            };
+            return { id: i, size, left, top, delay, duration, opacity };
         });
     }, []);
 
@@ -260,646 +208,512 @@ export default function ViewDocsPage() {
         setMounted(true);
     }, []);
 
-    const toggleCategory = (categoryId: string) => {
-        setExpandedCategories(prev =>
-            prev.includes(categoryId)
-                ? prev.filter(id => id !== categoryId)
-                : [...prev, categoryId]
-        );
-    };
-
-
-    // Enhanced Scroll Spy with Focus Detection (Throttled)
-    const activeSectionRef = useRef(activeSection);
-    const focusedSectionRef = useRef(focusedSection);
-
-    // Keep refs in sync with state
+    // Scroll handling for active section
     useEffect(() => {
-        activeSectionRef.current = activeSection;
-    }, [activeSection]);
-
-    useEffect(() => {
-        focusedSectionRef.current = focusedSection;
-    }, [focusedSection]);
-
-    useEffect(() => {
-        // Find the actual scrolling container (defined in layout.tsx)
         const scrollContainer = document.getElementById('main-content') || window;
-
-        let ticking = false;
-
         const handleScroll = () => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    const viewportHeight = window.innerHeight;
-                    const allSections = [
-                        ...DOCUMENT_SECTIONS,
-                        ...TUTORIAL_SECTIONS,
-                        ...AGENT_TEAMS
-                    ];
+            const sections = ['introduction', 'role-specialization', 'tutorials-header'];
+            // @ts-ignore
+            const scrollPosition = (parseInt(scrollContainer.scrollTop) || window.scrollY) + 300;
 
-                    let newActiveSection = activeSectionRef.current;
-                    let newFocusedSection: string | null = focusedSectionRef.current;
-
-                    for (const section of allSections) {
-                        const element = document.getElementById(section.id);
-                        if (element) {
-                            const rect = element.getBoundingClientRect();
-
-                            // Check if section is in activation zone (near top of viewport)
-                            // We use 250px as the offset to account for header and user focus area
-                            if (rect.top <= 250 && rect.bottom > 250) {
-                                newActiveSection = section.id;
-                            }
-
-                            // Check if section is focused (roughly centered in viewport)
-                            const elementCenter = rect.top + rect.height / 2;
-                            const viewportCenter = viewportHeight / 2;
-
-                            if (Math.abs(elementCenter - viewportCenter) < viewportHeight * 0.3 && rect.top < viewportHeight && rect.bottom > 0) {
-                                newFocusedSection = section.id;
-                            }
-                        }
-                    }
-
-                    // Only update state if values actually changed
-                    if (newActiveSection !== activeSectionRef.current) {
-                        setActiveSection(newActiveSection);
-                        activeSectionRef.current = newActiveSection;
-                    }
-
-                    if (newFocusedSection !== focusedSectionRef.current) {
-                        setFocusedSection(newFocusedSection);
-                        focusedSectionRef.current = newFocusedSection;
-                    }
-
-                    ticking = false;
-                });
-                ticking = true;
+            for (const section of sections) {
+                const element = document.getElementById(section);
+                if (element && element.offsetTop <= scrollPosition) {
+                    setActiveSection(section);
+                }
             }
         };
 
-        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-        handleScroll(); // Initial check
+        scrollContainer.addEventListener('scroll', handleScroll);
         return () => scrollContainer.removeEventListener('scroll', handleScroll);
     }, []);
 
     const scrollToSection = (id: string) => {
         const element = document.getElementById(id);
-        const scrollContainer = document.querySelector('main.overflow-auto');
+        const scrollContainer = document.getElementById('main-content') || window;
 
         if (element) {
-            if (scrollContainer) {
-                const containerRect = scrollContainer.getBoundingClientRect();
-                const elementRect = element.getBoundingClientRect();
-                // Calculate position relative to current scroll
-                const offset = elementRect.top - containerRect.top;
-                const currentScroll = scrollContainer.scrollTop;
-
-                scrollContainer.scrollTo({
-                    top: currentScroll + offset - 120, // 120px offset for header
-                    behavior: 'smooth'
-                });
+            // @ts-ignore
+            if (scrollContainer.scrollTo) {
+                // @ts-ignore
+                const top = element.offsetTop - 100;
+                // @ts-ignore
+                scrollContainer.scrollTo({ top, behavior: 'smooth' });
             } else {
-                // Fallback for window scrolling
-                const offsetTop = element.getBoundingClientRect().top + window.scrollY;
-                window.scrollTo({
-                    top: offsetTop - 120,
-                    behavior: 'smooth'
-                });
+                element.scrollIntoView({ behavior: 'smooth' });
             }
             setActiveSection(id);
         }
     };
 
-    // Create document sections with proper classes based on theme
-    const documentSectionsWithTheme = useMemo(() => {
-        return DOCUMENT_SECTIONS.map(section => {
-            if (section.id === 'introduction') {
-                return {
-                    ...section,
-                    content: (
-                        <div className={`space-y-4 leading-relaxed ${isDarkMode ? 'text-zinc-300' : 'text-gray-900'}`}>
-                            <p>
-                                Significant progress has been made in automated problem-solving using societies of agents powered by <Tooltip text="Large Language Models - advanced AI systems that can understand and generate human-like text" ><strong className={isDarkMode ? "text-white" : "text-gray-900"}>LLMs</strong></Tooltip>. While single-agent systems handle specific tasks well, complex financial markets require collaborative dynamics similar to real-world trading firms.
-                            </p>
-                            <p>
-                                <strong className={isDarkMode ? "text-white" : "text-gray-900"}>TradingAgents</strong> proposes a novel stock trading framework inspired by professional trading firms, featuring LLM-powered agents in specialized roles. By simulating a dynamic, collaborative trading environment, this framework aims to replicate the multi-faceted decision-making process of successful investment houses.
-                            </p>
-                            <p>
-                                This comprehensive multi-agent system moves beyond simple data gathering, integrating diverse perspectives from fundamental analysis to technical indicators, debating insights, and synthesizing them into informed trading decisions.
-                            </p>
-                        </div>
-                    )
-                };
-            } else if (section.id === 'related-work') {
-                return {
-                    ...section,
-                    content: (
-                        <div className={`space-y-4 leading-relaxed ${isDarkMode ? 'text-zinc-300' : 'text-gray-900'}`}>
-                            <p>
-                                In the domain of financial trading, efforts have historically focused on quantitative models and, more recently, single-agent LLM systems.
-                            </p>
-                            <ul className="list-disc pl-5 space-y-2">
-                                <li>
-                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Single-Agent Systems:</strong> Often limited to handling specific, isolated tasks such as sentiment analysis of news headlines or pattern recognition in price charts.
-                                </li>
-                                <li>
-                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Traditional Multi-Agent Frameworks:</strong> Previous attempts have largely operated independently, with agents gathering data in silos without true collaborative synthesis.
-                                </li>
-                                <li>
-                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>TradingAgents Approach:</strong> Unlike predecessors, this framework emphasizes the <em>collaborative dynamics</em> found in institutional firms. It introduces structured debates and hierarchical decision-making, allowing agents to challenge and refine each other's insights before a trade is executed.
-                                </li>
-                            </ul>
-                        </div>
-                    )
-                };
-            } else if (section.id === 'agent-workflow') {
-                return {
-                    ...section,
-                    content: (
-                        <div className={`space-y-4 leading-relaxed ${isDarkMode ? 'text-zinc-300' : 'text-gray-900'}`}>
-                            <p>
-                                The decision-making process follows a structured workflow designed to mimic an investment committee:
-                            </p>
-                            <ol className="list-decimal pl-5 space-y-3">
-                                <li>
-                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Data Gathering:</strong> Individual specialists (Fundamental, Technical, Sentiment) independently gather data and form initial hypotheses.
-                                </li>
-                                <li>
-                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Bull & Bear Debate:</strong> Dedicated <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Bull</strong> and <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Bear</strong> researcher agents assess market conditions from opposing viewpoints, challenging assumptions to uncover blind spots.
-                                </li>
-                                <li>
-                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Synthesis:</strong> Traders synthesize the diverse insights from the debate and analyst reports, weighing conflicting evidence.
-                                </li>
-                                <li>
-                                    <strong className={isDarkMode ? "text-white" : "text-gray-900"}>Execution:</strong> Informed decisions are made, with final checks by the Risk Management team to ensure alignment with portfolio constraints before execution.
-                                </li>
-                            </ol>
-                        </div>
-                    )
-                };
-            }
-            return section;
-        });
-    }, [isDarkMode]);
+    const toggleLanguage = () => {
+        setLanguage(prev => prev === 'EN' ? 'TH' : 'EN');
+    };
 
     return (
-        <>
-            <style jsx>{`
-                .light-mode-content,
-                .light-mode-content *,
-                .light-mode-content p,
-                .light-mode-content div,
-                .light-mode-content span,
-                .light-mode-content .text-zinc-300,
-                .light-mode-content .text-white {
-                    color: #000000 !important;
-                }
-                .light-mode-content strong,
-                .light-mode-content strong *,
-                .light-mode-content .text-white {
-                    color: #000000 !important;
-                    font-weight: 600;
-                }
-                .light-mode-content li,
-                .light-mode-content li * {
-                    color: #000000 !important;
-                }
-                .light-mode-content em {
-                    color: #000000 !important;
-                    font-style: italic;
-                }
-                /* Override text colors in light mode for all content - High specificity */
-                body[data-theme="light"] .text-zinc-300,
-                body[data-theme="light"] .text-white:not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main .text-zinc-300,
-                body[data-theme="light"] main .text-white:not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main div .text-zinc-300,
-                body[data-theme="light"] main div .text-white:not(.bg-clip-text):not(.text-transparent) {
-                    color: #000000 !important;
-                }
-                body[data-theme="light"] section .text-zinc-300,
-                body[data-theme="light"] section .text-white:not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] section p,
-                body[data-theme="light"] section li,
-                body[data-theme="light"] section strong,
-                body[data-theme="light"] section em,
-                body[data-theme="light"] section ol,
-                body[data-theme="light"] section ul,
-                body[data-theme="light"] section div,
-                body[data-theme="light"] section span,
-                body[data-theme="light"] main section .text-zinc-300,
-                body[data-theme="light"] main section .text-white:not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main section p,
-                body[data-theme="light"] main section li,
-                body[data-theme="light"] main section strong,
-                body[data-theme="light"] main section em,
-                body[data-theme="light"] main section div,
-                body[data-theme="light"] main section span,
-                body[data-theme="light"] main section div .text-zinc-300,
-                body[data-theme="light"] main section div .text-white:not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main section div p,
-                body[data-theme="light"] main section div li,
-                body[data-theme="light"] main section div strong,
-                body[data-theme="light"] main section div em,
-                body[data-theme="light"] main section div ol,
-                body[data-theme="light"] main section div ul {
-                    color: #000000 !important;
-                }
-                body[data-theme="light"] section strong,
-                body[data-theme="light"] main section strong,
-                body[data-theme="light"] main section div strong {
-                    color: #000000 !important;
-                    font-weight: 600;
-                }
-                /* Global override for all text in light mode within main content */
-                body[data-theme="light"] main section[id] div[class*="space-y"] p,
-                body[data-theme="light"] main section[id] div[class*="space-y"] li,
-                body[data-theme="light"] main section[id] div[class*="space-y"] strong,
-                body[data-theme="light"] main section[id] div[class*="space-y"] em,
-                body[data-theme="light"] main section[id] div[class*="space-y"] ol,
-                body[data-theme="light"] main section[id] div[class*="space-y"] ul,
-                body[data-theme="light"] main section[id] div[class*="space-y"] div,
-                body[data-theme="light"] main section[id] div[class*="space-y"] span {
-                    color: #000000 !important;
-                }
-                body[data-theme="light"] main section[id] div[class*="space-y"] strong {
-                    color: #000000 !important;
-                    font-weight: 600;
-                }
-                /* Ultimate override for text content in light mode - exclude headings */
-                body[data-theme="light"] main section[id] div[class*="space-y"] *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main section[id] div[class*="leading-relaxed"] *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main section[id] div.text-zinc-300 *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main section[id] div.text-zinc-300,
-                body[data-theme="light"] main section[id] p.text-zinc-300,
-                body[data-theme="light"] main section[id] li.text-zinc-300,
-                body[data-theme="light"] main section[id] strong.text-white,
-                body[data-theme="light"] main section[id] span.text-white:not(.bg-clip-text):not(.text-transparent) {
-                    color: #000000 !important;
-                }
-                body[data-theme="light"] main section[id] div[class*="space-y"] strong,
-                body[data-theme="light"] main section[id] div[class*="leading-relaxed"] strong,
-                body[data-theme="light"] main section[id] div.text-zinc-300 strong,
-                body[data-theme="light"] main section[id] p strong,
-                body[data-theme="light"] main section[id] li strong {
-                    color: #000000 !important;
-                    font-weight: 600;
-                }
-                /* Force all text in document sections to be black in light mode */
-                body[data-theme="light"] main section#introduction *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main section#related-work *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main section#agent-workflow *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main section#introduction .text-zinc-300,
-                body[data-theme="light"] main section#introduction .text-white:not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main section#related-work .text-zinc-300,
-                body[data-theme="light"] main section#related-work .text-white:not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main section#agent-workflow .text-zinc-300,
-                body[data-theme="light"] main section#agent-workflow .text-white:not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main section#introduction div.text-zinc-300,
-                body[data-theme="light"] main section#introduction p.text-zinc-300,
-                body[data-theme="light"] main section#introduction li.text-zinc-300,
-                body[data-theme="light"] main section#related-work div.text-zinc-300,
-                body[data-theme="light"] main section#related-work p.text-zinc-300,
-                body[data-theme="light"] main section#related-work li.text-zinc-300,
-                body[data-theme="light"] main section#agent-workflow div.text-zinc-300,
-                body[data-theme="light"] main section#agent-workflow p.text-zinc-300,
-                body[data-theme="light"] main section#agent-workflow li.text-zinc-300 {
-                    color: #000000 !important;
-                }
-                body[data-theme="light"] main section#introduction strong,
-                body[data-theme="light"] main section#introduction strong.text-white,
-                body[data-theme="light"] main section#related-work strong,
-                body[data-theme="light"] main section#related-work strong.text-white,
-                body[data-theme="light"] main section#agent-workflow strong,
-                body[data-theme="light"] main section#agent-workflow strong.text-white {
-                    color: #000000 !important;
-                    font-weight: 600;
-                }
-                /* Ultimate override with maximum specificity */
-                body[data-theme="light"] main section[id] div.light-mode-content .text-zinc-300,
-                body[data-theme="light"] main section[id] div.light-mode-content .text-white:not(.bg-clip-text):not(.text-transparent),
-                body[data-theme="light"] main section[id] div.light-mode-content p,
-                body[data-theme="light"] main section[id] div.light-mode-content li,
-                body[data-theme="light"] main section[id] div.light-mode-content strong,
-                body[data-theme="light"] main section[id] div.light-mode-content em,
-                body[data-theme="light"] main section[id] div.light-mode-content div,
-                body[data-theme="light"] main section[id] div.light-mode-content span,
-                body[data-theme="light"] main section[id] div.light-mode-content ol,
-                body[data-theme="light"] main section[id] div.light-mode-content ul {
-                    color: #000000 !important;
-                }
-                body[data-theme="light"] main section[id] div.light-mode-content strong {
-                    color: #000000 !important;
-                    font-weight: 600;
-                }
-                /* Maximum specificity override for all text classes in light mode */
-                body[data-theme="light"] main section[id] [class*="text-zinc-300"],
-                body[data-theme="light"] main section[id] [class*="text-white"]:not([class*="bg-clip-text"]):not([class*="text-transparent"]),
-                body[data-theme="light"] main section[id] div[class*="text-zinc-300"],
-                body[data-theme="light"] main section[id] p[class*="text-zinc-300"],
-                body[data-theme="light"] main section[id] li[class*="text-zinc-300"],
-                body[data-theme="light"] main section[id] strong[class*="text-white"]:not([class*="bg-clip-text"]):not([class*="text-transparent"]),
-                body[data-theme="light"] main section[id] span[class*="text-white"]:not([class*="bg-clip-text"]):not([class*="text-transparent"]) {
-                    color: #000000 !important;
-                }
-                body[data-theme="light"] main section[id] strong[class*="text-white"]:not([class*="bg-clip-text"]):not([class*="text-transparent"]) {
-                    color: #000000 !important;
-                    font-weight: 600;
-                }
-                .reading-mode {
-                    max-width: 65ch;
-                    margin: 0 auto;
-                    font-size: 1.125rem;
-                    line-height: 1.8;
-                }
-                .reading-mode section {
-                    margin-bottom: 3rem;
-                }
+        <div className={`min-h-screen w-full font-sans selection:bg-[#2df4c6]/30 ${isDarkMode ? 'bg-[#0b0e14] text-[#f8fbff]' : 'text-slate-900'}`}>
+            <style jsx global>{`
                 @keyframes twinkle {
-                    0%, 100% {
-                        opacity: 0.2;
-                        transform: scale(1);
-                    }
-                    50% {
-                        opacity: 1;
-                        transform: scale(1.2);
-                    }
+                    0%, 100% { opacity: 0.2; transform: scale(1); }
+                    50% { opacity: 1; transform: scale(1.2); }
                 }
-                @keyframes sunrise {
-                    0%, 100% { 
-                        transform: translate(-50%, -20%) scale(1);
-                        opacity: 0.6;
-                    }
-                    50% { 
-                        transform: translate(-50%, -15%) scale(1.1);
-                        opacity: 0.8;
-                    }
+                .text-glow {
+                    text-shadow: 0 0 20px rgba(45,244,198,0.3);
                 }
-                @keyframes gradient {
-                    0%, 100% { transform: translate(0, 0) scale(1); }
-                    50% { transform: translate(-2%, -2%) scale(1.05); }
+                .card-glow:hover {
+                    box-shadow: 0 0 30px rgba(45,244,198,0.15);
                 }
-                @keyframes gradient-position {
-                    0%, 100% { background-position: 0% 50%; }
-                    50% { background-position: 100% 50%; }
+
+                /* ==================== LIGHT MODE - OCEAN WAVES ==================== */
+                .ocean-base-gradient {
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(180deg, #F5FAFF 0%, #E0F7FA 50%, #B2EBF2 100%);
+                    z-index: 0;
+                }
+
+                .wave-layer {
+                    position: absolute;
+                    inset: 0;
+                    background-size: 200% 100%;
+                    background-repeat: repeat-x;
+                    z-index: 1;
+                    opacity: 0.4;
+                }
+
+                .wave-layer-1 {
+                    background-image: linear-gradient(
+                        90deg,
+                        transparent 0%,
+                        rgba(128, 222, 234, 0.3) 25%,
+                        rgba(178, 235, 242, 0.2) 50%,
+                        rgba(224, 247, 250, 0.3) 75%,
+                        transparent 100%
+                    );
+                    animation: waveFlow1 50s linear infinite;
+                }
+
+                .wave-layer-2 {
+                    background-image: linear-gradient(
+                        90deg,
+                        transparent 0%,
+                        rgba(178, 235, 242, 0.25) 30%,
+                        rgba(128, 222, 234, 0.2) 60%,
+                        rgba(224, 247, 250, 0.25) 90%,
+                        transparent 100%
+                    );
+                    animation: waveFlow2 60s linear infinite;
+                    animation-delay: -10s;
+                }
+
+                .wave-layer-3 {
+                    background-image: linear-gradient(
+                        90deg,
+                        transparent 0%,
+                        rgba(224, 247, 250, 0.2) 20%,
+                        rgba(178, 235, 242, 0.25) 40%,
+                        rgba(128, 222, 234, 0.2) 60%,
+                        rgba(178, 235, 242, 0.2) 80%,
+                        transparent 100%
+                    );
+                    animation: waveFlow3 70s linear infinite;
+                    animation-delay: -20s;
+                }
+
+                @keyframes waveFlow1 {
+                    0% { background-position: 0% 0%; }
+                    100% { background-position: 200% 0%; }
+                }
+
+                @keyframes waveFlow2 {
+                    0% { background-position: 0% 0%; }
+                    100% { background-position: -200% 0%; }
+                }
+
+                @keyframes waveFlow3 {
+                    0% { background-position: 0% 0%; }
+                    100% { background-position: 200% 0%; }
                 }
             `}</style>
-            <div className={`flex min-h-screen w-full font-sans transition-colors duration-300 relative ${isDarkMode ? 'bg-[#020617] text-[#f8fbff]' : 'bg-[#F6F9FC] text-[#0F172A]'}`}>
-                {/* Starry Night Sky Effect (matching home page) - only render on client */}
-                {mounted && isDarkMode && (
-                    <div className="fixed inset-0 pointer-events-none z-0">
-                        {stars.map((star) => (
-                            <div
-                                key={star.id}
-                                className="absolute rounded-full"
-                                style={{
-                                    width: `${star.size}px`,
-                                    height: `${star.size}px`,
-                                    left: `${star.left}%`,
-                                    top: `${star.top}%`,
-                                    backgroundColor: 'rgb(255, 255, 255)',
-                                    opacity: star.opacity,
-                                    animation: `twinkle ${star.duration}s ease-in-out infinite`,
-                                    animationDelay: `${star.delay}s`,
-                                    boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, 0.8)`,
-                                }}
-                            />
-                        ))}
-                    </div>
-                )}
 
-                {/* Light Mode Background - Subtle blue gradient */}
-                {mounted && !isDarkMode && (
-                    <div className="fixed inset-0 pointer-events-none z-0">
-                        <div className="absolute inset-0 bg-linear-to-br from-[#F6F9FC] via-[#F1F5F9] to-[#F6F9FC]" />
+            {/* Background Effects */}
+            {mounted && isDarkMode && (
+                <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/10 blur-[100px]" />
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[#2df4c6]/5 blur-[100px]" />
+                    {stars.map((star) => (
                         <div
-                            className="absolute inset-[-40%] opacity-60 light-mode-gradient"
+                            key={star.id}
+                            className="absolute rounded-full bg-white"
                             style={{
-                                background: 'radial-gradient(circle at 10% 20%, rgba(37,99,235,0.03), transparent 55%), radial-gradient(circle at 80% 0%, rgba(56,189,248,0.04), transparent 55%), radial-gradient(circle at 50% 100%, rgba(37,99,235,0.05), transparent 60%)'
+                                width: `${star.size}px`, height: `${star.size}px`,
+                                left: `${star.left}%`, top: `${star.top}%`,
+                                opacity: star.opacity,
+                                animation: `twinkle ${star.duration}s ease-in-out infinite ${star.delay}s`
                             }}
                         />
-                    </div>
-                )}
+                    ))}
+                </div>
+            )}
 
+            {/* Light Mode - Ocean Waves Background */}
+            {mounted && !isDarkMode && (
+                <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                    {/* Ocean Base Gradient */}
+                    <div className="ocean-base-gradient" />
 
+                    {/* Wave Layer 1 */}
+                    <div className="wave-layer wave-layer-1" />
 
-                {/* Docs-specific sidebar for internal navigation */}
-                <ViewDocsSidebar
-                    activeSection={activeSection}
-                    expandedCategories={expandedCategories}
-                    onToggleCategory={toggleCategory}
-                    onSelectItem={scrollToSection}
-                    isDarkMode={isDarkMode}
-                />
+                    {/* Wave Layer 2 */}
+                    <div className="wave-layer wave-layer-2" />
 
-                <main className="flex-1 flex flex-col relative min-h-screen min-w-0 z-10 bg-transparent">
-                    <div className={`sticky top-0 backdrop-blur-xl z-30 border-b pl-16 pr-6 py-6 md:px-12 md:py-8 ${isDarkMode ? 'bg-[#020617]/95 border-white/5' : 'bg-white border-[#E2E8F0]'}`}>
-                        <div className="flex justify-between items-start">
-                            <div>
-                                <h1 className={`text-3xl font-bold mb-2 tracking-tight ${isDarkMode ? 'text-[#f8fbff]' : 'text-[#0F172A]'}`}>
-                                    View Docs
-                                </h1>
-                                <p className={`text-base ${isDarkMode ? 'text-[#f8fbff]/80' : 'text-[#334155]'}`}>
-                                    Document & Tutorials & Agent
-                                </p>
-                            </div>
-                            <a
-                                href="https://arxiv.org/pdf/2412.20138"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm shadow-lg transition-all hover:scale-105 ${isDarkMode ? 'bg-[#00e33d] hover:bg-[#00c936] text-black shadow-green-500/20' : 'bg-linear-to-r from-[#2563EB] to-[#38BDF8] text-white shadow-lg shadow-[#2563EB]/25 hover:shadow-xl hover:shadow-[#2563EB]/30'}`}
-                            >
-                                <Download size={16} />
-                                Download Document
-                            </a>
-                        </div>
-                    </div>
+                    {/* Wave Layer 3 */}
+                    <div className="wave-layer wave-layer-3" />
+                </div>
+            )}
 
-                    <div className="px-6 md:px-12 w-full max-w-[1600px] pb-40 pt-20 md:pt-20 lg:pt-10 mx-auto bg-transparent">
+            {/* Floating Controls (Top Right) */}
+            <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
+                <a
+                    href="https://arxiv.org/pdf/2412.20138"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all hover:scale-105 ${isDarkMode
+                        ? "bg-[#2df4c6] text-[#020617] hover:bg-[#26dcb2] shadow-[0_0_20px_rgba(45,244,198,0.3)]"
+                        : "bg-[#2563EB] text-white hover:bg-[#1d4ed8] shadow-lg shadow-blue-500/30"
+                        }`}
+                >
+                    <Download size={16} />
+                    Download Docs
+                </a>
 
-                        {/* ================= Document Sections ================= */}
-                        <div className="mb-8">
-                            <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode ? 'text-[#f8fbff] border-white/10' : 'text-[#0F172A] border-[#E2E8F0]'}`}>
-                                Document
-                            </h2>
-                        </div>
-
-                        <div className="flex flex-col gap-16 mb-24">
-                            {documentSectionsWithTheme.map((section, index) => (
-                                <section
-                                    key={section.id}
-                                    id={section.id}
-                                    className="scroll-mt-40"
-                                >
-                                    <h3 className={`text-xl font-bold mb-6 ${isDarkMode ? 'text-[#f8fbff]' : 'text-[#0F172A]'}`}>
-                                        {section.title}
-                                    </h3>
-                                    <div className={`text-base leading-relaxed ${isDarkMode ? 'text-[#f8fbff]/90' : 'text-[#334155]'} ${!isDarkMode ? 'light-mode-content' : ''}`}>
-                                        {section.id === 'introduction' ? (
-                                            section.content
-                                        ) : section.id === 'role-specialization' ? (
-                                            <div className="space-y-4">
-                                                <p>
-                                                    The framework assigns specialized roles to LLM agents, ensuring expert-level analysis across all market dimensions:
-                                                </p>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                                                    <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${isDarkMode
-                                                        ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
-                                                        }`}>
-                                                        <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Fundamental Analysts</h3>
-                                                        <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Analyze company financial health, earnings reports, and macroeconomic indicators to determine long-term value.</p>
-                                                    </div>
-                                                    <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${isDarkMode
-                                                        ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
-                                                        }`}>
-                                                        <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Technical Analysts</h3>
-                                                        <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Study price action, trends, and volume patterns to identify optimal entry and exit points.</p>
-                                                    </div>
-                                                    <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${isDarkMode
-                                                        ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
-                                                        }`}>
-                                                        <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Sentiment Analysts</h3>
-                                                        <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Process news, social media, and market chatter to gauge market psychology and potential volatility.</p>
-                                                    </div>
-                                                    <div className={`p-4 rounded-lg border transition-all hover:scale-105 hover:shadow-lg ${isDarkMode
-                                                        ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
-                                                        }`}>
-                                                        <h3 className={`font-bold mb-2 ${isDarkMode ? "text-cyan-400" : "text-[#2563EB]"}`}>Risk Management</h3>
-                                                        <p className={`text-sm ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>Monitor portfolio exposure and set strict limits to preserve capital and manage downside risk.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className={`${isDarkMode ? "" : "light-mode-content"}`}>
-                                                {section.content}
-                                            </div>
-                                        )}
-                                    </div>
-                                </section>
-                            ))}
-                        </div>
-
-                        {/* ================= Tutorials Sections ================= */}
-                        <div
-                            className="mb-8"
-                            id="tutorials-header"
-                        >
-                            <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode ? 'text-[#f8fbff] border-white/10' : 'text-[#0F172A] border-[#E2E8F0]'}`}>
-                                Tutorials
-                            </h2>
-                        </div>
-
-                        <div className="flex flex-col gap-16 mb-24">
-                            {TUTORIAL_SECTIONS.map((section, index) => (
-                                <section
-                                    key={section.id}
-                                    id={section.id}
-                                    className="scroll-mt-40"
-                                >
-                                    <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-[#f8fbff]" : "text-[#0F172A]"}`}>
-                                        <span className={`font-mono ${isDarkMode ? "text-cyan-500" : "text-[#2563EB]"}`}>{index + 1}.</span> {section.title}
-                                    </h3>
-                                    <div className="space-y-4">
-                                        {section.steps.map((step, i) => {
-                                            const [title, desc] = step.split(': ');
-                                            return (
-                                                <div key={i} className="flex gap-4 group">
-                                                    <div className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center font-bold text-sm transition-all group-hover:scale-110 ${isDarkMode
-                                                        ? "bg-zinc-700/50 border-zinc-600 text-zinc-200"
-                                                        : "bg-[#EFF6FF] border-[#2563EB]/40 text-[#2563EB]"
-                                                        }`}>
-                                                        {i + 1}
-                                                    </div>
-                                                    <div className={`flex-1 p-4 rounded-xl border transition-all hover:scale-[1.02] hover:shadow-lg ${isDarkMode
-                                                        ? "bg-zinc-800/40 border-zinc-700/60"
-                                                        : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
-                                                        }`}>
-                                                        <h4 className={`font-bold mb-1 ${isDarkMode ? "text-gray-200" : "text-[#0F172A]"}`}>{title}</h4>
-                                                        <p className={`text-sm leading-relaxed ${isDarkMode ? "text-zinc-300" : "text-[#334155]"}`}>
-                                                            {desc || title}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </section>
-                            ))}
-                        </div>
-
-                        {/* ================= Our Agent Sections ================= */}
-                        <div
-                            className="mb-8"
-                            id="agents-header"
-                        >
-                            <h2 className={`text-2xl font-bold tracking-tight border-b pb-4 ${isDarkMode
-                                ? "text-[#f8fbff] border-white/10"
-                                : "text-[#0F172A] border-[#E2E8F0]"
-                                }`}>
-                                Our Agents
-                            </h2>
-                        </div>
-
-                        <div className="flex flex-col gap-20">
-                            {AGENT_TEAMS.map((team, teamIndex) => (
-                                <section
-                                    key={team.id}
-                                    id={team.id}
-                                    className="scroll-mt-40"
-                                >
-                                    <div className="mb-8">
-                                        <h3 className={`text-xl font-bold mb-2 flex items-center gap-3 ${isDarkMode ? "text-[#f8fbff]" : "text-[#0F172A]"}`}>
-                                            {team.title}
-                                        </h3>
-                                        <p className={`text-base leading-relaxed border-l-2 pl-4 max-w-4xl ${isDarkMode
-                                            ? "text-[#f8fbff]/80 border-white/10"
-                                            : "text-[#334155] border-[#E2E8F0]"
-                                            }`}>
-                                            {team.description}
-                                        </p>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                                        {team.agents.map((agent) => (
-                                            <div key={agent.id} className={`border rounded-xl p-6 relative overflow-hidden group h-full transition-all hover:scale-105 hover:shadow-lg ${isDarkMode
-                                                ? "bg-zinc-800/40 border-zinc-700/60 hover:border-zinc-600"
-                                                : "bg-white border-[#E2E8F0] hover:border-[#2563EB]/40 shadow-sm"
-                                                }`}>
-                                                <div className="flex items-center gap-3 mb-3 relative z-10">
-                                                    <div className={`p-2 rounded-lg border transition-all group-hover:scale-110 ${isDarkMode
-                                                        ? "bg-zinc-800/50 border-zinc-600"
-                                                        : "bg-[#EFF6FF] border-[#2563EB]/30"
-                                                        }`}>
-                                                        {agent.icon}
-                                                    </div>
-                                                    <div>
-                                                        <h4 className={`font-bold text-base ${isDarkMode ? "text-[#f8fbff]" : "text-[#0F172A]"}`}>
-                                                            {agent.title}
-                                                        </h4>
-                                                        <p className={`text-[11px] uppercase tracking-wider font-bold ${isDarkMode ? "text-cyan-500" : "text-[#2563EB]"}`}>
-                                                            {agent.role}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <p className={`text-sm leading-relaxed relative z-10 ${isDarkMode ? "text-[#f8fbff]/80" : "text-[#334155]"}`}>
-                                                    {agent.content}
-                                                </p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </section>
-                            ))}
-                        </div>
-
-                    </div>
-                </main>
+                <button
+                    onClick={toggleLanguage}
+                    className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors border ${isDarkMode
+                        ? "bg-[#0b0e14]/50 backdrop-blur-md border-white/10 hover:bg-white/10 text-slate-300"
+                        : "bg-white/50 backdrop-blur-md border-slate-200 hover:bg-slate-200 text-slate-700"
+                        }`}
+                >
+                    {language === 'EN' ? 'EN' : 'TH'}
+                </button>
             </div>
-        </>
+
+            <main className="relative z-10 pt-8 pb-20 px-4 md:px-8 max-w-7xl mx-auto space-y-20">
+
+                {/* HERO / INTRODUCTION */}
+                <section id="introduction" className="flex flex-col items-center text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <div className="border border-[#2df4c6]/30 bg-[#2df4c6]/5 px-6 py-2 rounded-full text-[#2df4c6] text-sm font-bold tracking-wider uppercase mb-4">
+                        {t.tagline}
+                    </div>
+                    <h1 className={`text-4xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent pb-2 text-glow ${isDarkMode ? 'bg-linear-to-r from-white via-[#2df4c6] to-white' : 'bg-linear-to-r from-slate-900 via-blue-600 to-slate-900'}`}>
+                        {t.title}
+                    </h1>
+                    <p className={`max-w-3xl text-lg md:text-xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                        {t.description}
+                    </p>
+
+                    {/* Key Features Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-12 text-left">
+                        <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-slate-900/50 border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
+                            <div className="h-10 w-10 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4">
+                                <BrainCircuit size={24} />
+                            </div>
+                            <h3 className="text-xl font-bold mb-2">{t.features.collab.title}</h3>
+                            <p className="text-sm opacity-70">{t.features.collab.desc}</p>
+                        </div>
+                        <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-slate-900/50 border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
+                            <div className="h-10 w-10 rounded-lg bg-[#2df4c6]/20 text-[#2df4c6] flex items-center justify-center mb-4">
+                                <Search size={24} />
+                            </div>
+                            <h3 className="text-xl font-bold mb-2">{t.features.diverse.title}</h3>
+                            <p className="text-sm opacity-70">{t.features.diverse.desc}</p>
+                        </div>
+                        <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-slate-900/50 border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
+                            <div className="h-10 w-10 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center mb-4">
+                                <Gavel size={24} />
+                            </div>
+                            <h3 className="text-xl font-bold mb-2">{t.features.debate.title}</h3>
+                            <p className="text-sm opacity-70">{t.features.debate.desc}</p>
+                        </div>
+                    </div>
+                </section>
+
+                <div className="w-full h-px bg-linear-to-r from-transparent via-[#2df4c6]/30 to-transparent" />
+
+                {/* WORKFLOW INFOGRAPHIC */}
+                <section id="agent-workflow" className="scroll-mt-32">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl font-bold mb-4">{t.workflow.header}</h2>
+                        <p className="opacity-70">{t.workflow.subheader}</p>
+                    </div>
+
+                    <div className="relative">
+                        {/* Connecting Line (Desktop) */}
+                        <div className="hidden md:block absolute top-[60px] left-[10%] right-[10%] h-1 bg-linear-to-r from-blue-900 via-[#2df4c6]/50 to-blue-900 z-0" />
+
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative z-10">
+                            {[
+                                { title: t.workflow.steps[0].title, desc: t.workflow.steps[0].desc, icon: <Search size={32} />, color: "border-blue-500 text-blue-500" },
+                                { title: t.workflow.steps[1].title, desc: t.workflow.steps[1].desc, icon: <Users size={32} />, color: "border-[#2df4c6] text-[#2df4c6]" },
+                                { title: t.workflow.steps[2].title, desc: t.workflow.steps[2].desc, icon: <BrainCircuit size={32} />, color: "border-purple-500 text-purple-500" },
+                                { title: t.workflow.steps[3].title, desc: t.workflow.steps[3].desc, icon: <Target size={32} />, color: "border-green-500 text-green-500" },
+                            ].map((step, idx) => (
+                                <div key={idx} className="flex flex-col items-center text-center group">
+                                    <div className={`w-32 h-32 rounded-full border-4 ${step.color} ${isDarkMode ? 'bg-[#0b0e14]' : 'bg-white'} flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-transform group-hover:scale-110 duration-300`}>
+                                        {step.icon}
+                                    </div>
+                                    <div className={`h-8 w-8 rounded-full border flex items-center justify-center text-xs font-bold mb-4 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200 text-slate-600'}`}>
+                                        {idx + 1}
+                                    </div>
+                                    <h3 className="text-xl font-bold mb-2">{step.title}</h3>
+                                    <p className={`text-sm px-4 ${isDarkMode ? 'opacity-70' : 'text-slate-500'}`}>{step.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* ANALYST & RESEARCH TEAMS (Infographic Style) */}
+                <section id="role-specialization" className="scroll-mt-32 space-y-8">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl font-bold mb-4">{t.teams.header}</h2>
+                    </div>
+
+                    <div className={`rounded-3xl overflow-hidden border backdrop-blur-sm ${isDarkMode ? 'border-slate-800 bg-slate-900/50' : 'border-slate-200 bg-white shadow-sm'}`}>
+
+                        {/* Analyst Team Strip */}
+                        <div className={`grid grid-cols-1 lg:grid-cols-[300px_1fr] border-b ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                            <div className={`p-8 flex flex-col justify-center border-r ${isDarkMode ? 'bg-blue-900/20 border-slate-700/50' : 'bg-blue-50 border-slate-100'}`}>
+                                <h3 className="text-2xl font-bold text-blue-400 mb-2">{t.teams.analyst.title}</h3>
+                                <p className="text-sm opacity-70">{t.teams.analyst.desc}</p>
+                            </div>
+                            <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <TeamMemberCard isDarkMode={isDarkMode} title={t.teams.analyst.market.title} icon={<BarChart />} desc={t.teams.analyst.market.desc} color="text-cyan-400" />
+                                <TeamMemberCard isDarkMode={isDarkMode} title={t.teams.analyst.fundamental.title} icon={<BookOpen />} desc={t.teams.analyst.fundamental.desc} color="text-blue-400" />
+                                <TeamMemberCard isDarkMode={isDarkMode} title={t.teams.analyst.news.title} icon={<Newspaper />} desc={t.teams.analyst.news.desc} color="text-green-400" />
+                                <TeamMemberCard isDarkMode={isDarkMode} title={t.teams.analyst.social.title} icon={<Globe />} desc={t.teams.analyst.social.desc} color="text-purple-400" />
+                            </div>
+                        </div>
+
+                        {/* Research Team Strip */}
+                        <div className={`grid grid-cols-1 lg:grid-cols-[300px_1fr] ${isDarkMode ? 'bg-green-900/5' : 'bg-slate-50'}`}>
+                            <div className={`p-8 flex flex-col justify-center border-r ${isDarkMode ? 'bg-green-900/20 border-slate-700/50' : 'bg-green-50 border-slate-100'}`}>
+                                <h3 className="text-2xl font-bold text-green-400 mb-2">{t.teams.research.title}</h3>
+                                <p className="text-sm opacity-70">{t.teams.research.desc}</p>
+                            </div>
+                            <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <TeamMemberCard isDarkMode={isDarkMode} title={t.teams.research.manager.title} icon={<Briefcase />} desc={t.teams.research.manager.desc} color={isDarkMode ? "text-white" : "text-slate-700"} />
+                                <TeamMemberCard isDarkMode={isDarkMode} title={t.teams.research.bull.title} icon={<TrendingUp />} desc={t.teams.research.bull.desc} color="text-green-500" />
+                                <TeamMemberCard isDarkMode={isDarkMode} title={t.teams.research.bear.title} icon={<TrendingDown />} desc={t.teams.research.bear.desc} color="text-red-500" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* BOTTOM SECTION: TRADER & RISK (Purple area) */}
+                <section id="trader-team" className={`rounded-3xl border p-8 md:p-12 relative overflow-hidden text-center ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
+                    <div className="relative z-10 mb-12">
+                        <h2 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.header}</h2>
+                        <p className={`mt-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>{t.execution.subheader}</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
+                        {/* Trader */}
+                        <div className="text-center group">
+                            <div className="w-24 h-24 mx-auto bg-yellow-500/20 rounded-full flex items-center justify-center text-yellow-500 mb-4 ring-2 ring-yellow-500/50 shadow-[0_0_20px_rgba(234,179,8,0.2)]">
+                                <Zap size={40} />
+                            </div>
+                            <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.trader.title}</h3>
+                            <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>{t.execution.trader.desc}</p>
+                        </div>
+
+                        {/* Arrows pointing to Manager */}
+                        <div className="hidden md:flex flex-col justify-center items-center opacity-50">
+                            <ArrowRight size={40} className={`mb-2 ${isDarkMode ? 'text-white' : 'text-slate-400'}`} />
+                            <div className="text-xs uppercase tracking-widest">{t.execution.submit}</div>
+                        </div>
+
+                        {/* Risk Manager */}
+                        <div className="text-center group">
+                            <div className="w-24 h-24 mx-auto bg-red-500/20 rounded-full flex items-center justify-center text-red-500 mb-4 ring-2 ring-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+                                <Shield size={40} />
+                            </div>
+                            <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.risk.title}</h3>
+                            <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>{t.execution.risk.desc}</p>
+                            <div className="flex justify-center gap-2 mt-4">
+                                <span className="px-2 py-1 bg-red-500/20 text-red-300 text-[10px] rounded">{t.execution.levels.aggressive}</span>
+                                <span className="px-2 py-1 bg-gray-500/20 text-gray-300 text-[10px] rounded">{t.execution.levels.neutral}</span>
+                                <span className="px-2 py-1 bg-green-500/20 text-green-300 text-[10px] rounded">{t.execution.levels.conservative}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Manager at Bottom */}
+                    <div className="mt-16 text-center border-t border-white/10 pt-12">
+                        <div className="inline-flex flex-col items-center">
+                            <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 mb-4 ring-4 ring-blue-500/20">
+                                <Gavel size={32} />
+                            </div>
+                            <h3 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.manager.title}</h3>
+                            <p className={`text-sm max-w-md ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>{t.execution.manager.desc}</p>
+                        </div>
+                    </div>
+                </section>
+
+                {/* TUTORIALS SECTION */}
+                <section id="tutorials-header" className="pt-16 pb-32">
+                    <div className="text-center mb-16">
+                        <h2 className={`text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent ${isDarkMode ? 'bg-linear-to-r from-white via-slate-200 to-slate-400' : 'bg-linear-to-r from-slate-900 via-slate-700 to-slate-500'}`}>
+                            {t.tutorials.header}
+                        </h2>
+                        <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+                            {t.tutorials.subheader}
+                        </p>
+                    </div>
+
+                    <div className="space-y-24">
+                        {/* Step 1: Search / Start */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-4 mb-2">
+                                    <div className="text-green-500 bg-green-500/10 p-3 rounded-full font-bold">1</div>
+                                    <h3 className="text-2xl font-bold">{t.tutorials.step1.title}</h3>
+                                </div>
+                                <p className="text-slate-400 text-lg leading-relaxed">
+                                    {t.tutorials.step1.desc}
+                                </p>
+                                <ul className="space-y-4 pt-4">
+                                    {t.tutorials.step1.points.map((point, idx) => (
+                                        <li key={idx} className="flex gap-4">
+                                            <div className="mt-1 text-green-400"><CheckCircle2 size={20} /></div>
+                                            <div>
+                                                <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
+                                                <div className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>{point.desc}</div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="relative group">
+                                <div className="absolute -inset-1 bg-linear-to-r from-[#2df4c6] to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                                <img
+                                    src="/step1_2.png"
+                                    alt="Analysis Generation UI"
+                                    className="relative w-full rounded-2xl shadow-2xl border border-white/10"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Step 2: Reports */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            <div className="lg:order-2 space-y-6">
+                                <div className="flex items-center gap-4 mb-2">
+                                    <div className="text-orange-500 bg-orange-500/10 p-3 rounded-full font-bold">2</div>
+                                    <h3 className="text-2xl font-bold">{t.tutorials.step2.title}</h3>
+                                </div>
+                                <p className="text-slate-400 text-lg leading-relaxed">{t.tutorials.step2.desc}</p>
+                                <ul className="space-y-4 pt-4">
+                                    {t.tutorials.step2.points.map((point, idx) => (
+                                        <li key={idx} className="flex gap-4">
+                                            <div className="mt-1 text-orange-400"><CheckCircle2 size={20} /></div>
+                                            <div>
+                                                <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
+                                                <div className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>{point.desc}</div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="lg:order-1 relative group">
+                                <div className="absolute -inset-1 bg-linear-to-r from-orange-600 to-red-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                                <img
+                                    src="/Progress.png"
+                                    alt="Analysis Progress UI"
+                                    className="relative w-[800px] h-[120px] rounded-2xl shadow-2xl border border-white/10"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Step 3: Telegram */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-4 mb-2">
+                                    <div className="text-blue-500 bg-blue-500/10 p-3 rounded-full font-bold">3</div>
+                                    <h3 className="text-2xl font-bold">{t.tutorials.step3.title}</h3>
+                                </div>
+                                <p className="text-slate-400 text-lg leading-relaxed">{t.tutorials.step3.desc}</p>
+                                <ul className="space-y-4 pt-4">
+                                    {t.tutorials.step3.points.map((point, idx) => (
+                                        <li key={idx} className="flex gap-4">
+                                            <div className="mt-1 text-blue-400"><Smartphone size={20} /></div>
+                                            <div>
+                                                <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
+                                                <div className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>{point.desc}</div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="flex justify-center relative group">
+                                <div className="absolute -inset-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-[3rem] blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                                <img
+                                    src="/summary.png"
+                                    alt="Analysis Summary UI"
+                                    className="relative w-[600px] h-[70px] rounded-2xl shadow-2xl border border-white/10"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Step 4: Export */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            <div className="lg:order-2 space-y-6">
+                                <div className="flex items-center gap-4 mb-2">
+                                    <div className="text-slate-400 bg-slate-500/10 p-3 rounded-full font-bold">4</div>
+                                    <h3 className="text-2xl font-bold">{t.tutorials.step4.title}</h3>
+                                </div>
+                                <p className="text-slate-400 text-lg leading-relaxed">{t.tutorials.step4.desc}</p>
+                                <ul className="space-y-4 pt-4">
+                                    {t.tutorials.step4.points.map((point, idx) => (
+                                        <li key={idx} className="flex gap-4">
+                                            <div className="mt-1 text-slate-400"><FileText size={20} /></div>
+                                            <div>
+                                                <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
+                                                <div className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>{point.desc}</div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="lg:order-1 relative group flex justify-center">
+                                <div className="absolute -inset-1 bg-linear-to-r from-slate-600 to-slate-400 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                                <img
+                                    src="/history.png"
+                                    alt="Analysis History UI"
+                                    className="relative w-[600px] rounded-2xl shadow-xl border border-white/10"
+                                />
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    );
+}
+
+// Helper Components for Cleaner JSX
+// Helper Components for Cleaner JSX
+function TeamMemberCard({ title, icon, desc, color, isDarkMode }: { title: string, icon: React.ReactNode, desc: string, color: string, isDarkMode: boolean }) {
+    return (
+        <div className={`p-5 rounded-xl border transition-all hover:-translate-y-1 ${isDarkMode ? 'bg-[#0b0e14]/50 border-white/5 hover:border-white/20' : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'}`}>
+            <div className={`mb-3 ${color} flex items-center gap-2`}>
+                {/* @ts-ignore */}
+                {React.cloneElement(icon as React.ReactElement, { size: 20 })}
+                <h4 className={`font-bold text-sm tracking-wide ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{title}</h4>
+            </div>
+            <p className={`text-xs leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{desc}</p>
+        </div>
     );
 }

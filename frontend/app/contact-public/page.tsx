@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Mail, MessageCircle, Linkedin, Phone, User, Building2, Briefcase } from "lucide-react";
+import { ArrowLeft, Mail, MessageCircle, Linkedin, Phone, User, Building2, Briefcase, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 
 export default function ContactPublicPage() {
@@ -1088,7 +1088,10 @@ export default function ContactPublicPage() {
                 <div className="flex-1 flex justify-end">
                     <label className="relative inline-flex cursor-pointer items-center">
                         <input type="checkbox" checked={!isDarkMode} onChange={toggleTheme} className="peer sr-only" />
-                        <div className={`peer h-6 w-11 rounded-full after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none peer-focus:ring-2 ${isDarkMode ? 'bg-gray-700 after:border-gray-300 after:bg-white peer-checked:bg-gray-300 peer-checked:after:border-white peer-focus:ring-[#2df4c6]' : 'bg-[#CBD5E1] after:border-[#F1F5F9] after:bg-white peer-checked:bg-[#2563EB] peer-checked:after:border-white peer-focus:ring-[#2563EB]'}`}></div>
+                        <div className={`peer h-6 w-11 rounded-full relative after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none peer-focus:ring-2 flex items-center justify-between px-1 ${isDarkMode ? 'bg-gray-700 after:border-gray-300 after:bg-white peer-checked:bg-gray-300 peer-checked:after:border-white peer-focus:ring-[#2df4c6]' : 'bg-[#CBD5E1] after:border-[#F1F5F9] after:bg-white peer-checked:bg-[#2563EB] peer-checked:after:border-white peer-focus:ring-[#2563EB]'}`}>
+                            <Moon size={12} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1.5`} />
+                            <Sun size={12} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1.5`} />
+                        </div>
                         <span className={`ml-3 text-sm font-medium ${isDarkMode ? "text-white" : "text-[#64748B]"}`}>
                             {isDarkMode ? "Dark Mode" : "Light Mode"}
                         </span>

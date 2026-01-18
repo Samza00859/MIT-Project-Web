@@ -4,6 +4,7 @@ import React, { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { Sun, Moon } from "lucide-react";
 import Logo from "@/image/Logo.png";
 import LogoBlack from "@/image/Logo_black.png";
 import { useTheme } from "@/context/ThemeContext";
@@ -126,7 +127,7 @@ export default function Sidebar() {
 
             <aside
                 className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col gap-8 border-r transition-all duration-300 ease-in-out lg:sticky lg:top-0 lg:inset-y-auto lg:h-auto lg:max-h-screen lg:translate-x-0 overflow-y-auto overflow-x-hidden no-scrollbar ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
-                    } ${isCollapsed ? "w-20 px-2 py-8" : "w-[300px] px-4 py-8"
+                    } ${isCollapsed ? "w-20 px-2 py-8" : "w-64 px-4 py-8"
                     } ${isDarkMode
                         ? "border-white/5 bg-linear-to-b from-[#0f1216] to-[#141922]"
                         : "border-[#E2E8F0] bg-[#F1F5F9]"
@@ -166,7 +167,7 @@ export default function Sidebar() {
                     <Link
                         href="/introduction"
                         onClick={() => setIsMobileOpen(false)}
-                        className={`relative flex items-center justify-center shrink-0 transition-all duration-200 rounded-2xl overflow-hidden hover:opacity-80 ${isCollapsed ? "h-12 w-12" : "h-40 w-full max-w-[360px]"
+                        className={`relative flex items-center justify-center shrink-0 transition-all duration-200 rounded-2xl overflow-hidden hover:opacity-80 ${isCollapsed ? "h-12 w-12" : "h-32 w-full max-w-[360px]"
                             }`}
                         title="Go to Introduction"
                     >
@@ -246,10 +247,13 @@ export default function Sidebar() {
                                 onChange={toggleTheme}
                                 className="peer sr-only"
                             />
-                            <span className={`absolute inset-0 rounded-full transition-all before:absolute before:bottom-[2px] before:left-[2px] before:h-4 before:w-4 before:rounded-full before:bg-white before:transition-all ${isDarkMode
-                                ? "bg-[#394054] peer-checked:bg-[#00d18f] peer-checked:before:translate-x-5"
-                                : "bg-[#CBD5E1] peer-checked:bg-[#2563EB] peer-checked:before:translate-x-5"
-                                }`}></span>
+                            <div className={`absolute inset-0 rounded-full transition-all flex items-center justify-between px-1 ${isDarkMode
+                                ? "bg-[#394054] peer-checked:bg-[#00d18f]"
+                                : "bg-[#CBD5E1] peer-checked:bg-[#2563EB]"
+                                } after:absolute after:bottom-[2px] after:left-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-5`}>
+                                <Moon size={10} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1`} />
+                                <Sun size={10} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1`} />
+                            </div>
                         </label>
                     </div>
                 )}
@@ -266,10 +270,13 @@ export default function Sidebar() {
                                     onChange={toggleTheme}
                                     className="peer sr-only"
                                 />
-                                <span className={`absolute inset-0 rounded-full transition-all before:absolute before:bottom-[2px] before:left-[2px] before:h-4 before:w-4 before:rounded-full before:bg-white before:transition-all ${isDarkMode
-                                    ? "bg-[#394054] peer-checked:bg-[#00d18f] peer-checked:before:translate-x-5"
-                                    : "bg-[#CBD5E1] peer-checked:bg-[#2563EB] peer-checked:before:translate-x-5"
-                                    }`}></span>
+                                <div className={`absolute inset-0 rounded-full transition-all flex items-center justify-between px-1 ${isDarkMode
+                                    ? "bg-[#394054] peer-checked:bg-[#00d18f]"
+                                    : "bg-[#CBD5E1] peer-checked:bg-[#2563EB]"
+                                    } after:absolute after:bottom-[2px] after:left-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-5`}>
+                                    <Moon size={10} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1`} />
+                                    <Sun size={10} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1`} />
+                                </div>
                             </label>
                         </div>
                         {/* Divider line + Debug Panel */}

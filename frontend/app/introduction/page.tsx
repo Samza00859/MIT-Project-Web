@@ -7,6 +7,7 @@ import Logo from "@/image/Logo.png";
 import LogoBlack from "@/image/Logo_black.png";
 import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
+import { Sun, Moon } from "lucide-react";
 
 export default function IntroductionPage() {
     const { isDarkMode, toggleTheme } = useTheme();
@@ -180,16 +181,7 @@ export default function IntroductionPage() {
                         View Docs
                     </Link>
 
-                    {/* Contact Link */}
-                    <Link
-                        href="/contact-public"
-                        className={`text-sm font-medium transition-colors duration-200 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded ${isDarkMode
-                            ? 'text-white/80 hover:text-[#2df4c6] focus-visible:ring-[#2df4c6]'
-                            : 'text-[#64748B] hover:text-[#2563EB] focus-visible:ring-[#2563EB]'
-                            }`}
-                    >
-                        Contact
-                    </Link>
+
 
                     {/* Theme Toggle */}
                     <label className="relative inline-flex cursor-pointer items-center">
@@ -199,10 +191,13 @@ export default function IntroductionPage() {
                             onChange={toggleTheme}
                             className="peer sr-only"
                         />
-                        <div className={`peer h-6 w-11 rounded-full after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none peer-focus:ring-2 ${isDarkMode
+                        <div className={`peer h-6 w-11 rounded-full relative after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none peer-focus:ring-2 flex items-center justify-between px-1 ${isDarkMode
                             ? 'bg-gray-700 after:border-gray-300 after:bg-white peer-checked:bg-gray-300 peer-checked:after:border-white peer-focus:ring-[#2df4c6]'
                             : 'bg-[#CBD5E1] after:border-[#F1F5F9] after:bg-white peer-checked:bg-[#2563EB] peer-checked:after:border-white peer-focus:ring-[#2563EB]'
-                            }`}></div>
+                            }`}>
+                            <Moon size={12} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1.5`} />
+                            <Sun size={12} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1.5`} />
+                        </div>
                     </label>
                 </div>
             </nav>
