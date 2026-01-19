@@ -12,9 +12,10 @@ import {
     Target, RefreshCw, CheckCircle2,
     Calendar, Send, FileText, Download, Smartphone
 } from 'lucide-react';
+import { useLanguage } from "@/context/LanguageContext";
 
 const TRANSLATIONS = {
-    EN: {
+    en: {
         tagline: "Trading Agents",
         title: "MULTI-AGENT SYSTEM",
         description: "Simulating a professional trading firm through collaborative AI. Moving beyond single-agent systems to mimic the multi-faceted decision-making process of successful investment houses.",
@@ -98,7 +99,7 @@ const TRANSLATIONS = {
             }
         }
     },
-    TH: {
+    th: {
         tagline: "Trading Agents",
         title: "MULTI-AGENT SYSTEM",
         description: "ระบบจำลองทีมวิเคราะห์การลงทุนระดับสถาบันด้วย AI ที่ทำงานร่วมกัน (Cooperative AI) เพื่อเลียนแบบกระบวนการตัดสินใจที่รัดกุมและตรวจสอบได้",
@@ -187,7 +188,7 @@ export default function ViewDocsPage() {
     const { isDarkMode } = useTheme();
     const [activeSection, setActiveSection] = useState('introduction');
     const [mounted, setMounted] = useState(false);
-    const [language, setLanguage] = useState<'EN' | 'TH'>('EN');
+    const { language } = useLanguage();
 
     const t = TRANSLATIONS[language];
 
@@ -246,9 +247,7 @@ export default function ViewDocsPage() {
         }
     };
 
-    const toggleLanguage = () => {
-        setLanguage(prev => prev === 'EN' ? 'TH' : 'EN');
-    };
+
 
     return (
         <div className={`min-h-screen w-full font-sans selection:bg-[#2df4c6]/30 ${isDarkMode ? 'bg-[#0b0e14] text-[#f8fbff]' : 'text-slate-900'}`}>
@@ -388,15 +387,7 @@ export default function ViewDocsPage() {
                     Download Docs
                 </a>
 
-                <button
-                    onClick={toggleLanguage}
-                    className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors border ${isDarkMode
-                        ? "bg-[#0b0e14]/50 backdrop-blur-md border-white/10 hover:bg-white/10 text-slate-300"
-                        : "bg-white/50 backdrop-blur-md border-slate-200 hover:bg-slate-200 text-slate-700"
-                        }`}
-                >
-                    {language === 'EN' ? 'EN' : 'TH'}
-                </button>
+
             </div>
 
             <main className="relative z-10 pt-8 pb-20 px-4 md:px-8 max-w-7xl mx-auto space-y-20">

@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Download } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 import { jsPDF } from "jspdf";
 import { useGeneration } from "../../context/GenerationContext";
 import { getApiUrl } from "../../lib/api";
@@ -19,6 +21,115 @@ interface ReportResult {
     content_th?: any;   // Thai content
     created_at: string;
 }
+
+const TRANSLATIONS = {
+    en: {
+        sidebar: {
+            title: "Execution history",
+            showing: "Showing",
+            record: "record",
+            searchPlaceholder: "Search Symbol",
+            filters: {
+                allStatus: "All Status",
+                success: "Success",
+                error: "Error",
+                executing: "Executing",
+                allTime: "All Time",
+                last24h: "Last 24h",
+                last7d: "Last 7 days",
+                last30d: "Last 30 days"
+            },
+            status: {
+                success: "Success",
+                failed: "FAILED",
+                incomplete: "INCOMPLETE",
+                executing: "EXECUTING"
+            },
+            loading: "Loading...",
+            noRecords: "No records found"
+        },
+        detail: {
+            back: "Back to list",
+            analysisFor: "Analysis for",
+            viewMode: {
+                summary: "Summary",
+                full: "Full"
+            },
+            headers: {
+                cancelled: "Analysis Cancelled",
+                incomplete: "Analysis Incomplete",
+                failed: "Analysis Failed",
+                noReports: "No Reports Available",
+                finalRec: "Final Recommendation Summary",
+                execSum: "Executive Summary",
+                detailed: "Detailed Data / Research"
+            },
+            messages: {
+                cancelled: "This analysis was cancelled before completion.",
+                incomplete: "This analysis was interrupted and did not complete. No reports were saved.",
+                unknown: "Unknown error",
+                noReports: "This analysis completed but no reports were saved. This may indicate an issue during the summarization process."
+            },
+            empty: {
+                title: "Select a record",
+                desc: "Select an analysis result from the sidebar to view details"
+            }
+        }
+    },
+    th: {
+        sidebar: {
+            title: "ประวัติการทำงาน",
+            showing: "แสดง",
+            record: "รายการ",
+            searchPlaceholder: "ค้นหาชื่อหุ้น",
+            filters: {
+                allStatus: "สถานะทั้งหมด",
+                success: "สำเร็จ",
+                error: "ล้มเหลว",
+                executing: "กำลังทำงาน",
+                allTime: "ทุกช่วงเวลา",
+                last24h: "24 ชม. ล่าสุด",
+                last7d: "7 วันล่าสุด",
+                last30d: "30 วันล่าสุด"
+            },
+            status: {
+                success: "สำเร็จ",
+                failed: "ล้มเหลว",
+                incomplete: "ไม่สมบูรณ์",
+                executing: "กำลังทำ"
+            },
+            loading: "กำลังโหลด...",
+            noRecords: "ไม่พบข้อมูล"
+        },
+        detail: {
+            back: "กลับไปหน้ารายการ",
+            analysisFor: "วิเคราะห์เมื่อ",
+            viewMode: {
+                summary: "สรุป",
+                full: "ฉบับเต็ม"
+            },
+            headers: {
+                cancelled: "ยกเลิกการวิเคราะห์",
+                incomplete: "วิเคราะห์ไม่สำเร็จ",
+                failed: "วิเคราะห์ล้มเหลว",
+                noReports: "ไม่มีรายงาน",
+                finalRec: "สรุปคำแนะนำการลงทุน",
+                execSum: "บทสรุปผู้บริหาร",
+                detailed: "ข้อมูลเชิงลึก / การวิจัย"
+            },
+            messages: {
+                cancelled: "การวิเคราะห์ถูกยกเลิกก่อนกำหนด",
+                incomplete: "การวิเคราะห์หยุดชะงักและไม่เสร็จสมบูรณ์ ไม่มีการบันทึกรายงาน",
+                unknown: "ข้อผิดพลาดที่ไม่ทราบสาเหตุ",
+                noReports: "การวิเคราะห์เสร็จสิ้นแต่ไม่มีการบันทึกรายงาน อาจเกิดปัญหาในกระบวนการสรุปผล"
+            },
+            empty: {
+                title: "เลือกรายการ",
+                desc: "เลือกรายการจากแถบด้านซ้ายเพื่อดูรายละเอียด"
+            }
+        }
+    }
+};
 
 interface HistoryItem {
     id: number;
@@ -160,9 +271,10 @@ export default function HistoryPage() {
     const [viewMode, setViewMode] = useState<"summary" | "detailed">("detailed");
 
     // Language toggle for EN/TH (Thai content is pre-loaded from database)
-    const [language, setLanguage] = useState<"en" | "th">("en");
+    const { language, setLanguage } = useLanguage();
 
-    // Search and Filters State
+    // Language search toggle for EN/TH
+    const t = TRANSLATIONS[language];
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [timeFilter, setTimeFilter] = useState("all");
@@ -974,9 +1086,11 @@ export default function HistoryPage() {
                 {/* List Sidebar - Full width on mobile, fixed width on desktop */}
                 <div className={`${selectedItem ? 'hidden xl:flex' : 'flex'} w-full xl:w-88 border-r flex-col ${isDarkMode ? "border-white/10 bg-[#0c111f]" : "border-gray-200 bg-white"}`}>
                     <div className={`p-4 pt-24 md:p-6 md:pt-24 xl:p-6 xl:pt-6 border-b ${isDarkMode ? "border-white/10" : "border-gray-200"}`}>
-                        <h2 className="text-xl md:text-2xl font-bold mb-1">Execution history</h2>
+                        <div className="flex items-center justify-between mb-2">
+                            <h2 className="text-xl md:text-2xl font-bold">{t.sidebar.title}</h2>
+                        </div>
                         <p className={`text-sm mb-4 md:mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                            Showing {filteredHistory.length} record
+                            {t.sidebar.showing} {filteredHistory.length} {t.sidebar.record}
                         </p>
 
                         {/* Search and Filters */}
@@ -990,7 +1104,7 @@ export default function HistoryPage() {
                                 </span>
                                 <input
                                     type="text"
-                                    placeholder="Search Symbol"
+                                    placeholder={t.sidebar.searchPlaceholder}
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm transition-all outline-none ${isDarkMode
@@ -1009,10 +1123,10 @@ export default function HistoryPage() {
                                         : "bg-gray-50 border-gray-200 text-gray-700"
                                         }`}
                                 >
-                                    <option value="all">All Status</option>
-                                    <option value="success">Success</option>
-                                    <option value="error">Error</option>
-                                    <option value="executing">Executing</option>
+                                    <option value="all">{t.sidebar.filters.allStatus}</option>
+                                    <option value="success">{t.sidebar.filters.success}</option>
+                                    <option value="error">{t.sidebar.filters.error}</option>
+                                    <option value="executing">{t.sidebar.filters.executing}</option>
                                 </select>
 
                                 <select
@@ -1023,10 +1137,10 @@ export default function HistoryPage() {
                                         : "bg-gray-50 border-gray-200 text-gray-700"
                                         }`}
                                 >
-                                    <option value="all">All Time</option>
-                                    <option value="last24h">Last 24h</option>
-                                    <option value="last7d">Last 7 days</option>
-                                    <option value="last30d">Last 30 days</option>
+                                    <option value="all">{t.sidebar.filters.allTime}</option>
+                                    <option value="last24h">{t.sidebar.filters.last24h}</option>
+                                    <option value="last7d">{t.sidebar.filters.last7d}</option>
+                                    <option value="last30d">{t.sidebar.filters.last30d}</option>
                                 </select>
                             </div>
                         </div>
@@ -1034,7 +1148,7 @@ export default function HistoryPage() {
 
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
                         {loading ? (
-                            <div className="p-6 text-center animate-pulse">Loading...</div>
+                            <div className="p-6 text-center animate-pulse">{t.sidebar.loading}</div>
                         ) : (
                             <>
                                 {isRunning && currentTicker && (
@@ -1118,7 +1232,7 @@ export default function HistoryPage() {
                                                         : "bg-red-500 text-white"
                                                 }`}>
                                                 {item.status === "executing" && item.reports.length === 0
-                                                    ? "FAILED"
+                                                    ? t.sidebar.status.failed
                                                     : item.status}
                                             </span>
                                         </div>
@@ -1141,7 +1255,7 @@ export default function HistoryPage() {
 
                         {filteredHistory.length === 0 && !loading && (
                             <div className="p-8 text-center opacity-40">
-                                <p className="text-sm">No records found</p>
+                                <p className="text-sm">{t.sidebar.noRecords}</p>
                             </div>
                         )}
                     </div>
@@ -1159,7 +1273,7 @@ export default function HistoryPage() {
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M19 12H5M12 19l-7-7 7-7" />
                                 </svg>
-                                Back to list
+                                {t.detail.back}
                             </button>
                             <header className={`sticky top-0 z-20 flex flex-wrap justify-between items-end gap-4 pb-4 mb-4 -mx-8 px-8 pt-4 border-b ${isDarkMode ? "bg-[#03161b] border-white/5" : "bg-[#f5f8fa] border-gray-200"}`}>
                                 <div>
@@ -1198,30 +1312,15 @@ export default function HistoryPage() {
                                                     : "bg-red-500/10 text-red-500"
                                             }`}>
                                             {selectedItem.status === "executing" && selectedItem.reports.length === 0
-                                                ? "INCOMPLETE"
+                                                ? t.sidebar.status.incomplete
                                                 : selectedItem.status.toUpperCase()}
                                         </span>
-                                        <p className="opacity-50 text-sm whitespace-nowrap">Analysis for {selectedItem.analysis_date}</p>
+                                        <p className="opacity-50 text-sm whitespace-nowrap">{t.detail.analysisFor} {selectedItem.analysis_date}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     {/* Language Toggle */}
-                                    {selectedItem.status === "success" && (
-                                        <div className={`flex rounded-full border p-1 ${isDarkMode ? "border-white/10 bg-white/5" : "border-gray-200 bg-gray-100"}`}>
-                                            <button
-                                                onClick={() => setLanguage("en")}
-                                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${language === "en" ? (isDarkMode ? "bg-white/20 text-white" : "bg-white text-[#1e3a8a] shadow-sm") : "opacity-50"}`}
-                                            >
-                                                EN
-                                            </button>
-                                            <button
-                                                onClick={() => setLanguage("th")}
-                                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${language === "th" ? "bg-[#f59e0b] text-black" : "opacity-50"}`}
-                                            >
-                                                TH 🇹🇭
-                                            </button>
-                                        </div>
-                                    )}
+                                    {/* Removed redundant toggle from here as it is now in sidebar */}
 
                                     {/* Download PDF Button */}
                                     {selectedItem.reports.length > 0 && selectedItem.status === "success" && (
@@ -1245,13 +1344,13 @@ export default function HistoryPage() {
                                                 onClick={() => setViewMode("summary")}
                                                 className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "summary" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
                                             >
-                                                {language === "th" ? "สรุป" : "Summary"}
+                                                {t.detail.viewMode.summary}
                                             </button>
                                             <button
                                                 onClick={() => setViewMode("detailed")}
                                                 className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "detailed" ? "bg-[#2df4c6] text-black" : "opacity-50"}`}
                                             >
-                                                {language === "th" ? "ฉบับเต็ม" : "Full"}
+                                                {t.detail.viewMode.full}
                                             </button>
                                         </div>
                                     )}
@@ -1264,25 +1363,25 @@ export default function HistoryPage() {
                                 <div className="p-8 rounded-[20px] bg-red-500/5 border border-red-500/20 text-red-400">
                                     <h3 className="text-xl font-bold mb-4">
                                         {selectedItem.status === "cancelled"
-                                            ? "Analysis Cancelled"
+                                            ? t.detail.headers.cancelled
                                             : selectedItem.status === "executing"
-                                                ? "Analysis Incomplete"
-                                                : "Analysis Failed"}
+                                                ? t.detail.headers.incomplete
+                                                : t.detail.headers.failed}
                                     </h3>
                                     <p className="bg-black/20 p-4 rounded-xl font-mono text-sm">
                                         {selectedItem.error_message ||
                                             (selectedItem.status === "cancelled"
-                                                ? "This analysis was cancelled before completion."
+                                                ? t.detail.messages.cancelled
                                                 : selectedItem.status === "executing"
-                                                    ? "This analysis was interrupted and did not complete. No reports were saved."
-                                                    : "Unknown error")}
+                                                    ? t.detail.messages.incomplete
+                                                    : t.detail.messages.unknown)}
                                     </p>
                                 </div>
                             ) : selectedItem.reports.length === 0 ? (
                                 <div className="p-8 rounded-[20px] bg-gray-500/5 border border-gray-500/20 text-gray-400">
-                                    <h3 className="text-xl font-bold mb-4">No Reports Available</h3>
+                                    <h3 className="text-xl font-bold mb-4">{t.detail.headers.noReports}</h3>
                                     <p className="opacity-70">
-                                        This analysis completed but no reports were saved. This may indicate an issue during the summarization process.
+                                        {t.detail.messages.noReports}
                                     </p>
                                 </div>
                             ) : (
@@ -1295,7 +1394,7 @@ export default function HistoryPage() {
                                             <section className={`p-6 rounded-[20px] border ${isDarkMode ? "bg-[#111726] border-white/5" : "bg-white border-gray-200 shadow-sm"}`}>
                                                 <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
                                                     <div className="flex-1">
-                                                        <h3 className="text-sm font-bold uppercase tracking-widest text-[#8b94ad] mb-2">Final Recommendation Summary</h3>
+                                                        <h3 className="text-sm font-bold uppercase tracking-widest text-[#8b94ad] mb-2">{t.detail.headers.finalRec}</h3>
                                                         <div className="text-lg opacity-90 italic leading-relaxed">
                                                             {typeof summary.summary === 'string' ? (
                                                                 <RenderMarkdown text={summary.summary} />
@@ -1327,7 +1426,7 @@ export default function HistoryPage() {
                                                     <div className="space-y-8">
                                                         {viewMode === "summary" && section.sum && (
                                                             <div className={`p-5 rounded-2xl ${isDarkMode ? "bg-white/5" : "bg-gray-50"}`}>
-                                                                <h4 className="text-xs font-bold uppercase tracking-widest opacity-50 mb-3 text-[#2df4c6]">Executive Summary</h4>
+                                                                <h4 className="text-xs font-bold uppercase tracking-widest opacity-50 mb-3 text-[#2df4c6]">{t.detail.headers.execSum}</h4>
                                                                 <div className="opacity-90">
                                                                     {typeof section.sum === 'string' ? (
                                                                         <RenderMarkdown text={section.sum} />
@@ -1340,7 +1439,7 @@ export default function HistoryPage() {
 
                                                         {viewMode === "detailed" && section.full && (
                                                             <div>
-                                                                <h4 className="text-xs font-bold uppercase tracking-widest opacity-50 mb-3">Detailed Data / Research</h4>
+                                                                <h4 className="text-xs font-bold uppercase tracking-widest opacity-50 mb-3">{t.detail.headers.detailed}</h4>
                                                                 <div className="opacity-90">
                                                                     {typeof section.full === 'string' ? (
                                                                         <RenderMarkdown text={section.full} />
@@ -1373,8 +1472,8 @@ export default function HistoryPage() {
                                     <polyline points="10 9 9 9 8 9"></polyline>
                                 </svg>
                             </div>
-                            <h2 className="text-2xl font-bold">Select a record</h2>
-                            <p>Select an analysis result from the sidebar to view details</p>
+                            <h2 className="text-2xl font-bold">{t.detail.empty.title}</h2>
+                            <p>{t.detail.empty.desc}</p>
                         </div>
                     )}
                 </div>

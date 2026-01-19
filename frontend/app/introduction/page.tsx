@@ -7,15 +7,48 @@ import Logo from "@/image/Logo.png";
 import LogoBlack from "@/image/Logo_black.png";
 import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, Languages } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
+
+const TRANSLATIONS = {
+    en: {
+        viewDocs: "View Docs",
+        headline: {
+            part1: "INTELLIGENT",
+            part2: "MULTI-AGENT AI",
+            part3: "TRADING SYSTEM"
+        },
+        subheadline: "Autonomous AI agents that analyze, decide, and execute trades collaboratively — 24/7.",
+        cta: {
+            generate: "Go to Generate",
+            start: "Get Started"
+        }
+    },
+    th: {
+        viewDocs: "คู่มือการใช้งาน",
+        headline: {
+            part1: "ระบบเทรด",
+            part2: "MULTI-AGENT AI",
+            part3: "อัจฉริยะ"
+        },
+        subheadline: "Agent AI อัตโนมัติที่ร่วมกันวิเคราะห์ ตัดสินใจ และส่งคำสั่งซื้อขาย — ตลอด 24/7",
+        cta: {
+            generate: "เริ่มใช้งาน",
+            start: "เริ่มต้นใช้งาน"
+        }
+    }
+};
 
 export default function IntroductionPage() {
     const { isDarkMode, toggleTheme } = useTheme();
     const { isAuthenticated, isLoading: authLoading } = useAuth();
     const [mounted, setMounted] = useState(false);
+    const { language, toggleLanguage } = useLanguage();
     const [backgroundStars, setBackgroundStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; delay: number; duration: number; twinkle: boolean }>>([]);
     const [midStars, setMidStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; delay: number; duration: number; twinkle: boolean }>>([]);
     const [foregroundStars, setForegroundStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; delay: number; duration: number; twinkle: boolean }>>([]);
+
+    const t = TRANSLATIONS[language];
 
     useEffect(() => {
         setMounted(true);
@@ -178,8 +211,22 @@ export default function IntroductionPage() {
                             : 'text-[#64748B] hover:text-[#2563EB] focus-visible:ring-[#2563EB]'
                             }`}
                     >
-                        View Docs
+                        {t.viewDocs}
                     </Link>
+
+                    {/* Language Toggle */}
+                    <button
+                        onClick={toggleLanguage}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border ${isDarkMode
+                            ? 'border-white/20 text-white/80 hover:bg-white/10 hover:border-[#2df4c6] hover:text-[#2df4c6]'
+                            : 'border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-[#2563EB] hover:text-[#2563EB]'
+                            }`}
+                    >
+                        <Languages size={14} />
+                        {language === 'en' ? 'TH' : 'EN'}
+                    </button>
+
+
 
 
 
@@ -222,23 +269,23 @@ export default function IntroductionPage() {
                     {/* Headline */}
                     <h1 className={`-mt-12 mb-4 text-3xl md:text-4xl lg:text-5xl font-bold leading-tight transition-all duration-700 ease-out delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
                         <span className={isDarkMode ? 'text-white' : 'text-[#0F172A]'}>
-                            INTELLIGENT{" "}
+                            {t.headline.part1}{" "}
                         </span>
                         <span className={`bg-clip-text text-transparent ${isDarkMode
                             ? 'bg-linear-to-r from-[#2df4c6] via-[#26dcb2] to-[#2df4c6]'
                             : 'bg-linear-to-r from-[#2563EB] via-[#38BDF8] to-[#2563EB]'
                             }`}>
-                            MULTI-AGENT AI
+                            {t.headline.part2}
                         </span>
                         <br />
                         <span className={isDarkMode ? 'text-white' : 'text-[#0F172A]'}>
-                            TRADING SYSTEM
+                            {t.headline.part3}
                         </span>
                     </h1>
 
                     {/* Subheadline */}
                     <p className={`mb-8 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed transition-all duration-700 ease-out delay-300 ${isDarkMode ? 'text-slate-300/90' : 'text-[#64748B]'} ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
-                        Autonomous AI agents that analyze, decide, and execute trades collaboratively — 24/7.
+                        {t.subheadline}
                     </p>
 
                     {/* CTA Button */}
@@ -252,7 +299,7 @@ export default function IntroductionPage() {
                                 }`}
                         >
                             <span className="relative z-10">
-                                {isAuthenticated ? "Go to Generate" : "Get Started"}
+                                {isAuthenticated ? t.cta.generate : t.cta.start}
                             </span>
                         </Link>
                     </div>

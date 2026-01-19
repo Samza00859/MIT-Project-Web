@@ -10,6 +10,7 @@ import LogoBlack from "@/image/Logo_black.png";
 import { useTheme } from "@/context/ThemeContext";
 import { useGeneration } from "@/context/GenerationContext";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import DebugPanel from "./DebugPanel";
 
 interface NavItem {
@@ -19,33 +20,33 @@ interface NavItem {
     href: string;
 }
 
-const NAV_ITEMS: NavItem[] = [
-    { 
-        id: "generate", 
+const NAV_ITEMS = (t: any) => [
+    {
+        id: "generate",
         icon: (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="20" x2="18" y2="10"></line>
                 <line x1="12" y1="20" x2="12" y2="4"></line>
                 <line x1="6" y1="20" x2="6" y2="14"></line>
             </svg>
-        ), 
-        label: "Generate", 
-        href: "/" 
+        ),
+        label: t.nav.generate,
+        href: "/"
     },
-    { 
-        id: "history", 
+    {
+        id: "history",
         icon: (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 3v5h5"></path>
                 <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path>
                 <path d="M12 7v5l4 2"></path>
             </svg>
-        ), 
-        label: "History", 
-        href: "/history" 
+        ),
+        label: t.nav.history,
+        href: "/history"
     },
-    { 
-        id: "docs", 
+    {
+        id: "docs",
         icon: (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -54,11 +55,42 @@ const NAV_ITEMS: NavItem[] = [
                 <line x1="16" y1="17" x2="8" y2="17"></line>
                 <polyline points="10 9 9 9 8 9"></polyline>
             </svg>
-        ), 
-        label: "View Docs", 
-        href: "/view-docs" 
+        ),
+        label: t.nav.docs,
+        href: "/view-docs"
     },
 ];
+
+const TRANSLATIONS = {
+    en: {
+        nav: {
+            generate: "Generate",
+            history: "History",
+            docs: "View Docs"
+        },
+        ui: {
+            welcome: "Welcome",
+            logout: "Logout",
+            darkMode: "Dark mode",
+            lightMode: "Light mode",
+            language: "Language"
+        }
+    },
+    th: {
+        nav: {
+            generate: "สร้างบทวิเคราะห์",
+            history: "ประวัติการทำงาน",
+            docs: "เอกสารคู่มือ"
+        },
+        ui: {
+            welcome: "ยินดีต้อนรับ",
+            logout: "ออกจากระบบ",
+            darkMode: "โหมดกลางคืน",
+            lightMode: "โหมดกลางวัน",
+            language: "ภาษา"
+        }
+    }
+};
 
 export default function Sidebar() {
     const pathname = usePathname();
@@ -67,6 +99,11 @@ export default function Sidebar() {
     const { user, isAuthenticated, logout } = useAuth();
     const [isCollapsed, setIsCollapsed] = React.useState(false);
     const [isMobileOpen, setIsMobileOpen] = React.useState(false);
+    const { language, toggleLanguage } = useLanguage();
+    const t = TRANSLATIONS[language];
+
+    // Get translated nav items
+    const navItems = React.useMemo(() => NAV_ITEMS(t), [language]);
 
     const handleLogout = () => {
         logout();
@@ -186,7 +223,7 @@ export default function Sidebar() {
                 <div className={`border-t -mt-2 ${isDarkMode ? "border-white/10" : "border-[#E2E8F0]"} ${isCollapsed ? "mx-2" : "mx-4"}`} />
 
                 <nav className="flex flex-col gap-2.5">
-                    {NAV_ITEMS.map((item) => (
+                    {navItems.map((item) => (
                         <Link
                             key={item.id}
                             href={item.href}
@@ -215,7 +252,7 @@ export default function Sidebar() {
                         {/* User Info */}
                         {!isCollapsed && user && (
                             <div className={`mb-3 px-2 text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
-                                <span>Welcome, </span>
+                                <span>{t.ui.welcome}, </span>
                                 <span className="font-medium">{user.name || user.email}</span>
                             </div>
                         )}
@@ -228,41 +265,37 @@ export default function Sidebar() {
                                     ? "text-red-400 hover:bg-red-500/10 hover:text-red-300"
                                     : "text-red-500 hover:bg-red-50 hover:text-red-600"
                                 }`}
-                            title={isCollapsed ? "Logout" : undefined}
+                            title={isCollapsed ? t.ui.logout : undefined}
                         >
                             <span className="text-lg shrink-0">🚪</span>
-                            {!isCollapsed && <span className="whitespace-nowrap overflow-hidden">Logout</span>}
+                            {!isCollapsed && <span className="whitespace-nowrap overflow-hidden">{t.ui.logout}</span>}
                         </button>
                     </div>
                 )}
 
                 {/* Dark mode toggle - normal position for non-Generate pages */}
+                {/* Language & Theme Toggles */}
                 {pathname !== "/" && (
-                    <div className={`mt-auto flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
-                        {!isCollapsed && <span>{isDarkMode ? "Dark mode" : "Light mode"}</span>}
-                        <label className="relative inline-block h-5 w-10 cursor-pointer shrink-0">
-                            <input
-                                type="checkbox"
-                                checked={!isDarkMode}
-                                onChange={toggleTheme}
-                                className="peer sr-only"
-                            />
-                            <div className={`absolute inset-0 rounded-full transition-all flex items-center justify-between px-1 ${isDarkMode
-                                ? "bg-[#394054] peer-checked:bg-[#00d18f]"
-                                : "bg-[#CBD5E1] peer-checked:bg-[#2563EB]"
-                                } after:absolute after:bottom-[2px] after:left-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-5`}>
-                                <Moon size={10} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1`} />
-                                <Sun size={10} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1`} />
-                            </div>
-                        </label>
-                    </div>
-                )}
+                    <div className="mt-auto flex flex-col gap-2">
+                        {/* Language Toggle */}
+                        <div className={`flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
+                            {!isCollapsed && <span>{t.ui.language}</span>}
+                            <button
+                                onClick={toggleLanguage}
+                                className={`flex items-center gap-2 px-2 py-1 rounded-lg border text-xs font-bold transition-all ${isDarkMode
+                                    ? "border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                                    : "border-gray-200 bg-white hover:bg-gray-50 text-gray-700"
+                                    }`}
+                            >
+                                <span className={language === 'en' ? "opacity-100" : "opacity-40"}>EN</span>
+                                <span className="opacity-40">/</span>
+                                <span className={language === 'th' ? "opacity-100" : "opacity-40"}>TH</span>
+                            </button>
+                        </div>
 
-                {/* For Generate page: Dark mode toggle right above the divider line */}
-                {pathname === "/" && (
-                    <>
-                        <div className={`mt-auto flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
-                            {!isCollapsed && <span>{isDarkMode ? "Dark mode" : "Light mode"}</span>}
+                        {/* Theme Toggle */}
+                        <div className={`flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
+                            {!isCollapsed && <span>{isDarkMode ? t.ui.darkMode : t.ui.lightMode}</span>}
                             <label className="relative inline-block h-5 w-10 cursor-pointer shrink-0">
                                 <input
                                     type="checkbox"
@@ -278,6 +311,50 @@ export default function Sidebar() {
                                     <Sun size={10} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1`} />
                                 </div>
                             </label>
+                        </div>
+                    </div>
+                )}
+
+                {/* For Generate page: Dark mode toggle right above the divider line */}
+                {pathname === "/" && (
+                    <>
+                        {/* Language & Theme Toggles Container */}
+                        <div className="mt-auto flex flex-col gap-2">
+                            {/* Language Toggle */}
+                            <div className={`flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
+                                {!isCollapsed && <span>{t.ui.language}</span>}
+                                <button
+                                    onClick={toggleLanguage}
+                                    className={`flex items-center gap-2 px-2 py-1 rounded-lg border text-xs font-bold transition-all ${isDarkMode
+                                        ? "border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                                        : "border-gray-200 bg-white hover:bg-gray-50 text-gray-700"
+                                        }`}
+                                >
+                                    <span className={language === 'en' ? "opacity-100" : "opacity-40"}>EN</span>
+                                    <span className="opacity-40">/</span>
+                                    <span className={language === 'th' ? "opacity-100" : "opacity-40"}>TH</span>
+                                </button>
+                            </div>
+
+                            {/* Theme Toggle */}
+                            <div className={`flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
+                                {!isCollapsed && <span>{isDarkMode ? t.ui.darkMode : t.ui.lightMode}</span>}
+                                <label className="relative inline-block h-5 w-10 cursor-pointer shrink-0">
+                                    <input
+                                        type="checkbox"
+                                        checked={!isDarkMode}
+                                        onChange={toggleTheme}
+                                        className="peer sr-only"
+                                    />
+                                    <div className={`absolute inset-0 rounded-full transition-all flex items-center justify-between px-1 ${isDarkMode
+                                        ? "bg-[#394054] peer-checked:bg-[#00d18f]"
+                                        : "bg-[#CBD5E1] peer-checked:bg-[#2563EB]"
+                                        } after:absolute after:bottom-[2px] after:left-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-5`}>
+                                        <Moon size={10} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1`} />
+                                        <Sun size={10} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1`} />
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                         {/* Divider line + Debug Panel */}
                         <div className={`mt-0 border-t ${isDarkMode ? "border-white/5" : "border-[#E2E8F0]"} pt-4 text-[0.85rem] ${isCollapsed ? "hidden" : "block"}`}>

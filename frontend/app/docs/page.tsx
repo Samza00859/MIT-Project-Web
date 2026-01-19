@@ -11,12 +11,13 @@ import {
     Search, Users, Briefcase, ArrowRight, ArrowLeft,
     Target, RefreshCw, CheckCircle2,
     Calendar, Send, FileText, Download, Smartphone,
-    Sun, Moon
+    Sun, Moon, Languages
 } from 'lucide-react';
+import { useLanguage } from "@/context/LanguageContext";
 import { useRouter } from "next/navigation";
 
 const TRANSLATIONS = {
-    EN: {
+    en: {
         tagline: "Trading Agents",
         title: "MULTI-AGENT SYSTEM",
         description: "Simulating a professional trading firm through collaborative AI. Moving beyond single-agent systems to mimic the multi-faceted decision-making process of successful investment houses.",
@@ -100,7 +101,7 @@ const TRANSLATIONS = {
             }
         }
     },
-    TH: {
+    th: {
         tagline: "Trading Agents",
         title: "MULTI-AGENT SYSTEM",
         description: "ระบบจำลองทีมวิเคราะห์การลงทุนระดับสถาบันด้วย AI ที่ทำงานร่วมกัน (Cooperative AI) เพื่อเลียนแบบกระบวนการตัดสินใจที่รัดกุมและตรวจสอบได้",
@@ -190,7 +191,7 @@ export default function ViewDocsPage() {
     const router = useRouter();
     const [activeSection, setActiveSection] = useState('introduction');
     const [mounted, setMounted] = useState(false);
-    const [language, setLanguage] = useState<'EN' | 'TH'>('EN');
+    const { language, toggleLanguage } = useLanguage();
 
     const t = TRANSLATIONS[language];
 
@@ -249,9 +250,7 @@ export default function ViewDocsPage() {
         }
     };
 
-    const toggleLanguage = () => {
-        setLanguage(prev => prev === 'EN' ? 'TH' : 'EN');
-    };
+
 
     return (
         <div className={`min-h-screen w-full font-sans selection:bg-[#2df4c6]/30 ${isDarkMode ? 'bg-[#0b0e14] text-[#f8fbff]' : 'text-slate-900'}`}>
@@ -407,12 +406,13 @@ export default function ViewDocsPage() {
 
                 <button
                     onClick={toggleLanguage}
-                    className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors border ${isDarkMode
-                        ? "bg-[#0b0e14]/50 backdrop-blur-md border-white/10 hover:bg-white/10 text-slate-300"
-                        : "bg-white/50 backdrop-blur-md border-slate-200 hover:bg-slate-200 text-slate-700"
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border ${isDarkMode
+                        ? 'border-white/20 text-white/80 hover:bg-white/10 hover:border-[#2df4c6] hover:text-[#2df4c6]'
+                        : 'border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-[#2563EB] hover:text-[#2563EB]'
                         }`}
                 >
-                    {language === 'EN' ? 'EN' : 'TH'}
+                    <Languages size={14} />
+                    {language === 'en' ? 'TH' : 'EN'}
                 </button>
 
                 {/* Theme Toggle */}

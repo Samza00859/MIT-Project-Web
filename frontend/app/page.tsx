@@ -13,6 +13,78 @@ import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import GenerateIcon from "@/image/report_6902377.png";
+import { useLanguage } from "@/context/LanguageContext";
+
+const TRANSLATIONS = {
+  en: {
+    title: "Generate Analysis",
+    step1: "Step 1: Symbol Selection",
+    step2: "Step 2: Analysis Date",
+    marketData: "Live Market Data",
+    sector: "SECTOR",
+    generate: "Generate",
+    stop: "Stop",
+    teams: {
+      analyst: { title: "Analyst team", sub: "Market • News • Social • Fundamentals" },
+      research: { title: "Research team", sub: "Bull • Bear • Manager" },
+      trader: { title: "Trader team", sub: "Execution" },
+      risk: { title: "Risk & Portfolio", sub: "Risky • Neutral • Safe • Manager" },
+      portfolio: { title: "Portfolio Management", sub: "Portfolio" }
+    },
+    signal: {
+      asset: "Selected Asset",
+      strength: "Signal Strength",
+      recommendation: "Recommendation"
+    },
+    status: {
+      loading: "Loading...",
+      strongBear: "Strong Bearish",
+      bear: "Bearish",
+      neutral: "Neutral",
+      bull: "Bullish",
+      strongBull: "Strong Bullish"
+    },
+    search: {
+      placeholder: "AAPL",
+      popular: "Popular Recommendations",
+      results: "Search Results"
+    }
+  },
+  th: {
+    title: "สร้างบทวิเคราะห์",
+    step1: "ขั้นตอนที่ 1: เลือกเหรียญ/หุ้น",
+    step2: "ขั้นตอนที่ 2: วันที่วิเคราะห์",
+    marketData: "ข้อมูลตลาดเรียลไทม์",
+    sector: "กลุ่มอุตสาหกรรม",
+    generate: "เริ่มวิเคราะห์",
+    stop: "หยุดการทำงาน",
+    teams: {
+      analyst: { title: "ทีมรวบรวมข้อมูล", sub: "ข้อมูลตลาด • ข่าว • โซเชียล • งบการเงิน" },
+      research: { title: "ทีมวิเคราะห์และวิจัย", sub: "Bull • Bear • ผู้จัดการ" },
+      trader: { title: "ทีมเทรดเดอร์", sub: "ตัดสินใจซื้อขาย" },
+      risk: { title: "ทีมบริหารความเสี่ยง", sub: "ความเสี่ยง • การจัดพอร์ต" },
+      portfolio: { title: "ผู้จัดการกองทุน", sub: "อนุมัติคำสั่ง" }
+    },
+    signal: {
+      asset: "สินทรัพย์ที่เลือก",
+      strength: "ความแข็งแกร่งของสัญญาณ",
+      recommendation: "คำแนะนำ"
+    },
+    status: {
+      loading: "กำลังโหลด...",
+      strongBear: "ลงแรง (Strong Bearish)",
+      bear: "ลง (Bearish)",
+      neutral: "ทรงตัว (Neutral)",
+      bull: "ขึ้น (Bullish)",
+      strongBull: "ขึ้นแรง (Strong Bullish)"
+    },
+    search: {
+      placeholder: "พิมพ์ชื่อหุ้น (เช่น PTT)",
+      popular: "หุ้นยอดนิยม",
+      results: "ผลการค้นหา"
+    }
+  }
+};
 
 // Import from shared modules for better code splitting
 import {
@@ -118,7 +190,8 @@ export default function Home() {
   const marketSelectorRef = useRef<HTMLDivElement>(null);
 
   // Language and Translation State
-  const [language, setLanguage] = useState<"en" | "th">("en");
+  const { language, setLanguage } = useLanguage();
+  const t = TRANSLATIONS[language];
   const [isTranslating, setIsTranslating] = useState(false);
   const [translatedSections, setTranslatedSections] = useState<{ key: string; label: string; text: string; report_type: string }[]>([]);
 
@@ -1024,12 +1097,12 @@ export default function Home() {
 
       <main className="flex-1 flex flex-col gap-4 px-4 py-4 md:px-8 md:py-6 relative z-10 overflow-hidden">
         <header className="flex flex-wrap items-start justify-between gap-3 shrink-0">
-          <div>
+          <div className="flex items-center gap-4">
             <h1
               className={`text-2xl md:text-3xl font-semibold tracking-tight ${isDarkMode ? "text-[#f8fbff]" : "text-[#0F172A]"
                 }`}
             >
-              Generate Analysis
+              {t.title}
             </h1>
           </div>
 
@@ -1047,7 +1120,7 @@ export default function Home() {
             {/* Step 1: Symbol Selection */}
             <article className={`col-span-12 md:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
               <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
-                Step 1: Symbol Selection
+                {t.step1}
               </h2>
 
               <div className="flex items-center gap-3">
@@ -1100,7 +1173,7 @@ export default function Home() {
                   <input
                     type="text"
                     autoComplete="off"
-                    placeholder="AAPL"
+                    placeholder={t.search.placeholder}
                     value={ticker}
                     onChange={handleTickerChange}
                     onFocus={handleInputFocus}
@@ -1126,7 +1199,7 @@ export default function Home() {
                       className={`absolute left-0 top-full z-30 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border py-1 shadow-lg ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-[#E2E8F0] bg-white shadow-lg"}`}
                     >
                       <li className={`px-4 py-2 text-[10px] uppercase tracking-wider font-semibold ${isDarkMode ? "bg-white/5 text-gray-400 opacity-50" : "bg-[#F8FAFC] text-[#64748B]"}`}>
-                        {ticker.length < 2 ? "Popular Recommendations" : "Search Results"}
+                        {ticker.length < 2 ? t.search.popular : t.search.results}
                       </li>
                       {suggestions.map((item, idx) => (
                         <li
@@ -1150,7 +1223,7 @@ export default function Home() {
             {/* Step 2: Analysis Date */}
             <article className={`col-span-12 md:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
               <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
-                Step 2: Analysis Date
+                {t.step2}
               </h2>
 
               <div className="relative w-full">
@@ -1178,11 +1251,11 @@ export default function Home() {
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-[#2df4c6]"></span>
                   </span>
                   <span className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
-                    Live Market Data
+                    {t.marketData}
                   </span>
                 </div>
                 <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? "text-[#8b94ad] opacity-70" : "text-[#64748B]"}`}>
-                  {marketData?.sector || "SECTOR"}
+                  {marketData?.sector || t.sector}
                 </span>
               </div>
 
@@ -1198,7 +1271,7 @@ export default function Home() {
                       </span>
                     </div>
                   ) : (
-                    <span className={`animate-pulse text-2xl font-bold opacity-50 ${isDarkMode ? "" : "text-[#334155]"}`}>Loading...</span>
+                    <span className={`animate-pulse text-2xl font-bold opacity-50 ${isDarkMode ? "" : "text-[#334155]"}`}>{t.status.loading}</span>
                   )}
 
                   {marketData && (
@@ -1241,7 +1314,7 @@ export default function Home() {
                   className="flex w-full h-full flex-col items-center justify-center gap-2 bg-[#ff4d6d] text-white transition-all hover:bg-[#ff3355]"
                 >
                   <div className="h-3 w-3 rounded-[1px] bg-white mb-1" />
-                  <span className="text-sm font-bold uppercase tracking-widest">Stop</span>
+                  <span className="text-sm font-bold uppercase tracking-widest">{t.stop}</span>
                 </button>
               ) : (
                 <button
@@ -1254,7 +1327,7 @@ export default function Home() {
                       <path d="M8 5v14l11-7-11-7z" />
                     </svg>
                   </div>
-                  <span className="text-sm font-bold uppercase tracking-widest">Generate</span>
+                  <span className="text-sm font-bold uppercase tracking-widest">{t.generate}</span>
                 </button>
               )}
             </article>
@@ -1295,20 +1368,20 @@ export default function Home() {
             let headerTitle = "";
             let headerSub = "";
             if (teamKey === "analyst") {
-              headerTitle = "Analyst team";
-              headerSub = "Market • News • Social • Fundamentals";
+              headerTitle = t.teams.analyst.title;
+              headerSub = t.teams.analyst.sub;
             } else if (teamKey === "research") {
-              headerTitle = "Research team";
-              headerSub = "Bull • Bear • Manager";
+              headerTitle = t.teams.research.title;
+              headerSub = t.teams.research.sub;
             } else if (teamKey === "trader") {
-              headerTitle = "Trader team";
-              headerSub = "Execution";
+              headerTitle = t.teams.trader.title;
+              headerSub = t.teams.trader.sub;
             } else if (teamKey === "risk") {
-              headerTitle = "Risk & Portfolio";
-              headerSub = "Risky • Neutral • Safe • Manager";
+              headerTitle = t.teams.risk.title;
+              headerSub = t.teams.risk.sub;
             } else if (teamKey === "portfolio") {
-              headerTitle = "Portfolio Management";
-              headerSub = "Portfolio";
+              headerTitle = t.teams.portfolio.title;
+              headerSub = t.teams.portfolio.sub;
             }
 
             return (
@@ -1399,7 +1472,7 @@ export default function Home() {
                 className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
                   }`}
               >
-                Selected Asset
+                {t.signal.asset}
               </span>
               <div
                 className={`text-xl font-bold tracking-wide ${isDarkMode ? "text-white" : "text-[#0F172A]"
@@ -1421,7 +1494,7 @@ export default function Home() {
                 className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
                   }`}
               >
-                Signal Strength
+                {t.signal.strength}
               </span>
               <div className="flex flex-col items-center gap-1">
                 {/* Visual Bars */}
@@ -1467,11 +1540,11 @@ export default function Home() {
                   {(() => {
                     const pc = Number(marketData?.percentChange);
                     if (!Number.isFinite(pc)) return "—";
-                    if (pc <= -2) return "Strong Bearish";
-                    if (pc < 0) return "Bearish";
-                    if (pc >= 2) return "Strong Bullish";
-                    if (pc > 0) return "Bullish";
-                    return "Neutral";
+                    if (pc <= -2) return t.status.strongBear;
+                    if (pc < 0) return t.status.bear;
+                    if (pc >= 2) return t.status.strongBull;
+                    if (pc > 0) return t.status.bull;
+                    return t.status.neutral;
                   })()}
                 </span>
               </div>
@@ -1483,7 +1556,7 @@ export default function Home() {
                 className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
                   }`}
               >
-                Recommendation
+                {t.signal.recommendation}
               </span>
 
               <button
@@ -1517,13 +1590,13 @@ export default function Home() {
             setReportLength={setReportLength}
             isRunning={isRunning}
             language={language}
-            setLanguage={handleLanguageChange}
+            setLanguage={setLanguage}
             isTranslating={isTranslating}
           />
         </div>
 
 
       </main>
-    </div>
+    </div >
   );
 }
