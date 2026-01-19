@@ -378,7 +378,7 @@ export default function ReportSections({
             className={`flex flex-1 min-h-[250px] sm:h-full flex-col rounded-[20px] border p-3 sm:p-4 md:p-6 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"
                 }`}
         >
-            <header className="flex flex-col landscape:flex-row sm:flex-row items-start landscape:items-center sm:items-center justify-between gap-2 landscape:gap-3 sm:gap-3 mb-3 landscape:mb-4 sm:mb-6">
+            <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-3 mb-3 md:mb-6">
                 <div className="shrink-0">
                     <h3 className={`text-sm sm:text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{t.currentReport}</h3>
                     <p className="text-[10px] sm:text-[0.85rem] text-[#8b94ad] hidden sm:block">

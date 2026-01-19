@@ -141,94 +141,51 @@ interface HistoryItem {
     reports: ReportResult[];
 }
 
-// Logo component for history items
 // Logo component for history items with robust fallback
+// In-memory cache for logo URLs to avoid repeated fetches
+const logoCache = new Map<string, string>();
+
 function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean }) {
     const [currentSrc, setCurrentSrc] = useState<string>("");
     const [isError, setIsError] = useState(false);
     const [candidateIndex, setCandidateIndex] = useState(0);
     const [candidates, setCandidates] = useState<string[]>([]);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        let mounted = true;
+        if (!ticker) {
+            setIsError(true);
+            return;
+        }
 
-        const fetchCandidates = async () => {
-            if (!ticker) return;
-            setLoading(true);
-            setIsError(false);
-            setCandidates([]);
-            setCandidateIndex(0);
+        const cleanTicker = ticker.trim().toUpperCase();
+        const symbol = cleanTicker.split('.')[0].split('-')[0]; // Handle PTT.BK -> PTT, BTC-USD -> BTC
 
-            const cleanTicker = ticker.trim().toUpperCase();
-            const symbol = cleanTicker.split('.')[0].split('-')[0]; // Handle PTT.BK -> PTT, BTC-USD -> BTC
-
-            const urls: string[] = [];
-
-            try {
-                // 1. Try fetching metadata from backend (includes cached logo_url or website)
-                const apiUrl = getApiUrl();
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-                const res = await fetch(`${apiUrl}/quote/${cleanTicker}`, {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-
-                if (res.ok) {
-                    const data = await res.json();
-
-                    // Add Backend Logo (often Clearbit or YFinance provided)
-                    if (data.logo_url) {
-                        urls.push(data.logo_url);
-                    }
-
-                    // Add Domain-based services
-                    if (data.website) {
-                        try {
-                            const websiteUrl = data.website.startsWith('http') ? data.website : `https://${data.website}`;
-                            const hostname = new URL(websiteUrl).hostname;
-
-                            // Clearbit API
-                            urls.push(`https://logo.clearbit.com/${hostname}`);
-
-                            // Google Favicon (High Res)
-                            urls.push(`https://www.google.com/s2/favicons?domain=${hostname}&sz=128`);
-                        } catch (e) {
-                            // Invalid URL, skip
-                        }
-                    }
-                }
-            } catch (e) {
-                // Ignore backend fetch error, proceed to static fallbacks
+        // Check cache first
+        if (logoCache.has(cleanTicker)) {
+            const cachedUrl = logoCache.get(cleanTicker)!;
+            if (cachedUrl === "ERROR") {
+                setIsError(true);
+            } else {
+                setCurrentSrc(cachedUrl);
+                setCandidates([cachedUrl]);
             }
+            return;
+        }
 
-            // 2. Static Fallbacks based on Ticker
+        // Build static logo sources (fast, no API call needed)
+        const staticUrls: string[] = [
             // Parqet (Good for US/EU stocks)
-            urls.push(`https://assets.parqet.com/logos/symbol/${symbol}?format=png`);
-
+            `https://assets.parqet.com/logos/symbol/${symbol}?format=png`,
             // Unavatar (Generic fallback)
-            urls.push(`https://unavatar.io/${symbol}`);
+            `https://unavatar.io/${symbol}`,
+            // Google Favicon as last resort
+            `https://www.google.com/s2/favicons?domain=${symbol.toLowerCase()}.com&sz=128`,
+        ];
 
-            if (mounted) {
-                // Deduplicate URLs
-                const uniqueUrls = Array.from(new Set(urls));
-                setCandidates(uniqueUrls);
-                if (uniqueUrls.length > 0) {
-                    setCurrentSrc(uniqueUrls[0]);
-                } else {
-                    setIsError(true);
-                }
-                setLoading(false);
-            }
-        };
-
-        fetchCandidates();
-
-        return () => {
-            mounted = false;
-        };
+        setCandidates(staticUrls);
+        setCandidateIndex(0);
+        setCurrentSrc(staticUrls[0]);
+        setIsError(false);
     }, [ticker]);
 
     const handleImageError = () => {
@@ -237,19 +194,29 @@ function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean
             setCandidateIndex(nextIndex);
             setCurrentSrc(candidates[nextIndex]);
         } else {
+            // All static sources failed, cache the error
+            const cleanTicker = ticker.trim().toUpperCase();
+            logoCache.set(cleanTicker, "ERROR");
             setIsError(true);
         }
     };
 
+    const handleImageLoad = () => {
+        // Cache successful URL
+        const cleanTicker = ticker.trim().toUpperCase();
+        logoCache.set(cleanTicker, currentSrc);
+    };
+
     return (
-        <div className={`flex h-10 w-10 items-center justify-center rounded-full shrink-0 relative overflow-hidden transition-colors ${!isError && !loading ? "bg-white" : (isDarkMode ? "bg-white/10" : "bg-gray-100")
+        <div className={`flex h-10 w-10 items-center justify-center rounded-full shrink-0 relative overflow-hidden transition-colors ${!isError && currentSrc ? "bg-white" : (isDarkMode ? "bg-white/10" : "bg-gray-100")
             }`}>
-            {!loading && !isError && currentSrc ? (
+            {!isError && currentSrc ? (
                 <img
                     src={currentSrc}
                     alt={ticker}
                     className="h-full w-full object-contain p-0.5 rounded-full"
                     onError={handleImageError}
+                    onLoad={handleImageLoad}
                     loading="lazy"
                 />
             ) : (

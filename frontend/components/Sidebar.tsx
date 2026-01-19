@@ -358,7 +358,7 @@ export default function Sidebar() {
                         </div>
                         {/* Divider line + Debug Panel */}
                         <div className={`mt-0 border-t ${isDarkMode ? "border-white/5" : "border-[#E2E8F0]"} pt-4 text-[0.85rem] ${isCollapsed ? "hidden" : "block"}`}>
-                            <DebugPanel wsStatus={wsStatus} isDarkMode={isDarkMode} />
+                            <DebugPanel wsStatus={wsStatus} isDarkMode={isDarkMode} language={language} />
                         </div>
                     </>
                 )}

@@ -55,7 +55,8 @@ const TRANSLATIONS = {
     signal: {
       asset: "Selected Asset",
       strength: "Signal Strength",
-      recommendation: "Recommendation"
+      recommendation: "Recommendation",
+      awaitingRun: "Awaiting Run"
     },
     status: {
       loading: "Loading...",
@@ -110,7 +111,8 @@ const TRANSLATIONS = {
     signal: {
       asset: "สินทรัพย์ที่เลือก",
       strength: "ความแข็งแกร่งของสัญญาณ",
-      recommendation: "คำแนะนำ"
+      recommendation: "คำแนะนำ",
+      awaitingRun: "รอเริ่มวิเคราะห์"
     },
     status: {
       loading: "กำลังโหลด...",
@@ -1139,7 +1141,7 @@ export default function Home() {
 
       <main className="flex-1 flex flex-col gap-4 px-4 py-4 md:px-8 md:py-6 relative z-10 overflow-y-auto">
         <header className="flex flex-wrap items-start justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <h1
               className={`text-2xl md:text-3xl font-semibold tracking-tight ${isDarkMode ? "text-[#f8fbff]" : "text-[#0F172A]"
                 }`}
@@ -1158,9 +1160,9 @@ export default function Home() {
 
         <div className="flex flex-col gap-4 shrink-0">
           {/* Step Grid */}
-          <section className="grid grid-cols-12 gap-3 sm:gap-4">
+          <section className="grid grid-cols-12 gap-4 md:gap-6">
             {/* Step 1: Symbol Selection */}
-            <article className={`col-span-12 landscape:col-span-6 sm:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-4 sm:p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
+            <article className={`col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-4 md:p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
               <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                 {t.step1}
               </h2>
@@ -1263,7 +1265,7 @@ export default function Home() {
             </article>
 
             {/* Step 2: Analysis Date */}
-            <article className={`col-span-12 landscape:col-span-6 sm:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-4 sm:p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
+            <article className={`col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-4 md:p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
               <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                 {t.step2}
               </h2>
@@ -1379,7 +1381,7 @@ export default function Home() {
         </div>
 
         {/* Teams Grid */}
-        <section className="grid grid-cols-2 landscape:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 relative z-0 rounded-[16px]">
+        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3 relative z-0 rounded-[16px]">
           {TEAM_KEYS.map((teamKey, index) => {
             const members = teamState[teamKey];
             const completedCount = members.filter(
@@ -1423,21 +1425,21 @@ export default function Home() {
             return (
               <article
                 key={teamKey}
-                className={`flex flex-col gap-3 rounded-xl border p-3 ${showError
+                className={`flex flex-col gap-2 md:gap-3 rounded-xl border p-2 md:p-3 ${showError
                   ? "border-red-500 bg-red-50/10"
                   : isDarkMode
                     ? "border-white/5 bg-[#111726]"
                     : "border-[#2563EB]/25 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(37,99,235,0.15)]"
                   }`}
               >
-                <header className="flex items-center justify-between gap-3">
+                <header className="flex items-center justify-between gap-2 md:gap-3">
                   <div>
-                    <p className={`text-xs sm:text-sm font-bold ${isDarkMode ? "text-white" : "text-[#0F172A]"}`}>
+                    <p className={`text-sm md:text-base font-bold ${isDarkMode ? "text-white" : "text-[#0F172A]"}`}>
                       {headerTitle}
                     </p>
                   </div>
                   <div
-                    className="relative grid h-8 w-8 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-full"
+                    className="relative grid h-8 w-8 md:h-10 md:w-10 shrink-0 place-items-center rounded-full"
                     style={{
                       background: isDarkMode
                         ? `conic-gradient(#2df4c6 ${(progress / 100) * 360}deg, rgba(255,255,255,0.05) 0deg)`
@@ -1445,11 +1447,11 @@ export default function Home() {
                       transition: "background 1s ease-out",
                     }}
                   >
-                    <div className={`absolute inset-[3px] sm:inset-[4px] rounded-full ${isDarkMode ? "bg-[#111726]" : "bg-white/80"}`}></div>
-                    <span className="relative text-[10px] sm:text-xs font-bold">{progress}%</span>
+                    <div className={`absolute inset-[3px] md:inset-[4px] rounded-full ${isDarkMode ? "bg-[#111726]" : "bg-white/80"}`}></div>
+                    <span className="relative text-[10px] md:text-xs font-bold">{progress}%</span>
                   </div>
                 </header>
-                <ul className="flex flex-col gap-1 sm:gap-1.5">
+                <ul className="flex flex-col gap-1 md:gap-1.5">
                   {members.map((member, idx) => {
                     // Translation for role and status
                     // @ts-ignore
@@ -1483,14 +1485,14 @@ export default function Home() {
                     return (
                       <li
                         key={idx}
-                        className={`flex flex-wrap items-center justify-between gap-y-1 text-[10px] sm:text-xs ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}
+                        className={`flex flex-wrap items-center justify-between gap-y-1 text-xs md:text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}
                       >
-                        <span className={`truncate max-w-[80px] sm:max-w-none ${isDarkMode ? "" : "text-[#334155]"}`}>{memberRole}</span>
+                        <span className={`truncate max-w-[100px] md:max-w-none ${isDarkMode ? "" : "text-[#334155]"}`}>{memberRole}</span>
                         <span
-                          className={`inline-flex items-center gap-1 leading-none rounded-full px-1.5 py-0.5 sm:px-2 sm:py-0.5 text-[9px] sm:text-[10px] capitalize ${statusColorClass}`}
+                          className={`inline-flex items-center gap-1 leading-none rounded-full px-2 py-0.5 md:px-2.5 md:py-1 text-[10px] md:text-xs capitalize ${statusColorClass}`}
                         >
                           {(member.status === "in_progress" || (member.status === "pending" && isRunning)) && (
-                            <svg className="h-2.5 w-2.5 sm:h-3 sm:w-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <svg className="h-2.5 w-2.5 md:h-3 md:w-3 animate-spin" viewBox="0 0 24 24" fill="none">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                             </svg>
@@ -1614,7 +1616,7 @@ export default function Home() {
                     : "bg-[#334155] text-white"
                   }`}
               >
-                {contextDecision || "—"}
+                {contextDecision === "Awaiting run" ? t.signal.awaitingRun : (contextDecision || "—")}
               </button>
             </div>
           </section>
