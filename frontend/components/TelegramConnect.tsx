@@ -245,60 +245,60 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
 
     // --- Content Renderer ---
     const renderContent = () => (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:gap-4">
             {status === "connected" ? (
-                <div className="flex flex-col items-center justify-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <div className="flex flex-col items-center justify-center p-3 sm:p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                     <div className="flex items-center gap-2 text-green-700 dark:text-green-400 mb-1">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span className="font-bold">Connected Successfully</span>
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span className="font-bold text-sm sm:text-base">{t.connected}</span>
                     </div>
-                    <p className="text-sm text-green-600 dark:text-green-500 mb-3 text-center">
+                    <p className="text-xs sm:text-sm text-green-600 dark:text-green-500 mb-2 sm:mb-3 text-center">
                         Chat ID: <span className="font-mono bg-green-200 dark:bg-black/20 px-1 rounded">{currentChatId}</span>
                         <br />
-                        <span className="text-xs opacity-70">Notifications enabled</span>
+                        <span className="text-[10px] sm:text-xs opacity-70">{t.notificationsEnabled}</span>
                     </p>
                     <button
                         onClick={handleReset}
-                        className="text-xs text-green-700 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200 underline"
+                        className="text-[10px] sm:text-xs text-green-700 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200 underline"
                     >
-                        Change Account
+                        {t.changeAccount}
                     </button>
                 </div>
             ) : (
                 <>
                     <div className="w-full">
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 block">1. Enter Bot Username</label>
+                        <label className="text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 sm:mb-1.5 block">{t.enterBot}</label>
                         <div className="flex gap-2 mb-1">
                             <input
                                 type="text"
                                 value={botName || "Stock_Price_error_bot"}
                                 readOnly
-                                className="flex-1 border border-gray-300 dark:border-gray-600 rounded px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed outline-none"
+                                className="flex-1 border border-gray-300 dark:border-gray-600 rounded px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed outline-none"
                             />
-                            <div className="flex items-center justify-center p-2 text-green-500">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                            <div className="flex items-center justify-center p-1.5 sm:p-2 text-green-500">
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                             </div>
                         </div>
-                        <p className="text-[10px] text-gray-400 mb-4">* Username of your bot from BotFather</p>
+                        <p className="text-[9px] sm:text-[10px] text-gray-400 mb-3 sm:mb-4">{t.botDesc}</p>
 
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 block">2. Connect & Auto-Detect</label>
+                        <label className="text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 sm:mb-1.5 block">{t.connect}</label>
                         <button
                             onClick={handleConnectClick}
                             disabled={!botName || isDetecting}
-                            className={`w-full text-white text-sm font-medium px-4 py-3 rounded-lg transition-all flex items-center justify-center gap-2 ${isDetecting
+                            className={`w-full text-white text-xs sm:text-sm font-medium px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all flex items-center justify-center gap-2 ${isDetecting
                                 ? 'bg-amber-500 cursor-wait'
                                 : 'bg-[#24a1de] hover:bg-[#2095cf]'
                                 }`}
                         >
                             {isDetecting ? (
                                 <>
-                                    <svg className="animate-spin -ml-1 mr-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                    Listening... ({countdown}s)
+                                    <svg className="animate-spin -ml-1 mr-1 h-4 w-4 sm:h-5 sm:w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    {t.listening} ({countdown}s)
                                 </>
                             ) : (
                                 <>
-                                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.4-1.08.4-.35 0-1.03-.2-1.54-.35-.62-.18-1.12-.28-1.08-.59.02-.16.24-.32.65-.49 2.56-1.11 4.27-1.85 5.13-2.2 2.44-1.01 2.95-1.18 3.28-1.18.07 0 .23.01.33.09.09.07.12.17.13.24 0 .04.01.07.01.12z" /></svg>
-                                    Open Telegram & Connect
+                                    <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.4-1.08.4-.35 0-1.03-.2-1.54-.35-.62-.18-1.12-.28-1.08-.59.02-.16.24-.32.65-.49 2.56-1.11 4.27-1.85 5.13-2.2 2.44-1.01 2.95-1.18 3.28-1.18.07 0 .23.01.33.09.09.07.12.17.13.24 0 .04.01.07.01.12z" /></svg>
+                                    {t.openAndConnect}
                                 </>
                             )}
                         </button>
@@ -326,24 +326,24 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
             <>
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="flex items-center gap-2 cursor-pointer rounded-full bg-[#24a1de] px-4 py-2.5 text-xs font-bold text-white transition-all hover:bg-[#2095cf] shadow-sm hover:shadow-md"
+                    className="flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer rounded-full bg-[#24a1de] p-2 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold text-white transition-all hover:bg-[#2095cf] shadow-sm hover:shadow-md"
                 >
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.4-1.08.4-.35 0-1.03-.2-1.54-.35-.62-.18-1.12-.28-1.08-.59.02-.16.24-.32.65-.49 2.56-1.11 4.27-1.85 5.13-2.2 2.44-1.01 2.95-1.18 3.28-1.18.07 0 .23.01.33.09.09.07.12.17.13.24 0 .04.01.07.01.12z" /></svg>
-                    {t.sendToTelegram}
+                    <span className="hidden sm:inline">{t.sendToTelegram}</span>
                 </button>
 
                 {isOpen && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-                        <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
+                        <div className="relative w-full max-w-[320px] sm:max-w-md max-h-[85vh] overflow-y-auto rounded-xl sm:rounded-2xl bg-white dark:bg-gray-800 p-4 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-200 my-auto">
                             <button
                                 onClick={() => setIsOpen(false)}
-                                className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                className="absolute right-3 sm:right-4 top-3 sm:top-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 z-10"
                             >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
 
-                            <h3 className="text-xl font-bold mb-1 text-gray-900 dark:text-white">Telegram Notifications</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Receive real-time trading updates directly to your chat.</p>
+                            <h3 className="text-base sm:text-xl font-bold mb-1 text-gray-900 dark:text-white">{t.title}</h3>
+                            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-3 sm:mb-6">{t.subtitle}</p>
 
                             {renderContent()}
                         </div>

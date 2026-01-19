@@ -1137,7 +1137,7 @@ export default function Home() {
 
 
 
-      <main className="flex-1 flex flex-col gap-4 px-4 py-4 md:px-8 md:py-6 relative z-10 overflow-hidden">
+      <main className="flex-1 flex flex-col gap-4 px-4 py-4 md:px-8 md:py-6 relative z-10 overflow-y-auto">
         <header className="flex flex-wrap items-start justify-between gap-3 shrink-0">
           <div className="flex items-center gap-4">
             <h1
@@ -1158,9 +1158,9 @@ export default function Home() {
 
         <div className="flex flex-col gap-4 shrink-0">
           {/* Step Grid */}
-          <section className="grid grid-cols-12 gap-4">
+          <section className="grid grid-cols-12 gap-3 sm:gap-4">
             {/* Step 1: Symbol Selection */}
-            <article className={`col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
+            <article className={`col-span-12 landscape:col-span-6 sm:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-4 sm:p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
               <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                 {t.step1}
               </h2>
@@ -1263,7 +1263,7 @@ export default function Home() {
             </article>
 
             {/* Step 2: Analysis Date */}
-            <article className={`col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
+            <article className={`col-span-12 landscape:col-span-6 sm:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-4 sm:p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
               <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                 {t.step2}
               </h2>
@@ -1379,7 +1379,7 @@ export default function Home() {
         </div>
 
         {/* Teams Grid */}
-        <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 relative z-0 rounded-[16px]">
+        <section className="grid grid-cols-2 landscape:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 relative z-0 rounded-[16px]">
           {TEAM_KEYS.map((teamKey, index) => {
             const members = teamState[teamKey];
             const completedCount = members.filter(
@@ -1509,24 +1509,24 @@ export default function Home() {
         {/* Symbol / Signal / Recommendation - Only show after generation */}
         {contextDecision && (
           <section
-            className={`flex flex-col md:flex-row items-center justify-between gap-6 rounded-[20px] px-8 py-5 ${isDarkMode ? "bg-[#0f172a] border border-white/5" : "bg-white border-[#E2E8F0] shadow-sm"
+            className={`flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 rounded-[20px] px-4 sm:px-8 py-4 sm:py-5 ${isDarkMode ? "bg-[#0f172a] border border-white/5" : "bg-white border-[#E2E8F0] shadow-sm"
               }`}
           >
             {/* Selected Asset */}
-            <div className="flex flex-col gap-1 min-w-[150px]">
+            <div className="flex flex-col gap-1 w-full sm:w-auto sm:min-w-[150px] items-center sm:items-start">
               <span
-                className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
                   }`}
               >
                 {t.signal.asset}
               </span>
               <div
-                className={`text-xl font-bold tracking-wide ${isDarkMode ? "text-white" : "text-[#0F172A]"
+                className={`text-lg sm:text-xl font-bold tracking-wide ${isDarkMode ? "text-white" : "text-[#0F172A]"
                   }`}
               >
                 {ticker || "—"}
                 <span
-                  className={`ml-1 text-sm ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                  className={`ml-1 text-xs sm:text-sm ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
                     }`}
                 >
                   {selectedMarket ? `:${selectedMarket.toUpperCase()}` : ""}
@@ -1535,16 +1535,16 @@ export default function Home() {
             </div>
 
             {/* Signal Strength */}
-            <div className="flex flex-col items-center gap-2 flex-1">
+            <div className="flex flex-col items-center gap-2 flex-1 w-full sm:w-auto">
               <span
-                className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
                   }`}
               >
                 {t.signal.strength}
               </span>
               <div className="flex flex-col items-center gap-1">
                 {/* Visual Bars */}
-                <div className="flex gap-1.5">
+                <div className="flex gap-1 sm:gap-1.5">
                   {[1, 2, 3, 4, 5].map((i) => {
                     const pc = Number(marketData?.percentChange || 0);
                     let active = false;
@@ -1567,14 +1567,14 @@ export default function Home() {
                     }
 
                     return (
-                      <div key={i} className={`h-1 w-12 rounded-sm transition-all duration-500 ${colorClass}`} />
+                      <div key={i} className={`h-1 w-8 sm:w-12 rounded-sm transition-all duration-500 ${colorClass}`} />
                     );
                   })}
                 </div>
 
                 {/* Status Text Below Bars */}
                 <span
-                  className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${Number(marketData?.percentChange || 0) > 0
+                  className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mt-1 ${Number(marketData?.percentChange || 0) > 0
                     ? "text-[#2df4c6]"
                     : Number(marketData?.percentChange || 0) < 0
                       ? "text-[#ff4500]"
@@ -1597,9 +1597,9 @@ export default function Home() {
             </div>
 
             {/* Recommendation */}
-            <div className="flex flex-col items-end gap-2 min-w-[150px]">
+            <div className="flex flex-col items-center sm:items-end gap-2 w-full sm:w-auto sm:min-w-[150px]">
               <span
-                className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
                   }`}
               >
                 {t.signal.recommendation}
@@ -1607,7 +1607,7 @@ export default function Home() {
 
               <button
                 type="button"
-                className={`h-[36px] px-6 rounded-lg text-sm font-bold uppercase tracking-wide transition-transform active:scale-95 ${(contextDecision || "").toLowerCase().includes("sell")
+                className={`h-[32px] sm:h-[36px] px-4 sm:px-6 rounded-lg text-xs sm:text-sm font-bold uppercase tracking-wide transition-transform active:scale-95 ${(contextDecision || "").toLowerCase().includes("sell")
                   ? "bg-[#ff4500] text-white shadow-lg shadow-[#ff4500]/25"
                   : (contextDecision || "").toLowerCase().includes("buy")
                     ? "bg-[#2df4c6] text-[#0f172a] shadow-lg shadow-[#2df4c6]/25"
@@ -1621,7 +1621,7 @@ export default function Home() {
         )}
 
         {/* Report Panel */}
-        <div className="flex-1 min-h-0 mt-2">
+        <div className="flex-1 min-h-[200px] sm:min-h-0 mt-2 flex flex-col">
           <ReportSections
             reportSections={language === "th" && filteredTranslatedSections.length > 0 ? filteredTranslatedSections : contextReportSections}
             isDarkMode={isDarkMode}

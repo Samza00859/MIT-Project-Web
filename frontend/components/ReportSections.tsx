@@ -315,26 +315,28 @@ const TRANSLATIONS = {
     en: {
         currentReport: "Current Report",
         liveUpdates: "Live updates from TradingAgents graph",
-        summaryReport: "Summary report",
-        fullReport: "Full report",
-        downloadPdf: "Download PDF",
+        summaryReport: "Summary",
+        fullReport: "Full",
+        downloadPdf: "PDF",
         generating: "Generating report... Please wait.",
         runPipeline: "Run the pipeline to load the latest report.",
         copyReport: "Copy report",
+        copyShort: "Copy",
         copied: "Copied!",
-        copyFailed: "Copy failed",
+        copyFailed: "Failed",
     },
     th: {
         currentReport: "รายงานปัจจุบัน",
         liveUpdates: "อัปเดตสดจากกราฟ TradingAgents",
-        summaryReport: "สรุปรายงาน",
-        fullReport: "รายงานฉบับเต็ม",
-        downloadPdf: "ดาวน์โหลด PDF",
+        summaryReport: "สรุป",
+        fullReport: "ฉบับเต็ม",
+        downloadPdf: "PDF",
         generating: "กำลังสร้างรายงาน... โปรดรอสักครู่",
         runPipeline: "เรียกใช้ระบบเพื่อโหลดรายงานล่าสุด",
         copyReport: "คัดลอกรายงาน",
-        copied: "คัดลอกแล้ว!",
-        copyFailed: "คัดลอกไม่สำเร็จ",
+        copyShort: "คัดลอก",
+        copied: "แล้ว!",
+        copyFailed: "ผิดพลาด",
     }
 };
 
@@ -359,100 +361,114 @@ export default function ReportSections({
 
     // Handle Copy Button Text Translation
     let displayCopyText = copyFeedback;
-    if (copyFeedback === "Copy report") displayCopyText = t.copyReport;
-    else if (copyFeedback === "Copied!") displayCopyText = t.copied;
-    else if (copyFeedback === "Copy failed") displayCopyText = t.copyFailed;
+    let displayCopyTextShort = copyFeedback;
+    if (copyFeedback === "Copy report") {
+        displayCopyText = t.copyReport;
+        displayCopyTextShort = t.copyShort;
+    } else if (copyFeedback === "Copied!") {
+        displayCopyText = t.copied;
+        displayCopyTextShort = t.copied;
+    } else if (copyFeedback === "Copy failed") {
+        displayCopyText = t.copyFailed;
+        displayCopyTextShort = t.copyFailed;
+    }
 
     return (
         <section
-            className={`flex h-full flex-col rounded-[20px] border p-4 md:p-6 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"
+            className={`flex flex-1 min-h-[250px] sm:h-full flex-col rounded-[20px] border p-3 sm:p-4 md:p-6 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"
                 }`}
         >
-            <header className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <div>
-                    <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{t.currentReport}</h3>
-                    <p className="text-[0.85rem] text-[#8b94ad]">
+            <header className="flex flex-col landscape:flex-row sm:flex-row items-start landscape:items-center sm:items-center justify-between gap-2 landscape:gap-3 sm:gap-3 mb-3 landscape:mb-4 sm:mb-6">
+                <div className="shrink-0">
+                    <h3 className={`text-sm sm:text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{t.currentReport}</h3>
+                    <p className="text-[10px] sm:text-[0.85rem] text-[#8b94ad] hidden sm:block">
                         {t.liveUpdates}
                     </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
-                    {/* Toggle Report Length Button */}
-                    <div className={`flex overflow-hidden rounded-full border ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-gray-200 bg-gray-50"}`}>
-                        <button
-                            onClick={() => setReportLength("summary report")}
-                            className={`px-4 py-2.5 text-xs font-semibold transition-colors ${reportLength === "summary report"
-                                ? (isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#DBEAFE] text-[#1D4ED8]")
-                                : (isDarkMode ? "text-[#8b94ad] hover:bg-white/5" : "text-[#334155] hover:bg-white")
-                                }`}
-                        >
-                            {t.summaryReport}
-                        </button>
-                        <div className={`w-px ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`} />
-                        <button
-                            onClick={() => setReportLength("full report")}
-                            className={`px-4 py-2.5 text-xs font-semibold transition-colors ${reportLength === "full report"
-                                ? (isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#DBEAFE] text-[#1D4ED8]")
-                                : (isDarkMode ? "text-[#8b94ad] hover:bg-white/5" : "text-[#334155] hover:bg-white")
-                                }`}
-                        >
-                            {t.fullReport}
-                        </button>
-                    </div>
 
-                    <div className={`h-6 w-px ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`} />
-
-                    {/* Language Toggle - Only show when not running (Thai content is available after completion via History page) */}
-                    {setLanguage && !isRunning && (
+                {/* Buttons Row - Horizontal scroll on very small mobile */}
+                <div className="w-full sm:w-auto overflow-x-auto scrollbar-hide">
+                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-max">
+                        {/* Summary/Full Toggle */}
                         <div className={`flex overflow-hidden rounded-full border ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-gray-200 bg-gray-50"}`}>
                             <button
-                                onClick={() => setLanguage("en")}
-                                className={`px-3 py-2 text-xs font-semibold transition-colors ${language === "en"
-                                    ? (isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#DBEAFE] text-[#1e3a8a]")
+                                onClick={() => setReportLength("summary report")}
+                                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium transition-colors whitespace-nowrap ${reportLength === "summary report"
+                                    ? (isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#DBEAFE] text-[#1D4ED8]")
                                     : (isDarkMode ? "text-[#8b94ad] hover:bg-white/5" : "text-[#334155] hover:bg-white")
                                     }`}
                             >
-                                EN
+                                {t.summaryReport}
                             </button>
                             <div className={`w-px ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`} />
                             <button
-                                onClick={() => setLanguage("th")}
-                                className={`px-3 py-2 text-xs font-semibold transition-colors ${language === "th"
-                                    ? (isDarkMode ? "bg-[#f59e0b]/20 text-[#f59e0b]" : "bg-[#fef3c7] text-[#b45309]")
+                                onClick={() => setReportLength("full report")}
+                                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium transition-colors whitespace-nowrap ${reportLength === "full report"
+                                    ? (isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#DBEAFE] text-[#1D4ED8]")
                                     : (isDarkMode ? "text-[#8b94ad] hover:bg-white/5" : "text-[#334155] hover:bg-white")
                                     }`}
                             >
-                                TH 🇹🇭
+                                {t.fullReport}
                             </button>
                         </div>
-                    )}
 
-                    <button
-                        onClick={handleCopyReport}
-                        className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium transition-all hover:opacity-80 ${isDarkMode
-                            ? "border-white/10 bg-transparent text-[#f8fbff]"
-                            : "border-gray-200 bg-gray-50 text-gray-900"
-                            }`}
-                    >
-                        {displayCopyText}
-                    </button>
-                    {reportSections.length > 0 && !isRunning && !reportSections.some(s => s.key === "error") && (
+                        {/* Language Toggle */}
+                        {setLanguage && !isRunning && (
+                            <div className={`flex overflow-hidden rounded-full border ${isDarkMode ? "border-white/10 bg-[#1a2133]" : "border-gray-200 bg-gray-50"}`}>
+                                <button
+                                    onClick={() => setLanguage("en")}
+                                    className={`px-2 sm:px-2.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium transition-colors ${language === "en"
+                                        ? (isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-[#DBEAFE] text-[#1e3a8a]")
+                                        : (isDarkMode ? "text-[#8b94ad] hover:bg-white/5" : "text-[#334155] hover:bg-white")
+                                        }`}
+                                >
+                                    EN
+                                </button>
+                                <div className={`w-px ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`} />
+                                <button
+                                    onClick={() => setLanguage("th")}
+                                    className={`px-2 sm:px-2.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium transition-colors ${language === "th"
+                                        ? (isDarkMode ? "bg-[#f59e0b]/20 text-[#f59e0b]" : "bg-[#fef3c7] text-[#b45309]")
+                                        : (isDarkMode ? "text-[#8b94ad] hover:bg-white/5" : "text-[#334155] hover:bg-white")
+                                        }`}
+                                >
+                                    TH
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Copy Button */}
                         <button
-                            onClick={handleDownloadPdf}
-                            className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium transition-all ${isDarkMode
-                                    ? "text-[#2df4c6] border-white/20 bg-transparent hover:bg-[#2df4c6]/10"
-                                    : "text-white border-[#1D4ED8] bg-[#1D4ED8] hover:bg-[#1E40AF]"
+                            onClick={handleCopyReport}
+                            className={`cursor-pointer rounded-full border px-2.5 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium transition-all whitespace-nowrap hover:opacity-80 ${isDarkMode
+                                ? "border-white/10 bg-transparent text-[#f8fbff]"
+                                : "border-gray-200 bg-gray-50 text-gray-900"
                                 }`}
                         >
-                            {t.downloadPdf}
+                            <span className="sm:hidden">{displayCopyTextShort}</span>
+                            <span className="hidden sm:inline">{displayCopyText}</span>
                         </button>
-                    )}
 
-                    {/* Compact Telegram Button */}
-                    <TelegramConnect variant="header-button" />
+                        {/* Download PDF Button */}
+                        {reportSections.length > 0 && !isRunning && !reportSections.some(s => s.key === "error") && (
+                            <button
+                                onClick={handleDownloadPdf}
+                                className={`cursor-pointer rounded-full border px-2.5 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium transition-all whitespace-nowrap ${isDarkMode
+                                    ? "text-[#2df4c6] border-white/20 bg-transparent hover:bg-[#2df4c6]/10"
+                                    : "text-white border-[#1D4ED8] bg-[#1D4ED8] hover:bg-[#1E40AF]"
+                                    }`}
+                            >
+                                {t.downloadPdf}
+                            </button>
+                        )}
+
+                        {/* Telegram Button */}
+                        <TelegramConnect variant="header-button" />
+                    </div>
                 </div>
             </header>
             <article
-                className={`flex-1 min-h-0 overflow-auto rounded-2xl p-4 text-sm leading-relaxed text-[#8b94ad] md:p-6 md:text-base lg:p-6 ${isDarkMode ? "bg-[#090d17]" : "bg-gray-50"
+                className={`flex-1 min-h-[150px] sm:min-h-[200px] overflow-auto rounded-2xl p-3 sm:p-4 text-xs sm:text-sm leading-relaxed text-[#8b94ad] md:p-6 md:text-base lg:p-6 ${isDarkMode ? "bg-[#090d17]" : "bg-gray-50"
                     }`}
             >
                 {reportSections.length === 0 ? (
