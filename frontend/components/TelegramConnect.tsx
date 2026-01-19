@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { buildApiUrl, mapFetchError } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
 
 declare global {
     interface Window {
@@ -12,7 +13,49 @@ interface TelegramConnectProps {
     variant?: "card" | "header-button";
 }
 
+const TRANSLATIONS = {
+    en: {
+        sendToTelegram: "Send to Telegram",
+        title: "Telegram Notifications",
+        subtitle: "Receive real-time trading updates",
+        connected: "Connected Successfully",
+        changeAccount: "Change Account",
+        enterBot: "1. Enter Bot Username",
+        connect: "2. Connect & Auto-Detect",
+        openAndConnect: "Open Telegram & Connect",
+        listening: "Listening...",
+        checking: "Checking for connection... Press START in the Telegram window.",
+        botDesc: "* Username of your bot from BotFather",
+        notificationsEnabled: "Notifications enabled",
+        successPrefix: "Success! Connected to ",
+        timeout: "Connection timed out. Please try again.",
+        waitMessage: "Waiting for you to press 'Start' on Telegram...",
+        enterBotFirst: "Please enter a bot username first."
+    },
+    th: {
+        sendToTelegram: "ส่งเข้า Telegram",
+        title: "การแจ้งเตือน Telegram",
+        subtitle: "รับข้อมูลการเทรดแบบเรียลไทม์",
+        connected: "เชื่อมต่อสำเร็จ",
+        changeAccount: "เปลี่ยนบัญชี",
+        enterBot: "1. ใส่ชื่อบอท (Bot ID)",
+        connect: "2. เชื่อมต่อและค้นหาอัตโนมัติ",
+        openAndConnect: "เปิด Telegram และเชื่อมต่อ",
+        listening: "กำลังรอ...",
+        checking: "กำลังตรวจสอบการเชื่อมต่อ... กด START ในหน้า Telegram",
+        botDesc: "* ชื่อผู้ใช้บอทของคุณจาก BotFather",
+        notificationsEnabled: "เปิดการแจ้งเตือนอยู่",
+        successPrefix: "สำเร็จ! เชื่อมต่อกับ ",
+        timeout: "หมดเวลาเชื่อมต่อ กรุณาลองใหม่",
+        waitMessage: "กำลังรอให้คุณกด 'Start' บน Telegram...",
+        enterBotFirst: "กรุณาระบุชื่อบอทก่อน"
+    }
+};
+
 export default function TelegramConnect({ variant = "card" }: TelegramConnectProps) {
+    const { language } = useLanguage();
+    const t = TRANSLATIONS[language] || TRANSLATIONS.en;
+
     const [botName, setBotName] = useState("Stock_Price_error_bot");
     // const [isWidgetLoaded, setIsWidgetLoaded] = useState(false); // No longer needed as widget is removed
     const [status, setStatus] = useState<"idle" | "connected" | "error">("idle");
@@ -286,7 +329,7 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
                     className="flex items-center gap-2 cursor-pointer rounded-full bg-[#24a1de] px-4 py-2.5 text-xs font-bold text-white transition-all hover:bg-[#2095cf] shadow-sm hover:shadow-md"
                 >
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.4-1.08.4-.35 0-1.03-.2-1.54-.35-.62-.18-1.12-.28-1.08-.59.02-.16.24-.32.65-.49 2.56-1.11 4.27-1.85 5.13-2.2 2.44-1.01 2.95-1.18 3.28-1.18.07 0 .23.01.33.09.09.07.12.17.13.24 0 .04.01.07.01.12z" /></svg>
-                    Send to Telegram
+                    {t.sendToTelegram}
                 </button>
 
                 {isOpen && (

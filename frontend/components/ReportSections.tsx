@@ -311,6 +311,33 @@ function RenderJsonData({ data, isDarkMode }: { data: any; isDarkMode: boolean }
     return <p>{String(parsedData)}</p>;
 }
 
+const TRANSLATIONS = {
+    en: {
+        currentReport: "Current Report",
+        liveUpdates: "Live updates from TradingAgents graph",
+        summaryReport: "Summary report",
+        fullReport: "Full report",
+        downloadPdf: "Download PDF",
+        generating: "Generating report... Please wait.",
+        runPipeline: "Run the pipeline to load the latest report.",
+        copyReport: "Copy report",
+        copied: "Copied!",
+        copyFailed: "Copy failed",
+    },
+    th: {
+        currentReport: "รายงานปัจจุบัน",
+        liveUpdates: "อัปเดตสดจากกราฟ TradingAgents",
+        summaryReport: "สรุปรายงาน",
+        fullReport: "รายงานฉบับเต็ม",
+        downloadPdf: "ดาวน์โหลด PDF",
+        generating: "กำลังสร้างรายงาน... โปรดรอสักครู่",
+        runPipeline: "เรียกใช้ระบบเพื่อโหลดรายงานล่าสุด",
+        copyReport: "คัดลอกรายงาน",
+        copied: "คัดลอกแล้ว!",
+        copyFailed: "คัดลอกไม่สำเร็จ",
+    }
+};
+
 export default function ReportSections({
     reportSections,
     isDarkMode,
@@ -328,6 +355,14 @@ export default function ReportSections({
     setLanguage,
     isTranslating = false,
 }: ReportSectionsDisplayProps) {
+    const t = TRANSLATIONS[language] || TRANSLATIONS.en;
+
+    // Handle Copy Button Text Translation
+    let displayCopyText = copyFeedback;
+    if (copyFeedback === "Copy report") displayCopyText = t.copyReport;
+    else if (copyFeedback === "Copied!") displayCopyText = t.copied;
+    else if (copyFeedback === "Copy failed") displayCopyText = t.copyFailed;
+
     return (
         <section
             className={`flex h-full flex-col rounded-[20px] border p-4 md:p-6 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-gray-200 bg-white shadow-sm"
@@ -335,9 +370,9 @@ export default function ReportSections({
         >
             <header className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div>
-                    <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Current Report</h3>
+                    <h3 className={`font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{t.currentReport}</h3>
                     <p className="text-[0.85rem] text-[#8b94ad]">
-                        Live updates from TradingAgents graph
+                        {t.liveUpdates}
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
@@ -350,7 +385,7 @@ export default function ReportSections({
                                 : (isDarkMode ? "text-[#8b94ad] hover:bg-white/5" : "text-[#334155] hover:bg-white")
                                 }`}
                         >
-                            Summary report
+                            {t.summaryReport}
                         </button>
                         <div className={`w-px ${isDarkMode ? "bg-white/10" : "bg-gray-200"}`} />
                         <button
@@ -360,7 +395,7 @@ export default function ReportSections({
                                 : (isDarkMode ? "text-[#8b94ad] hover:bg-white/5" : "text-[#334155] hover:bg-white")
                                 }`}
                         >
-                            Full report
+                            {t.fullReport}
                         </button>
                     </div>
 
@@ -398,18 +433,17 @@ export default function ReportSections({
                             : "border-gray-200 bg-gray-50 text-gray-900"
                             }`}
                     >
-                        {copyFeedback}
+                        {displayCopyText}
                     </button>
                     {reportSections.length > 0 && !isRunning && !reportSections.some(s => s.key === "error") && (
                         <button
                             onClick={handleDownloadPdf}
-                            className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium transition-all ${
-                                isDarkMode
+                            className={`cursor-pointer rounded-full border px-4 py-2.5 text-xs font-medium transition-all ${isDarkMode
                                     ? "text-[#2df4c6] border-white/20 bg-transparent hover:bg-[#2df4c6]/10"
                                     : "text-white border-[#1D4ED8] bg-[#1D4ED8] hover:bg-[#1E40AF]"
-                            }`}
+                                }`}
                         >
-                            Download PDF
+                            {t.downloadPdf}
                         </button>
                     )}
 
@@ -426,10 +460,10 @@ export default function ReportSections({
                         {isRunning ? (
                             <div className="flex flex-col items-center gap-4 animate-pulse">
                                 <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#2df4c6] border-t-transparent"></div>
-                                <p className="text-[#2df4c6] font-medium">Generating report... Please wait.</p>
+                                <p className="text-[#2df4c6] font-medium">{t.generating}</p>
                             </div>
                         ) : (
-                            <p>Run the pipeline to load the latest report.</p>
+                            <p>{t.runPipeline}</p>
                         )}
                     </div>
                 ) : (

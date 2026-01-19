@@ -25,11 +25,32 @@ const TRANSLATIONS = {
     generate: "Generate",
     stop: "Stop",
     teams: {
-      analyst: { title: "Analyst team", sub: "Market • News • Social • Fundamentals" },
-      research: { title: "Research team", sub: "Bull • Bear • Manager" },
-      trader: { title: "Trader team", sub: "Execution" },
-      risk: { title: "Risk & Portfolio", sub: "Risky • Neutral • Safe • Manager" },
-      portfolio: { title: "Portfolio Management", sub: "Portfolio" }
+      analyst: { title: "Analyst team" },
+      research: { title: "Research team" },
+      trader: { title: "Trader team" },
+      risk: { title: "Risk & Portfolio" },
+      portfolio: { title: "Portfolio Management" }
+    },
+    roles: {
+      "Market Analyst": "Market Analyst",
+      "Social Media Analyst": "Social Media Analyst",
+      "News Analyst": "News Analyst",
+      "Fundamentals Analyst": "Fundamentals Analyst",
+      "Bull Research": "Bull Research",
+      "Bear Research": "Bear Research",
+      "Research Manager": "Research Manager",
+      "Trader": "Trader",
+      "Risk Analyst": "Risk Analyst",
+      "Neutral Analyst": "Neutral Analyst",
+      "Safe Analyst": "Safe Analyst",
+      "Portfolio Manager": "Portfolio Manager"
+    },
+    progressStatus: {
+      ready: "Ready",
+      pending: "Pending",
+      in_progress: "Working",
+      completed: "Completed",
+      error: "Error"
     },
     signal: {
       asset: "Selected Asset",
@@ -45,7 +66,7 @@ const TRANSLATIONS = {
       strongBull: "Strong Bullish"
     },
     search: {
-      placeholder: "AAPL",
+      placeholder: "Search Symbol",
       popular: "Popular Recommendations",
       results: "Search Results"
     }
@@ -59,11 +80,32 @@ const TRANSLATIONS = {
     generate: "เริ่มวิเคราะห์",
     stop: "หยุดการทำงาน",
     teams: {
-      analyst: { title: "ทีมรวบรวมข้อมูล", sub: "ข้อมูลตลาด • ข่าว • โซเชียล • งบการเงิน" },
-      research: { title: "ทีมวิเคราะห์และวิจัย", sub: "Bull • Bear • ผู้จัดการ" },
-      trader: { title: "ทีมเทรดเดอร์", sub: "ตัดสินใจซื้อขาย" },
-      risk: { title: "ทีมบริหารความเสี่ยง", sub: "ความเสี่ยง • การจัดพอร์ต" },
-      portfolio: { title: "ผู้จัดการกองทุน", sub: "อนุมัติคำสั่ง" }
+      analyst: { title: "ทีมรวบรวมข้อมูล" },
+      research: { title: "ทีมวิเคราะห์และวิจัย" },
+      trader: { title: "ทีมเทรดเดอร์" },
+      risk: { title: "ทีมบริหารความเสี่ยง" },
+      portfolio: { title: "ผู้จัดการกองทุน" }
+    },
+    roles: {
+      "Market Analyst": "นักวิเคราะห์ตลาด",
+      "Social Media Analyst": "นักวิเคราะห์โซเชียล",
+      "News Analyst": "นักวิเคราะห์ข่าว",
+      "Fundamentals Analyst": "นักวิเคราะห์พื้นฐาน",
+      "Bull Research": "วิจัยแนวโน้มขาขึ้น",
+      "Bear Research": "วิจัยแนวโน้มขาลง",
+      "Research Manager": "ผู้จัดการงานวิจัย",
+      "Trader": "เทรดเดอร์",
+      "Risk Analyst": "นักวิเคราะห์ความเสี่ยง",
+      "Neutral Analyst": "วิเคราะห์แนวโน้มกลาง",
+      "Safe Analyst": "นักวิเคราะห์ความปลอดภัย",
+      "Portfolio Manager": "ผู้จัดการพอร์ต"
+    },
+    progressStatus: {
+      ready: "พร้อม",
+      pending: "รอ",
+      in_progress: "กำลังทำ",
+      completed: "เสร็จสิ้น",
+      error: "ผิดพลาด"
     },
     signal: {
       asset: "สินทรัพย์ที่เลือก",
@@ -1116,9 +1158,9 @@ export default function Home() {
 
         <div className="flex flex-col gap-4 shrink-0">
           {/* Step Grid */}
-          <section className="grid grid-cols-12 gap-4 h-[140px]">
+          <section className="grid grid-cols-12 gap-4">
             {/* Step 1: Symbol Selection */}
-            <article className={`col-span-12 md:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
+            <article className={`col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
               <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                 {t.step1}
               </h2>
@@ -1221,7 +1263,7 @@ export default function Home() {
             </article>
 
             {/* Step 2: Analysis Date */}
-            <article className={`col-span-12 md:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
+            <article className={`col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
               <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                 {t.step2}
               </h2>
@@ -1337,7 +1379,7 @@ export default function Home() {
         </div>
 
         {/* Teams Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 relative z-0 rounded-[16px]">
+        <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 relative z-0 rounded-[16px]">
           {TEAM_KEYS.map((teamKey, index) => {
             const members = teamState[teamKey];
             const completedCount = members.filter(
@@ -1366,45 +1408,36 @@ export default function Home() {
             const showError = isGenerationComplete && isAllPending;
 
             let headerTitle = "";
-            let headerSub = "";
             if (teamKey === "analyst") {
               headerTitle = t.teams.analyst.title;
-              headerSub = t.teams.analyst.sub;
             } else if (teamKey === "research") {
               headerTitle = t.teams.research.title;
-              headerSub = t.teams.research.sub;
             } else if (teamKey === "trader") {
               headerTitle = t.teams.trader.title;
-              headerSub = t.teams.trader.sub;
             } else if (teamKey === "risk") {
               headerTitle = t.teams.risk.title;
-              headerSub = t.teams.risk.sub;
             } else if (teamKey === "portfolio") {
               headerTitle = t.teams.portfolio.title;
-              headerSub = t.teams.portfolio.sub;
             }
 
             return (
               <article
                 key={teamKey}
-                className={`flex flex-col gap-4 rounded-[20px] border p-5 ${showError
+                className={`flex flex-col gap-3 rounded-xl border p-3 ${showError
                   ? "border-red-500 bg-red-50/10"
                   : isDarkMode
                     ? "border-white/5 bg-[#111726]"
                     : "border-[#2563EB]/25 bg-white/80 backdrop-blur-sm shadow-[0_8px_24px_rgba(37,99,235,0.15)]"
                   }`}
               >
-                <header className="flex items-center justify-between gap-4">
+                <header className="flex items-center justify-between gap-3">
                   <div>
-                    <p className={`text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>
+                    <p className={`text-xs sm:text-sm font-bold ${isDarkMode ? "text-white" : "text-[#0F172A]"}`}>
                       {headerTitle}
                     </p>
-                    <span className={`text-[0.85rem] ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
-                      {headerSub}
-                    </span>
                   </div>
                   <div
-                    className="relative grid h-20 w-20 shrink-0 place-items-center rounded-full"
+                    className="relative grid h-8 w-8 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-full"
                     style={{
                       background: isDarkMode
                         ? `conic-gradient(#2df4c6 ${(progress / 100) * 360}deg, rgba(255,255,255,0.05) 0deg)`
@@ -1412,23 +1445,36 @@ export default function Home() {
                       transition: "background 1s ease-out",
                     }}
                   >
-                    <div className={`absolute inset-[10px] rounded-full ${isDarkMode ? "bg-[#111726]" : "bg-white/80"}`}></div>
-                    <span className="relative font-semibold">{progress}%</span>
+                    <div className={`absolute inset-[3px] sm:inset-[4px] rounded-full ${isDarkMode ? "bg-[#111726]" : "bg-white/80"}`}></div>
+                    <span className="relative text-[10px] sm:text-xs font-bold">{progress}%</span>
                   </div>
                 </header>
-                <ul className="flex flex-col gap-2.5">
+                <ul className="flex flex-col gap-1 sm:gap-1.5">
                   {members.map((member, idx) => {
-                    let statusLabel = member.status.replace("_", " ");
+                    // Translation for role and status
+                    // @ts-ignore
+                    // @ts-ignore
+                    const memberRole = t.roles[member.name] || member.name;
+
+                    let effectiveStatus = member.status;
+                    if (member.status === "pending" && !isRunning && contextProgress === 0) {
+                      effectiveStatus = "ready";
+                    }
+
+                    // @ts-ignore
+                    let statusLabel = t.progressStatus[effectiveStatus] || effectiveStatus;
+
                     let statusColorClass = "";
 
-                    if (member.status === "completed") {
-                      statusLabel = "Completed";
+                    if (effectiveStatus === "completed") {
                       statusColorClass = isDarkMode
-                        ? "bg-[#1D4ED8]/20 text-[#BFDBFE]"
+                        ? "bg-[#1D4ED8]/20 text-[#2563EB]"
                         : "bg-[#DBEAFE] text-[#1D4ED8]";
-                    } else if (member.status === "pending") {
+                    } else if (effectiveStatus === "pending") {
                       statusColorClass = isDarkMode ? "bg-[#f9a826]/10 text-[#f9a826]" : "bg-[#EFF6FF] text-[#2563EB]";
-                    } else if (member.status === "in_progress") {
+                    } else if (effectiveStatus === "ready") {
+                      statusColorClass = isDarkMode ? "bg-[#64748B]/20 text-[#94A3B8]" : "bg-[#F1F5F9] text-[#64748B]";
+                    } else if (effectiveStatus === "in_progress") {
                       statusColorClass = isDarkMode ? "bg-[#3db8ff]/10 text-[#3db8ff]" : "bg-[#DBEAFE] text-[#2563EB]";
                     } else {
                       statusColorClass = "bg-[#ff4d6d]/10 text-[#ff4d6d]";
@@ -1437,14 +1483,14 @@ export default function Home() {
                     return (
                       <li
                         key={idx}
-                        className={`flex flex-wrap items-center justify-between gap-y-1 text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}
+                        className={`flex flex-wrap items-center justify-between gap-y-1 text-[10px] sm:text-xs ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}
                       >
-                        <span className={isDarkMode ? "" : "text-[#334155]"}>{member.name}</span>
+                        <span className={`truncate max-w-[80px] sm:max-w-none ${isDarkMode ? "" : "text-[#334155]"}`}>{memberRole}</span>
                         <span
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs capitalize ${statusColorClass}`}
+                          className={`inline-flex items-center gap-1 leading-none rounded-full px-1.5 py-0.5 sm:px-2 sm:py-0.5 text-[9px] sm:text-[10px] capitalize ${statusColorClass}`}
                         >
                           {(member.status === "in_progress" || (member.status === "pending" && isRunning)) && (
-                            <svg className="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <svg className="h-2.5 w-2.5 sm:h-3 sm:w-3 animate-spin" viewBox="0 0 24 24" fill="none">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                             </svg>
