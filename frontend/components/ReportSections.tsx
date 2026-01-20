@@ -463,7 +463,7 @@ export default function ReportSections({
                         )}
 
                         {/* Telegram Button */}
-                        <TelegramConnect variant="header-button" />
+                        <TelegramConnect variant="header-button" data={reportSections} />
                     </div>
                 </div>
             </header>

@@ -1,96 +1,32 @@
 🏷️ Stock Data Source Comparison Result:
 
-===== TOTAL RECORDS CHECK (IBM - US) =====
-YFinance (IBM):      250
-TwelveData (IBM):    250
-TradingView (IBM):   0
+===== TOTAL RECORDS CHECK (NVDA - US) =====
+YFinance (NVDA):      250
+TwelveData (NVDA):    250
+TradingView (NVDA):   0
 
 
 ===== SIMILARITY SCORE =====
-YFinance Score: 64
-TwelveData Score: 64
+YFinance Score: 60
+TwelveData Score: 60
 TradingView Score: 0
 
 🏆 Best Source: YFINANCE
 
 
 🌐 Social Media News: 
-Bluesky news fetched for AAPL: 27 posts found.
-Mastodon news fetched for AAPL: 120 posts found.
+Bluesky news fetched for NVDA: 24 posts found.
+Mastodon news fetched for NVDA: 120 posts found.
+Subreddit news fetched for NVDA: 10 posts found.
 
-🌐 Social Media News: 
-Bluesky news fetched for AAPL: 27 posts found.
-Mastodon news fetched for AAPL: 120 posts found.
 📰 News :
-Fetched 50 news items for AAPL from Finnhub.
-Yfinance global news have : 47 posts.
-Fetched 10 news items for AAPL from YFinance.
-Finnhub global news have : 50 posts.
+Fetched 50 news items for NVDA from Finnhub.
+Fetched 0 news items for NVDA from Reddit.
+Fetched 10 news items for NVDA from YFinance.
+Fetched 50 news items for NVDA from Alpha Vantage.
 
-Fetched 50 news items for AAPL from Alpha Vantage.
-
-🌐 Social Media News: 
-Bluesky news fetched for AAPL: 27 posts found.
-Mastodon news fetched for AAPL: 120 posts found.
-Yfinance global news have : 48 posts.
-📰 News :
-Fetched 50 news items for AAPL from Finnhub.
-Finnhub global news have : 50 posts.
-
-Fetched 10 news items for AAPL from YFinance.
-Fetched 50 news items for AAPL from Alpha Vantage.
-
-🌐 Social Media News: 
-Bluesky news fetched for MSFT: 31 posts found.
-Mastodon news fetched for MSFT: 120 posts found.
-📰 News :
-Fetched 50 news items for MSFT from Finnhub.
-Yfinance global news have : 47 posts.
-Fetched 10 news items for MSFT from YFinance.
-Finnhub global news have : 50 posts.
-
-Fetched 50 news items for MSFT from Alpha Vantage.
-
-🌐 Social Media News: 
-Bluesky news fetched for AMZN: 32 posts found.
-Mastodon news fetched for AMZN: 120 posts found.
-Yfinance global news have : 47 posts.
-📰 News :
-Fetched 50 news items for AMZN from Finnhub.
-Fetched 10 news items for AMZN from YFinance.
-Fetched 50 news items for AMZN from Alpha Vantage.
-Finnhub global news have : 50 posts.
-
-
-🌐 Social Media News: 
-Bluesky news fetched for TSLA: 30 posts found.
-Mastodon news fetched for TSLA: 120 posts found.
-Yfinance global news have : 49 posts.
-📰 News :
-Fetched 50 news items for TSLA from Finnhub.
-Finnhub global news have : 50 posts.
-
-Fetched 10 news items for TSLA from YFinance.
-Fetched 50 news items for TSLA from Alpha Vantage.
-Mastodon news fetched for AMD: 120 posts found.
-
-🌐 Social Media News: 
-Bluesky news fetched for AMD: 32 posts found.
+🌏 Global News: 
+Reddit global news have : 40 posts.
 Yfinance global news have : 49 posts.
 Finnhub global news have : 50 posts.
 
-📰 News :
-Fetched 50 news items for AMD from Finnhub.
-Fetched 10 news items for AMD from YFinance.
-Fetched 50 news items for AMD from Alpha Vantage.
-Mastodon news fetched for AMD: 120 posts found.
-
-🌐 Social Media News: 
-Bluesky news fetched for AMD: 32 posts found.
-Yfinance global news have : 49 posts.
-📰 News :
-Fetched 50 news items for AMD from Finnhub.
-Finnhub global news have : 50 posts.
-
-Fetched 10 news items for AMD from YFinance.
-Fetched 50 news items for AMD from Alpha Vantage.
