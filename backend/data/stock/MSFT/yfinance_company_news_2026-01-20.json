@@ -1,0 +1,607 @@
+[
+  {
+    "id": "ac1b7cd7-5c3a-41f6-84cc-9f27df508da0",
+    "content": {
+      "id": "ac1b7cd7-5c3a-41f6-84cc-9f27df508da0",
+      "contentType": "STORY",
+      "title": "'A broadening playbook': Wall Street sees stock market gains beyond tech",
+      "description": "",
+      "summary": "Enthusiasm for artificial intelligence's prospects will continue to drive the market higher in 2026. The gains won't be limited to tech stocks, strategists say.",
+      "pubDate": "2026-01-18T16:05:56Z",
+      "displayTime": "2026-01-19T15:15:59Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://s.yimg.com/os/creatr-uploaded-images/2026-01/b7798ba0-f2f9-11f0-bdfd-6f91897d0d7a",
+        "originalWidth": 4898,
+        "originalHeight": 3265,
+        "caption": "",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/uZ.qge_FqrXSfvbSd2LCcg--~B/aD0zMjY1O3c9NDg5ODthcHBpZD15dGFjaHlvbg--/https://s.yimg.com/os/creatr-uploaded-images/2026-01/b7798ba0-f2f9-11f0-bdfd-6f91897d0d7a",
+            "width": 4898,
+            "height": 3265,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/lrdx8vbEfVq4s7sy9ZluYg--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://s.yimg.com/os/creatr-uploaded-images/2026-01/b7798ba0-f2f9-11f0-bdfd-6f91897d0d7a",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Yahoo Finance",
+        "url": "http://finance.yahoo.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://finance.yahoo.com/news/a-broadening-playbook-wall-street-sees-stock-market-gains-beyond-tech-160556466.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/a-broadening-playbook-wall-street-sees-stock-market-gains-beyond-tech-160556466.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": true
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "5befc374-09c4-34c0-bf5c-e88299c9b289",
+    "content": {
+      "id": "5befc374-09c4-34c0-bf5c-e88299c9b289",
+      "contentType": "STORY",
+      "title": "2 Top Quantum Computing Stocks to Buy in January",
+      "description": "",
+      "summary": "Alphabet and Microsoft have the tech chops and cash to win in quantum computing.",
+      "pubDate": "2026-01-20T05:20:00Z",
+      "displayTime": "2026-01-20T05:20:00Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/motleyfool.com/a03ffe07635ac8f434ae95d67637f1c9",
+        "originalWidth": 1200,
+        "originalHeight": 633,
+        "caption": "People working around a quantum computer.",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/c1R1HhxFDmYILiaIe97Bng--~B/aD02MzM7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a03ffe07635ac8f434ae95d67637f1c9",
+            "width": 1200,
+            "height": 633,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/nrlip5buCyjFqJWPX9vYKA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/a03ffe07635ac8f434ae95d67637f1c9",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Motley Fool",
+        "url": "http://www.fool.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://www.fool.com/investing/2026/01/20/2-top-quantum-computing-stocks-to-buy-in-january/",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/2-top-quantum-computing-stocks-052000940.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "5c7f1161-d886-332d-b351-44b9dd6aed8f",
+    "content": {
+      "id": "5c7f1161-d886-332d-b351-44b9dd6aed8f",
+      "contentType": "STORY",
+      "title": "Elliott Invests in Hypersonic-Flight Company Stratolaunch",
+      "description": "",
+      "summary": "Elliott Investment Management has made an investment in Stratolaunch, a privately held hypersonic-flight company, according to people familiar with the matter.  Elliott will also gain board representation at Stratolaunch, the people said.  Elliott’s investment is worth several hundred million dollars; the exact size couldn’t be learned.",
+      "pubDate": "2026-01-20T00:00:00Z",
+      "displayTime": "2026-01-20T00:00:00Z",
+      "isHosted": false,
+      "bypassModal": false,
+      "previewUrl": "https://finance.yahoo.com/m/5c7f1161-d886-332d-b351-44b9dd6aed8f/elliott-invests-in.html",
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/wsj.com/66108de7b9960487efa99afdd30fdf30",
+        "originalWidth": 1280,
+        "originalHeight": 640,
+        "caption": "",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/OBqAkE6PgvJhXBj.k1PoaA--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/66108de7b9960487efa99afdd30fdf30",
+            "width": 1280,
+            "height": 640,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/newcKC6k6WscqLvVKFQ0Gw--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/wsj.com/66108de7b9960487efa99afdd30fdf30",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "The Wall Street Journal",
+        "url": "http://www.wsj.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://www.wsj.com/business/deals/elliott-invests-in-hypersonic-flight-company-stratolaunch-db379965?siteid=yhoof2&yptr=yahoo",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": null,
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "29f32d50-cd55-36d3-a7ee-ce8e56f13be0",
+    "content": {
+      "id": "29f32d50-cd55-36d3-a7ee-ce8e56f13be0",
+      "contentType": "STORY",
+      "title": "Applied Optoelectronics, Inc. (AAOI): A Bull Case Theory",
+      "description": "",
+      "summary": "We came across a bullish thesis on Applied Optoelectronics, Inc. on Make Money, Make Time’s Substack by Oliver | MMMT Wealth. In this article, we will summarize the bulls’ thesis on AAOI. Applied Optoelectronics, Inc.’s share was trading at $34.47 as of January 14th. AAOI’s forward P/E was 84.03 according to Yahoo Finance. Applied Optoelectronics, Inc. (AAOI) is […]",
+      "pubDate": "2026-01-19T22:35:19Z",
+      "displayTime": "2026-01-19T22:35:19Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/insidermonkey.com/15f3588c490ebe61c410c45a1e685440",
+        "originalWidth": 1000,
+        "originalHeight": 667,
+        "caption": "Lumentum (LITE) Hits New 52-Week High on Bullish Rating, Improved Q1 Earnings",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/1N5B_IamuGoDgNaoqLIMGg--~B/aD02Njc7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/15f3588c490ebe61c410c45a1e685440",
+            "width": 1000,
+            "height": 667,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/To6DK5Z30RjB5sNWUO5PbQ--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/15f3588c490ebe61c410c45a1e685440",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Insider Monkey",
+        "url": "http://www.insidermonkey.com"
+      },
+      "canonicalUrl": {
+        "url": "https://finance.yahoo.com/news/applied-optoelectronics-inc-aaoi-bull-223519462.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/applied-optoelectronics-inc-aaoi-bull-223519462.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "8d2ea995-5486-3141-bb84-efc9a2f08086",
+    "content": {
+      "id": "8d2ea995-5486-3141-bb84-efc9a2f08086",
+      "contentType": "STORY",
+      "title": "1 Unstoppable Artificial Intelligence (AI) Stock to Buy Before It Soars More Than 30% in 2026, According to a Wall Street Analyst",
+      "description": "",
+      "summary": "Palantir stock has been one of the top performers of the AI wave for three years and counting.",
+      "pubDate": "2026-01-19T21:25:00Z",
+      "displayTime": "2026-01-19T21:25:00Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/motleyfool.com/bb6f001d57eb128d9578c54e3cd629da",
+        "originalWidth": 1400,
+        "originalHeight": 933,
+        "caption": "Palantir logo.",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/QaPZLRABP64sMdJ9bbiftg--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/bb6f001d57eb128d9578c54e3cd629da",
+            "width": 1400,
+            "height": 933,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/TokFf5H0NOfA.ZJXmlx9rA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/bb6f001d57eb128d9578c54e3cd629da",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Motley Fool",
+        "url": "http://www.fool.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://www.fool.com/investing/2026/01/19/1-unstoppable-artificial-intelligence-ai-stock-to/",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/1-unstoppable-artificial-intelligence-ai-212500921.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "c8a7edcb-a18c-33d7-aabc-b1f3f21ca1a4",
+    "content": {
+      "id": "c8a7edcb-a18c-33d7-aabc-b1f3f21ca1a4",
+      "contentType": "STORY",
+      "title": "Bill Gates Was World's Richest Person In 2016—A Decade Later He's Not Even In The Top 10 As Elon Musk And Others Rewrite The Wealth Rankings",
+      "description": "",
+      "summary": "Bill Gates once sat atop the global rich list, but a decade-long surge in tech-driven fortunes has dramatically reshaped billionaire rankings and pushed the Microsoft Corp co-founder out of the top 10. From $559 Billion To $2.6 Trillion: A Decade Of Explosive Wealth Growth At the end of 2015, the world's 10 wealthiest individuals were collectively worth about $559 billion, reported Business Insider, citing the Bloomberg Billionaires Index. By January 2026, that figure had ballooned to roughly $2",
+      "pubDate": "2026-01-19T19:31:06Z",
+      "displayTime": "2026-01-19T19:31:06Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/Benzinga/b890caeed39cd4be5ea7b73e4cfa27ce",
+        "originalWidth": 1024,
+        "originalHeight": 681,
+        "caption": "",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/LW8bSUHE4x_ES89yZuqcNQ--~B/aD02ODE7dz0xMDI0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Benzinga/b890caeed39cd4be5ea7b73e4cfa27ce",
+            "width": 1024,
+            "height": 681,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/3NDzQz0Ki2R3_3YS70AIiw--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/Benzinga/b890caeed39cd4be5ea7b73e4cfa27ce",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Benzinga",
+        "url": "http://www.benzinga.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://finance.yahoo.com/news/bill-gates-worlds-richest-person-193106053.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/bill-gates-worlds-richest-person-193106053.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "455587d4-ada0-3ee8-9cc3-34d4bdcd5181",
+    "content": {
+      "id": "455587d4-ada0-3ee8-9cc3-34d4bdcd5181",
+      "contentType": "STORY",
+      "title": "Musk vs Altman: OpenAI Trial Testimony 'Will Blow Your Mind,' Says Musk",
+      "description": "",
+      "summary": "As the legal battle between Elon Musk, OpenAI, and Microsoft Corporation (NASDAQ:MSFT) heats up, Musk has expressed his eagerness for the upcoming trial, promising explosive revelations. Musk, a co-founder of OpenAI, has sued the artificial intelligence firm and its CEO, Sam Altman. He alleges that OpenAI defrauded him by transitioning into a for-profit venture, contrary to its original non-profit mission. Musk is seeking damages of up to $134 billion from OpenAI and Microsoft, claiming wrongful",
+      "pubDate": "2026-01-19T19:01:12Z",
+      "displayTime": "2026-01-19T19:01:12Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/Benzinga/c86870d8c0ff8759f634617281a34470",
+        "originalWidth": 1024,
+        "originalHeight": 683,
+        "caption": "",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/D_vMbqZnRCB_FQ58P5y0Pw--~B/aD02ODM7dz0xMDI0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Benzinga/c86870d8c0ff8759f634617281a34470",
+            "width": 1024,
+            "height": 683,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/rZ3_JE0SAvTKMwmsYfl1hA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/Benzinga/c86870d8c0ff8759f634617281a34470",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Benzinga",
+        "url": "http://www.benzinga.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://finance.yahoo.com/news/musk-vs-altman-openai-trial-190112311.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/musk-vs-altman-openai-trial-190112311.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "f87e8b1c-d531-3ec8-843d-e260e36e9d68",
+    "content": {
+      "id": "f87e8b1c-d531-3ec8-843d-e260e36e9d68",
+      "contentType": "STORY",
+      "title": "Musk Files Damages Claim Seeking Up to $134 Billion From OpenAI, Microsoft",
+      "description": "",
+      "summary": "Court filing outlines damages tied to OpenAI's valuation as jury trial is set for late April in California.",
+      "pubDate": "2026-01-19T18:25:26Z",
+      "displayTime": "2026-01-19T18:25:26Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/us.finance.gurufocus/cc83e8dd59638b7b08a444368555b62c",
+        "originalWidth": 400,
+        "originalHeight": 400,
+        "caption": "",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/JRGh0i6viScgD2wticbE2g--~B/aD00MDA7dz00MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/us.finance.gurufocus/cc83e8dd59638b7b08a444368555b62c",
+            "width": 400,
+            "height": 400,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/FsbFhQwKk1wr9xup3EUGBg--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/us.finance.gurufocus/cc83e8dd59638b7b08a444368555b62c",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "GuruFocus.com",
+        "url": "http://www.gurufocus.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://finance.yahoo.com/news/musk-files-damages-claim-seeking-182526410.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/musk-files-damages-claim-seeking-182526410.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "bc60cb7f-0ec4-322e-aee8-3f9b4e3a38df",
+    "content": {
+      "id": "bc60cb7f-0ec4-322e-aee8-3f9b4e3a38df",
+      "contentType": "STORY",
+      "title": "OpenAI CFO says annualized revenue crosses $20 billion in 2025",
+      "description": "",
+      "summary": "OpenAI Chief Financial Officer Sarah Friar said in a blog post on Sunday ​the company's annualized revenue has surpassed $20 billion ‌in 2025, up from $6 billion in 2024 with growth closely tracking ‌an expansion in computing capacity.  OpenAI's computing capacity rose to 1.9 gigawatts (GW) in 2025 from 0.6 GW in 2024, Friar said in the blog, adding that Microsoft-backed OpenAI's weekly ⁠and daily active ‌users figures continue to produce all-time highs.  OpenAI last week said it would start showing ‍ads in ChatGPT to some U.S. users, ramping up efforts to generate revenue from the AI chatbot to fund the high ​costs of developing the technology.",
+      "pubDate": "2026-01-19T17:35:19Z",
+      "displayTime": "2026-01-19T21:32:02Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/reuters-finance.com/f7f65c3431f885aa2b57dd29a96dd3b5",
+        "originalWidth": 800,
+        "originalHeight": 548,
+        "caption": "",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/2zagguReR46dHqKgRIHn3w--~B/aD01NDg7dz04MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters-finance.com/f7f65c3431f885aa2b57dd29a96dd3b5",
+            "width": 800,
+            "height": 548,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/2smTGMgRzpmx1pr5g8mNhg--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters-finance.com/f7f65c3431f885aa2b57dd29a96dd3b5",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "Reuters",
+        "url": "http://www.reuters.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://finance.yahoo.com/news/openai-cfo-says-annualized-revenue-173519097.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/openai-cfo-says-annualized-revenue-173519097.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  },
+  {
+    "id": "7e763404-a721-398f-abbc-a6c6577a3dde",
+    "content": {
+      "id": "7e763404-a721-398f-abbc-a6c6577a3dde",
+      "contentType": "STORY",
+      "title": "Elon Musk Seeks Up to $134 Billion from OpenAI and Microsoft in Damages",
+      "description": "",
+      "summary": "This article first appeared on GuruFocus.  Elon Musk is seeking as much as $134 billion in damages from OpenAI and Microsoft (MSFT, Financials), claiming they reaped wrongful gains from his early financial and strategic support, according to a federal court filing on Friday.  Musk, who helped co-found OpenAI in 2015 and left the company in 2018, alleges that the organization violated its original nonprofit mission when it restructured into a for-profit entity.",
+      "pubDate": "2026-01-19T16:59:03Z",
+      "displayTime": "2026-01-19T16:59:03Z",
+      "isHosted": true,
+      "bypassModal": false,
+      "previewUrl": null,
+      "thumbnail": {
+        "originalUrl": "https://media.zenfs.com/en/us.finance.gurufocus/d57c845e7991b5afb1d55609601c1502",
+        "originalWidth": 5096,
+        "originalHeight": 3398,
+        "caption": "",
+        "resolutions": [
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/KEB3b5TXvydb23LaHFteQA--~B/aD0zMzk4O3c9NTA5NjthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/us.finance.gurufocus/d57c845e7991b5afb1d55609601c1502",
+            "width": 5096,
+            "height": 3398,
+            "tag": "original"
+          },
+          {
+            "url": "https://s.yimg.com/uu/api/res/1.2/AdL3VVDLhRg.LtnRoSgnTA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/us.finance.gurufocus/d57c845e7991b5afb1d55609601c1502",
+            "width": 170,
+            "height": 128,
+            "tag": "170x128"
+          }
+        ]
+      },
+      "provider": {
+        "displayName": "GuruFocus.com",
+        "url": "http://www.gurufocus.com/"
+      },
+      "canonicalUrl": {
+        "url": "https://finance.yahoo.com/news/elon-musk-seeks-134-billion-165903955.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "clickThroughUrl": {
+        "url": "https://finance.yahoo.com/news/elon-musk-seeks-134-billion-165903955.html",
+        "site": "finance",
+        "region": "US",
+        "lang": "en-US"
+      },
+      "metadata": {
+        "editorsPick": false
+      },
+      "finance": {
+        "premiumFinance": {
+          "isPremiumNews": false,
+          "isPremiumFreeNews": false
+        }
+      },
+      "storyline": null
+    }
+  }
+]

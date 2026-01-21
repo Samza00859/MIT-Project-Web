@@ -1474,7 +1474,12 @@ class TelegramConnectRequest(BaseModel):
     chat_id: str
 
 class TelegramDetectRequest(BaseModel):
-     start_time: Optional[float] = None
+    start_time: Optional[float] = None
+
+class TelegramSendRequest(BaseModel):
+    chat_id: str
+    message: str
+    parse_mode: Optional[str] = "HTML"
 
 @app.post("/api/telegram/connect")
 async def connect_telegram(request: TelegramConnectRequest):
@@ -1633,6 +1638,42 @@ async def detect_latest_chat_id(request: Optional[TelegramDetectRequest] = None)
         
     except Exception as e:
         logger.error(f"Detection failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/telegram/send")
+async def send_telegram_message(request: TelegramSendRequest):
+    """
+    Send a message to a specific Telegram chat.
+    """
+    token = os.getenv("TELEGRAM_TOKEN")
+    if not token:
+        raise HTTPException(status_code=400, detail="Telegram token not configured")
+
+    try:
+        import requests
+        # Use requests.post to send the message
+        resp = requests.post(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            json={
+                "chat_id": request.chat_id,
+                "text": request.message,
+                "parse_mode": request.parse_mode
+            },
+            timeout=10
+        )
+
+        if resp.status_code != 200:
+            error_msg = f"Telegram API Error: {resp.text}"
+            logger.error(error_msg)
+            raise HTTPException(status_code=502, detail=error_msg)
+            
+        return {"status": "success", "message": "Message sent successfully"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to send telegram message: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/telegram/status")

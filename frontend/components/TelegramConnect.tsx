@@ -9,12 +9,20 @@ declare global {
     }
 }
 
+interface TelegramData {
+    key: string;
+    label: string;
+    text: string;
+}
+
 interface TelegramConnectProps {
     variant?: "card" | "header-button";
+    data?: TelegramData[];
 }
 
 const TRANSLATIONS = {
     en: {
+        connectToTelegram: "Connect to Telegram",
         sendToTelegram: "Send to Telegram",
         title: "Telegram Notifications",
         subtitle: "Receive real-time trading updates",
@@ -33,6 +41,7 @@ const TRANSLATIONS = {
         enterBotFirst: "Please enter a bot username first."
     },
     th: {
+        connectToTelegram: "เชื่อมต่อกับ Telegram",
         sendToTelegram: "ส่งเข้า Telegram",
         title: "การแจ้งเตือน Telegram",
         subtitle: "รับข้อมูลการเทรดแบบเรียลไทม์",
@@ -52,7 +61,10 @@ const TRANSLATIONS = {
     }
 };
 
-export default function TelegramConnect({ variant = "card" }: TelegramConnectProps) {
+export default function TelegramConnect({
+    variant = "card",
+    data = []
+}: TelegramConnectProps) {
     const { language } = useLanguage();
     const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
@@ -63,8 +75,64 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
     const [showConnect, setShowConnect] = useState(false); // Kept for card variant toggle
     const [currentChatId, setCurrentChatId] = useState("");
     const [isOpen, setIsOpen] = useState(false); // For modal variant
+    const [isSending, setIsSending] = useState(false);
 
-    // API URL is now handled by centralized utility
+    console.log("data : ", data.at(-1)?.text);
+
+    const formatElegantReport = (text: string) => {
+    // 1. แยกประโยคออกจากกันด้วยจุด (Period) เพื่อจัดระเบียบใหม่
+    const sentences = text.split('. ').filter(s => s.trim() !== "");
+    
+    // 2. ประโยคแรกมักจะเป็น "สรุปผล" ให้ทำเป็นตัวหนาและมี Emoji
+    let formatted = `🎯 <b>Summary:</b>\n${sentences[0]}.\n\n`;
+
+    // 3. ประโยคที่เหลือให้จัดเป็น Bullet Points เพื่อให้อ่านง่ายขึ้น
+    formatted += `📝 <b>Details:</b>\n`;
+    const details = sentences.slice(1).map(s => {
+        let line = s.trim();
+        // ถ้าเจอตัวเลขราคา $ ให้ทำเป็น Code Tag (กดก๊อปปี้ได้)
+        line = line.replace(/(\$\d+(\.\d{1,2})?)/g, "<code>$1</code>");
+        // ใส่ Emoji หน้าคีย์เวิร์ดสำคัญ
+        if (line.includes("stop-loss")) line = "🛑 " + line;
+        if (line.includes("profit-taking")) line = "💰 " + line;
+        if (line.includes("monitoring") || line.includes("war")) line = "⚠️ " + line;
+        
+        return `• ${line}${line.endsWith('.') ? '' : '.'}`;
+    }).join('\n');
+
+    return formatted + details;
+};
+    const handleSendData = async () => {
+        // If checking logic failed or state is inconsistent, fallback to opening modal
+        if (!currentChatId || data.length === 0) {
+            setIsOpen(true);
+            return;
+        }
+
+        setIsSending(true);
+        try {
+            // จัด Format ข้อความให้น่าอ่าน
+            const formattedMessage = formatElegantReport(data.at(-1)?.text || "");
+            const res = await fetch(buildApiUrl("/api/telegram/send"), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: currentChatId,
+                    message: formattedMessage,
+                    parse_mode: "HTML"
+                })
+            });
+
+            if (res.ok) {
+                alert(t.sendToTelegram + " Success!");
+                if (variant === "header-button") setIsOpen(false); // ปิด modal เมื่อส่งเสร็จ
+            }
+        } catch (e) {
+            console.error("Send failed", e);
+        } finally {
+            setIsSending(false);
+        }
+    };
 
     // Fetch initial status from backend
     useEffect(() => {
@@ -73,11 +141,13 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
                 const res = await fetch(buildApiUrl("/api/telegram/status"));
                 if (res.ok) {
                     const data = await res.json();
-                    // We intentionally do NOT auto-connect on load, forcing a fresh connection if requested.
-                    // if (data.connected && data.chat_id) {
-                    //     setStatus("connected");
-                    //     setCurrentChatId(data.chat_id);
-                    // }
+                    console.log("Fetched telegram status:", data);
+
+                    if (data.connected && data.chat_id) {
+                        setStatus("connected");
+                        setCurrentChatId(data.chat_id);
+                    }
+
                     if (data.bot_name) {
                         setBotName(data.bot_name);
                     } else {
@@ -186,6 +256,7 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
 
     // One-click Connect Flow
     const handleConnectClick = () => {
+
         // Validation
         if (!botName) {
             setDetectMessage("Please enter a bot username first.");
@@ -203,10 +274,10 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
     const startPolling = () => {
         setIsDetecting(true);
         setDetectMessage("Waiting for you to press 'Start' on Telegram...");
-        setCountdown(30);
+        setCountdown(10);
 
         let attempts = 0;
-        const maxAttempts = 15; // 15 * 2s = 30s
+        const maxAttempts = 5; // 15 * 2s = 30s
 
         const startTime = Date.now() / 1000; // Capture start time in seconds
 
@@ -325,11 +396,30 @@ export default function TelegramConnect({ variant = "card" }: TelegramConnectPro
         return (
             <>
                 <button
-                    onClick={() => setIsOpen(true)}
-                    className="flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer rounded-full bg-[#24a1de] p-2 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold text-white transition-all hover:bg-[#2095cf] shadow-sm hover:shadow-md"
+                    onClick={() => {
+                        if (status === "connected" && data && data.length > 0) {
+                            handleSendData();
+                        } else {
+                            setIsOpen(true);
+                        }
+                    }}
+                    disabled={isSending}
+                    className={`flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer rounded-full p-2 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold text-white transition-all shadow-sm hover:shadow-md ${isSending ? 'bg-gray-400 cursor-wait' : 'bg-[#24a1de] hover:bg-[#2095cf]'}`}
                 >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.4-1.08.4-.35 0-1.03-.2-1.54-.35-.62-.18-1.12-.28-1.08-.59.02-.16.24-.32.65-.49 2.56-1.11 4.27-1.85 5.13-2.2 2.44-1.01 2.95-1.18 3.28-1.18.07 0 .23.01.33.09.09.07.12.17.13.24 0 .04.01.07.01.12z" /></svg>
-                    <span className="hidden sm:inline">{t.sendToTelegram}</span>
+                    {isSending ? (
+                        <>
+                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span className="hidden sm:inline">Sending...</span>
+                        </>
+                    ) : (
+                        <>
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.4-1.08.4-.35 0-1.03-.2-1.54-.35-.62-.18-1.12-.28-1.08-.59.02-.16.24-.32.65-.49 2.56-1.11 4.27-1.85 5.13-2.2 2.44-1.01 2.95-1.18 3.28-1.18.07 0 .23.01.33.09.09.07.12.17.13.24 0 .04.01.07.01.12z" /></svg>
+                            <span className="hidden sm:inline">{data?.length ? t.sendToTelegram : t.connectToTelegram}</span>
+                        </>
+                    )}
                 </button>
 
                 {isOpen && (

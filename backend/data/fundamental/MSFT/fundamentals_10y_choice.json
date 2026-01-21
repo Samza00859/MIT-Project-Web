@@ -33,11 +33,112 @@
     "overview": {
       "name": "Microsoft Corporation",
       "currency": "USD",
-      "marketCap": 3546958266000.0,
-      "peRatio": 33.89
+      "marketCap": 3418215678000.0,
+      "peRatio": 32.68
     },
     "balancesheet": {},
-    "cashflow": {},
+    "cashflow": {
+      "2025-06-30": {
+        "operatingCashFlow": 136162000000.0,
+        "capitalExpenditures": 64551000000.0,
+        "freeCashFlow": null
+      },
+      "2024-06-30": {
+        "operatingCashFlow": 118548000000.0,
+        "capitalExpenditures": 44477000000.0,
+        "freeCashFlow": null
+      },
+      "2023-06-30": {
+        "operatingCashFlow": 87582000000.0,
+        "capitalExpenditures": 28107000000.0,
+        "freeCashFlow": null
+      },
+      "2022-06-30": {
+        "operatingCashFlow": 89035000000.0,
+        "capitalExpenditures": 23886000000.0,
+        "freeCashFlow": null
+      },
+      "2021-06-30": {
+        "operatingCashFlow": 76740000000.0,
+        "capitalExpenditures": 20622000000.0,
+        "freeCashFlow": null
+      },
+      "2020-06-30": {
+        "operatingCashFlow": 60675000000.0,
+        "capitalExpenditures": 15441000000.0,
+        "freeCashFlow": null
+      },
+      "2019-06-30": {
+        "operatingCashFlow": 52185000000.0,
+        "capitalExpenditures": 13925000000.0,
+        "freeCashFlow": null
+      },
+      "2018-06-30": {
+        "operatingCashFlow": 43884000000.0,
+        "capitalExpenditures": 11632000000.0,
+        "freeCashFlow": null
+      },
+      "2017-06-30": {
+        "operatingCashFlow": 39507000000.0,
+        "capitalExpenditures": 8129000000.0,
+        "freeCashFlow": null
+      },
+      "2016-06-30": {
+        "operatingCashFlow": 33325000000.0,
+        "capitalExpenditures": 8343000000.0,
+        "freeCashFlow": null
+      },
+      "2015-06-30": {
+        "operatingCashFlow": 29668000000.0,
+        "capitalExpenditures": 5944000000.0,
+        "freeCashFlow": null
+      },
+      "2014-06-30": {
+        "operatingCashFlow": 32502000000.0,
+        "capitalExpenditures": 5485000000.0,
+        "freeCashFlow": null
+      },
+      "2013-06-30": {
+        "operatingCashFlow": 28833000000.0,
+        "capitalExpenditures": 4257000000.0,
+        "freeCashFlow": null
+      },
+      "2012-06-30": {
+        "operatingCashFlow": 31626000000.0,
+        "capitalExpenditures": 2305000000.0,
+        "freeCashFlow": null
+      },
+      "2011-06-30": {
+        "operatingCashFlow": 26994000000.0,
+        "capitalExpenditures": 2355000000.0,
+        "freeCashFlow": null
+      },
+      "2010-06-30": {
+        "operatingCashFlow": 24073000000.0,
+        "capitalExpenditures": 1977000000.0,
+        "freeCashFlow": null
+      },
+      "2009-06-30": {
+        "operatingCashFlow": 19037000000.0,
+        "capitalExpenditures": 3119000000.0,
+        "freeCashFlow": null
+      },
+      "2008-06-30": {
+        "operatingCashFlow": 21612000000.0,
+        "capitalExpenditures": 3182000000.0,
+        "freeCashFlow": null
+      },
+      "2007-06-30": {
+        "operatingCashFlow": 17796000000.0,
+        "capitalExpenditures": 2264000000.0,
+        "freeCashFlow": null
+      },
+      "2006-06-30": {
+        "operatingCashFlow": 14404000000.0,
+        "capitalExpenditures": 1578000000.0,
+        "freeCashFlow": null
+      }
+    },
     "incomestatement": {
       "2025-06-30": {
         "totalRevenue": 281724000000.0,
@@ -184,9 +285,9 @@
   "raw": {
     "yfinance": {
       "overview": {
-        "marketCap": 3498568581120.0,
+        "marketCap": 3418215677952.0,
         "sharesOutstanding": 7432377655.0,
-        "peRatio": 33.452026,
+        "peRatio": 32.683723,
         "currency": "USD",
         "name": "Microsoft Corporation",
         "sector": "Technology",
@@ -1092,7 +1193,7 @@
       "overview": {
         "name": "Microsoft Corp",
         "currency": "USD",
-        "marketCap": 3498197036653.0996
+        "marketCap": 3417852981331.9995
       },
       "balancesheet": {
         "2025-06-30 00:00:00": {
@@ -1138,11 +1239,112 @@
       "overview": {
         "name": "Microsoft Corporation",
         "currency": "USD",
-        "marketCap": 3546958266000.0,
-        "peRatio": 33.89
+        "marketCap": 3418215678000.0,
+        "peRatio": 32.68
       },
       "balancesheet": {},
-      "cashflow": {},
+      "cashflow": {
+        "2025-06-30": {
+          "operatingCashFlow": 136162000000.0,
+          "capitalExpenditures": 64551000000.0,
+          "freeCashFlow": null
+        },
+        "2024-06-30": {
+          "operatingCashFlow": 118548000000.0,
+          "capitalExpenditures": 44477000000.0,
+          "freeCashFlow": null
+        },
+        "2023-06-30": {
+          "operatingCashFlow": 87582000000.0,
+          "capitalExpenditures": 28107000000.0,
+          "freeCashFlow": null
+        },
+        "2022-06-30": {
+          "operatingCashFlow": 89035000000.0,
+          "capitalExpenditures": 23886000000.0,
+          "freeCashFlow": null
+        },
+        "2021-06-30": {
+          "operatingCashFlow": 76740000000.0,
+          "capitalExpenditures": 20622000000.0,
+          "freeCashFlow": null
+        },
+        "2020-06-30": {
+          "operatingCashFlow": 60675000000.0,
+          "capitalExpenditures": 15441000000.0,
+          "freeCashFlow": null
+        },
+        "2019-06-30": {
+          "operatingCashFlow": 52185000000.0,
+          "capitalExpenditures": 13925000000.0,
+          "freeCashFlow": null
+        },
+        "2018-06-30": {
+          "operatingCashFlow": 43884000000.0,
+          "capitalExpenditures": 11632000000.0,
+          "freeCashFlow": null
+        },
+        "2017-06-30": {
+          "operatingCashFlow": 39507000000.0,
+          "capitalExpenditures": 8129000000.0,
+          "freeCashFlow": null
+        },
+        "2016-06-30": {
+          "operatingCashFlow": 33325000000.0,
+          "capitalExpenditures": 8343000000.0,
+          "freeCashFlow": null
+        },
+        "2015-06-30": {
+          "operatingCashFlow": 29668000000.0,
+          "capitalExpenditures": 5944000000.0,
+          "freeCashFlow": null
+        },
+        "2014-06-30": {
+          "operatingCashFlow": 32502000000.0,
+          "capitalExpenditures": 5485000000.0,
+          "freeCashFlow": null
+        },
+        "2013-06-30": {
+          "operatingCashFlow": 28833000000.0,
+          "capitalExpenditures": 4257000000.0,
+          "freeCashFlow": null
+        },
+        "2012-06-30": {
+          "operatingCashFlow": 31626000000.0,
+          "capitalExpenditures": 2305000000.0,
+          "freeCashFlow": null
+        },
+        "2011-06-30": {
+          "operatingCashFlow": 26994000000.0,
+          "capitalExpenditures": 2355000000.0,
+          "freeCashFlow": null
+        },
+        "2010-06-30": {
+          "operatingCashFlow": 24073000000.0,
+          "capitalExpenditures": 1977000000.0,
+          "freeCashFlow": null
+        },
+        "2009-06-30": {
+          "operatingCashFlow": 19037000000.0,
+          "capitalExpenditures": 3119000000.0,
+          "freeCashFlow": null
+        },
+        "2008-06-30": {
+          "operatingCashFlow": 21612000000.0,
+          "capitalExpenditures": 3182000000.0,
+          "freeCashFlow": null
+        },
+        "2007-06-30": {
+          "operatingCashFlow": 17796000000.0,
+          "capitalExpenditures": 2264000000.0,
+          "freeCashFlow": null
+        },
+        "2006-06-30": {
+          "operatingCashFlow": 14404000000.0,
+          "capitalExpenditures": 1578000000.0,
+          "freeCashFlow": null
+        }
+      },
       "incomestatement": {
         "2025-06-30": {
           "totalRevenue": 281724000000.0,
@@ -1287,5 +1489,5 @@
       }
     }
   },
-  "timestamp": "2026-01-14T08:19:36.530443+00:00"
+  "timestamp": "2026-01-20T08:54:10.126628+00:00"
 }

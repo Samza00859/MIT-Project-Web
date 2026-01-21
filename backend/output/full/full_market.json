@@ -1,6 +1,6 @@
 {
-    "ticker": "TSLA",
-    "date": "2026-01-15",
+    "ticker": "NVDA",
+    "date": "2026-01-16",
     "selected_indicators": [
         "close_50_sma",
         "close_10_ema",
@@ -16,97 +16,75 @@
     ],
     "market_overview": {
         "trend_direction": "Sideways",
-        "momentum_state": "Weak",
+        "momentum_state": "Neutral",
         "volatility_level": "Moderate",
-        "volume_condition": "Falling"
+        "volume_condition": "Neutral"
     },
     "indicator_analysis": [
         {
             "indicator": "close_50_sma",
-            "indicator_full_name": "50-Day Simple Moving Average",
-            "signal": "Price is above the 50-day SMA.",
-            "implication": "Indicates a generally positive longer-term trend, but the current price action is not strongly confirming it."
+            "indicator_full_name": "50-day Simple Moving Average",
+            "signal": "Price (186.23) is above the 50-SMA (184.55), but the SMA is relatively flat.",
+            "implication": "Slight positive bias in the medium-term trend, but lack of strong directional momentum."
         },
         {
             "indicator": "close_10_ema",
-            "indicator_full_name": "10-Day Exponential Moving Average",
-            "signal": "Price is below the 10-day EMA.",
-            "implication": "Suggests short-term downward pressure or consolidation."
+            "indicator_full_name": "10-day Exponential Moving Average",
+            "signal": "Price (186.23) is just above the 10-EMA (185.87), indicating a neutral short-term trend.",
+            "implication": "Short-term price action is balanced, with no clear momentum."
         },
         {
             "indicator": "macd",
             "indicator_full_name": "Moving Average Convergence Divergence",
-            "signal": "MACD line is below the MACD Signal line and both are negative.",
-            "implication": "Bearish momentum is present, with the MACD histogram also negative, indicating weakening downward momentum."
-        },
-        {
-            "indicator": "macds",
-            "indicator_full_name": "MACD Signal Line",
-            "signal": "MACD Signal line is negative.",
-            "implication": "Confirms bearish sentiment in the short to medium term."
-        },
-        {
-            "indicator": "macdh",
-            "indicator_full_name": "MACD Histogram",
-            "signal": "MACD Histogram is negative and decreasing.",
-            "implication": "Downward momentum is present but appears to be slowing down."
+            "signal": "MACD line (0.596) is above the signal line (0.718), but the histogram (MACDH) is negative (-0.122).",
+            "implication": "Weak bullish momentum is present but fading, suggesting potential for consolidation or a pullback."
         },
         {
             "indicator": "rsi",
             "indicator_full_name": "Relative Strength Index",
-            "signal": "RSI is at 44.87, below 50.",
-            "implication": "Indicates a lack of strong buying pressure and a bearish bias in the short term."
+            "signal": "RSI at 51.79, positioned near the neutral 50 level.",
+            "implication": "Momentum is balanced, with neither overbought nor oversold conditions."
         },
         {
             "indicator": "boll",
-            "indicator_full_name": "Bollinger Bands Centerline",
-            "signal": "Price is below the Bollinger Bands centerline (20-day SMA).",
-            "implication": "Suggests downward price pressure relative to the recent average."
-        },
-        {
-            "indicator": "boll_ub",
-            "indicator_full_name": "Bollinger Bands Upper Band",
-            "signal": "Price is significantly below the upper Bollinger Band.",
-            "implication": "Indicates the price is not overextended to the upside."
-        },
-        {
-            "indicator": "boll_lb",
-            "indicator_full_name": "Bollinger Bands Lower Band",
-            "signal": "Price is above the lower Bollinger Band.",
-            "implication": "Suggests that the price is not oversold based on this indicator."
+            "indicator_full_name": "Bollinger Bands",
+            "signal": "Price is trading near the middle band (185.99), well within the bands (Upper: 193.29, Lower: 178.70).",
+            "implication": "Price is in a neutral zone with moderate volatility; no immediate breakout or breakdown signal."
         },
         {
             "indicator": "atr",
             "indicator_full_name": "Average True Range",
-            "signal": "ATR is at 15.10.",
-            "implication": "Indicates moderate volatility in the recent trading periods."
+            "signal": "ATR at 5.19, indicating moderate daily price volatility.",
+            "implication": "Expect typical price swings within a moderate range."
         },
         {
             "indicator": "vwma",
             "indicator_full_name": "Volume Weighted Moving Average",
-            "signal": "Price is below the VWMA.",
-            "implication": "Suggests that the average price, weighted by volume, is higher than the current price, indicating potential selling pressure."
+            "signal": "Price (186.23) is slightly above the VWMA (185.57).",
+            "implication": "Recent price action is supported by volume, but the signal is weak."
         }
     ],
     "price_action_summary": {
-        "recent_high_low": "Price is trading below recent highs and above recent lows, indicating a consolidation phase.",
+        "recent_high_low": "Price is trading in the middle of its recent range, below the December highs near 207 and above the November lows near 170.",
         "support_levels": [
-            "430.00",
-            "417.00"
+            "178.70 (Bollinger Lower Band)",
+            "174.14 (Recent Low from 2025-12-18)",
+            "170.94 (Recent Low from 2025-12-17)"
         ],
         "resistance_levels": [
-            "450.00",
-            "460.00"
+            "193.29 (Bollinger Upper Band)",
+            "190.53 (Recent High from 2025-12-26)",
+            "195.94 (Recent High from 2025-11-20)"
         ],
-        "short_term_behavior": "The price has been trading within a range, showing signs of consolidation after a recent decline. Volume has been decreasing, suggesting a lack of conviction from either buyers or sellers."
+        "short_term_behavior": "Price is consolidating in a tight range after a significant decline from November highs, showing indecision and lack of directional conviction."
     },
     "market_sentiment": {
-        "sentiment_label": "Bearish"
+        "sentiment_label": "Neutral"
     },
     "key_risks": [
-        "MACD and RSI indicate bearish momentum.",
-        "Price is below the 10-day EMA and VWMA.",
-        "Decreasing trading volume suggests a lack of strong conviction."
+        "MACD histogram is negative, indicating weakening bullish momentum.",
+        "Price is trapped in a consolidation range; a decisive break below support or above resistance is needed for a clear trend.",
+        "RSI neutrality suggests a lack of strong buying or selling pressure, which could lead to extended sideways movement."
     ],
-    "short_term_outlook": "The stock is exhibiting sideways movement with bearish undertones. A break below the support level of 430.00 could lead to further downside, while a move above the resistance level of 450.00 might signal a shift towards a more neutral or bullish stance."
+    "short_term_outlook": "Neutral to slightly cautious. The stock is in a consolidation phase with balanced indicators. A breakout above 193.29 (Bollinger Upper Band) is needed for a bullish resumption, while a break below 178.70 could signal a retest of lower supports."
 }
