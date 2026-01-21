@@ -394,13 +394,13 @@ export default function ViewDocsPage() {
 
                 {/* HERO / INTRODUCTION */}
                 <section id="introduction" className="flex flex-col items-center text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <div className="border border-[#2df4c6]/30 bg-[#2df4c6]/5 px-6 py-2 rounded-full text-[#2df4c6] text-sm font-bold tracking-wider uppercase mb-4">
+                    <div className={`border px-6 py-2 rounded-full text-lg font-extrabold tracking-widest uppercase mb-4 ${isDarkMode ? "border-[#2df4c6]/30 bg-[#2df4c6]/5 text-[#2df4c6]" : "border-[#0f766e]/30 bg-[#0f766e]/10 text-[#0f766e]"}`}>
                         {t.tagline}
                     </div>
                     <h1 className={`text-4xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent pb-2 text-glow ${isDarkMode ? 'bg-linear-to-r from-white via-[#2df4c6] to-white' : 'bg-linear-to-r from-slate-900 via-blue-600 to-slate-900'}`}>
                         {t.title}
                     </h1>
-                    <p className={`max-w-3xl text-lg md:text-xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                    <p className={`max-w-3xl text-xl md:text-2xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>
                         {t.description}
                     </p>
 
@@ -411,21 +411,21 @@ export default function ViewDocsPage() {
                                 <BrainCircuit size={24} />
                             </div>
                             <h3 className="text-xl font-bold mb-2">{t.features.collab.title}</h3>
-                            <p className="text-sm opacity-70">{t.features.collab.desc}</p>
+                            <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.features.collab.desc}</p>
                         </div>
                         <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-slate-900/50 border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
                             <div className="h-10 w-10 rounded-lg bg-[#2df4c6]/20 text-[#2df4c6] flex items-center justify-center mb-4">
                                 <Search size={24} />
                             </div>
                             <h3 className="text-xl font-bold mb-2">{t.features.diverse.title}</h3>
-                            <p className="text-sm opacity-70">{t.features.diverse.desc}</p>
+                            <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.features.diverse.desc}</p>
                         </div>
                         <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-slate-900/50 border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
                             <div className="h-10 w-10 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center mb-4">
                                 <Gavel size={24} />
                             </div>
                             <h3 className="text-xl font-bold mb-2">{t.features.debate.title}</h3>
-                            <p className="text-sm opacity-70">{t.features.debate.desc}</p>
+                            <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.features.debate.desc}</p>
                         </div>
                     </div>
                 </section>
@@ -436,7 +436,7 @@ export default function ViewDocsPage() {
                 <section id="agent-workflow" className="scroll-mt-32">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl font-bold mb-4">{t.workflow.header}</h2>
-                        <p className="opacity-70">{t.workflow.subheader}</p>
+                        <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.workflow.subheader}</p>
                     </div>
 
                     <div className="relative">
@@ -454,11 +454,11 @@ export default function ViewDocsPage() {
                                     <div className={`w-32 h-32 rounded-full border-4 ${step.color} ${isDarkMode ? 'bg-[#0b0e14]' : 'bg-white'} flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-transform group-hover:scale-110 duration-300`}>
                                         {step.icon}
                                     </div>
-                                    <div className={`h-8 w-8 rounded-full border flex items-center justify-center text-xs font-bold mb-4 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200 text-slate-600'}`}>
+                                    <div className={`h-8 w-8 rounded-full border flex items-center justify-center text-sm font-bold mb-4 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200 text-slate-700'}`}>
                                         {idx + 1}
                                     </div>
                                     <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-                                    <p className={`text-sm px-4 ${isDarkMode ? 'opacity-70' : 'text-slate-500'}`}>{step.desc}</p>
+                                    <p className={`text-base px-4 ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{step.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -477,7 +477,7 @@ export default function ViewDocsPage() {
                         <div className={`grid grid-cols-1 lg:grid-cols-[300px_1fr] border-b ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                             <div className={`p-8 flex flex-col justify-center border-r ${isDarkMode ? 'bg-blue-900/20 border-slate-700/50' : 'bg-blue-50 border-slate-100'}`}>
                                 <h3 className="text-2xl font-bold text-blue-400 mb-2">{t.teams.analyst.title}</h3>
-                                <p className="text-sm opacity-70">{t.teams.analyst.desc}</p>
+                                <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.teams.analyst.desc}</p>
                             </div>
                             <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 <TeamMemberCard isDarkMode={isDarkMode} title={t.teams.analyst.market.title} icon={<BarChart />} desc={t.teams.analyst.market.desc} color="text-cyan-400" />
@@ -491,7 +491,7 @@ export default function ViewDocsPage() {
                         <div className={`grid grid-cols-1 lg:grid-cols-[300px_1fr] ${isDarkMode ? 'bg-green-900/5' : 'bg-slate-50'}`}>
                             <div className={`p-8 flex flex-col justify-center border-r ${isDarkMode ? 'bg-green-900/20 border-slate-700/50' : 'bg-green-50 border-slate-100'}`}>
                                 <h3 className="text-2xl font-bold text-green-400 mb-2">{t.teams.research.title}</h3>
-                                <p className="text-sm opacity-70">{t.teams.research.desc}</p>
+                                <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.teams.research.desc}</p>
                             </div>
                             <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <TeamMemberCard isDarkMode={isDarkMode} title={t.teams.research.manager.title} icon={<Briefcase />} desc={t.teams.research.manager.desc} color={isDarkMode ? "text-white" : "text-slate-700"} />
@@ -506,7 +506,7 @@ export default function ViewDocsPage() {
                 <section id="trader-team" className={`rounded-3xl border p-8 md:p-12 relative overflow-hidden text-center ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
                     <div className="relative z-10 mb-12">
                         <h2 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.header}</h2>
-                        <p className={`mt-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>{t.execution.subheader}</p>
+                        <p className={`mt-2 text-base ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.subheader}</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
@@ -516,13 +516,13 @@ export default function ViewDocsPage() {
                                 <Zap size={40} />
                             </div>
                             <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.trader.title}</h3>
-                            <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>{t.execution.trader.desc}</p>
+                            <p className={`text-base ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.trader.desc}</p>
                         </div>
 
                         {/* Arrows pointing to Manager */}
                         <div className="hidden md:flex flex-col justify-center items-center opacity-50">
                             <ArrowRight size={40} className={`mb-2 ${isDarkMode ? 'text-white' : 'text-slate-400'}`} />
-                            <div className="text-xs uppercase tracking-widest">{t.execution.submit}</div>
+                            <div className={`text-sm uppercase tracking-widest ${isDarkMode ? '' : 'text-slate-600'}`}>{t.execution.submit}</div>
                         </div>
 
                         {/* Risk Manager */}
@@ -531,7 +531,7 @@ export default function ViewDocsPage() {
                                 <Shield size={40} />
                             </div>
                             <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.risk.title}</h3>
-                            <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>{t.execution.risk.desc}</p>
+                            <p className={`text-base ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.risk.desc}</p>
                             <div className="flex justify-center gap-2 mt-4">
                                 <span className="px-2 py-1 bg-red-500/20 text-red-300 text-[10px] rounded">{t.execution.levels.aggressive}</span>
                                 <span className="px-2 py-1 bg-gray-500/20 text-gray-300 text-[10px] rounded">{t.execution.levels.neutral}</span>
@@ -547,7 +547,7 @@ export default function ViewDocsPage() {
                                 <Gavel size={32} />
                             </div>
                             <h3 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.manager.title}</h3>
-                            <p className={`text-sm max-w-md ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>{t.execution.manager.desc}</p>
+                            <p className={`text-base max-w-md ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.manager.desc}</p>
                         </div>
                     </div>
                 </section>
@@ -558,7 +558,7 @@ export default function ViewDocsPage() {
                         <h2 className={`text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent ${isDarkMode ? 'bg-linear-to-r from-white via-slate-200 to-slate-400' : 'bg-linear-to-r from-slate-900 via-slate-700 to-slate-500'}`}>
                             {t.tutorials.header}
                         </h2>
-                        <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+                        <p className={`text-xl max-w-2xl mx-auto ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>
                             {t.tutorials.subheader}
                         </p>
                     </div>
@@ -571,7 +571,7 @@ export default function ViewDocsPage() {
                                     <div className="text-green-500 bg-green-500/10 p-3 rounded-full font-bold">1</div>
                                     <h3 className="text-2xl font-bold">{t.tutorials.step1.title}</h3>
                                 </div>
-                                <p className="text-slate-400 text-lg leading-relaxed">
+                                <p className={`text-xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>
                                     {t.tutorials.step1.desc}
                                 </p>
                                 <ul className="space-y-4 pt-4">
@@ -580,7 +580,7 @@ export default function ViewDocsPage() {
                                             <div className="mt-1 text-green-400"><CheckCircle2 size={20} /></div>
                                             <div>
                                                 <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
-                                                <div className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>{point.desc}</div>
+                                                <div className={`text-base ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
                                             </div>
                                         </li>
                                     ))}
@@ -589,7 +589,7 @@ export default function ViewDocsPage() {
                             <div className="relative group">
                                 <div className="absolute -inset-1 bg-linear-to-r from-[#2df4c6] to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
                                 <img
-                                    src="/step1_2.png"
+                                    src={isDarkMode ? "/ST1,2.png" : "/ST1,2_w.png"}
                                     alt="Analysis Generation UI"
                                     className="relative w-full rounded-2xl shadow-2xl border border-white/10"
                                 />
@@ -597,61 +597,66 @@ export default function ViewDocsPage() {
                         </div>
 
                         {/* Step 2: Reports */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                            <div className="lg:order-2 space-y-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                            <div className="lg:order-2 lg:col-span-5 space-y-6">
                                 <div className="flex items-center gap-4 mb-2">
                                     <div className="text-orange-500 bg-orange-500/10 p-3 rounded-full font-bold">2</div>
                                     <h3 className="text-2xl font-bold">{t.tutorials.step2.title}</h3>
                                 </div>
-                                <p className="text-slate-400 text-lg leading-relaxed">{t.tutorials.step2.desc}</p>
+                                <p className={`text-xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>{t.tutorials.step2.desc}</p>
                                 <ul className="space-y-4 pt-4">
                                     {t.tutorials.step2.points.map((point, idx) => (
                                         <li key={idx} className="flex gap-4">
                                             <div className="mt-1 text-orange-400"><CheckCircle2 size={20} /></div>
                                             <div>
                                                 <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
-                                                <div className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>{point.desc}</div>
+                                                <div className={`text-base ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
                                             </div>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
-                            <div className="lg:order-1 relative group">
+                            <div className="lg:order-1 lg:col-span-7 relative group">
                                 <div className="absolute -inset-1 bg-linear-to-r from-orange-600 to-red-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
                                 <img
-                                    src="/Progress.png"
+                                    src={isDarkMode ? "/progress.png" : "/progress_w.png"}
                                     alt="Analysis Progress UI"
-                                    className="relative w-[800px] h-[120px] rounded-2xl shadow-2xl border border-white/10"
+                                    className="relative w-full h-auto rounded-2xl shadow-2xl border border-white/10"
                                 />
                             </div>
                         </div>
 
                         {/* Step 3: Telegram */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                            <div className="space-y-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                            <div className="lg:col-span-5 space-y-6">
                                 <div className="flex items-center gap-4 mb-2">
                                     <div className="text-blue-500 bg-blue-500/10 p-3 rounded-full font-bold">3</div>
                                     <h3 className="text-2xl font-bold">{t.tutorials.step3.title}</h3>
                                 </div>
-                                <p className="text-slate-400 text-lg leading-relaxed">{t.tutorials.step3.desc}</p>
+                                <p className={`text-xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>{t.tutorials.step3.desc}</p>
                                 <ul className="space-y-4 pt-4">
                                     {t.tutorials.step3.points.map((point, idx) => (
                                         <li key={idx} className="flex gap-4">
                                             <div className="mt-1 text-blue-400"><Smartphone size={20} /></div>
                                             <div>
                                                 <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
-                                                <div className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>{point.desc}</div>
+                                                <div className={`text-base ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
                                             </div>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
-                            <div className="flex justify-center relative group">
+                            <div className="lg:col-span-7 flex flex-col gap-6 relative group">
                                 <div className="absolute -inset-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-[3rem] blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
                                 <img
-                                    src="/summary.png"
+                                    src={isDarkMode ? "/summary.png" : "/summary_w.png"}
                                     alt="Analysis Summary UI"
-                                    className="relative w-[600px] h-[70px] rounded-2xl shadow-2xl border border-white/10"
+                                    className="relative w-full h-auto rounded-2xl shadow-2xl border border-white/10"
+                                />
+                                <img
+                                    src={isDarkMode ? "/report.png" : "/report_w.png"}
+                                    alt="Analysis Report UI"
+                                    className="relative w-full h-auto rounded-2xl shadow-2xl border border-white/10"
                                 />
                             </div>
                         </div>
@@ -663,14 +668,14 @@ export default function ViewDocsPage() {
                                     <div className="text-slate-400 bg-slate-500/10 p-3 rounded-full font-bold">4</div>
                                     <h3 className="text-2xl font-bold">{t.tutorials.step4.title}</h3>
                                 </div>
-                                <p className="text-slate-400 text-lg leading-relaxed">{t.tutorials.step4.desc}</p>
+                                <p className={`text-xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>{t.tutorials.step4.desc}</p>
                                 <ul className="space-y-4 pt-4">
                                     {t.tutorials.step4.points.map((point, idx) => (
                                         <li key={idx} className="flex gap-4">
                                             <div className="mt-1 text-slate-400"><FileText size={20} /></div>
                                             <div>
                                                 <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
-                                                <div className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>{point.desc}</div>
+                                                <div className={`text-base ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
                                             </div>
                                         </li>
                                     ))}
@@ -679,9 +684,9 @@ export default function ViewDocsPage() {
                             <div className="lg:order-1 relative group flex justify-center">
                                 <div className="absolute -inset-1 bg-linear-to-r from-slate-600 to-slate-400 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
                                 <img
-                                    src="/history.png"
+                                    src={isDarkMode ? "/history.png" : "/history_w.png"}
                                     alt="Analysis History UI"
-                                    className="relative w-[600px] rounded-2xl shadow-xl border border-white/10"
+                                    className="relative w-full h-auto rounded-2xl shadow-xl border border-white/10"
                                 />
                             </div>
                         </div>
@@ -701,10 +706,10 @@ function TeamMemberCard({ title, icon, desc, color, isDarkMode }: { title: strin
         <div className={`p-5 rounded-xl border transition-all hover:-translate-y-1 ${isDarkMode ? 'bg-[#0b0e14]/50 border-white/5 hover:border-white/20' : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'}`}>
             <div className={`mb-3 ${color} flex items-center gap-2`}>
                 {/* @ts-ignore */}
-                {React.cloneElement(icon as React.ReactElement, { size: 20 })}
-                <h4 className={`font-bold text-sm tracking-wide ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{title}</h4>
+                {React.cloneElement(icon as React.ReactElement, { size: 24 })}
+                <h4 className={`font-bold text-base tracking-wide ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{title}</h4>
             </div>
-            <p className={`text-xs leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{desc}</p>
+            <p className={`text-sm leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>{desc}</p>
         </div>
     );
 }

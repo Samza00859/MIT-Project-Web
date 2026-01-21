@@ -94,3 +94,36 @@ Finnhub global news have : 50 posts.
 
 Fetched 10 news items for AMD from YFinance.
 Fetched 50 news items for AMD from Alpha Vantage.
+
+🌐 Social Media News: 
+Bluesky news fetched for TSLA: 29 posts found.
+Subreddit news fetched for TSLA: 6 posts found.
+
+Mastodon news fetched for TSLA: 120 posts found.
+📰 News :
+Fetched 50 news items for TSLA from Finnhub.
+Fetched 2 news items for TSLA from Reddit.
+Fetched 10 news items for TSLA from YFinance.
+Fetched 50 news items for TSLA from Alpha Vantage.
+
+🌏 Global News: 
+Reddit global news have : 40 posts.
+Yfinance global news have : 48 posts.
+Finnhub global news have : 50 posts.
+
+
+🌐 Social Media News: 
+Bluesky news fetched for PTT.BK: 2 posts found.
+Subreddit news fetched for PTT.BK: 0 posts found.
+
+📰 News :
+Fetched 0 news items for PTT.BK from Finnhub.
+Fetched 0 news items for PTT.BK from Reddit.
+Fetched 3 news items for PTT.BK from YFinance.
+Fetched 0 news items for PTT.BK from Alpha Vantage.
+
+🌏 Global News: 
+Reddit global news have : 40 posts.
+Yfinance global news have : 48 posts.
+Finnhub global news have : 50 posts.
+

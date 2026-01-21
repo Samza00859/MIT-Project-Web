@@ -32,8 +32,8 @@
     "overview": {
       "name": "Tesla Inc",
       "currency": "USD",
-      "marketCap": 1487306359000.0,
-      "peRatio": 312.73
+      "marketCap": 1455112323000.0,
+      "peRatio": 303.83
     },
     "balancesheet": {},
     "cashflow": {
@@ -272,9 +272,9 @@
   "raw": {
     "yfinance": {
       "overview": {
-        "marketCap": 1460699791360.0,
+        "marketCap": 1394349703168.0,
         "sharesOutstanding": 3325819167.0,
-        "peRatio": 302.89655,
+        "peRatio": 285.20407,
         "currency": "USD",
         "name": "Tesla, Inc.",
         "sector": "Consumer Cyclical",
@@ -1055,7 +1055,7 @@
       "overview": {
         "name": "Tesla Inc",
         "currency": "USD",
-        "marketCap": 1460699892216.2256
+        "marketCap": 1394349756592.1262
       },
       "balancesheet": {
         "2022-12-31 00:00:00": {
@@ -1152,8 +1152,8 @@
       "overview": {
         "name": "Tesla Inc",
         "currency": "USD",
-        "marketCap": 1487306359000.0,
-        "peRatio": 312.73
+        "marketCap": 1455112323000.0,
+        "peRatio": 303.83
       },
       "balancesheet": {},
       "cashflow": {
@@ -1390,5 +1390,5 @@
       }
     }
   },
-  "timestamp": "2026-01-15T08:01:32.360295+00:00"
+  "timestamp": "2026-01-21T04:41:34.823452+00:00"
 }

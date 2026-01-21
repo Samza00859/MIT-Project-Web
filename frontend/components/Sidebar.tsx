@@ -296,7 +296,7 @@ export default function Sidebar() {
                         {/* Theme Toggle */}
                         <div className={`flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                             {!isCollapsed && <span>{isDarkMode ? t.ui.darkMode : t.ui.lightMode}</span>}
-                            <label className="relative inline-block h-5 w-10 cursor-pointer shrink-0">
+                            <label className="relative inline-block h-6 w-12 cursor-pointer shrink-0">
                                 <input
                                     type="checkbox"
                                     checked={!isDarkMode}
@@ -306,9 +306,9 @@ export default function Sidebar() {
                                 <div className={`absolute inset-0 rounded-full transition-all flex items-center justify-between px-1 ${isDarkMode
                                     ? "bg-[#394054] peer-checked:bg-[#00d18f]"
                                     : "bg-[#CBD5E1] peer-checked:bg-[#2563EB]"
-                                    } after:absolute after:bottom-[2px] after:left-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-5`}>
-                                    <Moon size={10} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1`} />
-                                    <Sun size={10} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1`} />
+                                    } after:absolute after:bottom-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-6`}>
+                                    <Moon size={12} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1.5`} />
+                                    <Sun size={12} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1.5`} />
                                 </div>
                             </label>
                         </div>
@@ -339,7 +339,7 @@ export default function Sidebar() {
                             {/* Theme Toggle */}
                             <div className={`flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
                                 {!isCollapsed && <span>{isDarkMode ? t.ui.darkMode : t.ui.lightMode}</span>}
-                                <label className="relative inline-block h-5 w-10 cursor-pointer shrink-0">
+                                <label className="relative inline-block h-6 w-12 cursor-pointer shrink-0">
                                     <input
                                         type="checkbox"
                                         checked={!isDarkMode}
@@ -349,9 +349,9 @@ export default function Sidebar() {
                                     <div className={`absolute inset-0 rounded-full transition-all flex items-center justify-between px-1 ${isDarkMode
                                         ? "bg-[#394054] peer-checked:bg-[#00d18f]"
                                         : "bg-[#CBD5E1] peer-checked:bg-[#2563EB]"
-                                        } after:absolute after:bottom-[2px] after:left-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-5`}>
-                                        <Moon size={10} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1`} />
-                                        <Sun size={10} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1`} />
+                                        } after:absolute after:bottom-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-6`}>
+                                        <Moon size={12} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1.5`} />
+                                        <Sun size={12} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1.5`} />
                                     </div>
                                 </label>
                             </div>

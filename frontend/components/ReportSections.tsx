@@ -1,6 +1,7 @@
 import React from "react";
 import { jsPDF } from "jspdf";
 import TelegramConnect from "./TelegramConnect";
+import { TEAM_KEYS } from "../lib/constants";
 
 interface ReportSectionsProps {
     reportSections: { key: string; label: string; text: string }[];
@@ -45,6 +46,7 @@ interface ReportSectionsDisplayProps extends ReportSectionsProps {
     language?: "en" | "th";
     setLanguage?: (lang: "en" | "th") => void;
     isTranslating?: boolean;
+    teamState?: any;
 }
 
 // Helper to render Markdown text (with bold/list support)
@@ -324,6 +326,30 @@ const TRANSLATIONS = {
         copyShort: "Copy",
         copied: "Copied!",
         copyFailed: "Failed",
+        teams: {
+            analyst: { title: "Analyst team" },
+            research: { title: "Research team" },
+            trader: { title: "Trader team" },
+            risk: { title: "Risk & Portfolio" },
+            portfolio: { title: "Portfolio Management" }
+        },
+        roles: {
+            "Market Analyst": "Market Analyst",
+            "Social Media Analyst": "Social Media Analyst",
+            "News Analyst": "News Analyst",
+            "Fundamentals Analyst": "Fundamentals Analyst",
+            "Bull Research": "Bull Research",
+            "Bear Research": "Bear Research",
+            "Research Manager": "Research Manager",
+            "Trader": "Trader",
+            "Risk Analyst": "Risk Analyst",
+            "Neutral Analyst": "Neutral Analyst",
+            "Safe Analyst": "Safe Analyst",
+            "Portfolio Manager": "Portfolio Manager"
+        },
+        progressStatus: {
+            in_progress: "Working"
+        }
     },
     th: {
         currentReport: "รายงานปัจจุบัน",
@@ -337,6 +363,30 @@ const TRANSLATIONS = {
         copyShort: "คัดลอก",
         copied: "แล้ว!",
         copyFailed: "ผิดพลาด",
+        teams: {
+            analyst: { title: "ทีมรวบรวมข้อมูล" },
+            research: { title: "ทีมวิเคราะห์และวิจัย" },
+            trader: { title: "ทีมเทรดเดอร์" },
+            risk: { title: "ทีมบริหารความเสี่ยง" },
+            portfolio: { title: "ผู้จัดการกองทุน" }
+        },
+        roles: {
+            "Market Analyst": "นักวิเคราะห์ตลาด",
+            "Social Media Analyst": "นักวิเคราะห์โซเชียล",
+            "News Analyst": "นักวิเคราะห์ข่าว",
+            "Fundamentals Analyst": "นักวิเคราะห์พื้นฐาน",
+            "Bull Research": "วิจัยแนวโน้มขาขึ้น",
+            "Bear Research": "วิจัยแนวโน้มขาลง",
+            "Research Manager": "ผู้จัดการงานวิจัย",
+            "Trader": "เทรดเดอร์",
+            "Risk Analyst": "นักวิเคราะห์ความเสี่ยง",
+            "Neutral Analyst": "วิเคราะห์แนวโน้มกลาง",
+            "Safe Analyst": "นักวิเคราะห์ความปลอดภัย",
+            "Portfolio Manager": "ผู้จัดการพอร์ต"
+        },
+        progressStatus: {
+            in_progress: "กำลังทำ"
+        }
     }
 };
 
@@ -356,6 +406,7 @@ export default function ReportSections({
     language = "en",
     setLanguage,
     isTranslating = false,
+    teamState,
 }: ReportSectionsDisplayProps) {
     const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
@@ -475,8 +526,26 @@ export default function ReportSections({
                     <div className="flex h-full min-h-[200px] flex-col items-center justify-center opacity-70">
                         {isRunning ? (
                             <div className="flex flex-col items-center gap-4 animate-pulse">
-                                <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#2df4c6] border-t-transparent"></div>
-                                <p className="text-[#2df4c6] font-medium">{t.generating}</p>
+                                <div className={`h-10 w-10 animate-spin rounded-full border-4 border-t-transparent ${isDarkMode ? "border-[#2df4c6]" : "border-teal-900"}`}></div>
+                                <p className={`font-medium text-center px-4 ${isDarkMode ? "text-[#2df4c6]" : "text-teal-900"}`}>
+                                    {(() => {
+                                        if (teamState) {
+                                            for (const teamKey of TEAM_KEYS) {
+                                                const members = teamState[teamKey];
+                                                // Find the first member that is running or pending (not completed)
+                                                const activeMember = members.find((m: any) => m.status !== "completed");
+                                                if (activeMember) {
+                                                    // @ts-ignore
+                                                    const teamName = t.teams[teamKey]?.title || teamKey;
+                                                    // @ts-ignore
+                                                    const memberName = t.roles[activeMember.name] || activeMember.name;
+                                                    return `${teamName}: ${memberName} ${t.progressStatus?.in_progress || "Working"}...`;
+                                                }
+                                            }
+                                        }
+                                        return t.generating;
+                                    })()}
+                                </p>
                             </div>
                         ) : (
                             <p>{t.runPipeline}</p>
