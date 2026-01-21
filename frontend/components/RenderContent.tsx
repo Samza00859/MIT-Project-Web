@@ -6,15 +6,20 @@ import { formatInlineMarkdown, extractAndCleanContent } from "../lib/helpers";
 
 // Translation map for JSON keys (EN -> TH)
 const KEY_TRANSLATIONS: Record<string, string> = {
+    // Header/Summary translations
     "EXECUTIVE SUMMARY": "บทสรุปผู้บริหาร",
     "VALUATION STATUS": "สถานะการประเมินมูลค่า",
     "COMPREHENSIVE METRICS": "ตัวชี้วัดที่ครอบคลุม",
+    
+    // Financial metrics
     "REVENUE GROWTH YEAR OVER YEAR": "การเติบโตของรายได้รายปี",
     "NET PROFIT MARGIN": "อัตรากำไรสุทธิ",
     "PRICE TO EARNINGS RATIO": "อัตราส่วนราคาต่อกำไร (P/E)",
     "DEBT TO EQUITY RATIO": "อัตราส่วนหนี้สินต่อทุน",
     "RETURN ON EQUITY": "ผลตอบแทนต่อส่วนของผู้ถือหุ้น (ROE)",
     "FREE CASH FLOW STATUS": "สถานะกระแสเงินสดอิสระ",
+    
+    // Analysis sections
     "KEY STRENGTHS ANALYSIS": "การวิเคราะห์จุดแข็งหลัก",
     "KEY RISKS ANALYSIS": "การวิเคราะห์ความเสี่ยงหลัก",
     "OPPORTUNITIES ANALYSIS": "การวิเคราะห์โอกาส",
@@ -29,7 +34,57 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "RISK ASSESSMENT": "การประเมินความเสี่ยง",
     "PORTFOLIO RECOMMENDATION": "คำแนะนำการจัดพอร์ต",
     "INVESTMENT PLAN": "แผนการลงทุน",
-    "TRADE DECISION": "การตัดสินใจซื้อขาย"
+    "TRADE DECISION": "การตัดสินใจซื้อขาย",
+    
+    // Basic info fields
+    "TICKER": "รหัสหุ้น",
+    "DATE": "วันที่",
+    "SYMBOL": "สัญลักษณ์",
+    "COMPANY": "บริษัท",
+    "SECTOR": "กลุ่มอุตสาหกรรม",
+    
+    // Market analysis fields
+    "MARKET OVERVIEW": "ภาพรวมตลาด",
+    "TREND DIRECTION": "ทิศทางแนวโน้ม",
+    "MOMENTUM STATE": "สถานะโมเมนตัม",
+    "VOLATILITY LEVEL": "ระดับความผันผวน",
+    "VOLUME CONDITION": "สภาวะปริมาณการซื้อขาย",
+    "INDICATOR ANALYSIS": "การวิเคราะห์ตัวชี้วัด",
+    
+    // Common fields
+    "SIGNAL": "สัญญาณ",
+    "IMPLICATION": "ความหมาย",
+    "INTERPRETATION": "การตีความ",
+    "DESCRIPTION": "คำอธิบาย",
+    "SUMMARY": "สรุป",
+    "DETAILS": "รายละเอียด",
+    "VALUE": "ค่า",
+    "STATUS": "สถานะ",
+    "RESULT": "ผลลัพธ์",
+    "RECOMMENDATION": "คำแนะนำ",
+    
+    // Trend/Direction values
+    "UPTREND": "แนวโน้มขาขึ้น",
+    "DOWNTREND": "แนวโน้มขาลง",
+    "SIDEWAYS": "แนวโน้มไม่ชัดเจน",
+    "BULLISH": "บวก",
+    "BEARISH": "ลบ",
+    "NEUTRAL": "กลางๆ",
+    
+    // Volume/Volatility levels
+    "HIGH": "สูง",
+    "MODERATE": "ปานกลาง",
+    "LOW": "ต่ำ",
+    "STRONG": "แข็งแกร่ง",
+    "WEAK": "อ่อนแอ",
+    
+    // Technical indicators
+    "MOVING AVERAGE": "ค่าเฉลี่ยเคลื่อนที่",
+    "RSI": "RSI (ดัชนีความแข็งแกร่งสัมพัทธ์)",
+    "MACD": "MACD (การลู่เข้าและแยกออกของค่าเฉลี่ยเคลื่อนที่)",
+    "BOLLINGER BANDS": "แถบโบลลิงเจอร์",
+    "STOCHASTIC": "สโตแคสติก",
+    "VOLUME": "ปริมาณการซื้อขาย"
 };
 
 // Render Markdown Component
