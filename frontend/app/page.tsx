@@ -250,65 +250,65 @@ interface Star {
 
 // Parse Thai content to handle JSON strings wrapped in markdown code blocks
 const parseThaiContent = (content: any): any => {
-    if (!content) return content;
+  if (!content) return content;
 
-    const parseFromMarkdown = (str: string): any => {
-        let textValue = str.trim();
+  const parseFromMarkdown = (str: string): any => {
+    let textValue = str.trim();
 
-        // Strip markdown code blocks (```json...``` or ```...```)
-        const codeBlockMatch = textValue.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?```$/);
-        if (codeBlockMatch) {
-            textValue = codeBlockMatch[1].trim();
-        }
+    // Strip markdown code blocks (```json...``` or ```...```)
+    const codeBlockMatch = textValue.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?```$/);
+    if (codeBlockMatch) {
+      textValue = codeBlockMatch[1].trim();
+    }
 
-        // Try to parse as JSON
-        if (textValue.startsWith('{') || textValue.startsWith('[')) {
-            try {
-                return JSON.parse(textValue);
-            } catch (e) {
-                // Try to handle escaped JSON strings
-                if (textValue.includes('\\n') || textValue.includes('\\"')) {
-                    try {
-                        const unescaped = textValue
-                            .replace(/\\n/g, '\n')
-                            .replace(/\\"/g, '"')
-                            .replace(/\\\\/g, '\\');
-                        return JSON.parse(unescaped);
-                    } catch {
-                        return null;
-                    }
-                }
-                return null;
-            }
+    // Try to parse as JSON
+    if (textValue.startsWith('{') || textValue.startsWith('[')) {
+      try {
+        return JSON.parse(textValue);
+      } catch (e) {
+        // Try to handle escaped JSON strings
+        if (textValue.includes('\\n') || textValue.includes('\\"')) {
+          try {
+            const unescaped = textValue
+              .replace(/\\n/g, '\n')
+              .replace(/\\"/g, '"')
+              .replace(/\\\\/g, '\\');
+            return JSON.parse(unescaped);
+          } catch {
+            return null;
+          }
         }
         return null;
-    };
+      }
+    }
+    return null;
+  };
 
-    const deepParse = (obj: any): any => {
-        if (typeof obj === 'string') {
-            const parsed = parseFromMarkdown(obj);
-            if (parsed !== null) {
-                return deepParse(parsed);
-            }
-            return obj;
-        }
+  const deepParse = (obj: any): any => {
+    if (typeof obj === 'string') {
+      const parsed = parseFromMarkdown(obj);
+      if (parsed !== null) {
+        return deepParse(parsed);
+      }
+      return obj;
+    }
 
-        if (Array.isArray(obj)) {
-            return obj.map(item => deepParse(item));
-        }
+    if (Array.isArray(obj)) {
+      return obj.map(item => deepParse(item));
+    }
 
-        if (typeof obj === 'object' && obj !== null) {
-            const result: Record<string, any> = {};
-            for (const [key, value] of Object.entries(obj)) {
-                result[key] = deepParse(value);
-            }
-            return result;
-        }
+    if (typeof obj === 'object' && obj !== null) {
+      const result: Record<string, any> = {};
+      for (const [key, value] of Object.entries(obj)) {
+        result[key] = deepParse(value);
+      }
+      return result;
+    }
 
-        return obj;
-    };
+    return obj;
+  };
 
-    return deepParse(content);
+  return deepParse(content);
 };
 
 
@@ -399,7 +399,7 @@ export default function Home() {
         thaiReportSections.forEach((report) => {
           // Parse Thai content to handle JSON-wrapped strings
           const parsedContent = parseThaiContent(report.content);
-          
+
           let textContent = "";
           if (typeof parsedContent === "object") {
             textContent = "```json\n" + JSON.stringify(parsedContent, null, 2) + "\n```";
@@ -437,7 +437,7 @@ export default function Home() {
         thaiReportSections.forEach((report) => {
           // Parse Thai content to handle JSON-wrapped strings
           const parsedContent = parseThaiContent(report.content);
-          
+
           let textContent = "";
           if (typeof parsedContent === "object") {
             textContent = "```json\n" + JSON.stringify(parsedContent, null, 2) + "\n```";
@@ -1808,8 +1808,7 @@ export default function Home() {
               if (isThai) {
                 telegramSections = sourceSections.filter((section) => {
                   const isSummary = section.key.startsWith("Summarize_") ||
-                    section.key.includes("_summarizer") ||
-                    section.report_type === "summary";
+                    section.key.includes("_summarizer");
                   return isSummary;
                 }).sort((a, b) => {
                   const indexA = REPORT_ORDER.indexOf(a.key);
