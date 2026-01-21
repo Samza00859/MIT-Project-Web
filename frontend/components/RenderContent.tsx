@@ -84,7 +84,32 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "MACD": "MACD (การลู่เข้าและแยกออกของค่าเฉลี่ยเคลื่อนที่)",
     "BOLLINGER BANDS": "แถบโบลลิงเจอร์",
     "STOCHASTIC": "สโตแคสติก",
-    "VOLUME": "ปริมาณการซื้อขาย"
+    "VOLUME": "ปริมาณการซื้อขาย",
+    "EMA": "EMA (ค่าเฉลี่ยเคลื่อนที่แบบเอ็กซ์โปเนนเชียล)",
+    "SMA": "SMA (ค่าเฉลี่ยเคลื่อนที่อย่างง่าย)",
+    "VWMA": "VWMA (ค่าเฉลี่ยเคลื่อนที่ถ่วงน้ำหนักด้วยปริมาณ)",
+    
+    // Price action & technical analysis
+    "PRICE ACTION SUMMARY": "สรุปการเคลื่อนไหวของราคา",
+    "RECENT HIGH LOW": "จุดสูงสุด-ต่ำสุดล่าสุด",
+    "SUPPORT LEVELS": "แนวรับ",
+    "RESISTANCE LEVELS": "แนวต้าน",
+    "SHORT TERM BEHAVIOR": "พฤติกรรมระยะสั้น",
+    "SENTIMENT LABEL": "ป้ายความรู้สึกตลาด",
+    "KEY RISKS": "ความเสี่ยงสำคัญ",
+    "SHORT TERM OUTLOOK": "แนวโน้มระยะสั้น",
+    "LONG TERM OUTLOOK": "แนวโน้มระยะยาว",
+    "PRICE TARGET": "เป้าหมายราคา",
+    "STOP LOSS": "จุดตัดขาดทุน",
+    "ENTRY POINT": "จุดเข้าซื้อ",
+    
+    // Sentiment values (เพิ่ม Neutral เป็นพิเศษ)
+    "NEUTRAL": "กลางๆ",
+    "POSITIVE": "บวก",
+    "NEGATIVE": "ลบ",
+    "VERY POSITIVE": "บวกมาก",
+    "VERY NEGATIVE": "ลบมาก",
+    "MIXED": "ผสม"
 };
 
 // Render Markdown Component
