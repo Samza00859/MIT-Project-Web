@@ -33,8 +33,8 @@
     "overview": {
       "name": "NVIDIA Corporation",
       "currency": "USD",
-      "marketCap": 4531098747000.0,
-      "peRatio": 46.07
+      "marketCap": 4335470641000.0,
+      "peRatio": 44.08
     },
     "balancesheet": {
       "2025-01-31": {
@@ -386,9 +386,9 @@
   "raw": {
     "yfinance": {
       "overview": {
-        "marketCap": 4531098746880.0,
+        "marketCap": 4428841091072.0,
         "sharesOutstanding": 24305000000.0,
-        "peRatio": 46.065594,
+        "peRatio": 45.02599,
         "currency": "USD",
         "name": "NVIDIA Corporation",
         "sector": "Technology",
@@ -1313,7 +1313,7 @@
       "overview": {
         "name": "NVIDIA Corp",
         "currency": "USD",
-        "marketCap": 4525388896179.0
+        "marketCap": 4327100900728.1025
       },
       "balancesheet": {
         "2013-01-27 00:00:00": {
@@ -1386,8 +1386,8 @@
       "overview": {
         "name": "NVIDIA Corporation",
         "currency": "USD",
-        "marketCap": 4531098747000.0,
-        "peRatio": 46.07
+        "marketCap": 4335470641000.0,
+        "peRatio": 44.08
       },
       "balancesheet": {
         "2025-01-31": {
@@ -1737,5 +1737,5 @@
       }
     }
   },
-  "timestamp": "2026-01-20T11:03:09.264286+00:00"
+  "timestamp": "2026-01-21T15:49:51.796075+00:00"
 }

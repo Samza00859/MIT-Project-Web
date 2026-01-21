@@ -23,7 +23,7 @@ interface TelegramConnectProps {
 const TRANSLATIONS = {
     en: {
         connectToTelegram: "Connect to Telegram",
-        sendToTelegram: "Send to Telegram",
+        sendToTelegram: "Send judge decision to Telegram",
         title: "Telegram Notifications",
         subtitle: "Receive real-time trading updates",
         connected: "Connected Successfully",
@@ -42,7 +42,7 @@ const TRANSLATIONS = {
     },
     th: {
         connectToTelegram: "เชื่อมต่อกับ Telegram",
-        sendToTelegram: "ส่งเข้า Telegram",
+        sendToTelegram: "ส่ง ผลตัดสิน ทาง Telegram",
         title: "การแจ้งเตือน Telegram",
         subtitle: "รับข้อมูลการเทรดแบบเรียลไทม์",
         connected: "เชื่อมต่อสำเร็จ",
@@ -102,22 +102,22 @@ export default function TelegramConnect({
 
     return formatted + details;
 };
-    const handleSendData = async () => {
-        // If checking logic failed or state is inconsistent, fallback to opening modal
-        if (!currentChatId || data.length === 0) {
+    const handleSendData = async (chatIdToUse?: string) => {
+        const targetChatId = chatIdToUse || currentChatId;
+        
+        if (!targetChatId || data.length === 0) {
             setIsOpen(true);
             return;
         }
 
         setIsSending(true);
         try {
-            // จัด Format ข้อความให้น่าอ่าน
-            const formattedMessage = formatElegantReport(data.at(-1)?.text || "");
+            const formattedMessage =data.at(-1)?.text || ""
             const res = await fetch(buildApiUrl("/api/telegram/send"), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    chat_id: currentChatId,
+                    chat_id: targetChatId,
                     message: formattedMessage,
                     parse_mode: "HTML"
                 })
@@ -125,7 +125,7 @@ export default function TelegramConnect({
 
             if (res.ok) {
                 alert(t.sendToTelegram + " Success!");
-                if (variant === "header-button") setIsOpen(false); // ปิด modal เมื่อส่งเสร็จ
+                setIsOpen(false); // ปิด modal ทันทีที่ส่งสำเร็จ
             }
         } catch (e) {
             console.error("Send failed", e);
@@ -257,6 +257,11 @@ export default function TelegramConnect({
     // One-click Connect Flow
     const handleConnectClick = () => {
 
+            if (status === "connected") {
+            handleSendData();
+            return;
+        }
+
         // Validation
         if (!botName) {
             setDetectMessage("Please enter a bot username first.");
@@ -273,13 +278,12 @@ export default function TelegramConnect({
 
     const startPolling = () => {
         setIsDetecting(true);
-        setDetectMessage("Waiting for you to press 'Start' on Telegram...");
+        setDetectMessage("Waiting for 'Start' on Telegram...");
         setCountdown(10);
 
         let attempts = 0;
-        const maxAttempts = 5; // 15 * 2s = 30s
-
-        const startTime = Date.now() / 1000; // Capture start time in seconds
+        const maxAttempts = 5;
+        const startTime = Date.now() / 1000;
 
         const pollInterval = setInterval(async () => {
             attempts++;
@@ -291,27 +295,31 @@ export default function TelegramConnect({
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ start_time: startTime })
                 });
-                const data = await res.json();
-
-                if (res.ok && data.found) {
+                const result = await res.json();
+                
+                if (res.ok && result.found) {
                     clearInterval(pollInterval);
                     setStatus("connected");
-                    setCurrentChatId(data.chat_id);
-                    setDetectMessage("Success! Connected to " + data.username);
+                    setCurrentChatId(result.chat_id);
                     setIsDetecting(false);
-                    setCountdown(0);
+                    
+                    // *** จุดสำคัญ: ส่งข้อมูลทันทีเมื่อเชื่อมต่อสำเร็จ ***
+                    if (data && data.length > 0) {
+                        setDetectMessage("Connected! Sending report...");
+                        // ส่ง chatId ที่เพิ่งได้รับมาเข้าไปในฟังก์ชันส่งโดยตรง
+                        handleSendData(result.chat_id); 
+                    }
                 }
             } catch (e) {
-                setDetectMessage(mapFetchError(e, "/api/telegram/detect"));
+                setDetectMessage("Connection error. Please try again.");
             }
 
             if (attempts >= maxAttempts) {
                 clearInterval(pollInterval);
                 setIsDetecting(false);
-                setCountdown(0);
-                setDetectMessage("Connection timed out. Please try again.");
+                setDetectMessage("Timed out. Please try again.");
             }
-        }, 2000); // Poll every 2 seconds
+        }, 2000);
     };
 
     // --- Content Renderer ---

@@ -1799,6 +1799,62 @@ export default function Home() {
             setLanguage={setLanguage}
             isTranslating={isTranslating}
             teamState={teamState}
+            telegramData={(() => {
+              // 1. Calculate Telegram Data (Always Summary)
+              let telegramSections: any[] = [];
+              const isThai = language === "th" && translatedSections.length > 0;
+              const sourceSections = isThai ? translatedSections : contextReportSections;
+
+              if (isThai) {
+                telegramSections = sourceSections.filter((section) => {
+                  const isSummary = section.key.startsWith("Summarize_") ||
+                    section.key.includes("_summarizer") ||
+                    section.report_type === "summary";
+                  return isSummary;
+                }).sort((a, b) => {
+                  const indexA = REPORT_ORDER.indexOf(a.key);
+                  const indexB = REPORT_ORDER.indexOf(b.key);
+                  if (indexA === -1) return 1;
+                  if (indexB === -1) return -1;
+                  return indexA - indexB;
+                });
+              } else {
+                // For English, we need to re-derive from finalReportData because contextReportSections is already filtered by view
+                // If we have finalReportData, we can re-create the summary list
+                if (contextFinalReportData) {
+                  const sections: any[] = [];
+                  REPORT_ORDER.forEach((key) => {
+                    const content = contextFinalReportData[key];
+                    if (content && SECTION_MAP[key]) {
+                      const entry = SECTION_MAP[key];
+                      // FORCE SUMMARY ONLY
+                      if (entry.label.includes("(Summary)")) {
+                        let textContent = "";
+                        if (typeof content === "object") {
+                          textContent = "```json\n" + JSON.stringify(content, null, 2) + "\n```";
+                        } else {
+                          textContent = String(content);
+                        }
+                        sections.push({
+                          key: SECTION_MAP[key].key,
+                          label: SECTION_MAP[key].label,
+                          text: textContent,
+                        });
+                      }
+                    }
+                  });
+                  telegramSections = sections;
+                } else {
+                  // Fallback if no final data (e.g. still running or partial)
+                  // If current view is Summary, use it. If Full, we might miss data if context cleans it up.
+                  // But GenerationContext usually keeps all data in finalReportData.
+                  // If contextReportSections contains summaries (even if hidden? no, context filters them).
+                  // So we MUST use contextFinalReportData as done above.
+                  telegramSections = [];
+                }
+              }
+              return telegramSections;
+            })()}
           />
           <PdfDownloadModal
             isOpen={isPdfModalOpen}

@@ -15,8 +15,8 @@
         "vwma"
     ],
     "market_overview": {
-        "trend_direction": "Sideways",
-        "momentum_state": "Neutral",
+        "trend_direction": "Bullish",
+        "momentum_state": "Weak",
         "volatility_level": "Moderate",
         "volume_condition": "Neutral"
     },
@@ -24,67 +24,67 @@
         {
             "indicator": "close_50_sma",
             "indicator_full_name": "50-day Simple Moving Average",
-            "signal": "Price (186.23) is above the 50-SMA (184.55), but the SMA is relatively flat.",
-            "implication": "Slight positive bias in the medium-term trend, but lack of strong directional momentum."
+            "signal": "Price (186.23) is above the 50-day SMA (184.55). The SMA is trending upwards.",
+            "implication": "Long-term trend remains positive, providing underlying support."
         },
         {
             "indicator": "close_10_ema",
             "indicator_full_name": "10-day Exponential Moving Average",
-            "signal": "Price (186.23) is just above the 10-EMA (185.87), indicating a neutral short-term trend.",
-            "implication": "Short-term price action is balanced, with no clear momentum."
+            "signal": "Price (186.23) is slightly above the 10-day EMA (185.87). The EMA is nearly flat.",
+            "implication": "Short-term trend is neutral to slightly bullish, lacking strong directional momentum."
         },
         {
             "indicator": "macd",
             "indicator_full_name": "Moving Average Convergence Divergence",
-            "signal": "MACD line (0.596) is above the signal line (0.718), but the histogram (MACDH) is negative (-0.122).",
-            "implication": "Weak bullish momentum is present but fading, suggesting potential for consolidation or a pullback."
+            "signal": "MACD line (0.596) is above the signal line (0.718), resulting in a negative MACD histogram (-0.122).",
+            "implication": "Bullish momentum is waning; the negative histogram suggests a potential bearish crossover is approaching."
         },
         {
             "indicator": "rsi",
             "indicator_full_name": "Relative Strength Index",
-            "signal": "RSI at 51.79, positioned near the neutral 50 level.",
-            "implication": "Momentum is balanced, with neither overbought nor oversold conditions."
+            "signal": "RSI at 51.79 is in neutral territory, slightly above the midpoint.",
+            "implication": "No overbought or oversold conditions; momentum is balanced."
         },
         {
             "indicator": "boll",
             "indicator_full_name": "Bollinger Bands",
-            "signal": "Price is trading near the middle band (185.99), well within the bands (Upper: 193.29, Lower: 178.70).",
-            "implication": "Price is in a neutral zone with moderate volatility; no immediate breakout or breakdown signal."
+            "signal": "Price is trading near the middle band (185.99), well below the upper band (193.29) and above the lower band (178.70).",
+            "implication": "Price is in a consolidation phase within the bands, with room to move in either direction before encountering band resistance/support."
         },
         {
             "indicator": "atr",
             "indicator_full_name": "Average True Range",
-            "signal": "ATR at 5.19, indicating moderate daily price volatility.",
-            "implication": "Expect typical price swings within a moderate range."
+            "signal": "ATR is 5.19, down from recent highs above 8.",
+            "implication": "Daily volatility has decreased to a moderate level, suggesting a period of lower price swings."
         },
         {
             "indicator": "vwma",
             "indicator_full_name": "Volume Weighted Moving Average",
             "signal": "Price (186.23) is slightly above the VWMA (185.57).",
-            "implication": "Recent price action is supported by volume, but the signal is weak."
+            "implication": "Recent price action is supported by volume, indicating fair value alignment."
         }
     ],
     "price_action_summary": {
-        "recent_high_low": "Price is trading in the middle of its recent range, below the December highs near 207 and above the November lows near 170.",
+        "recent_high_low": "Price is well below the recent high near 207 (Oct 29) and above the recent low near 170 (Dec 17). It is consolidating in the mid-180s.",
         "support_levels": [
-            "178.70 (Bollinger Lower Band)",
-            "174.14 (Recent Low from 2025-12-18)",
-            "170.94 (Recent Low from 2025-12-17)"
+            "185.57 (VWMA)",
+            "184.55 (50-day SMA)",
+            "178.70 (Bollinger Lower Band)"
         ],
         "resistance_levels": [
+            "188.85 (Recent high on Jan 2)",
             "193.29 (Bollinger Upper Band)",
-            "190.53 (Recent High from 2025-12-26)",
-            "195.94 (Recent High from 2025-11-20)"
+            "190.53 (Dec 26 high)"
         ],
-        "short_term_behavior": "Price is consolidating in a tight range after a significant decline from November highs, showing indecision and lack of directional conviction."
+        "short_term_behavior": "Price is choppy and range-bound between ~184 and ~189 over the past week, showing a lack of decisive directional movement."
     },
     "market_sentiment": {
-        "sentiment_label": "Neutral"
+        "sentiment_label": "Bullish"
     },
     "key_risks": [
-        "MACD histogram is negative, indicating weakening bullish momentum.",
-        "Price is trapped in a consolidation range; a decisive break below support or above resistance is needed for a clear trend.",
-        "RSI neutrality suggests a lack of strong buying or selling pressure, which could lead to extended sideways movement."
+        "MACD histogram is negative and trending down, signaling weakening bullish momentum and risk of a bearish crossover.",
+        "RSI is neutral, offering no strong momentum signal for a breakout.",
+        "Price is consolidating near the middle Bollinger Band, which can precede a volatile move in either direction."
     ],
-    "short_term_outlook": "Neutral to slightly cautious. The stock is in a consolidation phase with balanced indicators. A breakout above 193.29 (Bollinger Upper Band) is needed for a bullish resumption, while a break below 178.70 could signal a retest of lower supports."
+    "short_term_outlook": "Neutral to cautiously bullish. The long-term trend is up, but short-term momentum is weak and consolidating. A break above 189 resistance is needed to confirm a renewed bullish move, while a break below 184 support could signal a deeper pullback."
 }
