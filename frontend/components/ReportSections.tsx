@@ -47,6 +47,7 @@ interface ReportSectionsDisplayProps extends ReportSectionsProps {
     setLanguage?: (lang: "en" | "th") => void;
     isTranslating?: boolean;
     teamState?: any;
+    telegramData?: { key: string; label: string; text: string }[];
 }
 
 // Helper to render Markdown text (with bold/list support)
@@ -407,6 +408,7 @@ export default function ReportSections({
     setLanguage,
     isTranslating = false,
     teamState,
+    telegramData,
 }: ReportSectionsDisplayProps) {
     const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
@@ -514,7 +516,7 @@ export default function ReportSections({
                         )}
 
                         {/* Telegram Button */}
-                        <TelegramConnect variant="header-button" data={reportSections} />
+                        <TelegramConnect variant="header-button" data={telegramData || reportSections} />
                     </div>
                 </div>
             </header>
