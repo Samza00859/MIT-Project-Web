@@ -104,7 +104,6 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "ENTRY POINT": "จุดเข้าซื้อ",
     
     // Sentiment values (เพิ่ม Neutral เป็นพิเศษ)
-    "NEUTRAL": "กลางๆ",
     "POSITIVE": "บวก",
     "NEGATIVE": "ลบ",
     "VERY POSITIVE": "บวกมาก",
