@@ -1,5 +1,7 @@
 "use client";
 
+
+
 import React, { useState, useEffect } from "react";
 import { Download } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
@@ -52,6 +54,7 @@ const TRANSLATIONS = {
         detail: {
             back: "Back to list",
             analysisFor: "Analysis for",
+            downloadPdf: "PDF",
             viewMode: {
                 summary: "Summary",
                 full: "Full"
@@ -106,6 +109,7 @@ const TRANSLATIONS = {
         detail: {
             back: "กลับไปหน้ารายการ",
             analysisFor: "วิเคราะห์เมื่อ",
+            downloadPdf: "ดาวน์โหลด PDF",
             viewMode: {
                 summary: "สรุป",
                 full: "ฉบับเต็ม"
@@ -131,6 +135,35 @@ const TRANSLATIONS = {
             }
         }
     }
+};
+
+// Map English section labels to Thai
+const THAI_LABEL_MAP: Record<string, string> = {
+    "Market Analysis (Summary)": "การวิเคราะห์ตลาด (สรุป)",
+    "Market Analysis Data": "ข้อมูลการวิเคราะห์ตลาด",
+    "Fundamentals Analyst (Summary)": "การวิเคราะห์ปัจจัยพื้นฐาน (สรุป)",
+    "Fundamentals Analyst Data": "ข้อมูลปัจจัยพื้นฐาน",
+    "Social Media Analyst (Summary)": "การวิเคราะห์โซเชียลมีเดีย (สรุป)",
+    "Social Media Research": "การวิจัยโซเชียลมีเดีย",
+    "News Analyst (Summary)": "การวิเคราะห์ข่าว (สรุป)",
+    "News Research": "การวิจัยข่าว",
+    "Bull Research (Summary)": "การวิจัยแนวโน้มขาขึ้น (สรุป)",
+    "Bull Research Analysis": "การวิเคราะห์แนวโนน้มขาขึ้น",
+    "Bear Research (Summary)": "การวิจัยแนวโน้มขาลง (สรุป)",
+    "Bear Research Analysis": "การวิเคราะห์แนวโน้มขาลง",
+    "Research Manager (Summary)": "สรุปจากผู้จัดการงานวิจัย",
+    "Research Manager Decision": "คำตัดสินผู้จัดการงานวิจัย",
+    "Trader (Summary)": "การวิเคราะห์เทรดเดอร์ (สรุป)",
+    "Trader Analysis": "การวิเคราะห์เทรดเดอร์",
+    "Risk Analyst (Summary)": "การวิเคราะห์ความเสี่ยง (สรุป)",
+    "Risk Analysis Data": "ข้อมูลการวิเคราะห์ความเสี่ยง",
+    "Neutral Analyst (Summary)": "การวิเคราะห์แนวโน้มกลาง (สรุป)",
+    "Neutral Analysis": "การวิเคราะห์แนวโน้มกลาง",
+    "Safe Analyst (Summary)": "การวิเคราะห์ความปลอดภัย (สรุป)",
+    "Safe Analysis": "การวิเคราะห์ความปลอดภัย",
+    "Portfolio Manager (Summary)": "สรุปจากผู้จัดการพอร์ต",
+    "Portfolio Manager Decision": "คำตัดสินผู้จัดการพอร์ต",
+    "Final Trade Decision": "คำตัดสินการเทรดขั้นสุดท้าย"
 };
 
 interface HistoryItem {
@@ -425,7 +458,7 @@ export default function HistoryPage() {
             // Return content based on selected language
             if (lang === "th") {
                 return {
-                    label: section.label_th || title,
+                    label: section.label_th || THAI_LABEL_MAP[title] || title,
                     sum: section.sum_th || section.sum,
                     full: section.full_th || section.full
                 };
@@ -1308,7 +1341,7 @@ export default function HistoryPage() {
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
-                                            PDF ({language === "th" ? "TH" : "EN"})
+                                            {t.detail.downloadPdf} ({language === "th" ? "TH" : "EN"})
                                         </button>
                                     )}
 
@@ -1374,7 +1407,7 @@ export default function HistoryPage() {
                                                             {typeof summary.summary === 'string' ? (
                                                                 <RenderMarkdown text={summary.summary} />
                                                             ) : (
-                                                                <RenderJsonData data={summary.summary} isDarkMode={isDarkMode} />
+                                                                <RenderJsonData data={summary.summary} isDarkMode={isDarkMode} language={language} />
                                                             )}
                                                         </div>
                                                     </div>
@@ -1406,7 +1439,7 @@ export default function HistoryPage() {
                                                                     {typeof section.sum === 'string' ? (
                                                                         <RenderMarkdown text={section.sum} />
                                                                     ) : (
-                                                                        <RenderJsonData data={section.sum} isDarkMode={isDarkMode} />
+                                                                        <RenderJsonData data={section.sum} isDarkMode={isDarkMode} language={language} />
                                                                     )}
                                                                 </div>
                                                             </div>
@@ -1420,7 +1453,7 @@ export default function HistoryPage() {
                                                                         <RenderMarkdown text={section.full} />
                                                                     ) : (
                                                                         <div className="mt-4">
-                                                                            <RenderJsonData data={section.full} isDarkMode={isDarkMode} />
+                                                                            <RenderJsonData data={section.full} isDarkMode={isDarkMode} language={language} />
                                                                         </div>
                                                                     )}
                                                                 </div>

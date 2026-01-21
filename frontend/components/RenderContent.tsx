@@ -3,6 +3,35 @@
 import React from "react";
 import { formatInlineMarkdown, extractAndCleanContent } from "../lib/helpers";
 
+
+// Translation map for JSON keys (EN -> TH)
+const KEY_TRANSLATIONS: Record<string, string> = {
+    "EXECUTIVE SUMMARY": "บทสรุปผู้บริหาร",
+    "VALUATION STATUS": "สถานะการประเมินมูลค่า",
+    "COMPREHENSIVE METRICS": "ตัวชี้วัดที่ครอบคลุม",
+    "REVENUE GROWTH YEAR OVER YEAR": "การเติบโตของรายได้รายปี",
+    "NET PROFIT MARGIN": "อัตรากำไรสุทธิ",
+    "PRICE TO EARNINGS RATIO": "อัตราส่วนราคาต่อกำไร (P/E)",
+    "DEBT TO EQUITY RATIO": "อัตราส่วนหนี้สินต่อทุน",
+    "RETURN ON EQUITY": "ผลตอบแทนต่อส่วนของผู้ถือหุ้น (ROE)",
+    "FREE CASH FLOW STATUS": "สถานะกระแสเงินสดอิสระ",
+    "KEY STRENGTHS ANALYSIS": "การวิเคราะห์จุดแข็งหลัก",
+    "KEY RISKS ANALYSIS": "การวิเคราะห์ความเสี่ยงหลัก",
+    "OPPORTUNITIES ANALYSIS": "การวิเคราะห์โอกาส",
+    "THREATS ANALYSIS": "การวิเคราะห์อุปสรรค",
+    "TECHNICAL INDICATORS": "ตัวชี้วัดทางเทคนิค",
+    "MARKET SENTIMENT": "ความเชื่อมั่นของตลาด",
+    "FUNDAMENTAL ANALYSIS": "การวิเคราะห์ปัจจัยพื้นฐาน",
+    "SOCIAL MEDIA INSIGHTS": "ข้อมูลเชิงลึกจากโซเชียลมีเดีย",
+    "NEWS SENTIMENT": "ความรู้สึกจากข่าว",
+    "BULLISH FACTORS": "ปัจจัยบวก",
+    "BEARISH FACTORS": "ปัจจัยลบ",
+    "RISK ASSESSMENT": "การประเมินความเสี่ยง",
+    "PORTFOLIO RECOMMENDATION": "คำแนะนำการจัดพอร์ต",
+    "INVESTMENT PLAN": "แผนการลงทุน",
+    "TRADE DECISION": "การตัดสินใจซื้อขาย"
+};
+
 // Render Markdown Component
 export function RenderMarkdown({ text }: { text: string }) {
     if (!text) return null;
@@ -44,9 +73,11 @@ export function RenderMarkdown({ text }: { text: string }) {
 export function RenderJsonData({
     data,
     isDarkMode,
+    language = "en",
 }: {
     data: any;
     isDarkMode: boolean;
+    language?: "en" | "th";
 }) {
     // Helper: Try to parse a string as JSON (handles escaped strings too)
     const tryParseJson = (str: string): any => {
@@ -102,6 +133,16 @@ export function RenderJsonData({
             return result;
         }
         return obj;
+    };
+
+
+    // Helper: Translate JSON key
+    const translateKey = (key: string): string => {
+        if (language === "th") {
+            const upperKey = key.toUpperCase().replace(/_/g, " ");
+            return KEY_TRANSLATIONS[upperKey] || key.replace(/_/g, " ");
+        }
+        return key.replace(/_/g, " ");
     };
 
     // If data is a string, try to parse it as JSON first
@@ -221,7 +262,7 @@ export function RenderJsonData({
                                     )
                                         return null;
 
-                                    const displayKey = k.replace(/_/g, " ");
+                                    const displayKey = translateKey(k);
 
                                     return (
                                         <div key={k}>
@@ -232,7 +273,7 @@ export function RenderJsonData({
                                                 {typeof v === "string" ? (
                                                     <RenderMarkdown text={v} />
                                                 ) : (
-                                                    <RenderJsonData data={v} isDarkMode={isDarkMode} />
+                                                    <RenderJsonData data={v} isDarkMode={isDarkMode} language={language} />
                                                 )}
                                             </div>
                                         </div>
@@ -277,14 +318,14 @@ export function RenderJsonData({
                     try {
                         const jsonData = JSON.parse(content);
                         // Recursively render the parsed JSON
-                        return <RenderJsonData data={jsonData} isDarkMode={isDarkMode} />;
+                        return <RenderJsonData data={jsonData} isDarkMode={isDarkMode} language={language} />;
                     } catch (e) {
                         // Try to extract just the JSON part
                         const jsonMatch = content.match(/^(\{[\s\S]*\}|\[[\s\S]*\])/);
                         if (jsonMatch) {
                             try {
                                 const jsonData = JSON.parse(jsonMatch[1]);
-                                return <RenderJsonData data={jsonData} isDarkMode={isDarkMode} />;
+                                return <RenderJsonData data={jsonData} isDarkMode={isDarkMode} language={language} />;
                             } catch {
                                 // Still not valid JSON
                             }
@@ -300,7 +341,7 @@ export function RenderJsonData({
                 return <RenderMarkdown text={cleanedText} />;
             }
 
-            return <RenderJsonData data={textContent} isDarkMode={isDarkMode} />;
+            return <RenderJsonData data={textContent} isDarkMode={isDarkMode} language={language} />;
         }
 
         return (
@@ -352,13 +393,13 @@ export function RenderJsonData({
                             className={`border-l-2 pl-4 ${isDarkMode ? "border-white/10" : "border-gray-200"}`}
                         >
                             <h4 className="mb-2 text-sm font-bold uppercase tracking-wider opacity-60">
-                                {key.replace(/_/g, " ")}
+                                {translateKey(key)}
                             </h4>
                             <div className="text-base leading-relaxed opacity-90">
                                 {typeof parsedValue === "string" ? (
                                     <RenderMarkdown text={parsedValue} />
                                 ) : typeof parsedValue === "object" ? (
-                                    <RenderJsonData data={parsedValue} isDarkMode={isDarkMode} />
+                                    <RenderJsonData data={parsedValue} isDarkMode={isDarkMode} language={language} />
                                 ) : (
                                     String(parsedValue)
                                 )}
