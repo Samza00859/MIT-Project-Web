@@ -1321,7 +1321,13 @@ export default function HistoryPage() {
                                             }`}>
                                             {selectedItem.status === "executing" && selectedItem.reports.length === 0
                                                 ? t.sidebar.status.incomplete
-                                                : selectedItem.status.toUpperCase()}
+                                                : selectedItem.status === "success"
+                                                    ? t.sidebar.status.success.toUpperCase()
+                                                    : selectedItem.status === "error"
+                                                        ? t.sidebar.status.failed
+                                                        : selectedItem.status === "executing"
+                                                            ? t.sidebar.status.executing
+                                                            : selectedItem.status.toUpperCase()}
                                         </span>
                                         <p className="opacity-50 text-sm whitespace-nowrap">{t.detail.analysisFor} {language === 'th' ? new Date(selectedItem.analysis_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : selectedItem.analysis_date}</p>
                                     </div>

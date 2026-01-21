@@ -54,7 +54,7 @@ const TRANSLATIONS = {
     },
     signal: {
       asset: "Selected Asset",
-      strength: "Signal Strength",
+      strength: "Technicals",
       recommendation: "Recommendation",
       awaitingRun: "Awaiting Run"
     },
@@ -110,7 +110,7 @@ const TRANSLATIONS = {
     },
     signal: {
       asset: "สินทรัพย์ที่เลือก",
-      strength: "ความแข็งแกร่งของสัญญาณ",
+      strength: "ตัวชี้วัดทางเทคนิค",
       recommendation: "คำแนะนำ",
       awaitingRun: "รอเริ่มวิเคราะห์"
     },
@@ -129,6 +129,87 @@ const TRANSLATIONS = {
     }
   }
 };
+
+// Logo component with robust fallback
+const logoCache = new Map<string, string>();
+
+function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean }) {
+  const [currentSrc, setCurrentSrc] = useState<string>("");
+  const [isError, setIsError] = useState(false);
+  const [candidateIndex, setCandidateIndex] = useState(0);
+  const [candidates, setCandidates] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!ticker) {
+      setIsError(true);
+      return;
+    }
+
+    const cleanTicker = ticker.trim().toUpperCase();
+    const symbol = cleanTicker.split('.')[0].split('-')[0];
+
+    // Check cache first
+    if (logoCache.has(cleanTicker)) {
+      const cachedUrl = logoCache.get(cleanTicker)!;
+      if (cachedUrl === "ERROR") {
+        setIsError(true);
+      } else {
+        setCurrentSrc(cachedUrl);
+        setCandidates([cachedUrl]);
+      }
+      return;
+    }
+
+    // Build static logo sources
+    const staticUrls: string[] = [
+      `https://assets.parqet.com/logos/symbol/${symbol}?format=png`,
+      `https://unavatar.io/${symbol}`,
+      `https://www.google.com/s2/favicons?domain=${symbol.toLowerCase()}.com&sz=128`,
+    ];
+
+    setCandidates(staticUrls);
+    setCandidateIndex(0);
+    setCurrentSrc(staticUrls[0]);
+    setIsError(false);
+  }, [ticker]);
+
+  const handleImageError = () => {
+    const nextIndex = candidateIndex + 1;
+    if (nextIndex < candidates.length) {
+      setCandidateIndex(nextIndex);
+      setCurrentSrc(candidates[nextIndex]);
+    } else {
+      const cleanTicker = ticker.trim().toUpperCase();
+      logoCache.set(cleanTicker, "ERROR");
+      setIsError(true);
+    }
+  };
+
+  const handleImageLoad = () => {
+    const cleanTicker = ticker.trim().toUpperCase();
+    logoCache.set(cleanTicker, currentSrc);
+  };
+
+  return (
+    <div className={`flex h-10 w-10 items-center justify-center rounded-full shrink-0 relative overflow-hidden transition-colors ${!isError && currentSrc ? "bg-white" : (isDarkMode ? "bg-white/10" : "bg-gray-100")}`}>
+      {!isError && currentSrc ? (
+        <img
+          src={currentSrc}
+          alt={ticker}
+          className="h-full w-full object-contain p-0.5 rounded-full"
+          onError={handleImageError}
+          onLoad={handleImageLoad}
+          loading="lazy"
+        />
+      ) : (
+        <span className={`text-xs font-bold ${isDarkMode ? "text-white/40" : "text-gray-400"}`}>
+          {ticker.substring(0, 2).toUpperCase()}
+        </span>
+      )}
+    </div>
+  );
+}
+
 
 // Import from shared modules for better code splitting
 import {
@@ -166,6 +247,70 @@ interface Star {
   duration: number;
   opacity: number;
 }
+
+// Parse Thai content to handle JSON strings wrapped in markdown code blocks
+const parseThaiContent = (content: any): any => {
+    if (!content) return content;
+
+    const parseFromMarkdown = (str: string): any => {
+        let textValue = str.trim();
+
+        // Strip markdown code blocks (```json...``` or ```...```)
+        const codeBlockMatch = textValue.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?```$/);
+        if (codeBlockMatch) {
+            textValue = codeBlockMatch[1].trim();
+        }
+
+        // Try to parse as JSON
+        if (textValue.startsWith('{') || textValue.startsWith('[')) {
+            try {
+                return JSON.parse(textValue);
+            } catch (e) {
+                // Try to handle escaped JSON strings
+                if (textValue.includes('\\n') || textValue.includes('\\"')) {
+                    try {
+                        const unescaped = textValue
+                            .replace(/\\n/g, '\n')
+                            .replace(/\\"/g, '"')
+                            .replace(/\\\\/g, '\\');
+                        return JSON.parse(unescaped);
+                    } catch {
+                        return null;
+                    }
+                }
+                return null;
+            }
+        }
+        return null;
+    };
+
+    const deepParse = (obj: any): any => {
+        if (typeof obj === 'string') {
+            const parsed = parseFromMarkdown(obj);
+            if (parsed !== null) {
+                return deepParse(parsed);
+            }
+            return obj;
+        }
+
+        if (Array.isArray(obj)) {
+            return obj.map(item => deepParse(item));
+        }
+
+        if (typeof obj === 'object' && obj !== null) {
+            const result: Record<string, any> = {};
+            for (const [key, value] of Object.entries(obj)) {
+                result[key] = deepParse(value);
+            }
+            return result;
+        }
+
+        return obj;
+    };
+
+    return deepParse(content);
+};
+
 
 export default function Home() {
   // Get global generation context
@@ -252,11 +397,14 @@ export default function Home() {
         const thaiSections: { key: string; label: string; text: string; report_type: string }[] = [];
 
         thaiReportSections.forEach((report) => {
+          // Parse Thai content to handle JSON-wrapped strings
+          const parsedContent = parseThaiContent(report.content);
+          
           let textContent = "";
-          if (typeof report.content === "object") {
-            textContent = "```json\n" + JSON.stringify(report.content, null, 2) + "\n```";
+          if (typeof parsedContent === "object") {
+            textContent = "```json\n" + JSON.stringify(parsedContent, null, 2) + "\n```";
           } else {
-            textContent = String(report.content);
+            textContent = String(parsedContent);
           }
 
           thaiSections.push({
@@ -287,11 +435,14 @@ export default function Home() {
         const thaiSections: { key: string; label: string; text: string; report_type: string }[] = [];
 
         thaiReportSections.forEach((report) => {
+          // Parse Thai content to handle JSON-wrapped strings
+          const parsedContent = parseThaiContent(report.content);
+          
           let textContent = "";
-          if (typeof report.content === "object") {
-            textContent = "```json\n" + JSON.stringify(report.content, null, 2) + "\n```";
+          if (typeof parsedContent === "object") {
+            textContent = "```json\n" + JSON.stringify(parsedContent, null, 2) + "\n```";
           } else {
-            textContent = String(report.content);
+            textContent = String(parsedContent);
           }
 
           thaiSections.push({
@@ -1526,17 +1677,20 @@ export default function Home() {
               >
                 {t.signal.asset}
               </span>
-              <div
-                className={`text-lg sm:text-xl font-bold tracking-wide ${isDarkMode ? "text-white" : "text-[#0F172A]"
-                  }`}
-              >
-                {ticker || "—"}
-                <span
-                  className={`ml-1 text-xs sm:text-sm ${isDarkMode ? "text-[#64748b]" : "text-[#334155]"
+              <div className="flex items-center gap-3">
+                {ticker && <StockLogo ticker={ticker} isDarkMode={isDarkMode} />}
+                <div
+                  className={`text-lg sm:text-xl font-bold tracking-wide ${isDarkMode ? "text-white" : "text-[#0F172A]"
                     }`}
                 >
-                  {selectedMarket ? `:${selectedMarket.toUpperCase()}` : ""}
-                </span>
+                  {ticker || "—"}
+                  <span
+                    className={`ml-1 text-xs sm:text-sm ${isDarkMode ? "text-[#64748b]" : "text-[#334155]"
+                      }`}
+                  >
+                    {selectedMarket ? `:${selectedMarket.toUpperCase()}` : ""}
+                  </span>
+                </div>
               </div>
             </div>
 

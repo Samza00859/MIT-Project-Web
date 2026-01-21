@@ -109,7 +109,62 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "NEGATIVE": "ลบ",
     "VERY POSITIVE": "บวกมาก",
     "VERY NEGATIVE": "ลบมาก",
-    "MIXED": "ผสม"
+    "MIXED": "ผสม",
+    
+    // Social Media & News Analysis
+    "SENTIMENT VERDICT": "สรุปความรู้สึก",
+    "SOCIAL VOLUME": "ปริมาณโซเชียล",
+    "DOMINANT NARRATIVE": "เรื่องเล่าหลัก",
+    "TOP TOPICS": "หัวข้อยอดนิยม",
+    "TRENDING TOPICS": "หัวข้อกำลังฮิต",
+    "MENTIONS": "การกล่าวถึง",
+    "ENGAGEMENT": "การมีส่วนร่วม",
+    "REACH": "การเข้าถึง",
+    "SENTIMENT SCORE": "คะแนนความรู้สึก",
+    "OVERALL SENTIMENT": "ความรู้สึกโดยรวม",
+    
+    // Psychology & Market Context
+    "PSYCHOLOGY": "จิตวิทยาตลาด",
+    "MARKET SENTIMENT VERDICT": "สรุปความรู้สึกของตลาด",
+    "GLOBAL MACRO CONTEXT": "บริบทเศรษฐกิจมหภาค",
+    "MACRO SUMMARY": "สรุปภาพรวมเศรษฐกิจ",
+    "TOP NEWS DEVELOPMENTS": "ข่าวสำคัญล่าสุด",
+    
+    // Bull/Bear Debate
+    "BULL BEAR DEBATE": "การโต้วาทีฝั่งบูล-แบร์",
+    "BULL/BEAR DEBATE": "การโต้วาทีฝั่งบูล-แบร์",
+    "JUDGE DECISION": "คำตัดสินของผู้ตัดสิน",
+    "HISTORY": "ประวัติการโต้วาที",
+    "BEAR HISTORY": "ประวัติฝั่งแบร์",
+    "BULL HISTORY": "ประวัติฝั่งบูล",
+    "CURRENT RESPONSE": "คำตอบปัจจุบัน",
+    
+    // Risk Debate
+    "RISK DEBATE": "การโต้วาทีเรื่องความเสี่ยง",
+    "REASONING": "เหตุผล",
+    "REFINED TRADER PLAN": "แผนการเทรดที่ปรับปรุงแล้ว",
+    "RISKY HISTORY": "ประวัติฝั่งเสี่ยง",
+    "SAFE HISTORY": "ประวัติฝั่งปลอดภัย",
+    "NEUTRAL HISTORY": "ประวัติฝั่งกลาง",
+    "LATEST SPEAKER": "ผู้พูดล่าสุด",
+    "CURRENT RISKY RESPONSE": "คำตอบฝั่งเสี่ยงปัจจุบัน",
+    "CURRENT SAFE RESPONSE": "คำตอบฝั่งปลอดภัยปัจจุบัน",
+    "CURRENT NEUTRAL RESPONSE": "คำตอบฝั่งกลางปัจจุบัน",
+    
+    // Plan Validation
+    "PLAN VALIDATION": "การตรวจสอบแผน",
+    "AGREEMENT STATUS": "สถานะความเห็นพ้อง",
+    "VALIDATION NOTES": "หมายเหตุการตรวจสอบ",
+    "FINAL DECISION SIGNAL": "สัญญาณการตัดสินใจขั้นสุดท้าย",
+    "TRADER COMMENTARY": "ความคิดเห็นของเทรดเดอร์",
+    
+    // Additional common fields
+    "CONTEXT": "บริบท",
+    "ANALYSIS": "การวิเคราะห์",
+    "CONCLUSION": "สรุป",
+    "NOTES": "หมายเหตุ",
+    "COMMENTARY": "ความคิดเห็น",
+    "OBSERVATIONS": "ข้อสังเกต"
 };
 
 // Render Markdown Component
