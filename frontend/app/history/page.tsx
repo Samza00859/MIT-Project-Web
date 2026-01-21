@@ -1202,7 +1202,13 @@ export default function HistoryPage() {
                                                 }`}>
                                                 {item.status === "executing" && item.reports.length === 0
                                                     ? t.sidebar.status.failed
-                                                    : item.status}
+                                                    : item.status === "success"
+                                                        ? t.sidebar.status.success
+                                                        : item.status === "executing"
+                                                            ? t.sidebar.status.executing
+                                                            : item.status === "error"
+                                                                ? t.sidebar.status.failed
+                                                                : item.status.toUpperCase()}
                                             </span>
                                         </div>
                                         <div className="font-bold text-sm truncate">{item.ticker} - {language === 'th' ? new Date(item.analysis_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : item.analysis_date}</div>
