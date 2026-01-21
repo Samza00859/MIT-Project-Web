@@ -23,7 +23,7 @@ interface TelegramConnectProps {
 const TRANSLATIONS = {
     en: {
         connectToTelegram: "Connect to Telegram",
-        sendToTelegram: "Send to Telegram",
+        sendToTelegram: "Send judge decision to Telegram",
         title: "Telegram Notifications",
         subtitle: "Receive real-time trading updates",
         connected: "Connected Successfully",
@@ -42,7 +42,7 @@ const TRANSLATIONS = {
     },
     th: {
         connectToTelegram: "เชื่อมต่อกับ Telegram",
-        sendToTelegram: "ส่งเข้า Telegram",
+        sendToTelegram: "ส่ง ผลตัดสิน ทาง Telegram",
         title: "การแจ้งเตือน Telegram",
         subtitle: "รับข้อมูลการเทรดแบบเรียลไทม์",
         connected: "เชื่อมต่อสำเร็จ",
