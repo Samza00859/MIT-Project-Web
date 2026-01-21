@@ -242,6 +242,39 @@ export default function Home() {
   // Track previous isRunning to detect when generation completes
   const prevIsRunningRef = useRef<boolean>(false);
 
+  // Initialize translatedSections from thaiReportSections on component mount (for persistence when returning from history)
+  useEffect(() => {
+    if (thaiReportSections.length > 0 && translatedSections.length === 0 && !isRunning) {
+      // Load Thai content if it exists but translatedSections is empty (e.g., after navigation)
+      try {
+        const thaiSections: { key: string; label: string; text: string; report_type: string }[] = [];
+
+        thaiReportSections.forEach((report) => {
+          let textContent = "";
+          if (typeof report.content === "object") {
+            textContent = "```json\n" + JSON.stringify(report.content, null, 2) + "\n```";
+          } else {
+            textContent = String(report.content);
+          }
+
+          thaiSections.push({
+            key: report.section,
+            label: report.label,
+            text: textContent,
+            report_type: report.report_type,
+          });
+        });
+
+        if (thaiSections.length > 0) {
+          setTranslatedSections(thaiSections);
+          console.log(`Initialized ${thaiSections.length} Thai sections from context`);
+        }
+      } catch (error) {
+        console.error("Failed to initialize Thai content:", error);
+      }
+    }
+  }, [thaiReportSections, isRunning]);
+
   // Build translated sections from WebSocket thaiReportSections when generation completes
   useEffect(() => {
     if (prevIsRunningRef.current === true && isRunning === false && thaiReportSections.length > 0) {

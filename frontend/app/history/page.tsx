@@ -29,6 +29,7 @@ const TRANSLATIONS = {
             showing: "Showing",
             record: "record",
             searchPlaceholder: "Search Symbol",
+            analysisLabel: "ANALYSIS",
             filters: {
                 allStatus: "All Status",
                 success: "Success",
@@ -82,6 +83,7 @@ const TRANSLATIONS = {
             showing: "แสดง",
             record: "รายการ",
             searchPlaceholder: "ค้นหาชื่อหุ้น",
+            analysisLabel: "การวิเคราะห์",
             filters: {
                 allStatus: "สถานะทั้งหมด",
                 success: "สำเร็จ",
@@ -1130,7 +1132,7 @@ export default function HistoryPage() {
                                                 <StockLogo ticker={currentTicker} isDarkMode={isDarkMode} />
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex justify-between items-start">
-                                                        <span className="font-bold text-xs uppercase tracking-tight opacity-90">ANALYSIS</span>
+                                                        <span className="font-bold text-xs uppercase tracking-tight opacity-90">{t.sidebar.analysisLabel}</span>
                                                         <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-yellow-500 text-black animate-pulse">
                                                             PROGRESS
                                                         </span>
@@ -1189,7 +1191,7 @@ export default function HistoryPage() {
                                     <StockLogo ticker={item.ticker} isDarkMode={isDarkMode} />
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-start font-sans">
-                                            <span className="font-bold text-xs uppercase tracking-tight opacity-90">ANALYSIS</span>
+                                            <span className="font-bold text-xs uppercase tracking-tight opacity-90">{t.sidebar.analysisLabel}</span>
                                             <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase ${item.status === "success"
                                                 ? "bg-[#2df4c6] text-black"
                                                 : (item.status === "executing" && item.reports.length === 0)
@@ -1203,9 +1205,9 @@ export default function HistoryPage() {
                                                     : item.status}
                                             </span>
                                         </div>
-                                        <div className="font-bold text-sm truncate">{item.ticker} - {item.analysis_date}</div>
+                                        <div className="font-bold text-sm truncate">{item.ticker} - {language === 'th' ? new Date(item.analysis_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : item.analysis_date}</div>
                                         <div className="text-[11px] opacity-40 mt-1">
-                                            {new Date(item.timestamp).toLocaleString('en-US', {
+                                            {new Date(item.timestamp).toLocaleString(language === 'th' ? 'th-TH' : 'en-US', {
                                                 month: 'short',
                                                 day: 'numeric',
                                                 year: 'numeric',
@@ -1282,7 +1284,7 @@ export default function HistoryPage() {
                                                 ? t.sidebar.status.incomplete
                                                 : selectedItem.status.toUpperCase()}
                                         </span>
-                                        <p className="opacity-50 text-sm whitespace-nowrap">{t.detail.analysisFor} {selectedItem.analysis_date}</p>
+                                        <p className="opacity-50 text-sm whitespace-nowrap">{t.detail.analysisFor} {language === 'th' ? new Date(selectedItem.analysis_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : selectedItem.analysis_date}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
