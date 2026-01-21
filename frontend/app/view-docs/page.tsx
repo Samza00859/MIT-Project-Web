@@ -374,21 +374,6 @@ export default function ViewDocsPage() {
 
             {/* Floating Controls (Top Right) */}
             <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
-                {/* Language Switcher */}
-                <button
-                    onClick={toggleLanguage}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all hover:scale-105 ${isDarkMode
-                        ? "bg-slate-800 text-white hover:bg-slate-700 border border-slate-700 shadow-lg"
-                        : "bg-white text-slate-900 hover:bg-slate-50 border border-slate-200 shadow-lg"
-                        }`}
-                    title={language === 'en' ? 'Switch to Thai' : 'เปลี่ยนเป็นภาษาอังกฤษ'}
-                >
-                    <Globe size={16} />
-                    <span className="font-bold">{language === 'en' ? 'EN' : 'TH'}</span>
-                    {language === 'th' && <span className="text-lg">🇹🇭</span>}
-                    {language === 'en' && <span className="text-lg">🇺🇸</span>}
-                </button>
-
                 {/* Download Docs Button */}
                 <a
                     href="https://arxiv.org/pdf/2412.20138"

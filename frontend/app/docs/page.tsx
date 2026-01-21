@@ -8,13 +8,11 @@ import {
     TrendingUp, TrendingDown,
     Flame, Shield, Scale, Gavel,
     BrainCircuit, Activity, Zap, HelpCircle,
-    Search, Users, Briefcase, ArrowRight, ArrowLeft,
+    Search, Users, Briefcase, ArrowRight,
     Target, RefreshCw, CheckCircle2,
-    Calendar, Send, FileText, Download, Smartphone,
-    Sun, Moon, Languages
+    Calendar, Send, FileText, Download, Smartphone
 } from 'lucide-react';
 import { useLanguage } from "@/context/LanguageContext";
-import { useRouter } from "next/navigation";
 
 const TRANSLATIONS = {
     en: {
@@ -102,93 +100,92 @@ const TRANSLATIONS = {
         }
     },
     th: {
-        tagline: "Trading Agents",
-        title: "MULTI-AGENT SYSTEM",
-        description: "ระบบจำลองทีมวิเคราะห์การลงทุนระดับสถาบันด้วย AI ที่ทำงานร่วมกัน (Cooperative AI) เพื่อเลียนแบบกระบวนการตัดสินใจที่รัดกุมและตรวจสอบได้",
+        tagline: "ระบบตัวแทนการเทรด",
+        title: "ระบบตัวแทน AI แบบหลายหน่วย",
+        description: "ระบบจำลองการทำงานของทีมวิเคราะห์การลงทุนระดับสถาบันด้วย AI หลายตัวที่ทำงานร่วมกัน เพื่อเลียนแบบกระบวนการตัดสินใจที่ครอบคลุมทุกมิติและตรวจสอบได้อย่างเข้มงวด",
         features: {
-            collab: { title: "Collaborative AI", desc: "การทำงานร่วมกันของ Agent ผู้เชี่ยวชาญเฉพาะด้าน (Technical, Fundamental, Research) แบบเป็นขั้นเป็นตอน" },
-            diverse: { title: "Multi-Modal Analysis", desc: "วิเคราะห์ครบทุกมิติ: ปัจจัยทางเทคนิค (RSI, MACD), ปัจจัยพื้นฐาน (งบการเงิน), และข่าวสาร (Sentiment)" },
-            debate: { title: "Adversarial Review", desc: "กระบวนการ Debates ระหว่างทีม Bull และ Bear เพื่อลบความลำเอียง (Bias) ก่อนตัดสินใจ" }
+            collab: { title: "AI ที่ทำงานร่วมกัน", desc: "ตัวแทน AI ผู้เชี่ยวชาญเฉพาะด้าน (วิเคราะห์เทคนิค, ปัจจัยพื้นฐาน, นักวิจัย) ทำงานร่วมกันในกระบวนการวิเคราะห์แบบขั้นตอน" },
+            diverse: { title: "การวิเคราะห์แบบหลายมิติ", desc: "วิเคราะห์ครบทุกมิติ: ตัวชี้วัดทางเทคนิค (RSI, MACD), อัตราส่วนทางการเงิน (P/E, ROE), และความเชื่อมั่นจากข่าวสาร" },
+            debate: { title: "การตรวจสอบแบบคู่ขนาน", desc: "กระบวนการอภิปรายระหว่างทีมฝั่ง Bull และ Bear เพื่อกำจัดความลำเอียงและข้อผิดพลาดก่อนตัดสินใจ" }
         },
         workflow: {
-            header: "Agent Workflow Pipeline",
-            subheader: "กระบวนการทำงานอัตโนมัติ 4 ขั้นตอน: จากข้อมูลดิบสู่คำสั่งซื้อขาย",
+            header: "ขั้นตอนการทำงานของตัวแทน AI",
+            subheader: "กระบวนการอัตโนมัติ 4 ขั้นตอน: จากข้อมูลดิบสู่คำสั่งซื้อขาย",
             steps: [
-                { title: "Data Mining", desc: "Analyst ดึงข้อมูลราคาและงบการเงิน พร้อมคำนวณตัวชี้วัด" },
-                { title: "Thesis Generation", desc: "Research สร้างสมมติฐานการลงทุนทั้งฝั่งบวกและลบ" },
-                { title: "Synthesis", desc: "Trader ชั่งน้ำหนักข้อมูลทั้งหมดเพื่อหาข้อสรุป (Consensus)" },
-                { title: "Risk Check", desc: "ตรวจสอบความเสี่ยงและกำหนดจุดซื้อขายที่เหมาะสม" }
+                { title: "การขุดข้อมูล", desc: "นักวิเคราะห์ดึงข้อมูลราคาและงบการเงิน พร้อมคำนวณตัวชี้วัดทางเทคนิค" },
+                { title: "การสร้างสมมติฐาน", desc: "ทีมวิจัยสร้างข้อโต้แย้งการลงทุนทั้งในแง่บวกและแง่ลบ" },
+                { title: "การสังเคราะห์", desc: "เทรดเดอร์ชั่งน้ำหนักหลักฐานทั้งหมดเพื่อหาข้อสรุปร่วม" },
+                { title: "การตรวจสอบความเสี่ยง", desc: "ตรวจสอบความเสี่ยงและกำหนดจุดเข้า-ออกที่เหมาะสม" }
             ]
         },
         teams: {
-            header: "Specialized Agent Teams",
+            header: "ทีมตัวแทน AI เฉพาะทาง",
             analyst: {
-                title: "Analyst Team",
-                desc: "หน่วยรวบรวมข้อมูล: เปรียบเสมือน Junior Analyst ที่คอยเตรียมข้อมูลดิบให้พร้อม",
-                market: { title: "Technical Analyst", desc: "คำนวณอินดิเคเตอร์เชิงเทคนิค: SMA, EMA, RSI, MACD, Bollinger Bands เพื่อหาแนวโน้ม (Trend)" },
-                fundamental: { title: "Fundamental Analyst", desc: "วิเคราะห์สุขภาพการเงิน 10 ปีย้อนหลัง: การเติบโตของรายได้, P/E, D/E Ratio และ ROE" },
-                news: { title: "News Analyst", desc: "รวบรวมข่าวเศรษฐกิจรอบโลกเพื่อวิเคราะห์ Sentiment ตลาด" },
-                social: { title: "Social Analyst", desc: "จับอารมณ์นักลงทุนรายย่อย (Fear & Greed) จากโซเชียลมีเดีย" }
+                title: "ทีมนักวิเคราะห์",
+                desc: "หน่วยรวบรวมข้อมูล: ทำหน้าที่เหมือนนักวิเคราะห์รุ่นใหม่ที่เตรียมข้อมูลดิบให้พร้อมใช้งาน",
+                market: { title: "นักวิเคราะห์ทางเทคนิค", desc: "คำนวณตัวชี้วัดทางเทคนิค: SMA-50, EMA-10, RSI, MACD และ Bollinger Bands เพื่อระบุแนวโน้มและโมเมนตัม" },
+                fundamental: { title: "นักวิเคราะห์ปัจจัยพื้นฐาน", desc: "วิเคราะห์งบการเงิน 10 ปี: การเติบโตของรายได้, อัตราส่วน P/E, อัตราหนี้สินต่อทุน และกระแสเงินสดอิสระ" },
+                news: { title: "นักวิเคราะห์ข่าวสาร", desc: "รวบรวมข่าวสารทั่วโลกเพื่อประเมินความเชื่อมั่นมหภาคและปัจจัยกระตุ้นเฉพาะ" },
+                social: { title: "นักวิเคราะห์โซเชียล", desc: "วัดความเชื่อมั่นของนักลงทุนรายย่อย (ดัชนีความกลัว/ความโลภ) จากแพลตฟอร์มโซเชียล" }
             },
             research: {
-                title: "Research Team",
-                desc: "หน่วยวิเคราะห์: แปรผลข้อมูลดิบให้เป็นบทวิเคราะห์ที่มีเหตุผลรองรับ",
-                manager: { title: "Research Manager", desc: "ผู้คุมกฎ: จัดการการประชุมและดูแลให้การถกเถียงอยู่บนพื้นฐานของข้อมูล" },
-                bull: { title: "Bull Researcher", desc: "ทีมมองขึ้น: หาเหตุผลสนับสนุนให้ 'ซื้อ' (Growth, Undervalued)" },
-                bear: { title: "Bear Researcher", desc: "ทีมมองลง: หาจุดอ่อนและความเสี่ยง เพื่อสนับสนุนให้ 'ขาย' หรือ 'Wait'" }
+                title: "ทีมวิจัย",
+                desc: "หน่วยวิเคราะห์: แปลงข้อมูลดิบให้เป็นบทวิเคราะห์การลงทุนที่มีเหตุผลรองรับ",
+                manager: { title: "ผู้จัดการฝ่ายวิจัย", desc: "ผู้ควบคุมกระบวนการ: ดูแลการประชุมและรับรองว่าการอภิปรายอยู่บนพื้นฐานของข้อมูลและข้อเท็จจริง" },
+                bull: { title: "นักวิจัยฝั่งบวก", desc: "สร้างสมมติฐานการเติบโต: มุ่งเน้นศักยภาพด้านบวกและหุ้นที่ถูกมองข้าม" },
+                bear: { title: "นักวิจัยฝั่งลบ", desc: "สร้างสมมติฐานความเสี่ยง: มุ่งเน้นการประเมินค่าสูงเกิน ฐานะการเงินอ่อนแอ หรือการทำลายทางเทคนิค" }
             }
         },
         execution: {
-            header: "Execution & Risk Management",
-            subheader: "หน่วยตัดสินใจ: แปลงบทวิเคราะห์ให้เป็นแผนการเทรดจริง",
-            trader: { title: "Chief Trader", desc: "ผู้ติดสินใจ: ฟังเหตุผลของ Bull/Bear แล้วสรุปเป็น Signal (Buy/Sell) พร้อมระดับความมั่นใจ" },
-            submit: "ส่งแผน",
-            risk: { title: "Risk Controller", desc: "ฝ่ายบริหารความเสี่ยง: คำนวณ Position Size, Stop Loss และ Take Profit ตามค่าความผันผวน (ATR)" },
-            manager: { title: "Portfolio Manager", desc: "ผู้อนุมัติ: ตรวจสอบครั้งสุดท้ายและส่งคำสั่งเข้าระบบ" },
-            levels: { aggressive: "Aggressive", neutral: "Neutral", conservative: "Conservative" }
+            header: "การดำเนินการและบริหารความเสี่ยง",
+            subheader: "หน่วยตัดสินใจ: แปลงบทวิเคราะห์ให้เป็นคำสั่งซื้อขายจริง",
+            trader: { title: "หัวหน้าเทรดเดอร์", desc: "ผู้ตัดสินใจหลัก: สังเคราะห์การอภิปรายระหว่าง Bull และ Bear เพื่อกำหนดสัญญาณสุดท้าย (ซื้อ/ขาย/รอ) พร้อมคะแนนความมั่นใจ" },
+            submit: "ส่งแผนการเทรด",
+            risk: { title: "ผู้ควบคุมความเสี่ยง", desc: "ตรวจสอบคำสั่งซื้อขาย: คำนวณขนาดพอร์ต, จุดตัดขาดทุน และจุดทำกำไรตามค่าความผันผวน (ATR)" },
+            manager: { title: "ผู้จัดการพอร์ตการลงทุน", desc: "การอนุมัติสุดท้าย: ตรวจสอบครั้งสุดท้ายและดำเนินการส่งคำสั่งเข้าระบบ" },
+            levels: { aggressive: "รุกรุก", neutral: "กลางๆ", conservative: "รักษาตัว" }
         },
         tutorials: {
-            header: "User Guide",
-            subheader: "คู่มือการใช้งานระบบ: ตั้งแต่การสร้างคำสั่งจนถึงการดูประวัติย้อนหลัง",
+            header: "คู่มือการใช้งาน",
+            subheader: "คำแนะนำทีละขั้นตอนในการสร้างและตรวจสอบการวิเคราะห์การเทรดด้วย AI",
             step1: {
-                title: "Generate Analysis",
-                desc: "เริ่มการวิเคราะห์หุ้นโดยไปที่หน้า Generate",
+                title: "สร้างการวิเคราะห์",
+                desc: "ไปที่หน้าแดชบอร์ดเพื่อเริ่มการจำลองใหม่",
                 points: [
-                    { title: "ระบุข้อมูล", desc: "เลือกตลาด (Market), พิมพ์ชื่อหุ้น (Ticker) และเลือกวันที่ที่ต้องการวิเคราะห์" },
-                    { title: "กดปุ่ม Generate", desc: "เพื่อเริ่มกระบวนการจำลองการเทรดของทีม AI" }
+                    { title: "ใส่พารามิเตอร์", desc: "เลือกตลาด (เช่น สหรัฐอเมริกา), ใส่สัญลักษณ์หุ้น (เช่น AAPL) และเลือกวันที่วิเคราะห์" },
+                    { title: "เริ่มการจำลอง", desc: "คลิกปุ่ม 'สร้างการวิเคราะห์' เพื่อเริ่มต้นกระบวนการของตัวแทน AI" }
                 ]
             },
             step2: {
-                title: "Monitor Progress",
-                desc: "ติดตามการทำงานของระบบแบบเรียลไทม์",
+                title: "ติดตามความคืบหน้า",
+                desc: "ดูการวิเคราะห์แบบเรียลไทม์",
                 points: [
-                    { title: "ดู Progress Bar", desc: "เพื่อดูความคืบหน้าของแต่ละขั้นตอน (Data, Research, Trading)" },
-                    { title: "อ่าน Live Logs", desc: "เพื่อดูรายละเอียดสิ่งที่ Agent กำลังทำอยู่เบื้องหลัง" }
+                    { title: "แถบความคืบหน้า", desc: "ติดตามสถานะความสำเร็จของแต่ละขั้นตอน: การรวบรวมข้อมูล, การวิจัย และการเทรด" },
+                    { title: "บันทึกสด", desc: "ดูบันทึกรายละเอียดภายในเพื่อดูว่าแต่ละตัวแทนกำลังทำอะไรอยู่" }
                 ]
             },
             step3: {
-                title: "Review Results",
-                desc: "ดูผลสรุปการวิเคราะห์เมื่อระบบทำงานเสร็จ",
+                title: "ตรวจสอบผลลัพธ์",
+                desc: "วิเคราะห์รายงานที่ระบบสร้างขึ้น",
                 points: [
-                    { title: "Recommendation", desc: "ดูคำแนะนำ (Buy/Sell) และคะแนนความมั่นใจ" },
-                    { title: "Full Report", desc: "อ่านเหตุผลประกอบการตัดสินใจของแต่ละฝ่ายอย่างละเอียด" }
+                    { title: "คำแนะนำ", desc: "ดูสัญญาณซื้อ/ขายขั้นสุดท้ายและคะแนนความมั่นใจ" },
+                    { title: "รายงานฉบับเต็ม", desc: "อ่านบทวิเคราะห์ทั้งหมด รวมถึงข้อโต้แย้งของทั้งฝั่ง Bull และ Bear และตัวชี้วัดทางการเงิน" }
                 ]
             },
             step4: {
-                title: "View History",
-                desc: "ดูประวัติการวิเคราะห์ย้อนหลัง",
+                title: "ดูประวัติ",
+                desc: "เข้าถึงการวิเคราะห์ย้อนหลัง",
                 points: [
-                    { title: "ไปที่หน้า History", desc: "เพื่อดูรายการหุ้นทั้งหมดที่เคยวิเคราะห์ไปแล้ว" },
-                    { title: "ดูรายละเอียด", desc: "กดที่รายการเพื่อดูรายงานฉบับเต็มหรือดาวน์โหลด PDF" }
+                    { title: "หน้าประวัติ", desc: "ไปที่แท็บ 'ประวัติ' เพื่อดูรายการการวิเคราะห์ทั้งหมดที่ผ่านมา" },
+                    { title: "เปิดดูรายงานอีกครั้ง", desc: "คลิกที่รายการใดก็ได้เพื่อดูรายงาน PDF ฉบับเต็มหรือสรุป" }
                 ]
             }
         }
     }
 };
 
-export default function ViewDocsPage() {
-    const { isDarkMode, toggleTheme } = useTheme();
-    const router = useRouter();
+export default function DocsPage() {
+    const { isDarkMode } = useTheme();
     const [activeSection, setActiveSection] = useState('introduction');
     const [mounted, setMounted] = useState(false);
     const { language, toggleLanguage } = useLanguage();
@@ -375,75 +372,47 @@ export default function ViewDocsPage() {
                 </div>
             )}
 
-            {/* Back Button (Top Left) */}
-            <div className="fixed top-6 left-6 z-50">
-                <button
-                    onClick={() => router.back()}
-                    className={`p-3 rounded-full transition-all hover:scale-110 ${isDarkMode
-                        ? "bg-[#0b0e14]/50 backdrop-blur-md border border-white/10 hover:bg-white/10 text-white"
-                        : "bg-white/50 backdrop-blur-md border border-slate-200 hover:bg-slate-200 text-slate-700"
-                        }`}
-                    aria-label="Go Back"
-                >
-                    <ArrowLeft size={24} />
-                </button>
-            </div>
-
             {/* Floating Controls (Top Right) */}
             <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
+                {/* Language Switcher */}
+                <button
+                    onClick={toggleLanguage}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all hover:scale-105 ${isDarkMode
+                        ? "bg-slate-800 text-white hover:bg-slate-700 border border-slate-700 shadow-lg"
+                        : "bg-white text-slate-900 hover:bg-slate-50 border border-slate-200 shadow-lg"
+                        }`}
+                    title={language === 'en' ? 'Switch to Thai' : 'เปลี่ยนเป็นภาษาอังกฤษ'}
+                >
+                    <Globe size={16} />
+                    <span className="font-bold">{language === 'en' ? 'EN' : 'TH'}</span>
+                </button>
+
+                {/* Download Docs Button */}
                 <a
                     href="https://arxiv.org/pdf/2412.20138"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-full font-semibold text-sm transition-all hover:scale-105 ${isDarkMode
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all hover:scale-105 ${isDarkMode
                         ? "bg-[#2df4c6] text-[#020617] hover:bg-[#26dcb2] shadow-[0_0_20px_rgba(45,244,198,0.3)]"
                         : "bg-[#2563EB] text-white hover:bg-[#1d4ed8] shadow-lg shadow-blue-500/30"
                         }`}
                 >
                     <Download size={16} />
-                    <span className="hidden md:inline">Download Docs</span>
+                    {language === 'en' ? 'Download Docs' : 'ดาวน์โหลดเอกสาร'}
                 </a>
-
-                <button
-                    onClick={toggleLanguage}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border ${isDarkMode
-                        ? 'border-white/20 text-white/80 hover:bg-white/10 hover:border-[#2df4c6] hover:text-[#2df4c6]'
-                        : 'border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-[#2563EB] hover:text-[#2563EB]'
-                        }`}
-                >
-                    <Languages size={14} />
-                    {language === 'en' ? 'TH' : 'EN'}
-                </button>
-
-                {/* Theme Toggle */}
-                <label className="relative inline-flex cursor-pointer items-center">
-                    <input
-                        type="checkbox"
-                        checked={!isDarkMode}
-                        onChange={toggleTheme}
-                        className="peer sr-only"
-                    />
-                    <div className={`peer h-6 w-11 rounded-full relative after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none peer-focus:ring-2 flex items-center justify-between px-1 ${isDarkMode
-                        ? 'bg-gray-700 after:border-gray-300 after:bg-white peer-checked:bg-gray-300 peer-checked:after:border-white peer-focus:ring-[#2df4c6]'
-                        : 'bg-[#CBD5E1] after:border-[#F1F5F9] after:bg-white peer-checked:bg-[#2563EB] peer-checked:after:border-white peer-focus:ring-[#2563EB]'
-                        }`}>
-                        <Moon size={12} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1.5`} />
-                        <Sun size={12} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1.5`} />
-                    </div>
-                </label>
             </div>
 
-            <main className="relative z-10 pt-24 pb-20 px-4 md:px-8 max-w-7xl mx-auto space-y-12 md:space-y-20">
+            <main className="relative z-10 pt-8 pb-20 px-4 md:px-8 max-w-7xl mx-auto space-y-20">
 
                 {/* HERO / INTRODUCTION */}
                 <section id="introduction" className="flex flex-col items-center text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <div className="border border-[#2df4c6]/30 bg-[#2df4c6]/5 px-6 py-2 rounded-full text-[#2df4c6] text-sm font-bold tracking-wider uppercase mb-4">
+                    <div className={`border px-6 py-2 rounded-full text-lg font-extrabold tracking-widest uppercase mb-4 ${isDarkMode ? "border-[#2df4c6]/30 bg-[#2df4c6]/5 text-[#2df4c6]" : "border-[#0f766e]/30 bg-[#0f766e]/10 text-[#0f766e]"}`}>
                         {t.tagline}
                     </div>
-                    <h1 className={`text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-clip-text text-transparent pb-2 text-glow ${isDarkMode ? 'bg-linear-to-r from-white via-[#2df4c6] to-white' : 'bg-linear-to-r from-slate-900 via-blue-600 to-slate-900'}`}>
+                    <h1 className={`text-4xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent pb-2 text-glow ${isDarkMode ? 'bg-linear-to-r from-white via-[#2df4c6] to-white' : 'bg-linear-to-r from-slate-900 via-blue-600 to-slate-900'}`}>
                         {t.title}
                     </h1>
-                    <p className={`max-w-3xl text-lg md:text-xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                    <p className={`max-w-3xl text-xl md:text-2xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>
                         {t.description}
                     </p>
 
@@ -454,21 +423,21 @@ export default function ViewDocsPage() {
                                 <BrainCircuit size={24} />
                             </div>
                             <h3 className="text-xl font-bold mb-2">{t.features.collab.title}</h3>
-                            <p className="text-sm opacity-70">{t.features.collab.desc}</p>
+                            <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.features.collab.desc}</p>
                         </div>
                         <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-slate-900/50 border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
                             <div className="h-10 w-10 rounded-lg bg-[#2df4c6]/20 text-[#2df4c6] flex items-center justify-center mb-4">
                                 <Search size={24} />
                             </div>
                             <h3 className="text-xl font-bold mb-2">{t.features.diverse.title}</h3>
-                            <p className="text-sm opacity-70">{t.features.diverse.desc}</p>
+                            <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.features.diverse.desc}</p>
                         </div>
                         <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-slate-900/50 border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
                             <div className="h-10 w-10 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center mb-4">
                                 <Gavel size={24} />
                             </div>
                             <h3 className="text-xl font-bold mb-2">{t.features.debate.title}</h3>
-                            <p className="text-sm opacity-70">{t.features.debate.desc}</p>
+                            <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.features.debate.desc}</p>
                         </div>
                     </div>
                 </section>
@@ -479,7 +448,7 @@ export default function ViewDocsPage() {
                 <section id="agent-workflow" className="scroll-mt-32">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl font-bold mb-4">{t.workflow.header}</h2>
-                        <p className="opacity-70">{t.workflow.subheader}</p>
+                        <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.workflow.subheader}</p>
                     </div>
 
                     <div className="relative">
@@ -497,11 +466,11 @@ export default function ViewDocsPage() {
                                     <div className={`w-32 h-32 rounded-full border-4 ${step.color} ${isDarkMode ? 'bg-[#0b0e14]' : 'bg-white'} flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-transform group-hover:scale-110 duration-300`}>
                                         {step.icon}
                                     </div>
-                                    <div className={`h-8 w-8 rounded-full border flex items-center justify-center text-xs font-bold mb-4 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200 text-slate-600'}`}>
+                                    <div className={`h-8 w-8 rounded-full border flex items-center justify-center text-sm font-bold mb-4 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200 text-slate-700'}`}>
                                         {idx + 1}
                                     </div>
                                     <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-                                    <p className={`text-sm px-4 ${isDarkMode ? 'opacity-70' : 'text-slate-500'}`}>{step.desc}</p>
+                                    <p className={`text-base px-4 ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{step.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -520,7 +489,7 @@ export default function ViewDocsPage() {
                         <div className={`grid grid-cols-1 lg:grid-cols-[300px_1fr] border-b ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                             <div className={`p-8 flex flex-col justify-center border-r ${isDarkMode ? 'bg-blue-900/20 border-slate-700/50' : 'bg-blue-50 border-slate-100'}`}>
                                 <h3 className="text-2xl font-bold text-blue-400 mb-2">{t.teams.analyst.title}</h3>
-                                <p className="text-sm opacity-70">{t.teams.analyst.desc}</p>
+                                <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.teams.analyst.desc}</p>
                             </div>
                             <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 <TeamMemberCard isDarkMode={isDarkMode} title={t.teams.analyst.market.title} icon={<BarChart />} desc={t.teams.analyst.market.desc} color="text-cyan-400" />
@@ -534,7 +503,7 @@ export default function ViewDocsPage() {
                         <div className={`grid grid-cols-1 lg:grid-cols-[300px_1fr] ${isDarkMode ? 'bg-green-900/5' : 'bg-slate-50'}`}>
                             <div className={`p-8 flex flex-col justify-center border-r ${isDarkMode ? 'bg-green-900/20 border-slate-700/50' : 'bg-green-50 border-slate-100'}`}>
                                 <h3 className="text-2xl font-bold text-green-400 mb-2">{t.teams.research.title}</h3>
-                                <p className="text-sm opacity-70">{t.teams.research.desc}</p>
+                                <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.teams.research.desc}</p>
                             </div>
                             <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <TeamMemberCard isDarkMode={isDarkMode} title={t.teams.research.manager.title} icon={<Briefcase />} desc={t.teams.research.manager.desc} color={isDarkMode ? "text-white" : "text-slate-700"} />
@@ -549,7 +518,7 @@ export default function ViewDocsPage() {
                 <section id="trader-team" className={`rounded-3xl border p-8 md:p-12 relative overflow-hidden text-center ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
                     <div className="relative z-10 mb-12">
                         <h2 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.header}</h2>
-                        <p className={`mt-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>{t.execution.subheader}</p>
+                        <p className={`mt-2 text-base ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.subheader}</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
@@ -559,13 +528,13 @@ export default function ViewDocsPage() {
                                 <Zap size={40} />
                             </div>
                             <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.trader.title}</h3>
-                            <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>{t.execution.trader.desc}</p>
+                            <p className={`text-base ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.trader.desc}</p>
                         </div>
 
                         {/* Arrows pointing to Manager */}
                         <div className="hidden md:flex flex-col justify-center items-center opacity-50">
                             <ArrowRight size={40} className={`mb-2 ${isDarkMode ? 'text-white' : 'text-slate-400'}`} />
-                            <div className="text-xs uppercase tracking-widest">{t.execution.submit}</div>
+                            <div className={`text-sm uppercase tracking-widest ${isDarkMode ? '' : 'text-slate-600'}`}>{t.execution.submit}</div>
                         </div>
 
                         {/* Risk Manager */}
@@ -574,7 +543,7 @@ export default function ViewDocsPage() {
                                 <Shield size={40} />
                             </div>
                             <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.risk.title}</h3>
-                            <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>{t.execution.risk.desc}</p>
+                            <p className={`text-base ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.risk.desc}</p>
                             <div className="flex justify-center gap-2 mt-4">
                                 <span className="px-2 py-1 bg-red-500/20 text-red-300 text-[10px] rounded">{t.execution.levels.aggressive}</span>
                                 <span className="px-2 py-1 bg-gray-500/20 text-gray-300 text-[10px] rounded">{t.execution.levels.neutral}</span>
@@ -590,7 +559,7 @@ export default function ViewDocsPage() {
                                 <Gavel size={32} />
                             </div>
                             <h3 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.manager.title}</h3>
-                            <p className={`text-sm max-w-md ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>{t.execution.manager.desc}</p>
+                            <p className={`text-base max-w-md ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.manager.desc}</p>
                         </div>
                     </div>
                 </section>
@@ -601,7 +570,7 @@ export default function ViewDocsPage() {
                         <h2 className={`text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent ${isDarkMode ? 'bg-linear-to-r from-white via-slate-200 to-slate-400' : 'bg-linear-to-r from-slate-900 via-slate-700 to-slate-500'}`}>
                             {t.tutorials.header}
                         </h2>
-                        <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+                        <p className={`text-xl max-w-2xl mx-auto ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>
                             {t.tutorials.subheader}
                         </p>
                     </div>
@@ -614,7 +583,7 @@ export default function ViewDocsPage() {
                                     <div className="text-green-500 bg-green-500/10 p-3 rounded-full font-bold">1</div>
                                     <h3 className="text-2xl font-bold">{t.tutorials.step1.title}</h3>
                                 </div>
-                                <p className="text-slate-400 text-lg leading-relaxed">
+                                <p className={`text-xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>
                                     {t.tutorials.step1.desc}
                                 </p>
                                 <ul className="space-y-4 pt-4">
@@ -623,7 +592,7 @@ export default function ViewDocsPage() {
                                             <div className="mt-1 text-green-400"><CheckCircle2 size={20} /></div>
                                             <div>
                                                 <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
-                                                <div className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>{point.desc}</div>
+                                                <div className={`text-base ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
                                             </div>
                                         </li>
                                     ))}
@@ -632,7 +601,7 @@ export default function ViewDocsPage() {
                             <div className="relative group">
                                 <div className="absolute -inset-1 bg-linear-to-r from-[#2df4c6] to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
                                 <img
-                                    src="/step1_2.png"
+                                    src={isDarkMode ? "/ST1,2.png" : "/ST1,2_w.png"}
                                     alt="Analysis Generation UI"
                                     className="relative w-full rounded-2xl shadow-2xl border border-white/10"
                                 />
@@ -640,61 +609,66 @@ export default function ViewDocsPage() {
                         </div>
 
                         {/* Step 2: Reports */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                            <div className="lg:order-2 space-y-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                            <div className="lg:order-2 lg:col-span-5 space-y-6">
                                 <div className="flex items-center gap-4 mb-2">
                                     <div className="text-orange-500 bg-orange-500/10 p-3 rounded-full font-bold">2</div>
                                     <h3 className="text-2xl font-bold">{t.tutorials.step2.title}</h3>
                                 </div>
-                                <p className="text-slate-400 text-lg leading-relaxed">{t.tutorials.step2.desc}</p>
+                                <p className={`text-xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>{t.tutorials.step2.desc}</p>
                                 <ul className="space-y-4 pt-4">
                                     {t.tutorials.step2.points.map((point, idx) => (
                                         <li key={idx} className="flex gap-4">
                                             <div className="mt-1 text-orange-400"><CheckCircle2 size={20} /></div>
                                             <div>
                                                 <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
-                                                <div className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>{point.desc}</div>
+                                                <div className={`text-base ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
                                             </div>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
-                            <div className="lg:order-1 relative group">
+                            <div className="lg:order-1 lg:col-span-7 relative group">
                                 <div className="absolute -inset-1 bg-linear-to-r from-orange-600 to-red-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
                                 <img
-                                    src="/Progress.png"
+                                    src={isDarkMode ? "/progress.png" : "/progress_w.png"}
                                     alt="Analysis Progress UI"
-                                    className="relative w-full h-auto max-w-[800px] rounded-2xl shadow-2xl border border-white/10"
+                                    className="relative w-full h-auto rounded-2xl shadow-2xl border border-white/10"
                                 />
                             </div>
                         </div>
 
                         {/* Step 3: Telegram */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                            <div className="space-y-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                            <div className="lg:col-span-5 space-y-6">
                                 <div className="flex items-center gap-4 mb-2">
                                     <div className="text-blue-500 bg-blue-500/10 p-3 rounded-full font-bold">3</div>
                                     <h3 className="text-2xl font-bold">{t.tutorials.step3.title}</h3>
                                 </div>
-                                <p className="text-slate-400 text-lg leading-relaxed">{t.tutorials.step3.desc}</p>
+                                <p className={`text-xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>{t.tutorials.step3.desc}</p>
                                 <ul className="space-y-4 pt-4">
                                     {t.tutorials.step3.points.map((point, idx) => (
                                         <li key={idx} className="flex gap-4">
                                             <div className="mt-1 text-blue-400"><Smartphone size={20} /></div>
                                             <div>
                                                 <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
-                                                <div className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>{point.desc}</div>
+                                                <div className={`text-base ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
                                             </div>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
-                            <div className="flex justify-center relative group">
+                            <div className="lg:col-span-7 flex flex-col gap-6 relative group">
                                 <div className="absolute -inset-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-[3rem] blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
                                 <img
-                                    src="/summary.png"
+                                    src={isDarkMode ? "/summary.png" : "/summary_w.png"}
                                     alt="Analysis Summary UI"
-                                    className="relative w-full h-auto max-w-[600px] rounded-2xl shadow-2xl border border-white/10"
+                                    className="relative w-full h-auto rounded-2xl shadow-2xl border border-white/10"
+                                />
+                                <img
+                                    src={isDarkMode ? "/report.png" : "/report_w.png"}
+                                    alt="Analysis Report UI"
+                                    className="relative w-full h-auto rounded-2xl shadow-2xl border border-white/10"
                                 />
                             </div>
                         </div>
@@ -706,14 +680,14 @@ export default function ViewDocsPage() {
                                     <div className="text-slate-400 bg-slate-500/10 p-3 rounded-full font-bold">4</div>
                                     <h3 className="text-2xl font-bold">{t.tutorials.step4.title}</h3>
                                 </div>
-                                <p className="text-slate-400 text-lg leading-relaxed">{t.tutorials.step4.desc}</p>
+                                <p className={`text-xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>{t.tutorials.step4.desc}</p>
                                 <ul className="space-y-4 pt-4">
                                     {t.tutorials.step4.points.map((point, idx) => (
                                         <li key={idx} className="flex gap-4">
                                             <div className="mt-1 text-slate-400"><FileText size={20} /></div>
                                             <div>
                                                 <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
-                                                <div className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>{point.desc}</div>
+                                                <div className={`text-base ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
                                             </div>
                                         </li>
                                     ))}
@@ -722,9 +696,9 @@ export default function ViewDocsPage() {
                             <div className="lg:order-1 relative group flex justify-center">
                                 <div className="absolute -inset-1 bg-linear-to-r from-slate-600 to-slate-400 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
                                 <img
-                                    src="/history.png"
+                                    src={isDarkMode ? "/history.png" : "/history_w.png"}
                                     alt="Analysis History UI"
-                                    className="relative w-full h-auto max-w-[600px] rounded-2xl shadow-xl border border-white/10"
+                                    className="relative w-full h-auto rounded-2xl shadow-xl border border-white/10"
                                 />
                             </div>
                         </div>
@@ -738,16 +712,15 @@ export default function ViewDocsPage() {
 }
 
 // Helper Components for Cleaner JSX
-// Helper Components for Cleaner JSX
 function TeamMemberCard({ title, icon, desc, color, isDarkMode }: { title: string, icon: React.ReactNode, desc: string, color: string, isDarkMode: boolean }) {
     return (
         <div className={`p-5 rounded-xl border transition-all hover:-translate-y-1 ${isDarkMode ? 'bg-[#0b0e14]/50 border-white/5 hover:border-white/20' : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'}`}>
             <div className={`mb-3 ${color} flex items-center gap-2`}>
                 {/* @ts-ignore */}
-                {React.cloneElement(icon as React.ReactElement, { size: 20 })}
-                <h4 className={`font-bold text-sm tracking-wide ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{title}</h4>
+                {React.cloneElement(icon as React.ReactElement, { size: 24 })}
+                <h4 className={`font-bold text-base tracking-wide ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{title}</h4>
             </div>
-            <p className={`text-xs leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{desc}</p>
+            <p className={`text-sm leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>{desc}</p>
         </div>
     );
 }
