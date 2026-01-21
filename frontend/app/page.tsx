@@ -68,7 +68,7 @@ const TRANSLATIONS = {
     },
     search: {
       placeholder: "Search Symbol",
-      popular: "Popular Recommendations",
+      popular: "Market Symbols",
       results: "Search Results"
     }
   },
@@ -124,7 +124,7 @@ const TRANSLATIONS = {
     },
     search: {
       placeholder: "พิมพ์ชื่อหุ้น (เช่น PTT)",
-      popular: "หุ้นยอดนิยม",
+      popular: "รายชื่อหุ้นทั้งหมด",
       results: "ผลการค้นหา"
     }
   }
@@ -144,6 +144,7 @@ import {
 } from "../lib/constants";
 import { MARKET_INFO } from "../components/MarketIcons";
 import { deepClone, extractDecision, toISODate } from "@/lib/helpers";
+import PdfDownloadModal, { PdfOptions } from "@/components/PdfDownloadModal";
 // import { translateBatch, getThaiLabel } from "@/lib/translation";
 
 // --- Components ---
@@ -227,6 +228,7 @@ export default function Home() {
   const [showMarketSelector, setShowMarketSelector] = useState(false); // New Dropdown State
   const [logoCandidates, setLogoCandidates] = useState<string[]>([]);
   const [logoCandidateIndex, setLogoCandidateIndex] = useState(0);
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   // Scroll position preservation for Popular Recommendations
   const popularListScrollPos = useRef(0);
@@ -431,13 +433,23 @@ export default function Home() {
   // Handle ticker changes (typing or restoration) and sync suggestions
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (ticker && ticker.length >= 2) {
-        fetchSuggestions(ticker);
+      if (ticker) {
+        // Filter locally immediately: Strict "Starts With" for Symbol + Alphabetical Sort
+        const cleanTicker = ticker.toLowerCase().trim();
+        const localMatches = marketTickers
+          .filter((item) => item.symbol.toLowerCase().startsWith(cleanTicker))
+          .sort((a, b) => a.symbol.localeCompare(b.symbol));
+
+        setSuggestions(localMatches);
+
+        // If ticker is long enough, fetch from API for broader search
+        if (ticker.length >= 2) {
+          fetchSuggestions(ticker);
+        }
       } else {
-        // If ticker is empty/short, prepare market tickers but don't auto-show
+        // If ticker is empty, show all popular recommendations
         if (marketTickers.length > 0) {
           setSuggestions(marketTickers);
-          // Don't auto-show on page load - only show when user interacts
         }
       }
     }, 300);
@@ -461,10 +473,24 @@ export default function Home() {
     setTicker(val);
   };
 
-  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement>) => {
-    // Only select text on focus, don't auto-show suggestions (wait for click or type)
-    if (e.type === 'focus') {
-      (e.target as HTMLInputElement).select();
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.select();
+    // Auto-show suggestions on focus for better UX (Combobox feel)
+    if (!showSuggestions) {
+      setShowSuggestions(true);
+
+      if (ticker) {
+        // Filter suggestions based on current input: Strict "Starts With" + Sort
+        const cleanTicker = ticker.toLowerCase().trim();
+        const localMatches = marketTickers
+          .filter((item) => item.symbol.toLowerCase().startsWith(cleanTicker))
+          .sort((a, b) => a.symbol.localeCompare(b.symbol));
+
+        setSuggestions(localMatches);
+      } else if (marketTickers.length > 0) {
+        // No input, show all popular recommendations
+        setSuggestions(marketTickers);
+      }
     }
   };
 
@@ -675,7 +701,15 @@ export default function Home() {
     }
   };
 
-  const handleDownloadPdf = async () => {
+  /* 
+   * PDF Generation 
+   * Logic: Supports robust font loading (Thai/English), multi-language reports, and filtering
+   */
+  const handleOpenPdfModal = () => {
+    setIsPdfModalOpen(true);
+  };
+
+  const generatePdf = async (options: PdfOptions) => {
     // 1. Setup Document
     const doc = new jsPDF({ unit: "pt", format: "a4" });
 
@@ -688,13 +722,11 @@ export default function Home() {
           return null;
         }
         const blob = await response.blob();
-
         // Validate font file size (should be more than 1KB for valid TTF)
         if (blob.size < 1000) {
           console.warn(`Invalid font file (too small): ${url}`);
           return null;
         }
-
         return new Promise((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () => {
@@ -746,23 +778,16 @@ export default function Home() {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 40;
-    const maxWidth = pageWidth - margin * 2;
+    const maxLineWidth = pageWidth - margin * 2;
     const lineHeight = 14;
 
     let yPosition = margin + 20;
-
-    // รายการ Key ที่ต้องการซ่อน
-    const KEYS_TO_HIDE = [
-      "selected_indicators", "memory_application", "count",
-      "indicator", "validation_notes", "metadata"
-    ];
 
     // --- Helpers ---
 
     const drawPageFooter = (pageNumber: number) => {
       const str = `Page ${pageNumber}`;
       doc.setFontSize(8);
-      // Determine font for footer (numbers are safe in Sarabun)
       doc.setFont("Sarabun", "normal");
       doc.setTextColor(150, 150, 150);
       doc.text(str, pageWidth / 2, pageHeight - 20, { align: 'center' });
@@ -774,207 +799,132 @@ export default function Home() {
         drawPageFooter(doc.getNumberOfPages());
         doc.addPage();
         yPosition = margin + 20;
-        // Reset style after new page
         doc.setTextColor(0, 0, 0);
         return true;
       }
       return false;
     };
 
-    // ฟังก์ชันพิมพ์ข้อความแบบรองรับการตัดบรรทัดอัตโนมัติ และเปลี่ยน Font ตามภาษา
     const addText = (text: string, fontSize = 10, isBold = false, indent = 0, color: [number, number, number] = [50, 50, 50]) => {
       doc.setFontSize(fontSize);
       doc.setTextColor(color[0], color[1], color[2]);
 
-      // Simple language detection
-      // Check for Thai characters
       const hasThai = /[\u0E00-\u0E7F]/.test(text);
-      // Check for Chinese characters
       const hasChinese = /[\u4E00-\u9FFF]/.test(text);
 
-      let currentFont = "Sarabun"; // Default to Sarabun (covers Eng + Thai)
+      let currentFont = "Sarabun";
       if (hasChinese && !hasThai && hasMaishan) {
         currentFont = "Maishan";
       } else if (hasChinese && hasThai) {
-        // Mixed content: Prioritize Thai (Sarabun) as it is likely the primary context
         currentFont = "Sarabun";
       }
 
-      // Check if we requested bold but the font doesn't support it (Maishan might only have normal)
       let currentStyle = isBold ? "bold" : "normal";
-      if (currentFont === "Maishan") {
-        currentStyle = "normal"; // Assuming Maishan only has normal
-      }
+      if (currentFont === "Maishan") currentStyle = "normal";
 
       doc.setFont(currentFont, currentStyle);
 
-      const lines = doc.splitTextToSize(text, maxWidth - indent);
+      const lines = doc.splitTextToSize(text, maxLineWidth - indent);
 
       for (let i = 0; i < lines.length; i++) {
         const pageBreakTriggered = checkPageBreak(lineHeight);
         if (pageBreakTriggered) {
-          // Re-apply style if page break happened
           doc.setFontSize(fontSize);
           doc.setFont(currentFont, currentStyle);
           doc.setTextColor(color[0], color[1], color[2]);
         }
-
         doc.text(lines[i], margin + indent, yPosition);
         yPosition += lineHeight;
       }
     };
 
-    // Clean content: remove markdown headers, raw JSON formatting, unwanted labels
-    const cleanContent = (text: string): string => {
-      if (!text || typeof text !== 'string') return '';
-
-      let cleaned = text;
-
-      // Remove markdown headers like "### Portfolio Manager Decision"
-      cleaned = cleaned.replace(/^#{1,6}\s+.*$/gm, '');
-
-      // Remove code block markers
-      cleaned = cleaned.replace(/```json/g, '');
-      cleaned = cleaned.replace(/```/g, '');
-
-      // Remove "Text:" labels at the start
-      cleaned = cleaned.replace(/^Text:\s*/gim, '');
-
-      // Remove standalone curly braces lines
-      cleaned = cleaned.replace(/^\s*[{}]\s*$/gm, '');
-
-      // Remove JSON key-value format like "key": "value" - convert to readable format
-      cleaned = cleaned.replace(/"([^"]+)":\s*"([^"]*)"/g, (_, key, value) => {
-        // Convert snake_case to Title Case
-        const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
-        return `${formattedKey}: ${value}`;
-      });
-
-      // Remove remaining quotes around values
-      cleaned = cleaned.replace(/"([^"]+)"/g, '$1');
-
-      // Remove excessive whitespace and empty lines
-      cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
-      cleaned = cleaned.trim();
-
-      return cleaned;
-    };
-
-    const toSentenceCase = (str: string) => {
-      const s = str.replace(/_/g, " ");
-      return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-    };
-
-    // Keys to skip (not display in PDF)
-    const KEYS_TO_SKIP = ['text', 'raw', 'raw_content', 'markdown'];
-
-    // --- Recursive Data Processor (Logic หลักที่คุณต้องการ) ---
     const processData = (data: any, indent = 0) => {
-      if (!data) return;
+      const KEYS_TO_HIDE = ["selected_indicators", "memory_application", "count", "conversation_history", "full_content", "indicator", "validation_notes", "metadata"];
+      const KEYS_TO_SKIP = ["id", "timestamp"];
+
+      const cleanContent = (text: string) => {
+        if (!text || typeof text !== 'string') return '';
+        let cleaned = text.replace(/`/g, "").trim();
+        cleaned = cleaned.replace(/^#{1,6}\s+.*$/gm, '');
+        cleaned = cleaned.replace(/```json/g, '').replace(/```/g, '');
+        cleaned = cleaned.replace(/\*\*/g, "");
+        return cleaned.trim();
+      };
+
+      const toSentenceCase = (str: string) => {
+        const s = str.replace(/_/g, " ");
+        return s.charAt(0).toUpperCase() + s.slice(1);
+      };
 
       if (Array.isArray(data)) {
         data.forEach((item, index) => {
-          if (typeof item === 'object' && item !== null) {
-            // เส้นคั่นระหว่าง Item ใน Array
-            if (index > 0) {
-              yPosition += 8;
-              checkPageBreak(10);
-              doc.setDrawColor(220, 220, 220);
-              doc.setLineWidth(0.5);
-              doc.line(margin + indent, yPosition, pageWidth - margin, yPosition);
-              yPosition += 12;
-            }
-            processData(item, indent);
-            yPosition += 4;
-          } else {
-            // Text ใน Array
+          if (index > 0 && typeof item === 'object') {
+            yPosition += 8;
+            checkPageBreak(10);
+          }
+
+          if (typeof item === 'string') {
+            const cleanedText = cleanContent(item);
+            if (cleanedText) addText(`•  ${cleanedText}`, 10, false, indent + 5);
+          } else if (typeof item === 'object') {
             let parsedItem = item;
             if (typeof item === 'string' && (item.trim().startsWith('{') || item.trim().startsWith('['))) {
               try { parsedItem = JSON.parse(item); } catch (e) { }
             }
-
             if (typeof parsedItem === 'object') {
               processData(parsedItem, indent + 10);
             } else {
-              // Clean the content before adding
               const cleanedText = cleanContent(String(parsedItem));
-              if (cleanedText) {
-                addText(`•  ${cleanedText.replace(/\*\*/g, "")}`, 10, false, indent + 10);
-              }
+              if (cleanedText) addText(`•  ${cleanedText}`, 10, false, indent + 10);
             }
           }
         });
       } else if (typeof data === 'object' && data !== null) {
         Object.entries(data).forEach(([key, value]) => {
-          // Skip hidden keys and unwanted display keys
           if (KEYS_TO_HIDE.includes(key)) return;
           if (KEYS_TO_SKIP.includes(key.toLowerCase())) return;
-
           const label = toSentenceCase(key);
           let valToProcess = value;
 
-          // Parse JSON String inside Value
           if (typeof value === 'string' && (value.trim().startsWith('{') || value.trim().startsWith('['))) {
             try { valToProcess = JSON.parse(value); } catch (e) { }
           }
 
-          // DECISION LOGIC: Inline vs Block
           const isComplex = typeof valToProcess === 'object' && valToProcess !== null;
-
-          // Clean string values before display
           let strVal = '';
           if (!isComplex) {
-            strVal = cleanContent(String(valToProcess)).replace(/\*\*/g, ""); // ลบ Markdown bold
+            strVal = cleanContent(String(valToProcess));
           }
           const isShortText = strVal.length < 80 && !strVal.includes('\n');
 
-          // Skip empty values
           if (!isComplex && !strVal.trim()) return;
 
-          checkPageBreak(20); // เช็คก่อนเริ่ม Key ใหม่
+          checkPageBreak(20);
 
           if (isComplex) {
-            // Case 1: Complex Object -> Block Style (หัวข้ออยู่บรรทัดบน)
-            addText(label + ":", 10, true, indent, [0, 0, 0]); // สีดำ
+            addText(label + ":", 10, true, indent, [0, 0, 0]);
             processData(valToProcess, indent + 15);
             yPosition += 4;
           } else {
             if (isShortText) {
-              // Case 2: Short Text -> Inline Style (หัวข้อและเนื้อหาอยู่บรรทัดเดียวกัน)
               doc.setFontSize(10);
               doc.setFont("Sarabun", "bold");
-              doc.setTextColor(50, 50, 50); // Key สีเทาเข้ม
+              doc.setTextColor(50, 50, 50);
               const keyWidth = doc.getTextWidth(label + ": ");
+              // Recalculate max width for local usage
+              const currentMaxWidth = pageWidth - margin * 2;
 
-              // Detect value language for inline text
-              const hasThai = /[\u0E00-\u0E7F]/.test(strVal);
-              const hasChinese = /[\u4E00-\u9FFF]/.test(strVal);
-              let valFont = "Sarabun";
-              if (hasChinese && !hasThai && hasMaishan) valFont = "Maishan";
-
-              // Check width with correct font
-              doc.setFont(valFont, "normal");
-              const valWidth = doc.getTextWidth(strVal);
-
-              // เช็คว่าพื้นที่พอมั้ย
-              if (margin + indent + keyWidth + valWidth < maxWidth) {
-                // Draw Label
-                doc.setFont("Sarabun", "bold");
-                doc.setTextColor(50, 50, 50);
+              if (margin + indent + keyWidth + doc.getTextWidth(strVal) < currentMaxWidth) {
                 doc.text(label + ": ", margin + indent, yPosition);
-
-                // Draw Value
-                doc.setFont(valFont, "normal");
-                doc.setTextColor(0, 0, 0); // Value สีดำ
+                doc.setFont("Sarabun", "normal");
+                doc.setTextColor(0, 0, 0);
                 doc.text(strVal, margin + indent + keyWidth, yPosition);
                 yPosition += lineHeight;
               } else {
-                // ถ้าไม่พอ ให้ปัดลง
                 addText(label + ":", 10, true, indent, [50, 50, 50]);
                 addText(strVal, 10, false, indent + 15, [0, 0, 0]);
               }
             } else {
-              // Case 3: Long Text -> Block Indented
               addText(label + ":", 10, true, indent, [50, 50, 50]);
               addText(strVal, 10, false, indent + 15, [0, 0, 0]);
               yPosition += 4;
@@ -982,94 +932,102 @@ export default function Home() {
           }
         });
       } else {
-        // Base case (Primitive)
-        const cleanedVal = cleanContent(String(data)).replace(/\*\*/g, "");
-        if (cleanedVal.trim()) {
-          addText(cleanedVal, 10, false, indent, [0, 0, 0]);
-        }
+        const cleanedVal = cleanContent(String(data));
+        if (cleanedVal.trim()) addText(cleanedVal, 10, false, indent, [0, 0, 0]);
       }
     };
 
-    // --- เริ่มวาด PDF ---
+    // --- MAIN EXECUTION ---
 
-    // 1. Main Header
-    doc.setFontSize(18);
-    doc.setFont("Sarabun", "bold");
-    doc.setTextColor(0, 51, 102); // Navy Blue
-    doc.text(`TradingAgents Report: ${ticker}`, margin, yPosition);
-    yPosition += 20;
+    // Determine languages
+    const languagesToProcess: ("en" | "th")[] = [];
+    if (options.includeEnglish) languagesToProcess.push("en");
+    if (options.includeThai && translatedSections.length > 0) languagesToProcess.push("th");
 
-    // Sub-header
-    doc.setFontSize(10);
-    doc.setFont("Sarabun", "normal");
-    doc.setTextColor(100, 100, 100); // Gray
-    doc.text(`Analysis Date: ${analysisDate}`, margin, yPosition);
-    yPosition += 25;
+    for (let i = 0; i < languagesToProcess.length; i++) {
+      const langCode = languagesToProcess[i];
+      const isThai = langCode === "th";
 
-    // เส้นคั่น
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(1);
-    doc.line(margin, yPosition, pageWidth - margin, yPosition);
-    yPosition += 25;
+      if (i > 0) {
+        doc.addPage();
+        yPosition = margin + 20;
+      }
 
-    // 2. Recommendation Section
-    // (สมมติว่า decision อยู่ใน props หรือ state ของ component นี้)
-    if (contextDecision) {
-      yPosition += lineHeight * 1.5;
+      // Filter Sections
+      const sourceList = isThai ? translatedSections : contextReportSections;
+      const filteredSections = sourceList.filter(section => {
+        const lowerKey = section.key.toLowerCase();
+        const isSummary = lowerKey.includes("summar") || (section as any).report_type === "summary";
+
+        if (options.includeSummary && isSummary) return true;
+        if (options.includeFull && !isSummary) return true;
+
+        return false;
+      });
+
+      if (filteredSections.length === 0) continue;
+
+      // Header
+      doc.setFontSize(18);
       doc.setFont("Sarabun", "bold");
-      doc.setFontSize(14);
-      doc.setTextColor(0, 200, 0);
-      doc.text(`Recommendation: ${contextDecision}`, margin, yPosition);
-      yPosition += lineHeight * 2;
+      doc.setTextColor(0, 51, 102);
+      const titleSuffix = isThai ? "(ภาษาไทย)" : "(English)";
+      doc.text(`TradingAgents Report: ${ticker} ${titleSuffix}`, margin, yPosition);
+      yPosition += 20;
+
+      doc.setFontSize(10);
+      doc.setFont("Sarabun", "normal");
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Analysis Date: ${analysisDate}`, margin, yPosition);
+      yPosition += 25;
+
+      // Divider
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(1);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 25;
+
+      // Recommendation
+      if (contextDecision) {
+        doc.setFont("Sarabun", "bold");
+        doc.setFontSize(14);
+        doc.setTextColor(0, 200, 0);
+        const recLabel = isThai ? "คำแนะนำ" : "Recommendation";
+        doc.text(`${recLabel}: ${contextDecision}`, margin, yPosition);
+        yPosition += 15;
+      }
+
+      // Render Sections
+      filteredSections.forEach((section: any) => {
+        checkPageBreak(60);
+
+        // Section Header
+        doc.setFillColor(245, 245, 245);
+        doc.rect(margin, yPosition - 12, maxLineWidth, 24, 'F');
+
+        doc.setFontSize(13);
+        doc.setFont("Sarabun", "bold");
+        doc.setTextColor(0, 0, 0);
+        doc.text(section.label, margin + 8, yPosition + 5);
+        yPosition += 30;
+
+        let contentData: any = section.text;
+        try {
+          if (typeof section.text === 'string') {
+            const cleanJsonStr = section.text.replace(/```json/g, "").replace(/```/g, "").trim();
+            if (cleanJsonStr.startsWith('{') || cleanJsonStr.startsWith('[')) {
+              contentData = JSON.parse(cleanJsonStr);
+            }
+          }
+        } catch (e) { }
+
+        processData(contentData);
+        yPosition += 25;
+      });
     }
 
-    // 4. Render Report Sections
-    doc.setFont("Sarabun", "normal");
-    doc.setFontSize(11);
-
-    // Determines which sections to print based on the current language
-    const sectionsToPrint = language === "th" && filteredTranslatedSections.length > 0
-      ? filteredTranslatedSections
-      : contextReportSections;
-
-    sectionsToPrint.forEach((section: any) => {
-      checkPageBreak(60);
-
-      // Section Header Background
-      doc.setFillColor(245, 245, 245); // Light Gray Background
-      doc.rect(margin, yPosition - 12, maxWidth, 24, 'F');
-
-      // Section Title
-      doc.setFontSize(13);
-      doc.setFont("Sarabun", "bold");
-      doc.setTextColor(0, 0, 0);
-      doc.text(section.label, margin + 8, yPosition + 5);
-      yPosition += 30;
-
-
-      // Prepare Content
-      let contentData: any = section.text;
-      try {
-        if (typeof section.text === 'string') {
-          // Clean markdown json blocks if any
-          const cleanJsonStr = section.text.replace(/```json/g, "").replace(/```/g, "").trim();
-          if (cleanJsonStr.startsWith('{') || cleanJsonStr.startsWith('[')) {
-            contentData = JSON.parse(cleanJsonStr);
-          }
-        }
-      } catch (e) { }
-
-      // Render Content
-      processData(contentData);
-
-      yPosition += 25; // Spacing between sections
-    });
-
-    // 4. Footer Last Page
     drawPageFooter(doc.getNumberOfPages());
-
-    // Save - Filename includes language suffix
-    const langSuffix = language === "th" ? "_TH" : "_EN";
+    const langSuffix = languagesToProcess.length > 1 ? "_Combined" : (languagesToProcess[0] === "th" ? "_TH" : "_EN");
     doc.save(`TradingAgents_${ticker}_${analysisDate}${langSuffix}.pdf`);
   };
 
@@ -1196,7 +1154,7 @@ export default function Home() {
           <section className="grid grid-cols-12 gap-4 md:gap-6">
             {/* Step 1: Symbol Selection */}
             <article className={`col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-4 md:p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
-              <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
+              <h2 className={`text-xs font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>
                 {t.step1}
               </h2>
 
@@ -1212,7 +1170,7 @@ export default function Home() {
                     className={`flex items-center justify-center gap-2 h-[46px] w-[70px] rounded-xl border transition-colors cursor-pointer ${isDarkMode ? "border-white/10 bg-[#1a2133] hover:bg-white/5" : "border-[#E2E8F0] bg-white hover:border-[#2563EB]/30"}`}
                   >
                     <span className="text-xl">{MARKET_INFO[selectedMarket]?.icon || "?"}</span>
-                    <svg className={`w-3 h-3 ${isDarkMode ? "text-gray-400" : "text-[#64748B]"} transition-transform ${showMarketSelector ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className={`w-3 h-3 ${isDarkMode ? "text-gray-400" : "text-[#334155]"} transition-transform ${showMarketSelector ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
@@ -1244,7 +1202,7 @@ export default function Home() {
 
                 {/* Ticker Input */}
                 <div className="relative flex-1 z-30">
-                  <div className={`absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-400"}`}>
+                  <div className={`absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                   </div>
                   <input
@@ -1257,12 +1215,23 @@ export default function Home() {
                     onClick={() => {
                       if (!showSuggestions) {
                         setShowSuggestions(true);
-                        setSuggestions(marketTickers);
+                        // If we have text, keep current suggestions (which might be search results), 
+                        // otherwise show market defaults
+                        if ((!ticker || ticker.length < 2) && marketTickers.length > 0) {
+                          setSuggestions(marketTickers);
+                        }
                       }
                     }}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    className={`w-full rounded-xl border pl-10 pr-4 py-2.5 h-[46px] cursor-pointer font-medium ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff] placeholder-gray-500" : "border-[#E2E8F0] bg-white text-[#0F172A]"}`}
+                    className={`w-full rounded-xl border pl-10 pr-10 py-2.5 h-[46px] cursor-pointer font-medium ${isDarkMode ? "border-white/10 bg-[#1a2133] text-[#f8fbff] placeholder-gray-500" : "border-[#E2E8F0] bg-white text-[#0F172A]"}`}
                   />
+
+                  {/* Dropdown Chevron Indicator */}
+                  <div className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDarkMode ? "text-gray-500" : "text-gray-600"}`}>
+                    <svg className={`w-4 h-4 transition-transform ${showSuggestions ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
 
                   {/* Suggestions Dropdown */}
                   {showSuggestions && suggestions.length > 0 && (
@@ -1286,7 +1255,7 @@ export default function Home() {
                         >
                           <div>
                             <span className={`font-bold ${isDarkMode ? "" : "text-[#0F172A]"}`}>{item.symbol}</span>
-                            <span className={`ml-2 text-xs ${isDarkMode ? "opacity-70" : "text-[#64748B]"}`}>{item.name}</span>
+                            <span className={`ml-2 text-xs ${isDarkMode ? "opacity-70" : "text-[#334155]"}`}>{item.name}</span>
                           </div>
                           <span className={`text-[10px] border rounded px-1 ${isDarkMode ? "opacity-50" : "border-[#E2E8F0] text-[#64748B] bg-[#F8FAFC]"}`}>{item.exchange}</span>
                         </li>
@@ -1299,7 +1268,7 @@ export default function Home() {
 
             {/* Step 2: Analysis Date */}
             <article className={`col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between rounded-[20px] border p-4 md:p-5 ${isDarkMode ? "border-white/5 bg-[#111726]" : "border-[#E2E8F0] bg-white shadow-sm"}`}>
-              <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
+              <h2 className={`text-xs font-bold uppercase tracking-widest mb-1 ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>
                 {t.step2}
               </h2>
 
@@ -1311,8 +1280,8 @@ export default function Home() {
                   value={analysisDate}
                   onChange={(e) => setAnalysisDate(e.target.value)}
                   className={`w-full rounded-xl border px-3 py-2.5 h-[46px] cursor-pointer font-medium transition-all ${isDarkMode
-                    ? "border-white/10 bg-[#1a2133] text-[#f8fbff] hover:border-[#2df4c6]/50 [color-scheme:dark]"
-                    : "border-[#E2E8F0] bg-white text-[#0F172A] hover:border-[#2563EB] [color-scheme:light]"
+                    ? "border-white/10 bg-[#1a2133] text-[#f8fbff] hover:border-[#2df4c6]/50 scheme-dark"
+                    : "border-[#E2E8F0] bg-white text-[#0F172A] hover:border-[#2563EB] scheme-light"
                     }`}
                 />
               </div>
@@ -1327,11 +1296,11 @@ export default function Home() {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2df4c6] opacity-75"></span>
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-[#2df4c6]"></span>
                   </span>
-                  <span className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
+                  <span className={`text-xs font-bold uppercase tracking-widest ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}>
                     {t.marketData}
                   </span>
                 </div>
-                <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? "text-[#8b94ad] opacity-70" : "text-[#64748B]"}`}>
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? "text-[#8b94ad] opacity-70" : "text-[#334155]"}`}>
                   {marketData?.sector || t.sector}
                 </span>
               </div>
@@ -1388,7 +1357,7 @@ export default function Home() {
               {isRunning ? (
                 <button
                   onClick={stopPipeline}
-                  className="flex w-full h-full flex-col items-center justify-center gap-2 bg-[#ff4d6d] text-white transition-all hover:bg-[#ff3355]"
+                  className="flex w-full h-full flex-col items-center justify-center gap-2 bg-[#ff4d6d] text-white transition-all hover:bg-[#ff3355] cursor-pointer"
                 >
                   <div className="h-3 w-3 rounded-[1px] bg-white mb-1" />
                   <span className="text-sm font-bold uppercase tracking-widest">{t.stop}</span>
@@ -1397,7 +1366,7 @@ export default function Home() {
                 <button
                   onClick={runPipeline}
                   disabled={wsStatus !== "connected"}
-                  className={`flex w-full h-full flex-col items-center justify-center gap-2 bg-[#00dc82] text-white disabled:cursor-not-allowed disabled:opacity-40 hover:bg-[#00c976] transition-all`}
+                  className={`flex w-full h-full flex-col items-center justify-center gap-2 bg-[#00dc82] text-white disabled:cursor-not-allowed disabled:opacity-40 hover:bg-[#00c976] transition-all cursor-pointer`}
                 >
                   <div className="mb-1">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -1414,7 +1383,7 @@ export default function Home() {
         </div>
 
         {/* Teams Grid */}
-        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3 relative z-0 rounded-[16px]">
+        <section className="hidden grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3 relative z-0 rounded-[16px]">
           {TEAM_KEYS.map((teamKey, index) => {
             const members = teamState[teamKey];
             const completedCount = members.filter(
@@ -1484,58 +1453,60 @@ export default function Home() {
                     <span className="relative text-[10px] md:text-xs font-bold">{progress}%</span>
                   </div>
                 </header>
-                <ul className="flex flex-col gap-1 md:gap-1.5">
-                  {members.map((member, idx) => {
-                    // Translation for role and status
-                    // @ts-ignore
-                    // @ts-ignore
-                    const memberRole = t.roles[member.name] || member.name;
+                {!isTeamFinished && (
+                  <ul className="flex flex-col gap-1 md:gap-1.5">
+                    {members.map((member, idx) => {
+                      // Translation for role and status
+                      // @ts-ignore
+                      // @ts-ignore
+                      const memberRole = t.roles[member.name] || member.name;
 
-                    let effectiveStatus = member.status;
-                    if (member.status === "pending" && !isRunning && contextProgress === 0) {
-                      effectiveStatus = "ready";
-                    }
+                      let effectiveStatus = member.status;
+                      if (member.status === "pending" && !isRunning && contextProgress === 0) {
+                        effectiveStatus = "ready";
+                      }
 
-                    // @ts-ignore
-                    let statusLabel = t.progressStatus[effectiveStatus] || effectiveStatus;
+                      // @ts-ignore
+                      let statusLabel = t.progressStatus[effectiveStatus] || effectiveStatus;
 
-                    let statusColorClass = "";
+                      let statusColorClass = "";
 
-                    if (effectiveStatus === "completed") {
-                      statusColorClass = isDarkMode
-                        ? "bg-[#1D4ED8]/20 text-[#2563EB]"
-                        : "bg-[#DBEAFE] text-[#1D4ED8]";
-                    } else if (effectiveStatus === "pending") {
-                      statusColorClass = isDarkMode ? "bg-[#f9a826]/10 text-[#f9a826]" : "bg-[#EFF6FF] text-[#2563EB]";
-                    } else if (effectiveStatus === "ready") {
-                      statusColorClass = isDarkMode ? "bg-[#64748B]/20 text-[#94A3B8]" : "bg-[#F1F5F9] text-[#64748B]";
-                    } else if (effectiveStatus === "in_progress") {
-                      statusColorClass = isDarkMode ? "bg-[#3db8ff]/10 text-[#3db8ff]" : "bg-[#DBEAFE] text-[#2563EB]";
-                    } else {
-                      statusColorClass = "bg-[#ff4d6d]/10 text-[#ff4d6d]";
-                    }
+                      if (effectiveStatus === "completed") {
+                        statusColorClass = isDarkMode
+                          ? "bg-[#1D4ED8]/20 text-[#2563EB]"
+                          : "bg-[#DBEAFE] text-[#1D4ED8]";
+                      } else if (effectiveStatus === "pending") {
+                        statusColorClass = isDarkMode ? "bg-[#f9a826]/10 text-[#f9a826]" : "bg-[#EFF6FF] text-[#2563EB]";
+                      } else if (effectiveStatus === "ready") {
+                        statusColorClass = isDarkMode ? "bg-[#64748B]/20 text-[#94A3B8]" : "bg-[#F1F5F9] text-[#64748B]";
+                      } else if (effectiveStatus === "in_progress") {
+                        statusColorClass = isDarkMode ? "bg-[#3db8ff]/10 text-[#3db8ff]" : "bg-[#DBEAFE] text-[#2563EB]";
+                      } else {
+                        statusColorClass = "bg-[#ff4d6d]/10 text-[#ff4d6d]";
+                      }
 
-                    return (
-                      <li
-                        key={idx}
-                        className={`flex flex-wrap items-center justify-between gap-y-1 text-xs md:text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}
-                      >
-                        <span className={`truncate max-w-[100px] md:max-w-none ${isDarkMode ? "" : "text-[#334155]"}`}>{memberRole}</span>
-                        <span
-                          className={`inline-flex items-center gap-1 leading-none rounded-full px-2 py-0.5 md:px-2.5 md:py-1 text-[10px] md:text-xs capitalize ${statusColorClass}`}
+                      return (
+                        <li
+                          key={idx}
+                          className={`flex flex-wrap items-center justify-between gap-y-1 text-xs md:text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#334155]"}`}
                         >
-                          {(member.status === "in_progress" || (member.status === "pending" && isRunning)) && (
-                            <svg className="h-2.5 w-2.5 md:h-3 md:w-3 animate-spin" viewBox="0 0 24 24" fill="none">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                            </svg>
-                          )}
-                          {statusLabel}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
+                          <span className={`truncate max-w-[100px] md:max-w-none ${isDarkMode ? "" : "text-[#334155]"}`}>{memberRole}</span>
+                          <span
+                            className={`inline-flex items-center gap-1 leading-none rounded-full px-2 py-0.5 md:px-2.5 md:py-1 text-[10px] md:text-xs capitalize ${statusColorClass}`}
+                          >
+                            {(member.status === "in_progress" || (member.status === "pending" && isRunning)) && (
+                              <svg className="h-2.5 w-2.5 md:h-3 md:w-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                              </svg>
+                            )}
+                            {statusLabel}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </article>
             );
           })}
@@ -1544,13 +1515,13 @@ export default function Home() {
         {/* Symbol / Signal / Recommendation - Only show after generation */}
         {contextDecision && (
           <section
-            className={`flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 rounded-[20px] px-4 sm:px-8 py-4 sm:py-5 ${isDarkMode ? "bg-[#0f172a] border border-white/5" : "bg-white border-[#E2E8F0] shadow-sm"
+            className={`flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4 rounded-[20px] px-4 sm:px-6 py-2 sm:py-3 ${isDarkMode ? "bg-[#0f172a] border border-white/5" : "bg-white border-[#E2E8F0] shadow-sm"
               }`}
           >
             {/* Selected Asset */}
             <div className="flex flex-col gap-1 w-full sm:w-auto sm:min-w-[150px] items-center sm:items-start">
               <span
-                className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                className={`text-[10px] sm:text-xs font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#334155]"
                   }`}
               >
                 {t.signal.asset}
@@ -1561,7 +1532,7 @@ export default function Home() {
               >
                 {ticker || "—"}
                 <span
-                  className={`ml-1 text-xs sm:text-sm ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                  className={`ml-1 text-xs sm:text-sm ${isDarkMode ? "text-[#64748b]" : "text-[#334155]"
                     }`}
                 >
                   {selectedMarket ? `:${selectedMarket.toUpperCase()}` : ""}
@@ -1572,7 +1543,7 @@ export default function Home() {
             {/* Signal Strength */}
             <div className="flex flex-col items-center gap-2 flex-1 w-full sm:w-auto">
               <span
-                className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                className={`text-[10px] sm:text-xs font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#334155]"
                   }`}
               >
                 {t.signal.strength}
@@ -1609,13 +1580,13 @@ export default function Home() {
 
                 {/* Status Text Below Bars */}
                 <span
-                  className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mt-1 ${Number(marketData?.percentChange || 0) > 0
+                  className={`text-[10px] sm:text-xs font-bold uppercase tracking-widest mt-1 ${Number(marketData?.percentChange || 0) > 0
                     ? "text-[#2df4c6]"
                     : Number(marketData?.percentChange || 0) < 0
                       ? "text-[#ff4500]"
                       : isDarkMode
                         ? "text-gray-400"
-                        : "text-[#64748B]"
+                        : "text-[#334155]"
                     }`}
                 >
                   {(() => {
@@ -1634,7 +1605,7 @@ export default function Home() {
             {/* Recommendation */}
             <div className="flex flex-col items-center sm:items-end gap-2 w-full sm:w-auto sm:min-w-[150px]">
               <span
-                className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#64748B]"
+                className={`text-[10px] sm:text-xs font-bold uppercase tracking-widest ${isDarkMode ? "text-[#64748b]" : "text-[#334155]"
                   }`}
               >
                 {t.signal.recommendation}
@@ -1666,13 +1637,22 @@ export default function Home() {
             copyFeedback={copyFeedback}
             setCopyFeedback={setCopyFeedback}
             handleCopyReport={handleCopyReport}
-            handleDownloadPdf={handleDownloadPdf}
+            handleDownloadPdf={handleOpenPdfModal}
             reportLength={reportLength}
             setReportLength={setReportLength}
             isRunning={isRunning}
             language={language}
             setLanguage={setLanguage}
             isTranslating={isTranslating}
+            teamState={teamState}
+          />
+          <PdfDownloadModal
+            isOpen={isPdfModalOpen}
+            onClose={() => setIsPdfModalOpen(false)}
+            onDownload={generatePdf}
+            isDarkMode={isDarkMode}
+            hasThaiContent={translatedSections.length > 0}
+            currentLanguage={language}
           />
         </div>
 
