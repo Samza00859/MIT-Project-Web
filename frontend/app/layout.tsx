@@ -25,6 +25,7 @@ export const metadata: Metadata = {
 };
 
 import Sidebar from "../components/Sidebar";
+import GlobalLanguageSwitcher from "../components/GlobalLanguageSwitcher";
 
 export default function RootLayout({
   children,
@@ -37,6 +38,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${prompt.variable} antialiased bg-background text-foreground font-sans`}
       >
         <Providers>
+          <GlobalLanguageSwitcher />
           <div className="flex h-screen overflow-hidden bg-transparent">
             <Sidebar />
             <main className="flex-1 overflow-auto bg-transparent relative w-full h-full">
