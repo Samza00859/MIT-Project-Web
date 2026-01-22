@@ -679,7 +679,10 @@ export default function Home() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
-        const res = await fetch(`${apiUrl}/quote/${ticker}`, {
+        // Add .BK back for Thai stocks when calling API
+        const apiTicker = (selectedMarket === 'TH' && !ticker.includes('.BK')) ? `${ticker}.BK` : ticker;
+
+        const res = await fetch(`${apiUrl}/quote/${apiTicker}`, {
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -817,8 +820,11 @@ export default function Home() {
       return;
     }
 
+    // Add .BK back for Thai stocks when calling API
+    const apiTicker = (selectedMarket === 'TH' && !ticker.includes('.BK')) ? `${ticker}.BK` : ticker;
+
     startGeneration({
-      ticker,
+      ticker: apiTicker,
       analysisDate,
       analysts: ANALYSTS_DATA.map((a) => a.value),
       researchDepth,
