@@ -357,13 +357,13 @@ export default function ViewDocsPage() {
             )}
 
             {/* Floating Controls (Top Right) */}
-            <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
+            <div className="fixed top-6 right-28 z-50 flex items-center gap-3">
                 {/* Download Docs Button */}
                 <a
                     href="https://arxiv.org/pdf/2412.20138"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all hover:scale-105 ${isDarkMode
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm border border-transparent transition-all hover:scale-105 ${isDarkMode
                         ? "bg-[#2df4c6] text-[#020617] hover:bg-[#26dcb2] shadow-[0_0_20px_rgba(45,244,198,0.3)]"
                         : "bg-[#2563EB] text-white hover:bg-[#1d4ed8] shadow-lg shadow-blue-500/30"
                         }`}
