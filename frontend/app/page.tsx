@@ -1335,7 +1335,7 @@ export default function Home() {
                           type="button"
                           onClick={() => {
                             setSelectedMarket(key);
-                            // Don't clear ticker - let user keep their selection
+                            setTicker(""); // Clear ticker when changing market
                             setSuggestions([]);
                             setShowMarketSelector(false);
                             fetchMarketTickers(key);
