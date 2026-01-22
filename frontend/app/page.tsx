@@ -133,6 +133,127 @@ const TRANSLATIONS = {
 // Logo component with robust fallback
 const logoCache = new Map<string, string>();
 
+// Thai stock ticker to company domain mapping for accurate logo fetching
+const THAI_STOCK_DOMAINS: Record<string, string> = {
+  // Energy & Petrochemical
+  "PTT": "pttplc.com",
+  "PTTEP": "pttep.com",
+  "PTTGC": "pttgcgroup.com",
+  "TOP": "thaioilgroup.com",
+  "IRPC": "irpc.co.th",
+  "GPSC": "gpscgroup.com",
+  "OR": "pttor.com",
+  "GULF": "gulf.co.th",
+  "BGRIM": "b-grimm.com",
+  "RATCH": "ratch.co.th",
+  "EGCO": "egco.com",
+  "BANPU": "banpu.com",
+  "BCP": "bangchak.co.th",
+
+  // Banking & Finance
+  "KBANK": "kasikornbank.com",
+  "SCB": "scb.co.th",
+  "BBL": "bangkokbank.com",
+  "KTB": "ktb.co.th",
+  "TMB": "ttbbank.com",
+  "TTB": "ttbbank.com",
+  "BAY": "krungsri.com",
+  "TISCO": "tisco.co.th",
+  "KKP": "kkpfg.com",
+  "TCAP": "thanachartcapital.co.th",
+
+  // Telecommunication & Technology
+  "ADVANC": "ais.th",
+  "TRUE": "truecorp.co.th",
+  "DTAC": "dtac.co.th",
+  "INTUCH": "intouchcompany.com",
+  "JAS": "jasmine.com",
+  "THCOM": "thaicom.net",
+
+  // Real Estate & Construction
+  "CPN": "centralpattana.co.th",
+  "LH": "lh.co.th",
+  "AP": "apthai.com",
+  "SPALI": "spali.co.th",
+  "PSH": "pruksa.com",
+  "ORI": "origin.co.th",
+  "SC": "scasset.com",
+  "SIRI": "sansiri.com",
+  "QH": "qh.co.th",
+  "WHA": "wha-group.com",
+  "AMATA": "amata.com",
+  "HEMRAJ": "hemaraj.com",
+  "SCC": "scg.com",
+  "TPIPL": "tpipolene.co.th",
+
+  // Consumer & Retail
+  "CPALL": "cpall.co.th",
+  "CP": "cpthailand.com",
+  "CPF": "cpfworldwide.com",
+  "MINT": "minor.com",
+  "CRC": "centralretail.com",
+  "HMPRO": "homepro.co.th",
+  "BJC": "bjc.co.th",
+  "MAKRO": "siammakro.co.th",
+  "GLOBAL": "globalhouse.co.th",
+  "COM7": "com7.co.th",
+  "OSP": "osotspa.com",
+  "CBG": "carabao.co.th",
+
+  // Healthcare
+  "BDMS": "bdms.co.th",
+  "BH": "bumrungrad.com",
+  "BCH": "bangkokchainhospital.com",
+  "CHG": "chularat.com",
+  "THG": "thonburihealth.com",
+  "RJH": "rajavithi.go.th",
+
+  // Transportation & Logistics
+  "AOT": "airportthai.co.th",
+  "BEM": "bangkokmetro.co.th",
+  "BTS": "btsgroup.co.th",
+  "AAV": "airasiax.com",
+  "BA": "bangkokair.com",
+  "THAI": "thaiairways.com",
+
+  // Industrial & Manufacturing
+  "IVL": "indorama.com",
+  "DELTA": "deltathailand.com",
+  "PCSGH": "pcsgh.com",
+  "HANA": "hanagroup.com",
+  "STA": "sritranggroup.com",
+  "NER": "ner.co.th",
+
+  // Media & Entertainment
+  "BEC": "becworld.com",
+  "MONO": "mono29.com",
+  "GRAMMY": "grammy.co.th",
+  "VGI": "vgigroup.com",
+  "MAJOR": "majorcineplex.com",
+  "PLANB": "planbmedia.co.th",
+
+  // Insurance
+  "BLA": "bangkoklife.com",
+  "TLI": "thailife.com",
+  "MTL": "muangthai.co.th",
+
+  // Others
+  "SAWAD": "sawad.co.th",
+  "MTC": "mtc.co.th",
+  "TIDLOR": "tidlor.com",
+  "JMT": "jmt.co.th",
+  "SINGER": "singer.co.th",
+  "AWC": "assetworldcorp.com",
+  "ASSET": "assetwise.co.th",
+  "CENTEL": "centarahotelsresorts.com",
+  "ERW": "theerawan.com",
+  "DOHOME": "dohomeonline.com",
+  "BEAUTY": "beautycommunity.co.th",
+  "JMART": "jaymart.co.th",
+  "KLINIQ": "thekliniq.com",
+  "MEGA": "megabangna.com",
+};
+
 function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean }) {
   const [currentSrc, setCurrentSrc] = useState<string>("");
   const [isError, setIsError] = useState(false);
@@ -146,7 +267,8 @@ function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean
     }
 
     const cleanTicker = ticker.trim().toUpperCase();
-    const symbol = cleanTicker.split('.')[0].split('-')[0];
+    const symbol = cleanTicker.split('.')[0].split('-')[0]; // Handle PTT.BK -> PTT
+    const isThaiStock = cleanTicker.endsWith(".BK");
 
     // Check cache first
     if (logoCache.has(cleanTicker)) {
@@ -160,12 +282,34 @@ function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean
       return;
     }
 
-    // Build static logo sources
-    const staticUrls: string[] = [
-      `https://assets.parqet.com/logos/symbol/${symbol}?format=png`,
-      `https://unavatar.io/${symbol}`,
-      `https://www.google.com/s2/favicons?domain=${symbol.toLowerCase()}.com&sz=128`,
-    ];
+    let staticUrls: string[] = [];
+
+    if (isThaiStock) {
+      // Thai stocks: Use domain mapping for accurate logos
+      const domain = THAI_STOCK_DOMAINS[symbol];
+      if (domain) {
+        staticUrls = [
+          // Google Favicon (reliable, free, no API key needed)
+          `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+          // Brandfetch CDN (high quality, free tier available)
+          `https://cdn.brandfetch.io/${domain}/w/400/h/400`,
+          // DuckDuckGo icons (another free fallback)
+          `https://icons.duckduckgo.com/ip3/${domain}.ico`,
+        ];
+      } else {
+        // Unknown Thai stock: use text fallback immediately
+        logoCache.set(cleanTicker, "ERROR");
+        setIsError(true);
+        return;
+      }
+    } else {
+      // Non-Thai stocks: Use standard sources
+      staticUrls = [
+        `https://assets.parqet.com/logos/symbol/${symbol}?format=png`,
+        `https://unavatar.io/${symbol}`,
+        `https://www.google.com/s2/favicons?domain=${symbol.toLowerCase()}.com&sz=128`,
+      ];
+    }
 
     setCandidates(staticUrls);
     setCandidateIndex(0);
@@ -690,23 +834,43 @@ export default function Home() {
             lastFetchedTickerRef.current = ticker;
 
             const cleanTicker = ticker.trim().toUpperCase();
-            const symbol = cleanTicker.split(".")[0].split("-")[0];
-            const urls: string[] = [];
-            if (data.logo_url) urls.push(data.logo_url);
-            if (data.website) {
-              try {
-                const websiteUrl = data.website.startsWith("http") ? data.website : `https://${data.website}`;
-                const hostname = new URL(websiteUrl).hostname;
-                urls.push(`https://logo.clearbit.com/${hostname}`);
-                urls.push(`https://www.google.com/s2/favicons?domain=${hostname}&sz=128`);
-              } catch { }
+            const symbol = cleanTicker.split(".")[0].split("-")[0]; // Handle PTT.BK -> PTT, BTC-USD -> BTC
+            const isThaiStock = cleanTicker.endsWith(".BK") || selectedMarket === "TH";
+
+            let urls: string[] = [];
+
+            if (isThaiStock) {
+              // Thai stocks: Use domain mapping for accurate logos
+              const domain = THAI_STOCK_DOMAINS[symbol];
+              if (domain) {
+                urls = [
+                  // Google Favicon (reliable, free, no API key needed)
+                  `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+                  // Brandfetch CDN (high quality, free tier available)
+                  `https://cdn.brandfetch.io/${domain}/w/400/h/400`,
+                  // DuckDuckGo icons (another free fallback)
+                  `https://icons.duckduckgo.com/ip3/${domain}.ico`,
+                ];
+              } else {
+                // Unknown Thai stock: set error immediately
+                setLogoCandidates([]);
+                setLogoCandidateIndex(0);
+                setLogoSrc("");
+                setLogoError(true);
+                return;
+              }
+            } else {
+              // Non-Thai stocks: Use standard sources
+              urls = [
+                `https://assets.parqet.com/logos/symbol/${symbol}?format=png`,
+                `https://unavatar.io/${symbol}`,
+                `https://www.google.com/s2/favicons?domain=${symbol.toLowerCase()}.com&sz=128`,
+              ];
             }
-            urls.push(`https://assets.parqet.com/logos/symbol/${symbol}?format=png`);
-            urls.push(`https://unavatar.io/${symbol}`);
-            const uniqueUrls = Array.from(new Set(urls));
-            setLogoCandidates(uniqueUrls);
+
+            setLogoCandidates(urls);
             setLogoCandidateIndex(0);
-            setLogoSrc(uniqueUrls[0] || "");
+            setLogoSrc(urls[0] || "");
           }
         } else {
           throw new Error(`Status: ${res.status}`);
@@ -1089,78 +1253,228 @@ export default function Home() {
     };
 
     // --- MAIN EXECUTION ---
+    // Generate separate PDF files for each selected combination
 
-    // Determine languages
     const languagesToProcess: ("en" | "th")[] = [];
     if (options.includeEnglish) languagesToProcess.push("en");
     if (options.includeThai && translatedSections.length > 0) languagesToProcess.push("th");
 
-    for (let i = 0; i < languagesToProcess.length; i++) {
-      const langCode = languagesToProcess[i];
+    const reportTypes: ("summary" | "full")[] = [];
+    if (options.includeSummary) reportTypes.push("summary");
+    if (options.includeFull) reportTypes.push("full");
+
+    // Function to generate a single PDF
+    const generateSinglePdf = (langCode: "en" | "th", reportType: "summary" | "full") => {
+      const singleDoc = new jsPDF({ unit: "pt", format: "a4" });
       const isThai = langCode === "th";
+      const isSummaryReport = reportType === "summary";
 
-      if (i > 0) {
-        doc.addPage();
-        yPosition = margin + 20;
-      }
+      // Re-add fonts to this document
+      const addFontsToDoc = async () => {
+        try {
+          const sarabunRegular = await loadFont("/fonts/Sarabun-Regular.ttf");
+          const sarabunBold = await loadFont("/fonts/Sarabun-Bold.ttf");
+          if (sarabunRegular) {
+            singleDoc.addFileToVFS("Sarabun-Regular.ttf", sarabunRegular);
+            singleDoc.addFont("Sarabun-Regular.ttf", "Sarabun", "normal");
+          }
+          if (sarabunBold) {
+            singleDoc.addFileToVFS("Sarabun-Bold.ttf", sarabunBold);
+            singleDoc.addFont("Sarabun-Bold.ttf", "Sarabun", "bold");
+          }
+        } catch (e) {
+          console.warn("Font loading failed for separate PDF");
+        }
+      };
 
-      // Filter Sections
+      // Helper functions scoped to this document
+      let docYPosition = margin + 20;
+
+      const docDrawPageFooter = (pageNumber: number) => {
+        const str = `Page ${pageNumber}`;
+        singleDoc.setFontSize(8);
+        singleDoc.setFont("Sarabun", "normal");
+        singleDoc.setTextColor(150, 150, 150);
+        singleDoc.text(str, pageWidth / 2, pageHeight - 20, { align: 'center' });
+        singleDoc.text("Generated by TradingAgents", pageWidth - margin, pageHeight - 20, { align: 'right' });
+      };
+
+      const docCheckPageBreak = (neededHeight: number) => {
+        if (docYPosition + neededHeight > pageHeight - margin) {
+          docDrawPageFooter(singleDoc.getNumberOfPages());
+          singleDoc.addPage();
+          docYPosition = margin + 20;
+          singleDoc.setTextColor(0, 0, 0);
+          return true;
+        }
+        return false;
+      };
+
+      const docAddText = (text: string, fontSize = 10, isBold = false, indent = 0, color: [number, number, number] = [50, 50, 50]) => {
+        singleDoc.setFontSize(fontSize);
+        singleDoc.setTextColor(color[0], color[1], color[2]);
+
+        const hasThai = /[\u0E00-\u0E7F]/.test(text);
+        const hasChinese = /[\u4E00-\u9FFF]/.test(text);
+
+        let currentFont = "Sarabun";
+        if (hasChinese && !hasThai && hasMaishan) {
+          currentFont = "Maishan";
+        }
+
+        let currentStyle = isBold ? "bold" : "normal";
+        if (currentFont === "Maishan") currentStyle = "normal";
+
+        singleDoc.setFont(currentFont, currentStyle);
+
+        const lines = singleDoc.splitTextToSize(text, maxLineWidth - indent);
+
+        for (let i = 0; i < lines.length; i++) {
+          const pageBreakTriggered = docCheckPageBreak(lineHeight);
+          if (pageBreakTriggered) {
+            singleDoc.setFontSize(fontSize);
+            singleDoc.setFont(currentFont, currentStyle);
+            singleDoc.setTextColor(color[0], color[1], color[2]);
+          }
+          singleDoc.text(lines[i], margin + indent, docYPosition);
+          docYPosition += lineHeight;
+        }
+      };
+
+      const docProcessData = (data: any, indent = 0) => {
+        const KEYS_TO_HIDE = ["selected_indicators", "memory_application", "count", "conversation_history", "full_content", "indicator", "validation_notes", "metadata"];
+        const KEYS_TO_SKIP = ["id", "timestamp"];
+
+        const cleanContent = (text: string) => {
+          if (!text || typeof text !== 'string') return '';
+          let cleaned = text.replace(/`/g, "").trim();
+          cleaned = cleaned.replace(/^#{1,6}\s+.*$/gm, '');
+          cleaned = cleaned.replace(/```json/g, '').replace(/```/g, '');
+          cleaned = cleaned.replace(/\*\*/g, "");
+          return cleaned.trim();
+        };
+
+        const toSentenceCase = (str: string) => {
+          const s = str.replace(/_/g, " ");
+          return s.charAt(0).toUpperCase() + s.slice(1);
+        };
+
+        if (Array.isArray(data)) {
+          data.forEach((item, index) => {
+            if (index > 0 && typeof item === 'object') {
+              docYPosition += 8;
+              docCheckPageBreak(10);
+            }
+
+            if (typeof item === 'string') {
+              const cleanedText = cleanContent(item);
+              if (cleanedText) docAddText(`•  ${cleanedText}`, 10, false, indent + 5);
+            } else if (typeof item === 'object') {
+              docProcessData(item, indent + 10);
+            }
+          });
+        } else if (typeof data === 'object' && data !== null) {
+          Object.entries(data).forEach(([key, value]) => {
+            if (KEYS_TO_HIDE.includes(key)) return;
+            if (KEYS_TO_SKIP.includes(key.toLowerCase())) return;
+            const label = toSentenceCase(key);
+            let valToProcess = value;
+
+            if (typeof value === 'string' && (value.trim().startsWith('{') || value.trim().startsWith('['))) {
+              try { valToProcess = JSON.parse(value); } catch (e) { }
+            }
+
+            const isComplex = typeof valToProcess === 'object' && valToProcess !== null;
+            let strVal = '';
+            if (!isComplex) {
+              strVal = cleanContent(String(valToProcess));
+            }
+
+            if (!isComplex && !strVal.trim()) return;
+
+            docCheckPageBreak(20);
+
+            if (isComplex) {
+              docAddText(label + ":", 10, true, indent, [0, 0, 0]);
+              docProcessData(valToProcess, indent + 15);
+              docYPosition += 4;
+            } else {
+              docAddText(label + ":", 10, true, indent, [50, 50, 50]);
+              docAddText(strVal, 10, false, indent + 15, [0, 0, 0]);
+              docYPosition += 4;
+            }
+          });
+        } else {
+          const cleanedVal = cleanContent(String(data));
+          if (cleanedVal.trim()) docAddText(cleanedVal, 10, false, indent, [0, 0, 0]);
+        }
+      };
+
+      // Filter Sections based on report type
       const sourceList = isThai ? translatedSections : contextReportSections;
       const filteredSections = sourceList.filter(section => {
         const lowerKey = section.key.toLowerCase();
-        const isSummary = lowerKey.includes("summar") || (section as any).report_type === "summary";
+        const isSummarySection = lowerKey.includes("summar") || lowerKey.includes("summarize_") || (section as any).report_type === "summary";
 
-        if (options.includeSummary && isSummary) return true;
-        if (options.includeFull && !isSummary) return true;
-
-        return false;
+        // Match the selected report type
+        if (isSummaryReport) {
+          return isSummarySection;
+        } else {
+          return !isSummarySection;
+        }
       });
 
-      if (filteredSections.length === 0) continue;
+      if (filteredSections.length === 0) return null;
 
       // Header
-      doc.setFontSize(18);
-      doc.setFont("Sarabun", "bold");
-      doc.setTextColor(0, 51, 102);
-      const titleSuffix = isThai ? "(ภาษาไทย)" : "(English)";
-      doc.text(`TradingAgents Report: ${ticker} ${titleSuffix}`, margin, yPosition);
-      yPosition += 20;
+      singleDoc.setFontSize(18);
+      singleDoc.setFont("Sarabun", "bold");
+      singleDoc.setTextColor(0, 51, 102);
+      const langLabel = isThai ? "(ภาษาไทย)" : "(English)";
+      const typeLabel = isSummaryReport ? (isThai ? "สรุป" : "Summary") : (isThai ? "ฉบับเต็ม" : "Full Report");
+      singleDoc.text(`TradingAgents Report: ${ticker}`, margin, docYPosition);
+      docYPosition += 20;
 
-      doc.setFontSize(10);
-      doc.setFont("Sarabun", "normal");
-      doc.setTextColor(100, 100, 100);
-      doc.text(`Analysis Date: ${analysisDate}`, margin, yPosition);
-      yPosition += 25;
+      singleDoc.setFontSize(12);
+      singleDoc.setFont("Sarabun", "normal");
+      singleDoc.setTextColor(80, 80, 80);
+      singleDoc.text(`${typeLabel} ${langLabel}`, margin, docYPosition);
+      docYPosition += 20;
+
+      singleDoc.setFontSize(10);
+      singleDoc.setTextColor(100, 100, 100);
+      singleDoc.text(`Analysis Date: ${analysisDate}`, margin, docYPosition);
+      docYPosition += 25;
 
       // Divider
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(1);
-      doc.line(margin, yPosition, pageWidth - margin, yPosition);
-      yPosition += 25;
+      singleDoc.setDrawColor(200, 200, 200);
+      singleDoc.setLineWidth(1);
+      singleDoc.line(margin, docYPosition, pageWidth - margin, docYPosition);
+      docYPosition += 25;
 
       // Recommendation
       if (contextDecision) {
-        doc.setFont("Sarabun", "bold");
-        doc.setFontSize(14);
-        doc.setTextColor(0, 200, 0);
+        singleDoc.setFont("Sarabun", "bold");
+        singleDoc.setFontSize(14);
+        singleDoc.setTextColor(0, 200, 0);
         const recLabel = isThai ? "คำแนะนำ" : "Recommendation";
-        doc.text(`${recLabel}: ${contextDecision}`, margin, yPosition);
-        yPosition += 15;
+        singleDoc.text(`${recLabel}: ${contextDecision}`, margin, docYPosition);
+        docYPosition += 15;
       }
 
       // Render Sections
       filteredSections.forEach((section: any) => {
-        checkPageBreak(60);
+        docCheckPageBreak(60);
 
         // Section Header
-        doc.setFillColor(245, 245, 245);
-        doc.rect(margin, yPosition - 12, maxLineWidth, 24, 'F');
+        singleDoc.setFillColor(245, 245, 245);
+        singleDoc.rect(margin, docYPosition - 12, maxLineWidth, 24, 'F');
 
-        doc.setFontSize(13);
-        doc.setFont("Sarabun", "bold");
-        doc.setTextColor(0, 0, 0);
-        doc.text(section.label, margin + 8, yPosition + 5);
-        yPosition += 30;
+        singleDoc.setFontSize(13);
+        singleDoc.setFont("Sarabun", "bold");
+        singleDoc.setTextColor(0, 0, 0);
+        singleDoc.text(section.label, margin + 8, docYPosition + 5);
+        docYPosition += 30;
 
         let contentData: any = section.text;
         try {
@@ -1172,14 +1486,41 @@ export default function Home() {
           }
         } catch (e) { }
 
-        processData(contentData);
-        yPosition += 25;
+        docProcessData(contentData);
+        docYPosition += 25;
       });
+
+      docDrawPageFooter(singleDoc.getNumberOfPages());
+
+      // Generate filename
+      const langSuffix = isThai ? "TH" : "EN";
+      const typeSuffix = isSummaryReport ? "Summary" : "Full";
+      const filename = `TradingAgents_${ticker}_${analysisDate}_${typeSuffix}_${langSuffix}.pdf`;
+
+      return { doc: singleDoc, filename };
+    };
+
+    // Generate PDFs for each selected combination
+    const pdfPromises: Promise<void>[] = [];
+
+    for (const langCode of languagesToProcess) {
+      for (const reportType of reportTypes) {
+        const result = generateSinglePdf(langCode, reportType);
+        if (result) {
+          // Small delay between downloads to prevent browser blocking
+          pdfPromises.push(
+            new Promise(resolve => {
+              setTimeout(() => {
+                result.doc.save(result.filename);
+                resolve();
+              }, pdfPromises.length * 500);
+            })
+          );
+        }
+      }
     }
 
-    drawPageFooter(doc.getNumberOfPages());
-    const langSuffix = languagesToProcess.length > 1 ? "_Combined" : (languagesToProcess[0] === "th" ? "_TH" : "_EN");
-    doc.save(`TradingAgents_${ticker}_${analysisDate}${langSuffix}.pdf`);
+    await Promise.all(pdfPromises);
   };
 
   // Handle language change (for viewing translated content in UI)
@@ -1360,7 +1701,7 @@ export default function Home() {
                     type="text"
                     autoComplete="off"
                     placeholder={t.search.placeholder}
-                    value={ticker}
+                    value={ticker.replace(/\.BK$/, '')}
                     onChange={handleTickerChange}
                     onFocus={handleInputFocus}
                     onClick={() => {
@@ -1405,7 +1746,7 @@ export default function Home() {
                           className={`cursor-pointer px-4 py-2 text-sm flex justify-between items-center transition-colors ${isDarkMode ? "hover:bg-white/5 text-gray-200" : "hover:bg-[#F8FAFC] text-[#334155]"}`}
                         >
                           <div>
-                            <span className={`font-bold ${isDarkMode ? "" : "text-[#0F172A]"}`}>{item.symbol}</span>
+                            <span className={`font-bold ${isDarkMode ? "" : "text-[#0F172A]"}`}>{item.symbol.replace(/\.BK$/, '')}</span>
                             <span className={`ml-2 text-xs ${isDarkMode ? "opacity-70" : "text-[#334155]"}`}>{item.name}</span>
                           </div>
                           <span className={`text-[10px] border rounded px-1 ${isDarkMode ? "opacity-50" : "border-[#E2E8F0] text-[#64748B] bg-[#F8FAFC]"}`}>{item.exchange}</span>
@@ -1683,7 +2024,7 @@ export default function Home() {
                   className={`text-lg sm:text-xl font-bold tracking-wide ${isDarkMode ? "text-white" : "text-[#0F172A]"
                     }`}
                 >
-                  {ticker || "—"}
+                  {ticker ? ticker.replace(/\.BK$/, '') : "—"}
                   <span
                     className={`ml-1 text-xs sm:text-sm ${isDarkMode ? "text-[#64748b]" : "text-[#334155]"
                       }`}
