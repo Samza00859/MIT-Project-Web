@@ -143,7 +143,7 @@ const TRANSLATIONS = {
             submit: "ส่งแผนการเทรด",
             risk: { title: "ผู้ควบคุมความเสี่ยง", desc: "ตรวจสอบคำสั่งซื้อขาย: คำนวณขนาดพอร์ต, จุดตัดขาดทุน และจุดทำกำไรตามค่าความผันผวน (ATR)" },
             manager: { title: "ผู้จัดการพอร์ตการลงทุน", desc: "การอนุมัติสุดท้าย: ตรวจสอบครั้งสุดท้ายและดำเนินการส่งคำสั่งเข้าระบบ" },
-            levels: { aggressive: "รุกรุก", neutral: "กลางๆ", conservative: "รักษาตัว" }
+            levels: { aggressive: "เชิงรุก", neutral: "สมดุล", conservative: "เชิงรับ" }
         },
         tutorials: {
             header: "คู่มือการใช้งาน",
@@ -532,9 +532,9 @@ export default function ViewDocsPage() {
                             <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.risk.title}</h3>
                             <p className={`text-base ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.risk.desc}</p>
                             <div className="flex justify-center gap-2 mt-4">
-                                <span className="px-2 py-1 bg-red-500/20 text-red-300 text-[10px] rounded">{t.execution.levels.aggressive}</span>
-                                <span className="px-2 py-1 bg-gray-500/20 text-gray-300 text-[10px] rounded">{t.execution.levels.neutral}</span>
-                                <span className="px-2 py-1 bg-green-500/20 text-green-300 text-[10px] rounded">{t.execution.levels.conservative}</span>
+                                <span className={`px-3 py-1.5 text-xs font-medium rounded-md ${isDarkMode ? 'bg-red-500/20 text-red-300' : 'bg-red-100 text-red-700 border border-red-300'}`}>{t.execution.levels.aggressive}</span>
+                                <span className={`px-3 py-1.5 text-xs font-medium rounded-md ${isDarkMode ? 'bg-gray-500/20 text-gray-300' : 'bg-slate-200 text-slate-700 border border-slate-400'}`}>{t.execution.levels.neutral}</span>
+                                <span className={`px-3 py-1.5 text-xs font-medium rounded-md ${isDarkMode ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-700 border border-green-300'}`}>{t.execution.levels.conservative}</span>
                             </div>
                         </div>
                     </div>
@@ -546,7 +546,7 @@ export default function ViewDocsPage() {
                                 <Gavel size={32} />
                             </div>
                             <h3 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.manager.title}</h3>
-                            <p className={`text-base max-w-md ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.manager.desc}</p>
+                            <p className={`text-base max-w-3xl ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.manager.desc}</p>
                         </div>
                     </div>
                 </section>
@@ -554,7 +554,7 @@ export default function ViewDocsPage() {
                 {/* TUTORIALS SECTION */}
                 <section id="tutorials-header" className="pt-16 pb-32">
                     <div className="text-center mb-16">
-                        <h2 className={`text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent ${isDarkMode ? 'bg-linear-to-r from-white via-slate-200 to-slate-400' : 'bg-linear-to-r from-slate-900 via-slate-700 to-slate-500'}`}>
+                        <h2 className={`text-3xl md:text-5xl font-bold mb-4 pt-2 leading-normal bg-clip-text text-transparent ${isDarkMode ? 'bg-linear-to-r from-white via-slate-200 to-slate-400' : 'bg-linear-to-r from-slate-900 via-slate-700 to-slate-500'}`}>
                             {t.tutorials.header}
                         </h2>
                         <p className={`text-xl max-w-2xl mx-auto ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>
