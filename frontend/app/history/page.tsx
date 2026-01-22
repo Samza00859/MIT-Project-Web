@@ -180,6 +180,127 @@ interface HistoryItem {
 // In-memory cache for logo URLs to avoid repeated fetches
 const logoCache = new Map<string, string>();
 
+// Thai stock ticker to company domain mapping for accurate logo fetching
+const THAI_STOCK_DOMAINS: Record<string, string> = {
+    // Energy & Petrochemical
+    "PTT": "pttplc.com",
+    "PTTEP": "pttep.com",
+    "PTTGC": "pttgcgroup.com",
+    "TOP": "thaioilgroup.com",
+    "IRPC": "irpc.co.th",
+    "GPSC": "gpscgroup.com",
+    "OR": "pttor.com",
+    "GULF": "gulf.co.th",
+    "BGRIM": "b-grimm.com",
+    "RATCH": "ratch.co.th",
+    "EGCO": "egco.com",
+    "BANPU": "banpu.com",
+    "BCP": "bangchak.co.th",
+
+    // Banking & Finance
+    "KBANK": "kasikornbank.com",
+    "SCB": "scb.co.th",
+    "BBL": "bangkokbank.com",
+    "KTB": "ktb.co.th",
+    "TMB": "ttbbank.com",
+    "TTB": "ttbbank.com",
+    "BAY": "krungsri.com",
+    "TISCO": "tisco.co.th",
+    "KKP": "kkpfg.com",
+    "TCAP": "thanachartcapital.co.th",
+
+    // Telecommunication & Technology
+    "ADVANC": "ais.th",
+    "TRUE": "truecorp.co.th",
+    "DTAC": "dtac.co.th",
+    "INTUCH": "intouchcompany.com",
+    "JAS": "jasmine.com",
+    "THCOM": "thaicom.net",
+
+    // Real Estate & Construction
+    "CPN": "centralpattana.co.th",
+    "LH": "lh.co.th",
+    "AP": "apthai.com",
+    "SPALI": "spali.co.th",
+    "PSH": "pruksa.com",
+    "ORI": "origin.co.th",
+    "SC": "scasset.com",
+    "SIRI": "sansiri.com",
+    "QH": "qh.co.th",
+    "WHA": "wha-group.com",
+    "AMATA": "amata.com",
+    "HEMRAJ": "hemaraj.com",
+    "SCC": "scg.com",
+    "TPIPL": "tpipolene.co.th",
+
+    // Consumer & Retail
+    "CPALL": "cpall.co.th",
+    "CP": "cpthailand.com",
+    "CPF": "cpfworldwide.com",
+    "MINT": "minor.com",
+    "CRC": "centralretail.com",
+    "HMPRO": "homepro.co.th",
+    "BJC": "bjc.co.th",
+    "MAKRO": "siammakro.co.th",
+    "GLOBAL": "globalhouse.co.th",
+    "COM7": "com7.co.th",
+    "OSP": "osotspa.com",
+    "CBG": "carabao.co.th",
+
+    // Healthcare
+    "BDMS": "bdms.co.th",
+    "BH": "bumrungrad.com",
+    "BCH": "bangkokchainhospital.com",
+    "CHG": "chularat.com",
+    "THG": "thonburihealth.com",
+    "RJH": "rajavithi.go.th",
+
+    // Transportation & Logistics
+    "AOT": "airportthai.co.th",
+    "BEM": "bangkokmetro.co.th",
+    "BTS": "btsgroup.co.th",
+    "AAV": "airasiax.com",
+    "BA": "bangkokair.com",
+    "THAI": "thaiairways.com",
+
+    // Industrial & Manufacturing
+    "IVL": "indorama.com",
+    "DELTA": "deltathailand.com",
+    "PCSGH": "pcsgh.com",
+    "HANA": "hanagroup.com",
+    "STA": "sritranggroup.com",
+    "NER": "ner.co.th",
+
+    // Media & Entertainment
+    "BEC": "becworld.com",
+    "MONO": "mono29.com",
+    "GRAMMY": "grammy.co.th",
+    "VGI": "vgigroup.com",
+    "MAJOR": "majorcineplex.com",
+    "PLANB": "planbmedia.co.th",
+
+    // Insurance
+    "BLA": "bangkoklife.com",
+    "TLI": "thailife.com",
+    "MTL": "muangthai.co.th",
+
+    // Others
+    "SAWAD": "sawad.co.th",
+    "MTC": "mtc.co.th",
+    "TIDLOR": "tidlor.com",
+    "JMT": "jmt.co.th",
+    "SINGER": "singer.co.th",
+    "AWC": "assetworldcorp.com",
+    "ASSET": "assetwise.co.th",
+    "CENTEL": "centarahotelsresorts.com",
+    "ERW": "theerawan.com",
+    "DOHOME": "dohomeonline.com",
+    "BEAUTY": "beautycommunity.co.th",
+    "JMART": "jaymart.co.th",
+    "KLINIQ": "thekliniq.com",
+    "MEGA": "megabangna.com",
+};
+
 function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean }) {
     const [currentSrc, setCurrentSrc] = useState<string>("");
     const [isError, setIsError] = useState(false);
@@ -193,7 +314,8 @@ function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean
         }
 
         const cleanTicker = ticker.trim().toUpperCase();
-        const symbol = cleanTicker.split('.')[0].split('-')[0]; // Handle PTT.BK -> PTT, BTC-USD -> BTC
+        const symbol = cleanTicker.split('.')[0].split('-')[0]; // Handle PTT.BK -> PTT
+        const isThaiStock = cleanTicker.endsWith(".BK");
 
         // Check cache first
         if (logoCache.has(cleanTicker)) {
@@ -207,15 +329,34 @@ function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean
             return;
         }
 
-        // Build static logo sources (fast, no API call needed)
-        const staticUrls: string[] = [
-            // Parqet (Good for US/EU stocks)
-            `https://assets.parqet.com/logos/symbol/${symbol}?format=png`,
-            // Unavatar (Generic fallback)
-            `https://unavatar.io/${symbol}`,
-            // Google Favicon as last resort
-            `https://www.google.com/s2/favicons?domain=${symbol.toLowerCase()}.com&sz=128`,
-        ];
+        let staticUrls: string[] = [];
+
+        if (isThaiStock) {
+            // Thai stocks: Use domain mapping for accurate logos
+            const domain = THAI_STOCK_DOMAINS[symbol];
+            if (domain) {
+                staticUrls = [
+                    // Google Favicon (reliable, free, no API key needed)
+                    `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+                    // Brandfetch CDN (high quality, free tier available)
+                    `https://cdn.brandfetch.io/${domain}/w/400/h/400`,
+                    // DuckDuckGo icons (another free fallback)
+                    `https://icons.duckduckgo.com/ip3/${domain}.ico`,
+                ];
+            } else {
+                // Unknown Thai stock: use text fallback immediately
+                logoCache.set(cleanTicker, "ERROR");
+                setIsError(true);
+                return;
+            }
+        } else {
+            // Non-Thai stocks: Use standard sources
+            staticUrls = [
+                `https://assets.parqet.com/logos/symbol/${symbol}?format=png`,
+                `https://unavatar.io/${symbol}`,
+                `https://www.google.com/s2/favicons?domain=${symbol.toLowerCase()}.com&sz=128`,
+            ];
+        }
 
         setCandidates(staticUrls);
         setCandidateIndex(0);
@@ -1121,7 +1262,7 @@ export default function HistoryPage() {
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
                                     className={`flex-1 px-3 py-2 rounded-xl border text-sm appearance-none outline-none ${isDarkMode
-                                        ? "bg-white/5 border-white/10 text-white"
+                                        ? "bg-white/5 border-white/10 text-white [&>option]:bg-[#0b0e14]"
                                         : "bg-gray-50 border-gray-200 text-gray-700"
                                         }`}
                                 >
@@ -1135,7 +1276,7 @@ export default function HistoryPage() {
                                     value={timeFilter}
                                     onChange={(e) => setTimeFilter(e.target.value)}
                                     className={`flex-1 px-3 py-2 rounded-xl border text-sm appearance-none outline-none ${isDarkMode
-                                        ? "bg-white/5 border-white/10 text-white"
+                                        ? "bg-white/5 border-white/10 text-white [&>option]:bg-[#0b0e14]"
                                         : "bg-gray-50 border-gray-200 text-gray-700"
                                         }`}
                                 >
@@ -1230,7 +1371,7 @@ export default function HistoryPage() {
                                                 : (item.status === "executing" && item.reports.length === 0)
                                                     ? "bg-red-500 text-white"
                                                     : item.status === "executing"
-                                                        ? "bg-yellow-500 text-black"
+                                                        ? "bg-yellow-600 text-black"
                                                         : "bg-red-500 text-white"
                                                 }`}>
                                                 {item.status === "executing" && item.reports.length === 0

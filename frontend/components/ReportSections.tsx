@@ -51,14 +51,45 @@ interface ReportSectionsDisplayProps extends ReportSectionsProps {
 }
 
 // Helper to render Markdown text (with bold/list support)
-function RenderMarkdown({ text }: { text: string }) {
+function RenderMarkdown({ text, skipFirstBullet = false }: { text: string; skipFirstBullet?: boolean }) {
     if (!text) return null;
+
+    // Clean up raw JSON-like characters that shouldn't be displayed
+    const cleanText = text
+        .replace(/^\s*\{\s*$/gm, '') // Remove lines with just {
+        .replace(/^\s*\}\s*$/gm, '') // Remove lines with just }
+        .replace(/^\s*\[\s*$/gm, '') // Remove lines with just [
+        .replace(/^\s*\]\s*$/gm, '') // Remove lines with just ]
+        .replace(/^"([^"]+)":\s*"([^"]*)",?\s*$/gm, '$1: $2') // Convert "key": "value" to key: value
+        .replace(/^"([^"]+)":\s*$/gm, '$1:') // Convert "key": to key:
+        .trim();
+
+    let isFirstContentLine = true;
+
     return (
         <div className="space-y-2">
-            {text.split("\n").map((line, idx) => {
+            {cleanText.split("\n").map((line, idx) => {
                 const trimmed = line.trim();
                 if (!trimmed) return <br key={idx} />; // Preserve empty lines
-                if (/^[-*•]/.test(trimmed)) {
+
+                const isBulletLine = /^[-*•]/.test(trimmed);
+
+                // Skip bullet for first content line if requested
+                if (isBulletLine && isFirstContentLine && skipFirstBullet) {
+                    isFirstContentLine = false;
+                    return (
+                        <p
+                            key={idx}
+                            dangerouslySetInnerHTML={{
+                                __html: formatInlineMarkdown(trimmed.replace(/^[-*•]\s*/, "")),
+                            }}
+                        />
+                    );
+                }
+
+                if (trimmed) isFirstContentLine = false;
+
+                if (isBulletLine) {
                     return (
                         <div key={idx} className="ml-4 flex items-start gap-2">
                             <span className="mt-1.5 h-1.5 w-1.5 min-w-[6px] rounded-full bg-current opacity-60" />
@@ -521,7 +552,7 @@ export default function ReportSections({
                 </div>
             </header>
             <article
-                className={`flex-1 min-h-[150px] sm:min-h-[200px] overflow-auto rounded-2xl p-3 sm:p-4 text-xs sm:text-sm leading-relaxed text-[#8b94ad] md:p-6 md:text-base lg:p-6 ${isDarkMode ? "bg-[#090d17]" : "bg-gray-50"
+                className={`flex-1 min-h-[150px] sm:min-h-[200px] overflow-auto rounded-2xl p-3 sm:p-4 text-xs sm:text-sm leading-relaxed md:p-6 md:text-base lg:p-6 ${isDarkMode ? "bg-[#090d17] text-[#8b94ad]" : "bg-gray-50 text-gray-700"
                     }`}
             >
                 {reportSections.length === 0 ? (
@@ -673,7 +704,7 @@ export default function ReportSections({
                                             ? "border-white/10 bg-white/5"
                                             : "border-gray-200 bg-white"
                                             }`}>
-                                            <RenderMarkdown text={section.text} />
+                                            <RenderMarkdown text={section.text} skipFirstBullet={true} />
                                         </div>
                                     );
                                 })()}
