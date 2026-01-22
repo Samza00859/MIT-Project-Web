@@ -646,7 +646,8 @@ export default function Home() {
   };
 
   const selectSuggestion = (symbol: string) => {
-    setTicker(symbol);
+    // Remove .BK suffix for Thai stocks before setting ticker
+    setTicker(symbol.replace('.BK', ''));
     setShowSuggestions(false);
     setSuggestions([]);
   };
@@ -1405,7 +1406,7 @@ export default function Home() {
                           className={`cursor-pointer px-4 py-2 text-sm flex justify-between items-center transition-colors ${isDarkMode ? "hover:bg-white/5 text-gray-200" : "hover:bg-[#F8FAFC] text-[#334155]"}`}
                         >
                           <div>
-                            <span className={`font-bold ${isDarkMode ? "" : "text-[#0F172A]"}`}>{item.symbol}</span>
+                            <span className={`font-bold ${isDarkMode ? "" : "text-[#0F172A]"}`}>{item.symbol.replace('.BK', '')}</span>
                             <span className={`ml-2 text-xs ${isDarkMode ? "opacity-70" : "text-[#334155]"}`}>{item.name}</span>
                           </div>
                           <span className={`text-[10px] border rounded px-1 ${isDarkMode ? "opacity-50" : "border-[#E2E8F0] text-[#64748B] bg-[#F8FAFC]"}`}>{item.exchange}</span>
@@ -1683,7 +1684,7 @@ export default function Home() {
                   className={`text-lg sm:text-xl font-bold tracking-wide ${isDarkMode ? "text-white" : "text-[#0F172A]"
                     }`}
                 >
-                  {ticker || "—"}
+                  {ticker ? ticker.replace('.BK', '') : "—"}
                   <span
                     className={`ml-1 text-xs sm:text-sm ${isDarkMode ? "text-[#64748b]" : "text-[#334155]"
                       }`}

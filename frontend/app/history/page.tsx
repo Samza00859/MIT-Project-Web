@@ -1244,7 +1244,7 @@ export default function HistoryPage() {
                                                                 : item.status.toUpperCase()}
                                             </span>
                                         </div>
-                                        <div className="font-bold text-sm truncate">{item.ticker} - {language === 'th' ? new Date(item.analysis_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : item.analysis_date}</div>
+                                        <div className="font-bold text-sm truncate">{item.ticker.replace('.BK', '')} - {language === 'th' ? new Date(item.analysis_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : item.analysis_date}</div>
                                         <div className="text-[11px] opacity-40 mt-1">
                                             {new Date(item.timestamp).toLocaleString(language === 'th' ? 'th-TH' : 'en-US', {
                                                 month: 'short',
@@ -1286,7 +1286,7 @@ export default function HistoryPage() {
                             <header className={`sticky top-0 z-20 flex flex-wrap justify-between items-end gap-4 pb-4 mb-4 -mx-8 px-8 pt-4 border-b ${isDarkMode ? "bg-[#03161b] border-white/5" : "bg-[#f5f8fa] border-gray-200"}`}>
                                 <div>
                                     <div className="flex flex-wrap items-center gap-4 mb-2">
-                                        <h1 className="text-4xl font-bold">{selectedItem.ticker}</h1>
+                                        <h1 className="text-4xl font-bold">{selectedItem.ticker.replace('.BK', '')}</h1>
                                         {(() => {
                                             const finalReport = selectedItem.reports.find(r => r.report_type === 'conclusion');
                                             let decision = null;
