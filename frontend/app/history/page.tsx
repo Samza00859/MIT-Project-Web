@@ -1572,7 +1572,7 @@ export default function HistoryPage() {
                                             return (
                                                 <div key={idx} className={`p-6 rounded-[20px] border ${isDarkMode ? "bg-[#111726] border-white/5 shadow-[0_4px_20_rgba(0,0,0,0.3)]" : "bg-white border-gray-200 shadow-sm"}`}>
                                                     <h3 className="text-xl font-bold mb-6 flex items-center gap-3 border-b border-white/5 pb-4">
-                                                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2df4c6]/20 text-sm text-[#2df4c6]">
+                                                        <span className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${isDarkMode ? 'bg-[#2df4c6]/20 text-[#2df4c6]' : 'bg-teal-100 text-teal-700'}`}>
                                                             {idx + 1}
                                                         </span>
                                                         {section.label}
@@ -1581,7 +1581,7 @@ export default function HistoryPage() {
                                                     <div className="space-y-8">
                                                         {viewMode === "summary" && section.sum && (
                                                             <div className={`p-5 rounded-2xl ${isDarkMode ? "bg-white/5" : "bg-gray-50"}`}>
-                                                                <h4 className="text-xs font-bold uppercase tracking-widest opacity-50 mb-3 text-[#2df4c6]">{t.detail.headers.execSum}</h4>
+                                                                <h4 className={`text-xs font-bold uppercase tracking-widest mb-3 ${isDarkMode ? 'opacity-50 text-[#2df4c6]' : 'text-teal-700'}`}>{t.detail.headers.execSum}</h4>
                                                                 <div className="opacity-90">
                                                                     {typeof section.sum === 'string' ? (
                                                                         <RenderMarkdown text={section.sum} />

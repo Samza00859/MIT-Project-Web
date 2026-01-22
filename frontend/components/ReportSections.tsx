@@ -4,7 +4,7 @@ import TelegramConnect from "./TelegramConnect";
 import { TEAM_KEYS } from "../lib/constants";
 
 interface ReportSectionsProps {
-    reportSections: { key: string; label: string; text: string }[];
+    reportSections: { key: string; label: string; text: any }[]; // Changed from string to any to support parsed objects
     isDarkMode: boolean;
     ticker: string;
     analysisDate: string;
@@ -47,7 +47,7 @@ interface ReportSectionsDisplayProps extends ReportSectionsProps {
     setLanguage?: (lang: "en" | "th") => void;
     isTranslating?: boolean;
     teamState?: any;
-    telegramData?: { key: string; label: string; text: string }[];
+    telegramData?: { key: string; label: string; text: any }[];
 }
 
 // Helper to render Markdown text (with bold/list support)
@@ -559,8 +559,8 @@ export default function ReportSections({
                     <div className="flex h-full min-h-[200px] flex-col items-center justify-center opacity-70">
                         {isRunning ? (
                             <div className="flex flex-col items-center gap-4 animate-pulse">
-                                <div className={`h-10 w-10 animate-spin rounded-full border-4 border-t-transparent ${isDarkMode ? "border-[#2df4c6]" : "border-teal-900"}`}></div>
-                                <p className={`font-medium text-center px-4 ${isDarkMode ? "text-[#2df4c6]" : "text-teal-900"}`}>
+                                <div className={`h-10 w-10 animate-spin rounded-full border-4 border-t-transparent ${isDarkMode ? "border-[#2df4c6]" : "border-emerald-700"}`}></div>
+                                <p className={`font-medium text-center px-4 ${isDarkMode ? "text-[#2df4c6]" : "text-emerald-800"}`}>
                                     {(() => {
                                         if (teamState) {
                                             for (const teamKey of TEAM_KEYS) {
@@ -594,7 +594,7 @@ export default function ReportSections({
                                 className={`mb-6 flex items-center gap-3 text-lg font-bold tracking-tight ${isDarkMode ? "text-[#f8fbff]" : "text-gray-900"
                                     }`}
                             >
-                                <span className="flex h-6 w-6 items-center justify-center rounded bg-[#2df4c6]/20 text-xs text-[#2df4c6]">
+                                <span className={`flex h-6 w-6 items-center justify-center rounded text-xs font-semibold ${isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-emerald-100 text-emerald-800 border border-emerald-300"}`}>
                                     {idx + 1}
                                 </span>
                                 {section.label}

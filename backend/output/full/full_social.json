@@ -1,33 +1,8 @@
 {
-    "sentiment_verdict": "Neutral",
-    "social_volume": "High volume driven by earnings positioning, CEO commentary at Davos, and market-wide tech sell-off.",
-    "dominant_narrative": "NVIDIA faces near-term headwinds from China export uncertainty and a broader market sell-off, but the long-term AI infrastructure demand story remains intact, leading to a mixed and cautious sentiment.",
-    "top_topics": [
-        {
-            "topic": "China Export Restrictions and H200 Chip Blockade",
-            "sentiment": "Negative",
-            "analysis_snippet": "Reports of Chinese customs blocking H200 chips and supplier production pauses are creating significant uncertainty and negative price pressure."
-        },
-        {
-            "topic": "CEO Jensen Huang's Commentary at Davos",
-            "sentiment": "Mixed",
-            "analysis_snippet": "Huang's bullish long-term outlook on trillions in AI infrastructure demand is contrasted with criticism over chip sales to China and his regret over early stock sales."
-        },
-        {
-            "topic": "Broad Market and Tech Sector Sell-Off",
-            "sentiment": "Negative",
-            "analysis_snippet": "NVDA is highlighted as a major loser in a sharp market downturn, with sentiment turning bearish on trade and trend durations."
-        },
-        {
-            "topic": "High Institutional Options Activity",
-            "sentiment": "Neutral",
-            "analysis_snippet": "NVDA consistently shows heavy institutional options volume, indicating high trader interest and hedging around current volatility."
-        },
-        {
-            "topic": "Valuation and Overbought Concerns",
-            "sentiment": "Negative",
-            "analysis_snippet": "Some analysts view the stock as overvalued and overbought, predicting a mean reversion and citing absurd valuations."
-        }
-    ],
-    "psychology": "Fear Uncertainty and Doubt regarding China exposure and guidance sensitivity, mixed with long-term conviction in AI infrastructure growth."
+    "sentiment_score": 50,
+    "sentiment_verdict": "Neutral (Data Unavailable)",
+    "social_volume_analysis": "Unable to retrieve social media data.",
+    "dominant_narrative": "No clear narrative identified.",
+    "top_discussion_topics": [],
+    "retail_psychology_assessment": "Insufficient data for psychological assessment."
 }

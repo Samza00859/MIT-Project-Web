@@ -1,49 +1,49 @@
 {
-    "executive_summary": "Nvidia's stock sentiment is primarily driven by CEO Jensen Huang's bullish Davos commentary on massive AI infrastructure investment needs, offset by geopolitical risks from U.S.-EU tensions over Greenland and ongoing China market access uncertainties.",
+    "executive_summary": "The market is experiencing volatility due to shifting geopolitical tensions, particularly the resolution of the Greenland tariff threat, which has eased immediate concerns. However, underlying economic fragilities in regions like South Korea and rising coal demand in Southeast Asia present ongoing challenges. For Advanced Info Service PCL (ADVANC.BK), the news is largely neutral with some minor promotional activity not significantly impacting its core business outlook.",
     "market_sentiment_verdict": "Neutral",
     "global_macro_context": {
-        "macro_summary": "Geopolitical tensions are the dominant macro theme, with President Trump's threats of tariffs on European allies over Greenland triggering a market-wide 'Sell America' trade, spiking Treasury yields and gold prices. This has created a risk-off environment, pressuring tech stocks. Concurrently, Japan's bond market turmoil and its largest nuclear plant restart add to global financial uncertainty. The Davos forum highlights AI investment fervor but against a backdrop of escalating trade war fears."
+        "macro_summary": "Geopolitical tensions have eased as President Trump reversed tariff threats on Greenland, leading to a market rally and relief in Europe. However, concerns about global economic fragility persist, highlighted by South Korea's unexpected contraction. Rising coal demand in Southeast Asia contrasts with renewable energy transitions, indicating mixed energy sector trends. Central bank policies and interest rate movements remain a background factor influencing market stability."
     },
     "top_news_developments": [
         {
-            "headline": "Nvidia CEO Says AI Needs More Investment in Defiance of Bubble Fears",
-            "source": "Yahoo Finance",
-            "date": "2026-01-21",
-            "sentiment": "Positive",
-            "implication": "Bullish commentary from CEO Huang at Davos reinforces long-term AI growth thesis, supporting valuation."
-        },
-        {
-            "headline": "Nvidia’s Huang Plans to Visit China as He Works to Reopen Market",
-            "source": "Bloomberg.com",
-            "date": "2026-01-21",
+            "headline": "Trump’s tariff reversal sparked a market rally — but the violent swing in stocks is a warning of what lies ahead for investors",
+            "source": "MarketWatch",
+            "date": "2026-01-22T00:46:00+00:00",
             "sentiment": "Neutral",
-            "implication": "Potential positive for restoring critical China sales, but outcome uncertain and highlights ongoing regulatory risk."
+            "implication": "The reversal of tariff threats has provided a short-term boost to markets, but the underlying volatility suggests caution is warranted."
         },
         {
-            "headline": "Anthropic’s CEO stuns Davos with Nvidia criticism",
-            "source": "Yahoo Finance",
-            "date": "2026-01-21",
-            "sentiment": "Negative",
-            "implication": "Public criticism from a major partner/investee regarding China sales strategy could create reputational and partnership friction."
-        },
-        {
-            "headline": "Huang Heads to China at a Sensitive Moment for Nvidia",
-            "source": "Yahoo Finance",
-            "date": "2026-01-21",
-            "sentiment": "Negative",
-            "implication": "Highlights persistent vulnerability and uncertainty in Nvidia's China business following H200 customs setbacks."
-        },
-        {
-            "headline": "Thermo Fisher Scientific and NVIDIA Partner to Advance Laboratory AI Automation",
-            "source": "Lab Manager",
-            "date": "2026-01-20",
+            "headline": "Asian Stocks Mostly Rise as Fears About U.S. Tariffs on Europe Ease",
+            "source": "The Wall Street Journal",
+            "date": "2026-01-22T04:14:00+00:00",
             "sentiment": "Positive",
-            "implication": "Strategic expansion into life sciences AI applications diversifies revenue streams and validates enterprise AI adoption."
+            "implication": "Easing fears of US tariffs on Europe have contributed to a positive sentiment in Asian stock markets."
+        },
+        {
+            "headline": "South Korea’s Surprise Contraction Points to Broad Fragility",
+            "source": "Bloomberg",
+            "date": "2026-01-22T01:47:22+00:00",
+            "sentiment": "Negative",
+            "implication": "South Korea's unexpected economic contraction signals broader fragility in the global economy, potentially impacting trade and investment."
+        },
+        {
+            "headline": "Rising coal demand overshadows Southeast Asia's transition to renewable energy",
+            "source": "Associated Press Finance",
+            "date": "2026-01-22T05:45:10+00:00",
+            "sentiment": "Negative",
+            "implication": "Increased coal demand in Southeast Asia indicates a potential slowdown or reversal in the region's renewable energy transition, with environmental and economic implications."
+        },
+        {
+            "headline": "BIG LOT: เช้านี้ ADVANC มูลค่าสูงสุด 5.53 ลบ.ราคาเฉลี่ย 348 บ./หุ้น",
+            "source": "Ryt9",
+            "date": "3 ชั่วโมงที่ผ่านมา",
+            "sentiment": "Neutral",
+            "implication": "Significant trading volume in ADVANC.BK via big lots at a specific price point indicates institutional activity but doesn't immediately alter the company's fundamental outlook."
         }
     ],
     "key_risks": [
-        "Geopolitical escalation: U.S.-EU trade tensions over Greenland could lead to retaliatory measures, broader market sell-offs, and disrupted supply chains.",
-        "China market access: CEO's planned visit underscores ongoing uncertainty; failure to reopen market or further export restrictions would materially impact growth.",
-        "Macro-financial spillover: Surging global bond yields (U.S., Japan) threaten equity valuations and could trigger capital rotation away from high-multiple tech stocks like NVDA."
+        "Persistent global economic fragilities and regional downturns (e.g., South Korea) could dampen overall market sentiment and demand.",
+        "Geopolitical shifts, while currently easing, remain a source of potential future volatility.",
+        "The mixed energy transition signals (rising coal vs. renewables) could impact companies exposed to the energy sector."
     ]
 }

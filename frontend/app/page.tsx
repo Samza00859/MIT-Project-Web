@@ -425,6 +425,21 @@ const parseThaiContent = (content: any): any => {
         return null;
       }
     }
+
+    // Check if string starts with quotes (might be quoted JSON string)
+    if (textValue.startsWith('"') && textValue.endsWith('"')) {
+      try {
+        // Remove outer quotes and try to parse again
+        const innerValue = JSON.parse(textValue);
+        if (typeof innerValue === 'string') {
+          return parseFromMarkdown(innerValue); // Recursive parse
+        }
+        return innerValue;
+      } catch {
+        // Not a valid quoted string
+      }
+    }
+
     return null;
   };
 
@@ -538,23 +553,20 @@ export default function Home() {
     if (thaiReportSections.length > 0 && translatedSections.length === 0 && !isRunning) {
       // Load Thai content if it exists but translatedSections is empty (e.g., after navigation)
       try {
-        const thaiSections: { key: string; label: string; text: string; report_type: string }[] = [];
+        const thaiSections: { key: string; label: string; text: any; report_type: string }[] = [];
 
         thaiReportSections.forEach((report) => {
           // Parse Thai content to handle JSON-wrapped strings
           const parsedContent = parseThaiContent(report.content);
 
-          let textContent = "";
-          if (typeof parsedContent === "object") {
-            textContent = "```json\n" + JSON.stringify(parsedContent, null, 2) + "\n```";
-          } else {
-            textContent = String(parsedContent);
-          }
+          // Debug: Check what type parsedContent is
+          console.log(`Section ${report.section}:`, typeof parsedContent, parsedContent);
 
+          // Keep as object if it's already parsed - don't stringify again
           thaiSections.push({
             key: report.section,
             label: report.label,
-            text: textContent,
+            text: parsedContent, // Keep as object, not stringified
             report_type: report.report_type,
           });
         });
@@ -576,23 +588,20 @@ export default function Home() {
       setIsTranslating(true);
       try {
         // Build translated sections from WebSocket Thai reports
-        const thaiSections: { key: string; label: string; text: string; report_type: string }[] = [];
+        const thaiSections: { key: string; label: string; text: any; report_type: string }[] = [];
 
         thaiReportSections.forEach((report) => {
           // Parse Thai content to handle JSON-wrapped strings
           const parsedContent = parseThaiContent(report.content);
 
-          let textContent = "";
-          if (typeof parsedContent === "object") {
-            textContent = "```json\n" + JSON.stringify(parsedContent, null, 2) + "\n```";
-          } else {
-            textContent = String(parsedContent);
-          }
+          // Debug: Check what type parsedContent is
+          console.log(`WebSocket Section ${report.section}:`, typeof parsedContent, parsedContent);
 
+          // Keep as object if it's already parsed - don't stringify again
           thaiSections.push({
             key: report.section,
             label: report.label,
-            text: textContent,
+            text: parsedContent, // Keep as object, not stringified
             report_type: report.report_type,
           });
         });
@@ -2026,7 +2035,7 @@ export default function Home() {
                 {t.signal.asset}
               </span>
               <div className="flex items-center gap-3">
-                {ticker && <StockLogo ticker={ticker} isDarkMode={isDarkMode} />}
+                {ticker && <StockLogo ticker={selectedMarket === "TH" && !ticker.trim().toUpperCase().endsWith(".BK") ? `${ticker.trim()}.BK` : ticker} isDarkMode={isDarkMode} />}
                 <div
                   className={`text-lg sm:text-xl font-bold tracking-wide ${isDarkMode ? "text-white" : "text-[#0F172A]"
                     }`}
