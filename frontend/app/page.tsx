@@ -123,7 +123,7 @@ const TRANSLATIONS = {
       strongBull: "ขึ้นแรง (Strong Bullish)"
     },
     search: {
-      placeholder: "พิมพ์ชื่อหุ้น (เช่น PTT)",
+      placeholder: "พิมพ์ชื่อหุ้น",
       popular: "รายชื่อหุ้นทั้งหมด",
       results: "ผลการค้นหา"
     }
