@@ -1473,7 +1473,7 @@ export default function HistoryPage() {
                                         <p className="opacity-50 text-sm whitespace-nowrap">{t.detail.analysisFor} {language === 'th' ? new Date(selectedItem.analysis_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : selectedItem.analysis_date}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3 flex-wrap gap-y-2 mt-2 md:mt-0">
+                                <div className="flex items-center gap-3 flex-wrap gap-y-2 mt-10 md:mt-0 pr-20">
                                     {/* Language Toggle */}
                                     {/* Removed redundant toggle from here as it is now in sidebar */}
 
