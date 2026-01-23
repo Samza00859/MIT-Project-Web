@@ -666,6 +666,17 @@ export default function ReportSections({
                                                         const isDecision = /decision|recommendation|verdict|summary|overview|ตัดสินใจ|แนะนำ|สรุป|ภาพรวม/i.test(title);
 
                                                         if (isDecision) {
+                                                            // Try to parse content as JSON first
+                                                            let decisionContent: any = content;
+                                                            let isJson = false;
+                                                            try {
+                                                                const trimmed = content.trim();
+                                                                if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+                                                                    decisionContent = JSON.parse(trimmed);
+                                                                    isJson = true;
+                                                                }
+                                                            } catch (e) { /* ignore */ }
+
                                                             // Render as Box (like Judge Decision)
                                                             return (
                                                                 <div
@@ -679,7 +690,11 @@ export default function ReportSections({
                                                                         {title}
                                                                     </h4>
                                                                     <div className="text-lg font-medium leading-relaxed opacity-90">
-                                                                        <RenderMarkdown text={content} />
+                                                                        {isJson ? (
+                                                                            <RenderJsonData data={decisionContent} isDarkMode={isDarkMode} />
+                                                                        ) : (
+                                                                            <RenderMarkdown text={content} />
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                             );

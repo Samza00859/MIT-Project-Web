@@ -1280,7 +1280,7 @@ export default function Home() {
     if (options.includeFull) reportTypes.push("full");
 
     // Function to generate a single PDF
-    const generateSinglePdf = (langCode: "en" | "th", reportType: "summary" | "full") => {
+    const generateSinglePdf = async (langCode: "en" | "th", reportType: "summary" | "full") => {
       const singleDoc = new jsPDF({ unit: "pt", format: "a4" });
       const isThai = langCode === "th";
       const isSummaryReport = reportType === "summary";
@@ -1302,6 +1302,9 @@ export default function Home() {
           console.warn("Font loading failed for separate PDF");
         }
       };
+
+      // IMPORTANT: Await font loading fixes Thai characters
+      await addFontsToDoc();
 
       // Helper functions scoped to this document
       let docYPosition = margin + 20;
@@ -1358,7 +1361,7 @@ export default function Home() {
       };
 
       const docProcessData = (data: any, indent = 0) => {
-        const KEYS_TO_HIDE = ["selected_indicators", "memory_application", "count", "conversation_history", "full_content", "indicator", "validation_notes", "metadata"];
+        const KEYS_TO_HIDE = ["selected_indicators", "memory_application", "count", "conversation_history", "indicator", "validation_notes", "metadata"];
         const KEYS_TO_SKIP = ["id", "timestamp"];
 
         const cleanContent = (text: string) => {
@@ -1430,13 +1433,17 @@ export default function Home() {
       const sourceList = isThai ? translatedSections : contextReportSections;
       const filteredSections = sourceList.filter(section => {
         const lowerKey = section.key.toLowerCase();
-        const isSummarySection = lowerKey.includes("summar") || lowerKey.includes("summarize_") || (section as any).report_type === "summary";
+        const isSummarySection = lowerKey.includes("summar") ||
+          lowerKey.includes("conclusion") ||
+          lowerKey.includes("recommendation") ||
+          lowerKey.includes("decision") ||
+          (section as any).report_type === "summary";
 
         // Match the selected report type
         if (isSummaryReport) {
           return isSummarySection;
         } else {
-          return !isSummarySection;
+          return true; // Full report includes everything (Summary + Details)
         }
       });
 
@@ -1521,7 +1528,7 @@ export default function Home() {
 
     for (const langCode of languagesToProcess) {
       for (const reportType of reportTypes) {
-        const result = generateSinglePdf(langCode, reportType);
+        const result = await generateSinglePdf(langCode, reportType);
         if (result) {
           // Small delay between downloads to prevent browser blocking
           pdfPromises.push(
@@ -2140,7 +2147,21 @@ export default function Home() {
         {/* Report Panel */}
         <div className="flex-1 min-h-[200px] sm:min-h-0 mt-2 flex flex-col">
           <ReportSections
-            reportSections={language === "th" && filteredTranslatedSections.length > 0 ? filteredTranslatedSections : contextReportSections}
+            reportSections={language === "th" && filteredTranslatedSections.length > 0
+              ? (() => {
+                const sections = [...filteredTranslatedSections];
+                // Check if there is an error in the original context (e.g. 429 Resource Exhausted)
+                // If so, and it hasn't been translated (likely because it crashed), append it to the view
+                const errorSection = contextReportSections.find(s => s.key === "error");
+                if (errorSection && !sections.some(s => s.key === "error")) {
+                  sections.push({
+                    ...errorSection,
+                    report_type: "error"
+                  });
+                }
+                return sections;
+              })()
+              : contextReportSections}
             isDarkMode={isDarkMode}
             ticker={ticker}
             analysisDate={analysisDate}
