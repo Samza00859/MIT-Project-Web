@@ -131,7 +131,7 @@ const TRANSLATIONS = {
         execution: {
             header: "การดำเนินการและบริหารความเสี่ยง",
             subheader: "หน่วยตัดสินใจ: แปลงบทวิเคราะห์ให้เป็นคำสั่งซื้อขายจริง",
-            trader: { title: "หัวหน้าเทรดเดอร์", desc: "ผู้ตัดสินใจหลัก: สังเคราะห์การอภิปรายระหว่าง Bull และ Bear เพื่อกำหนดสัญญาณสุดท้าย (ซื้อ/ขาย/รอ) พร้อมคะแนนความมั่นใจ" },
+            trader: { title: "หัวหน้าเทรดเดอร์", desc: "ผู้ตัดสินใจหลัก: สังเคราะห์การอภิปรายระหว่าง Bull และ Bear เพื่อกำหนดสัญญาณสุดท้าย\n(ซื้อ/ขาย/รอ) พร้อมคะแนนความมั่นใจ" },
             submit: "ส่งแผนการเทรด",
             risk: { title: "ผู้ควบคุมความเสี่ยง", desc: "ตรวจสอบคำสั่งซื้อขาย: คำนวณขนาดพอร์ต, จุดตัดขาดทุน และจุดทำกำไรตามค่าความผันผวน (ATR)" },
             manager: { title: "ผู้จัดการพอร์ตการลงทุน", desc: "การอนุมัติสุดท้าย: ตรวจสอบครั้งสุดท้ายและดำเนินการส่งคำสั่งเข้าระบบ" },
@@ -499,7 +499,7 @@ export default function DocsPage() {
                                 <Zap size={40} />
                             </div>
                             <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.trader.title}</h3>
-                            <p className={`text-base leading-relaxed break-words ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.trader.desc}</p>
+                            <p className={`text-base leading-relaxed break-words whitespace-pre-line ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.trader.desc}</p>
                         </div>
 
                         {/* Arrows pointing to Manager */}
@@ -514,7 +514,7 @@ export default function DocsPage() {
                                 <Shield size={40} />
                             </div>
                             <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.risk.title}</h3>
-                            <p className={`text-base leading-relaxed break-words ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.risk.desc}</p>
+                            <p className={`text-base leading-relaxed break-words whitespace-pre-line ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.risk.desc}</p>
                             <div className="flex justify-center gap-2 mt-4">
                                 <span className="px-2 py-1 bg-red-500 text-white text-[10px] rounded">{t.execution.levels.aggressive}</span>
                                 <span className="px-2 py-1 bg-gray-500 text-white text-[10px] rounded">{t.execution.levels.neutral}</span>
@@ -663,7 +663,14 @@ function TeamMemberCard({ title, icon, desc, color, isDarkMode }: { title: strin
                 {React.cloneElement(icon as React.ReactElement, { size: 24 })}
                 <h4 className={`font-bold text-base tracking-wide ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{title}</h4>
             </div>
-            <p className={`text-sm leading-relaxed break-words ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>{desc}</p>
+            <p className={`text-sm leading-relaxed break-words ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>
+                {desc.split('\n').map((line, i) => (
+                    <React.Fragment key={i}>
+                        {line}
+                        {i < desc.split('\n').length - 1 && <br />}
+                    </React.Fragment>
+                ))}
+            </p>
         </div>
     );
 }

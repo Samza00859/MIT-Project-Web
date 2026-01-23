@@ -131,7 +131,7 @@ const TRANSLATIONS = {
         execution: {
             header: "การดำเนินการและบริหารความเสี่ยง",
             subheader: "หน่วยตัดสินใจ: แปลงบทวิเคราะห์ให้เป็นคำสั่งซื้อขายจริง",
-            trader: { title: "หัวหน้าเทรดเดอร์", desc: "ผู้ตัดสินใจหลัก: สังเคราะห์การอภิปรายระหว่าง Bull และ Bear เพื่อกำหนดสัญญาณสุดท้าย (ซื้อ/ขาย/รอ) พร้อมคะแนนความมั่นใจ" },
+            trader: { title: "หัวหน้าเทรดเดอร์", desc: "ผู้ตัดสินใจหลัก: สังเคราะห์การอภิปรายระหว่าง Bull และ Bear เพื่อกำหนดสัญญาณสุดท้าย\n(ซื้อ/ขาย/รอ) พร้อมคะแนนความมั่นใจ" },
             submit: "ส่งแผนการเทรด",
             risk: { title: "ผู้ควบคุมความเสี่ยง", desc: "ตรวจสอบคำสั่งซื้อขาย: คำนวณขนาดพอร์ต, จุดตัดขาดทุน และจุดทำกำไรตามค่าความผันผวน (ATR)" },
             manager: { title: "ผู้จัดการพอร์ตการลงทุน", desc: "การอนุมัติสุดท้าย: ตรวจสอบครั้งสุดท้ายและดำเนินการส่งคำสั่งเข้าระบบ" },
@@ -499,7 +499,7 @@ export default function ViewDocsPage() {
                                 <Zap size={40} />
                             </div>
                             <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.trader.title}</h3>
-                            <p className={`text-base leading-relaxed break-words ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.trader.desc}</p>
+                            <p className={`text-base leading-relaxed break-words whitespace-pre-line ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.trader.desc}</p>
                         </div>
 
                         {/* Arrows pointing to Manager */}
@@ -514,7 +514,7 @@ export default function ViewDocsPage() {
                                 <Shield size={40} />
                             </div>
                             <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.risk.title}</h3>
-                            <p className={`text-base leading-relaxed break-words ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.risk.desc}</p>
+                            <p className={`text-base leading-relaxed break-words whitespace-pre-line ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.risk.desc}</p>
                             <div className="flex justify-center gap-2 mt-4">
                                 <span className={`px-3 py-1.5 text-xs font-medium rounded-md ${isDarkMode ? 'bg-red-500/20 text-red-300' : 'bg-red-100 text-red-700 border border-red-300'}`}>{t.execution.levels.aggressive}</span>
                                 <span className={`px-3 py-1.5 text-xs font-medium rounded-md ${isDarkMode ? 'bg-gray-500/20 text-gray-300' : 'bg-slate-200 text-slate-700 border border-slate-400'}`}>{t.execution.levels.neutral}</span>
@@ -530,7 +530,7 @@ export default function ViewDocsPage() {
                                 <Gavel size={32} />
                             </div>
                             <h3 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.manager.title}</h3>
-                            <p className={`text-base max-w-3xl ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.manager.desc}</p>
+                            <p className={`text-base max-w-3xl whitespace-pre-line ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.manager.desc}</p>
                         </div>
                     </div>
                 </section>
@@ -664,7 +664,14 @@ function TeamMemberCard({ title, icon, desc, color, isDarkMode }: { title: strin
                 {React.cloneElement(icon as React.ReactElement, { size: 24 })}
                 <h4 className={`font-bold text-base tracking-wide ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{title}</h4>
             </div>
-            <p className={`text-sm leading-relaxed break-words ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>{desc}</p>
+            <p className={`text-sm leading-relaxed break-words ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>
+                {desc.split('\n').map((line, i) => (
+                    <React.Fragment key={i}>
+                        {line}
+                        {i < desc.split('\n').length - 1 && <br />}
+                    </React.Fragment>
+                ))}
+            </p>
         </div>
     );
 }

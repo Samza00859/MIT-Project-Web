@@ -1,5 +1,5 @@
 {
-    "ticker": "ADVANC.BK",
+    "ticker": "PTT.BK",
     "date": "2026-01-21",
     "selected_indicators": [
         "close_50_sma",
@@ -18,83 +18,83 @@
         "trend_direction": "Bullish",
         "momentum_state": "Strong",
         "volatility_level": "Moderate",
-        "volume_condition": "Rising"
+        "volume_condition": "Neutral"
     },
     "indicator_analysis": [
         {
             "indicator": "close_50_sma",
-            "indicator_full_name": "50-day Simple Moving Average",
-            "signal": "Price is trading above the 50-day SMA (316.74).",
-            "implication": "Positive short to medium-term trend. Indicates bullish sentiment."
+            "indicator_full_name": "50-Day Simple Moving Average",
+            "signal": "Current close (33.50) is above the 50-day SMA (31.455).",
+            "implication": "Positive signal, indicating an upward trend."
         },
         {
             "indicator": "close_10_ema",
-            "indicator_full_name": "10-day Exponential Moving Average",
-            "signal": "Price is trading above the 10-day EMA (336.44).",
-            "implication": "Strong short-term bullish momentum. The price is well above the short-term average."
+            "indicator_full_name": "10-Day Exponential Moving Average",
+            "signal": "Current close (33.50) is above the 10-day EMA (32.82).",
+            "implication": "Positive signal, suggesting short-term bullish momentum."
         },
         {
             "indicator": "macd",
-            "indicator_full_name": "Moving Average Convergence Divergence",
-            "signal": "MACD (8.59) is above the Signal Line (6.19) and the histogram (2.40) is positive and increasing.",
-            "implication": "Strong bullish momentum is building."
+            "indicator_full_name": "MACD",
+            "signal": "MACD (0.517) is above its signal line (0.348) and the histogram (0.169) is positive.",
+            "implication": "Bullish momentum is present and potentially strengthening."
         },
         {
             "indicator": "rsi",
             "indicator_full_name": "Relative Strength Index",
-            "signal": "RSI is at 82.29, which is in the overbought territory.",
-            "implication": "The asset is overbought, suggesting a potential for a pullback or consolidation, though strong trends can remain overbought for extended periods."
+            "signal": "RSI is at 71.77, which is above 70.",
+            "implication": "The asset is in overbought territory, suggesting a potential for a pullback or consolidation."
         },
         {
             "indicator": "boll",
             "indicator_full_name": "Bollinger Bands",
-            "signal": "Price is trading above the middle Bollinger Band (325.25) and near the upper band (349.85).",
-            "implication": "Bullish price action, with the price pushing towards the upper boundary of the bands."
+            "signal": "The current price (33.50) is trading at the upper Bollinger Band (33.58).",
+            "implication": "Indicates strong upward price pressure, but also potential for a short-term reversal if the price moves significantly above the band."
         },
         {
             "indicator": "boll_ub",
-            "indicator_full_name": "Bollinger Band Upper Boundary",
-            "signal": "Price is trading near the upper Bollinger Band (349.85).",
-            "implication": "Indicates strong upward price pressure. A close above the upper band could signal an overextension, but sustained trading near it shows strength."
+            "indicator_full_name": "Upper Bollinger Band",
+            "signal": "Current close (33.50) is very close to the upper band (33.58).",
+            "implication": "Suggests strong buying pressure but also a potential resistance point."
         },
         {
             "indicator": "boll_lb",
-            "indicator_full_name": "Bollinger Band Lower Boundary",
-            "signal": "Price is trading significantly above the lower Bollinger Band (300.65).",
-            "implication": "Confirms strong upward momentum and a lack of downward pressure."
+            "indicator_full_name": "Lower Bollinger Band",
+            "signal": "Current close (33.50) is significantly above the lower band (30.77).",
+            "implication": "Confirms the strong bullish trend and indicates a wide trading range."
         },
         {
             "indicator": "atr",
             "indicator_full_name": "Average True Range",
-            "signal": "ATR is 6.02.",
-            "implication": "Indicates moderate volatility. The price is moving with a reasonable degree of fluctuation."
+            "signal": "ATR is 0.46, indicating moderate volatility.",
+            "implication": "The current price swings are within a normal range for this asset."
         },
         {
             "indicator": "vwma",
             "indicator_full_name": "Volume Weighted Moving Average",
-            "signal": "Price is trading above the VWMA (330.38).",
-            "implication": "Confirms bullish sentiment, as the price is higher than the average price weighted by volume."
+            "signal": "Current close (33.50) is above the VWMA (32.60).",
+            "implication": "Positive signal, indicating that volume supports the current price trend."
         }
     ],
     "price_action_summary": {
-        "recent_high_low": "Price is near its recent high, trading at 349.00.",
+        "recent_high_low": "Price is near its recent high, trading close to the upper Bollinger Band.",
         "support_levels": [
-            "342.00",
-            "338.00",
-            "332.00"
+            "33.25",
+            "33.00",
+            "32.75"
         ],
         "resistance_levels": [
-            "354.00",
-            "355.00"
+            "33.75",
+            "34.00"
         ],
-        "short_term_behavior": "The stock has shown strong upward momentum in the last few trading sessions, breaking through previous resistance levels and trading near its all-time high. Volume has been increasing, supporting the recent price surge."
+        "short_term_behavior": "The price has shown a strong upward movement recently, pushing towards new highs. However, the RSI indicates overbought conditions, suggesting a potential for a pause or slight pullback."
     },
     "market_sentiment": {
         "sentiment_label": "Bullish"
     },
     "key_risks": [
-        "RSI is in overbought territory (82.29), indicating a potential for a short-term pullback.",
-        "The significant price increase in a short period could lead to profit-taking and increased volatility."
+        "The RSI being in overbought territory suggests a risk of a short-term price correction.",
+        "Trading at the upper Bollinger Band could indicate a temporary exhaustion of upward momentum."
     ],
-    "short_term_outlook": "The short-term outlook remains bullish, driven by strong momentum and increasing volume. However, traders should be aware of the overbought RSI indicating a potential for consolidation or a minor pullback before the trend may continue."
+    "short_term_outlook": "The short-term outlook remains bullish, supported by strong moving averages and MACD. However, traders should be cautious of potential overbought conditions and look for signs of consolidation or a minor pullback before further upward continuation."
 }

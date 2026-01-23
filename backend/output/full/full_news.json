@@ -1,49 +1,42 @@
 {
-    "executive_summary": "The market is experiencing volatility due to shifting geopolitical tensions, particularly the resolution of the Greenland tariff threat, which has eased immediate concerns. However, underlying economic fragilities in regions like South Korea and rising coal demand in Southeast Asia present ongoing challenges. For Advanced Info Service PCL (ADVANC.BK), the news is largely neutral with some minor promotional activity not significantly impacting its core business outlook.",
+    "executive_summary": "The market sentiment is cautiously optimistic, driven by easing geopolitical tensions and a resilient US economy, despite ongoing inflation concerns. Tech stocks are showing strength, while energy and commodity markets are reacting to global supply and demand dynamics. Company-specific news is mixed, with some firms announcing strategic partnerships and others facing challenges.",
     "market_sentiment_verdict": "Neutral",
     "global_macro_context": {
-        "macro_summary": "Geopolitical tensions have eased as President Trump reversed tariff threats on Greenland, leading to a market rally and relief in Europe. However, concerns about global economic fragility persist, highlighted by South Korea's unexpected contraction. Rising coal demand in Southeast Asia contrasts with renewable energy transitions, indicating mixed energy sector trends. Central bank policies and interest rate movements remain a background factor influencing market stability."
+        "macro_summary": "Geopolitical tensions appear to be easing, leading to a more stable market environment. The US economy shows resilience with robust growth, though inflation remains a concern, keeping interest rates steady. Global markets are closely monitoring trade policies and energy supply dynamics, with a general cautious optimism prevailing."
     },
     "top_news_developments": [
+        {
+            "headline": "TikTok forms joint venture to keep operating in U.S., ending yearslong saga",
+            "source": "MarketWatch",
+            "date": "2026-01-23T01:51:00+00:00",
+            "sentiment": "Positive",
+            "implication": "This resolves a major regulatory uncertainty for TikTok, potentially boosting its US operations and associated advertising revenues."
+        },
+        {
+            "headline": "Tesla Stock Pops as Musk Shares Robo-Taxi Milestone",
+            "source": "Barrons.com",
+            "date": "2026-01-22T21:23:00+00:00",
+            "sentiment": "Positive",
+            "implication": "Positive news regarding Tesla's autonomous driving technology could drive investor confidence and stock price higher."
+        },
+        {
+            "headline": "U.S. grew 4.4% in the third quarter, GDP shows. Economy showed little sign of slowing.",
+            "source": "MarketWatch",
+            "date": "2026-01-22T13:44:00+00:00",
+            "sentiment": "Positive",
+            "implication": "Strong GDP growth indicates economic resilience, which is generally positive for the broader stock market and corporate earnings."
+        },
         {
             "headline": "Trump’s tariff reversal sparked a market rally — but the violent swing in stocks is a warning of what lies ahead for investors",
             "source": "MarketWatch",
             "date": "2026-01-22T00:46:00+00:00",
             "sentiment": "Neutral",
-            "implication": "The reversal of tariff threats has provided a short-term boost to markets, but the underlying volatility suggests caution is warranted."
-        },
-        {
-            "headline": "Asian Stocks Mostly Rise as Fears About U.S. Tariffs on Europe Ease",
-            "source": "The Wall Street Journal",
-            "date": "2026-01-22T04:14:00+00:00",
-            "sentiment": "Positive",
-            "implication": "Easing fears of US tariffs on Europe have contributed to a positive sentiment in Asian stock markets."
-        },
-        {
-            "headline": "South Korea’s Surprise Contraction Points to Broad Fragility",
-            "source": "Bloomberg",
-            "date": "2026-01-22T01:47:22+00:00",
-            "sentiment": "Negative",
-            "implication": "South Korea's unexpected economic contraction signals broader fragility in the global economy, potentially impacting trade and investment."
-        },
-        {
-            "headline": "Rising coal demand overshadows Southeast Asia's transition to renewable energy",
-            "source": "Associated Press Finance",
-            "date": "2026-01-22T05:45:10+00:00",
-            "sentiment": "Negative",
-            "implication": "Increased coal demand in Southeast Asia indicates a potential slowdown or reversal in the region's renewable energy transition, with environmental and economic implications."
-        },
-        {
-            "headline": "BIG LOT: เช้านี้ ADVANC มูลค่าสูงสุด 5.53 ลบ.ราคาเฉลี่ย 348 บ./หุ้น",
-            "source": "Ryt9",
-            "date": "3 ชั่วโมงที่ผ่านมา",
-            "sentiment": "Neutral",
-            "implication": "Significant trading volume in ADVANC.BK via big lots at a specific price point indicates institutional activity but doesn't immediately alter the company's fundamental outlook."
+            "implication": "While the tariff reversal led to a short-term rally, the underlying volatility suggests potential for future market swings, creating an uncertain investment environment."
         }
     ],
     "key_risks": [
-        "Persistent global economic fragilities and regional downturns (e.g., South Korea) could dampen overall market sentiment and demand.",
-        "Geopolitical shifts, while currently easing, remain a source of potential future volatility.",
-        "The mixed energy transition signals (rising coal vs. renewables) could impact companies exposed to the energy sector."
+        "Persistent inflation could lead to higher interest rates, impacting corporate borrowing costs and consumer spending.",
+        "Geopolitical instability and trade policy shifts can create sudden market volatility and disrupt global supply chains.",
+        "The intensifying race for tech talent could lead to increased labor costs for technology companies and impact innovation timelines."
     ]
 }
