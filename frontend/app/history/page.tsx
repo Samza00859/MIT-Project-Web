@@ -182,123 +182,123 @@ const logoCache = new Map<string, string>();
 
 // Thai stock ticker to company domain mapping for accurate logo fetching
 const THAI_STOCK_DOMAINS: Record<string, string> = {
-  // Energy & Petrochemical
-  "PTT": "https://www.pttplc.com",
-  // "PTTEP": "https://www.pttep.com" ,
-  "PTTGC": "https://www.pttgcgroup.com",
-  "TOP": "https://www.thaioilgroup.com",
-  "IRPC": "https://www.irpc.co.th",
-  "GPSC": "https://www.gpscgroup.com",
-  "OR": "https://www.pttor.com",
-  "GULF": "https://www.gulf.co.th",
-  // "BGRIM": "https://www.bgrim.com",
-  "RATCH": "https://www.ratch.co.th",
-  "EGCO": "https://www.egco.com",
-  "BANPU": "https://www.banpu.com",
-  "BCP": "https://www.bangchak.co.th",
+    // Energy & Petrochemical
+    "PTT": "https://www.pttplc.com",
+    // "PTTEP": "https://www.pttep.com" ,
+    "PTTGC": "https://www.pttgcgroup.com",
+    "TOP": "https://www.thaioilgroup.com",
+    "IRPC": "https://www.irpc.co.th",
+    "GPSC": "https://www.gpscgroup.com",
+    "OR": "https://www.pttor.com",
+    "GULF": "https://www.gulf.co.th",
+    // "BGRIM": "https://www.bgrim.com",
+    "RATCH": "https://www.ratch.co.th",
+    "EGCO": "https://www.egco.com",
+    "BANPU": "https://www.banpu.com",
+    "BCP": "https://www.bangchak.co.th",
 
-  // Banking & Finance
-  "KBANK": "https://www.kasikornbank.com",
-  "SCB": "https://www.scb.co.th",
-  "BBL": "https://www.bangkokbank.com",
-  "KTB": "https://www.ktb.co.th",
-  "TMB": "https://www.ttbbank.com",
-  "TTB": "https://www.ttbbank.com",
-  "BAY": "https://www.krungsri.com",
-  "TISCO": "https://www.tisco.co.th",
-  "KKP": "https://www.kkpfg.com",
-  // "TCAP": "https://www.thanachartcapital.co.th",
+    // Banking & Finance
+    "KBANK": "https://www.kasikornbank.com",
+    "SCB": "https://www.scb.co.th",
+    "BBL": "https://www.bangkokbank.com",
+    "KTB": "https://www.ktb.co.th",
+    "TMB": "https://www.ttbbank.com",
+    "TTB": "https://www.ttbbank.com",
+    "BAY": "https://www.krungsri.com",
+    "TISCO": "https://www.tisco.co.th",
+    "KKP": "https://www.kkpfg.com",
+    // "TCAP": "https://www.thanachartcapital.co.th",
 
-  // Telecommunication & Technology
-  "ADVANC": "https://www.ais.th",
-  "TRUE": "https://www.truecorp.co.th",
-  "DTAC": "https://www.dtac.co.th",
-  "INTUCH": "https://www.intouchcompany.com",
-  "JAS": "https://www.jasmine.com",
-  "THCOM": "https://www.thaicom.net",
+    // Telecommunication & Technology
+    "ADVANC": "https://www.ais.th",
+    "TRUE": "https://www.truecorp.co.th",
+    "DTAC": "https://www.dtac.co.th",
+    "INTUCH": "https://www.intouchcompany.com",
+    "JAS": "https://www.jasmine.com",
+    "THCOM": "https://www.thaicom.net",
 
-  // Real Estate & Construction
-  "CPN": "https://www.centralpattana.co.th",
-  "LH": "https://www.lh.co.th",
-  "AP": "https://www.apthai.com",
-  "SPALI": "https://www.spali.com",
-  "PSH": "https://www.pruksa.com",
-  "ORI": "https://www.origin.com",
-  "SC": "https://www.scasset.com",
-  "SIRI": "https://www.sansiri.com",
-  "QH": "https://www.qh.co.th",
-  "WHA": "https://www.wha-group.com",
-  "AMATA": "https://www.amata.com",
-  "HEMRAJ": "https://www.hemaraj.com",
-  "SCC": "https://www.scg.com",
-  "TPIPL": "https://www.tpipolene.co.th",
+    // Real Estate & Construction
+    "CPN": "https://www.centralpattana.co.th",
+    "LH": "https://www.lh.co.th",
+    "AP": "https://www.apthai.com",
+    "SPALI": "https://www.spali.com",
+    "PSH": "https://www.pruksa.com",
+    "ORI": "https://www.origin.com",
+    "SC": "https://www.scasset.com",
+    "SIRI": "https://www.sansiri.com",
+    "QH": "https://www.qh.co.th",
+    "WHA": "https://www.wha-group.com",
+    "AMATA": "https://www.amata.com",
+    "HEMRAJ": "https://www.hemaraj.com",
+    "SCC": "https://www.scg.com",
+    "TPIPL": "https://www.tpipolene.co.th",
 
-  // Consumer & Retail
-  "CPALL": "https://www.cpall.co.th",
-  // "CP": "https://www.cpthailand.com",
-  "CPF": "https://www.cpfworldwide.com",
-  "MINT": "https://www.minor.com",
-  "CRC": "https://www.centralretail.com",
-  "HMPRO": "https://www.homepro.co.th",
-  "BJC": "https://www.bjc.com",
-  "MAKRO": "https://www.siammakro.co.th",
-  "GLOBAL": "https://www.globalhouse.co.th",
-  "COM7": "https://www.com7.com",
-  "OSP": "https://www.osotspa.com",
-  "CBG": "https://www.carabao.co.th",
+    // Consumer & Retail
+    "CPALL": "https://www.cpall.co.th",
+    // "CP": "https://www.cpthailand.com",
+    "CPF": "https://www.cpfworldwide.com",
+    "MINT": "https://www.minor.com",
+    "CRC": "https://www.centralretail.com",
+    "HMPRO": "https://www.homepro.co.th",
+    "BJC": "https://www.bjc.com",
+    "MAKRO": "https://www.siammakro.co.th",
+    "GLOBAL": "https://www.globalhouse.co.th",
+    "COM7": "https://www.com7.com",
+    "OSP": "https://www.osotspa.com",
+    "CBG": "https://www.carabao.co.th",
 
-  // Healthcare
-  "BDMS": "https://www.bdms.co.th",
-  "BH": "https://www.bumrungrad.com",
-  "BCH": "https://www.bangkokchainhospital.com",
-  // "CHG": "https://www.chularat.com",
-  // "THG": "https://www.thonburihealth.com",
-  // "RJH": "https://www.rajavithi.go.th",
+    // Healthcare
+    "BDMS": "https://www.bdms.co.th",
+    "BH": "https://www.bumrungrad.com",
+    "BCH": "https://www.bangkokchainhospital.com",
+    // "CHG": "https://www.chularat.com",
+    // "THG": "https://www.thonburihealth.com",
+    // "RJH": "https://www.rajavithi.go.th",
 
-  // Transportation & Logistics
-  "AOT": "https://www.airportthai.co.th",
-  "BEM": "https://www.bangkokmetro.com",
-  // "BTS": "https://www.btsgroup.co.th",
-  "AAV": "https://www.airasiax.com",
-  "BA": "https://www.bangkokair.com",
-  "THAI": "https://www.thaiairways.com",
+    // Transportation & Logistics
+    "AOT": "https://www.airportthai.co.th",
+    "BEM": "https://www.bangkokmetro.com",
+    // "BTS": "https://www.btsgroup.co.th",
+    "AAV": "https://www.airasiax.com",
+    "BA": "https://www.bangkokair.com",
+    "THAI": "https://www.thaiairways.com",
 
-  // Industrial & Manufacturing
-  "IVL": "https://www.indorama.com",
-  "DELTA": "https://www.deltathailand.com",
-  "PCSGH": "https://www.pcsgh.com",
-  "HANA": "https://www.hanagroup.com",
-  "STA": "https://www.sritranggroup.com",
-  "NER": "https://www.ner.com",
+    // Industrial & Manufacturing
+    "IVL": "https://www.indorama.com",
+    "DELTA": "https://www.deltathailand.com",
+    "PCSGH": "https://www.pcsgh.com",
+    "HANA": "https://www.hanagroup.com",
+    "STA": "https://www.sritranggroup.com",
+    "NER": "https://www.ner.com",
 
-  // Media & Entertainment
-  // "BEC": "https://www.becworld.com",
-  "MONO": "https://www.mono29.com",
-  "GRAMMY": "https://www.grammy.co.th",
-  // "VGI": "https://www.vgigroup.com",
-  "MAJOR": "https://www.majorcineplex.com",
-  "PLANB": "https://www.planbmedia.co.th",
+    // Media & Entertainment
+    // "BEC": "https://www.becworld.com",
+    "MONO": "https://www.mono29.com",
+    "GRAMMY": "https://www.grammy.co.th",
+    // "VGI": "https://www.vgigroup.com",
+    "MAJOR": "https://www.majorcineplex.com",
+    "PLANB": "https://www.planbmedia.co.th",
 
-  // Insurance
-  "BLA": "https://www.bangkoklife.com",
-  "TLI": "https://www.thailife.com",
-  "MTL": "https://www.muangthai.co.th",
+    // Insurance
+    "BLA": "https://www.bangkoklife.com",
+    "TLI": "https://www.thailife.com",
+    "MTL": "https://www.muangthai.co.th",
 
-  // Others
-  "SAWAD": "https://www.sawad.co.th",
-  "MTC": "https://www.mtc.com",
-  "TIDLOR": "https://www.tidlor.com",
-  // "JMT": "https://www.jmt.co.th",
-  "SINGER": "https://www.singer.com",
-  "AWC": "https://www.assetworldcorp.com",
-  "ASSET": "https://www.assetwise.co.th",
-  "CENTEL": "https://www.centarahotelsresorts.com",
-  "ERW": "https://www.theerawan.com",
-  // "DOHOME": "https://www.dohomeonline.com",
-  "BEAUTY": "https://www.beautycommunity.co.th",
-  "JMART": "https://www.jaymart.co.th",
-  // "KLINIQ": "https://www.thekliniq.com",
-  // "MEGA": "https://www.megabangna.com",
+    // Others
+    "SAWAD": "https://www.sawad.co.th",
+    "MTC": "https://www.mtc.com",
+    "TIDLOR": "https://www.tidlor.com",
+    // "JMT": "https://www.jmt.co.th",
+    "SINGER": "https://www.singer.com",
+    "AWC": "https://www.assetworldcorp.com",
+    "ASSET": "https://www.assetwise.co.th",
+    "CENTEL": "https://www.centarahotelsresorts.com",
+    "ERW": "https://www.theerawan.com",
+    // "DOHOME": "https://www.dohomeonline.com",
+    "BEAUTY": "https://www.beautycommunity.co.th",
+    "JMART": "https://www.jaymart.co.th",
+    // "KLINIQ": "https://www.thekliniq.com",
+    // "MEGA": "https://www.megabangna.com",
 };
 
 function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean }) {
@@ -1269,7 +1269,7 @@ export default function HistoryPage() {
                                     <option value="all">{t.sidebar.filters.allStatus}</option>
                                     <option value="success">{t.sidebar.filters.success}</option>
                                     <option value="error">{t.sidebar.filters.error}</option>
-                                    <option value="executing">{t.sidebar.filters.executing}</option>
+
                                 </select>
 
                                 <select
@@ -1424,7 +1424,7 @@ export default function HistoryPage() {
                                 </svg>
                                 {t.detail.back}
                             </button>
-                            <header className={`sticky top-0 z-20 flex flex-wrap justify-between items-end gap-4 pb-4 mb-4 -mx-8 px-8 pt-4 border-b ${isDarkMode ? "bg-[#03161b] border-white/5" : "bg-[#f5f8fa] border-gray-200"}`}>
+                            <header className={`sticky top-0 z-20 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-4 mb-4 -mx-8 px-8 pt-4 border-b ${isDarkMode ? "bg-[#03161b] border-white/5" : "bg-[#f5f8fa] border-gray-200"}`}>
                                 <div>
                                     <div className="flex flex-wrap items-center gap-4 mb-2">
                                         <h1 className="text-4xl font-bold">{selectedItem.ticker.replace('.BK', '')}</h1>
@@ -1473,7 +1473,7 @@ export default function HistoryPage() {
                                         <p className="opacity-50 text-sm whitespace-nowrap">{t.detail.analysisFor} {language === 'th' ? new Date(selectedItem.analysis_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : selectedItem.analysis_date}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 flex-wrap gap-y-2 mt-2 md:mt-0">
                                     {/* Language Toggle */}
                                     {/* Removed redundant toggle from here as it is now in sidebar */}
 

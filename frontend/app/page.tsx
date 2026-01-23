@@ -369,7 +369,7 @@ import {
 } from "../lib/constants";
 import { MARKET_INFO } from "../components/MarketIcons";
 import { deepClone, extractDecision, toISODate } from "@/lib/helpers";
-import PdfDownloadModal, { PdfOptions } from "@/components/PdfDownloadModal";
+
 // import { translateBatch, getThaiLabel } from "@/lib/translation";
 
 // --- Components ---
@@ -532,7 +532,6 @@ export default function Home() {
   const [showMarketSelector, setShowMarketSelector] = useState(false); // New Dropdown State
   const [logoCandidates, setLogoCandidates] = useState<string[]>([]);
   const [logoCandidateIndex, setLogoCandidateIndex] = useState(0);
-  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   // Scroll position preservation for Popular Recommendations
   const popularListScrollPos = useRef(0);
@@ -1036,8 +1035,27 @@ export default function Home() {
    * PDF Generation 
    * Logic: Supports robust font loading (Thai/English), multi-language reports, and filtering
    */
-  const handleOpenPdfModal = () => {
-    setIsPdfModalOpen(true);
+
+  // Define PdfOptions locally since we removed the component
+  interface PdfOptions {
+    includeEnglish: boolean;
+    includeThai: boolean;
+    includeSummary: boolean;
+    includeFull: boolean;
+  }
+
+  const handleDirectPdfDownload = () => {
+    const isThai = language === "th";
+    const isSummary = reportLength === "summary report";
+
+    const options: PdfOptions = {
+      includeEnglish: !isThai,
+      includeThai: isThai,
+      includeSummary: isSummary,
+      includeFull: !isSummary
+    };
+
+    generatePdf(options);
   };
 
   const generatePdf = async (options: PdfOptions) => {
@@ -1430,7 +1448,21 @@ export default function Home() {
       };
 
       // Filter Sections based on report type
-      const sourceList = isThai ? translatedSections : contextReportSections;
+      let sourceList;
+      if (isThai) {
+        // Use translated sections, but also inject error from context if missing
+        sourceList = [...translatedSections];
+        const errorSection = contextReportSections.find(s => s.key === "error");
+        if (errorSection && !sourceList.some(s => s.key === "error")) {
+          sourceList.push({
+            ...errorSection,
+            report_type: "error" // Add required report_type for consistency
+          } as any);
+        }
+      } else {
+        sourceList = contextReportSections;
+      }
+
       const filteredSections = sourceList.filter(section => {
         const lowerKey = section.key.toLowerCase();
         const isSummarySection = lowerKey.includes("summar") ||
@@ -1486,7 +1518,7 @@ export default function Home() {
       }
 
       // Render Sections
-      filteredSections.forEach((section: any) => {
+      filteredSections.forEach(async (section: any) => {
         docCheckPageBreak(60);
 
         // Section Header
@@ -2169,7 +2201,7 @@ export default function Home() {
             copyFeedback={copyFeedback}
             setCopyFeedback={setCopyFeedback}
             handleCopyReport={handleCopyReport}
-            handleDownloadPdf={handleOpenPdfModal}
+            handleDownloadPdf={handleDirectPdfDownload}
             reportLength={reportLength}
             setReportLength={setReportLength}
             isRunning={isRunning}
@@ -2232,14 +2264,6 @@ export default function Home() {
               }
               return telegramSections;
             })()}
-          />
-          <PdfDownloadModal
-            isOpen={isPdfModalOpen}
-            onClose={() => setIsPdfModalOpen(false)}
-            onDownload={generatePdf}
-            isDarkMode={isDarkMode}
-            hasThaiContent={translatedSections.length > 0}
-            currentLanguage={language}
           />
         </div>
 
