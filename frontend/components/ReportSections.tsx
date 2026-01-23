@@ -55,13 +55,29 @@ function RenderMarkdown({ text, skipFirstBullet = false }: { text: string; skipF
     if (!text) return null;
 
     // Clean up raw JSON-like characters that shouldn't be displayed
-    const cleanText = text
+    let cleanText = text
+        .replace(/\\n/g, '\n') // Convert literal \n to real newline
+        .replace(/\\r/g, '')   // Remove literal \r
+        .replace(/\\"/g, '"')  // Unescape double quotes
+        .replace(/\\'/g, "'"); // Unescape single quotes
+
+    // Remove surrounding quotes if the entire text is wrapped in them
+    if ((cleanText.startsWith('"') && cleanText.endsWith('"')) || (cleanText.startsWith("'") && cleanText.endsWith("'"))) {
+        cleanText = cleanText.substring(1, cleanText.length - 1);
+    }
+
+    cleanText = cleanText
         .replace(/^\s*\{\s*$/gm, '') // Remove lines with just {
         .replace(/^\s*\}\s*$/gm, '') // Remove lines with just }
         .replace(/^\s*\[\s*$/gm, '') // Remove lines with just [
         .replace(/^\s*\]\s*$/gm, '') // Remove lines with just ]
         .replace(/^"([^"]+)":\s*"([^"]*)",?\s*$/gm, '$1: $2') // Convert "key": "value" to key: value
+        .replace(/^'([^']+)'\s*:\s*'([^']*)',?\s*$/gm, '$1: $2') // Convert 'key': 'value' to key: value
         .replace(/^"([^"]+)":\s*$/gm, '$1:') // Convert "key": to key:
+        .replace(/^'([^']+)'\s*:\s*$/gm, '$1:') // Convert 'key': to key:
+        // Specific fix for "n\" or similar artifacts mentioned by user
+        .replace(/\\n\\/g, '\n')
+        .replace(/\\$/gm, '') // Remove trailing backslashes at end of lines
         .trim();
 
     let isFirstContentLine = true;
