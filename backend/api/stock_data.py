@@ -196,7 +196,7 @@ STOCK_LISTS = {
     ],
     "GOLD": [
         {"symbol": "GC=F", "name": "Gold Futures (COMEX)", "exchange": "COMEX"},
-        {"symbol": "XAUUSD=X", "name": "Gold Spot / US Dollar", "exchange": "CCY"},
+        # {"symbol": "XAUUSD=X", "name": "Gold Spot / US Dollar", "exchange": "CCY"},
         {"symbol": "GLD", "name": "SPDR Gold Shares", "exchange": "NYSE"},
         {"symbol": "IAU", "name": "iShares Gold Trust", "exchange": "NYSE"},
         {"symbol": "SGOL", "name": "abrdn Physical Gold Shares ETF", "exchange": "NYSE"},
