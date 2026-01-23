@@ -182,123 +182,123 @@ const logoCache = new Map<string, string>();
 
 // Thai stock ticker to company domain mapping for accurate logo fetching
 const THAI_STOCK_DOMAINS: Record<string, string> = {
-    // Energy & Petrochemical
-    "PTT": "https://www.pttplc.com",
-    // "PTTEP": "https://www.pttep.com" ,
-    "PTTGC": "https://www.pttgcgroup.com",
-    "TOP": "https://www.thaioilgroup.com",
-    "IRPC": "https://www.irpc.co.th",
-    "GPSC": "https://www.gpscgroup.com",
-    "OR": "https://www.pttor.com",
-    "GULF": "https://www.gulf.co.th",
-    // "BGRIM": "https://www.bgrim.com",
-    "RATCH": "https://www.ratch.co.th",
-    "EGCO": "https://www.egco.com",
-    "BANPU": "https://www.banpu.com",
-    "BCP": "https://www.bangchak.co.th",
+  // Energy & Petrochemical
+  "PTT": "https://www.pttplc.com",
+  // "PTTEP": "https://www.pttep.com" ,
+  "PTTGC": "https://www.pttgcgroup.com",
+  "TOP": "https://www.thaioilgroup.com",
+  "IRPC": "https://www.irpc.co.th",
+  "GPSC": "https://www.gpscgroup.com",
+  "OR": "https://www.pttor.com",
+  "GULF": "https://www.gulf.co.th",
+  // "BGRIM": "https://www.bgrim.com",
+  "RATCH": "https://www.ratch.co.th",
+  "EGCO": "https://www.egco.com",
+  "BANPU": "https://www.banpu.com",
+  "BCP": "https://www.bangchak.co.th",
 
-    // Banking & Finance
-    "KBANK": "https://www.kasikornbank.com",
-    "SCB": "https://www.scb.co.th",
-    "BBL": "https://www.bangkokbank.com",
-    "KTB": "https://www.ktb.co.th",
-    "TMB": "https://www.ttbbank.com",
-    "TTB": "https://www.ttbbank.com",
-    "BAY": "https://www.krungsri.com",
-    "TISCO": "https://www.tisco.co.th",
-    "KKP": "https://www.kkpfg.com",
-    // "TCAP": "https://www.thanachartcapital.co.th",
+  // Banking & Finance
+  "KBANK": "https://www.kasikornbank.com",
+  "SCB": "https://www.scb.co.th",
+  "BBL": "https://www.bangkokbank.com",
+  "KTB": "https://www.ktb.co.th",
+  "TMB": "https://www.ttbbank.com",
+  "TTB": "https://www.ttbbank.com",
+  "BAY": "https://www.krungsri.com",
+  "TISCO": "https://www.tisco.co.th",
+  "KKP": "https://www.kkpfg.com",
+  // "TCAP": "https://www.thanachartcapital.co.th",
 
-    // Telecommunication & Technology
-    "ADVANC": "https://www.ais.th",
-    "TRUE": "https://www.truecorp.co.th",
-    "DTAC": "https://www.dtac.co.th",
-    "INTUCH": "https://www.intouchcompany.com",
-    "JAS": "https://www.jasmine.com",
-    "THCOM": "https://www.thaicom.net",
+  // Telecommunication & Technology
+  "ADVANC": "https://www.ais.th",
+  "TRUE": "https://www.truecorp.co.th",
+  "DTAC": "https://www.dtac.co.th",
+  "INTUCH": "https://www.intouchcompany.com",
+  "JAS": "https://www.jasmine.com",
+  "THCOM": "https://www.thaicom.net",
 
-    // Real Estate & Construction
-    "CPN": "https://www.centralpattana.co.th",
-    "LH": "https://www.lh.co.th",
-    "AP": "https://www.apthai.com",
-    "SPALI": "https://www.spali.com",
-    "PSH": "https://www.pruksa.com",
-    "ORI": "https://www.origin.com",
-    "SC": "https://www.scasset.com",
-    "SIRI": "https://www.sansiri.com",
-    "QH": "https://www.qh.co.th",
-    "WHA": "https://www.wha-group.com",
-    "AMATA": "https://www.amata.com",
-    "HEMRAJ": "https://www.hemaraj.com",
-    "SCC": "https://www.scg.com",
-    "TPIPL": "https://www.tpipolene.co.th",
+  // Real Estate & Construction
+  "CPN": "https://www.centralpattana.co.th",
+  "LH": "https://www.lh.co.th",
+  "AP": "https://www.apthai.com",
+  "SPALI": "https://www.spali.com",
+  "PSH": "https://www.pruksa.com",
+  "ORI": "https://www.origin.com",
+  "SC": "https://www.scasset.com",
+  "SIRI": "https://www.sansiri.com",
+  "QH": "https://www.qh.co.th",
+  "WHA": "https://www.wha-group.com",
+  "AMATA": "https://www.amata.com",
+  "HEMRAJ": "https://www.hemaraj.com",
+  "SCC": "https://www.scg.com",
+  "TPIPL": "https://www.tpipolene.co.th",
 
-    // Consumer & Retail
-    "CPALL": "https://www.cpall.co.th",
-    // "CP": "https://www.cpthailand.com",
-    "CPF": "https://www.cpfworldwide.com",
-    "MINT": "https://www.minor.com",
-    "CRC": "https://www.centralretail.com",
-    "HMPRO": "https://www.homepro.co.th",
-    "BJC": "https://www.bjc.com",
-    "MAKRO": "https://www.siammakro.co.th",
-    "GLOBAL": "https://www.globalhouse.co.th",
-    "COM7": "https://www.com7.com",
-    "OSP": "https://www.osotspa.com",
-    "CBG": "https://www.carabao.co.th",
+  // Consumer & Retail
+  "CPALL": "https://www.cpall.co.th",
+  // "CP": "https://www.cpthailand.com",
+  "CPF": "https://www.cpfworldwide.com",
+  "MINT": "https://www.minor.com",
+  "CRC": "https://www.centralretail.com",
+  "HMPRO": "https://www.homepro.co.th",
+  "BJC": "https://www.bjc.com",
+  "MAKRO": "https://www.siammakro.co.th",
+  "GLOBAL": "https://www.globalhouse.co.th",
+  "COM7": "https://www.com7.com",
+  "OSP": "https://www.osotspa.com",
+  "CBG": "https://www.carabao.co.th",
 
-    // Healthcare
-    "BDMS": "https://www.bdms.co.th",
-    "BH": "https://www.bumrungrad.com",
-    "BCH": "https://www.bangkokchainhospital.com",
-    // "CHG": "https://www.chularat.com",
-    // "THG": "https://www.thonburihealth.com",
-    // "RJH": "https://www.rajavithi.go.th",
+  // Healthcare
+  "BDMS": "https://www.bdms.co.th",
+  "BH": "https://www.bumrungrad.com",
+  "BCH": "https://www.bangkokchainhospital.com",
+  // "CHG": "https://www.chularat.com",
+  // "THG": "https://www.thonburihealth.com",
+  // "RJH": "https://www.rajavithi.go.th",
 
-    // Transportation & Logistics
-    "AOT": "https://www.airportthai.co.th",
-    "BEM": "https://www.bangkokmetro.com",
-    // "BTS": "https://www.btsgroup.co.th",
-    "AAV": "https://www.airasiax.com",
-    "BA": "https://www.bangkokair.com",
-    "THAI": "https://www.thaiairways.com",
+  // Transportation & Logistics
+  "AOT": "https://www.airportthai.co.th",
+  "BEM": "https://www.bangkokmetro.com",
+  // "BTS": "https://www.btsgroup.co.th",
+  "AAV": "https://www.airasiax.com",
+  "BA": "https://www.bangkokair.com",
+  "THAI": "https://www.thaiairways.com",
 
-    // Industrial & Manufacturing
-    "IVL": "https://www.indorama.com",
-    "DELTA": "https://www.deltathailand.com",
-    "PCSGH": "https://www.pcsgh.com",
-    "HANA": "https://www.hanagroup.com",
-    "STA": "https://www.sritranggroup.com",
-    "NER": "https://www.ner.com",
+  // Industrial & Manufacturing
+  "IVL": "https://www.indorama.com",
+  "DELTA": "https://www.deltathailand.com",
+  "PCSGH": "https://www.pcsgh.com",
+  "HANA": "https://www.hanagroup.com",
+  "STA": "https://www.sritranggroup.com",
+  "NER": "https://www.ner.com",
 
-    // Media & Entertainment
-    // "BEC": "https://www.becworld.com",
-    "MONO": "https://www.mono29.com",
-    "GRAMMY": "https://www.grammy.co.th",
-    // "VGI": "https://www.vgigroup.com",
-    "MAJOR": "https://www.majorcineplex.com",
-    "PLANB": "https://www.planbmedia.co.th",
+  // Media & Entertainment
+  // "BEC": "https://www.becworld.com",
+  "MONO": "https://www.mono29.com",
+  "GRAMMY": "https://www.grammy.co.th",
+  // "VGI": "https://www.vgigroup.com",
+  "MAJOR": "https://www.majorcineplex.com",
+  "PLANB": "https://www.planbmedia.co.th",
 
-    // Insurance
-    "BLA": "https://www.bangkoklife.com",
-    "TLI": "https://www.thailife.com",
-    "MTL": "https://www.muangthai.co.th",
+  // Insurance
+  "BLA": "https://www.bangkoklife.com",
+  "TLI": "https://www.thailife.com",
+  "MTL": "https://www.muangthai.co.th",
 
-    // Others
-    "SAWAD": "https://www.sawad.co.th",
-    "MTC": "https://www.mtc.com",
-    "TIDLOR": "https://www.tidlor.com",
-    // "JMT": "https://www.jmt.co.th",
-    "SINGER": "https://www.singer.com",
-    "AWC": "https://www.assetworldcorp.com",
-    "ASSET": "https://www.assetwise.co.th",
-    "CENTEL": "https://www.centarahotelsresorts.com",
-    "ERW": "https://www.theerawan.com",
-    // "DOHOME": "https://www.dohomeonline.com",
-    "BEAUTY": "https://www.beautycommunity.co.th",
-    "JMART": "https://www.jaymart.co.th",
-    // "KLINIQ": "https://www.thekliniq.com",
-    // "MEGA": "https://www.megabangna.com",
+  // Others
+  "SAWAD": "https://www.sawad.co.th",
+  "MTC": "https://www.mtc.com",
+  "TIDLOR": "https://www.tidlor.com",
+  // "JMT": "https://www.jmt.co.th",
+  "SINGER": "https://www.singer.com",
+  "AWC": "https://www.assetworldcorp.com",
+  "ASSET": "https://www.assetwise.co.th",
+  "CENTEL": "https://www.centarahotelsresorts.com",
+  "ERW": "https://www.theerawan.com",
+  // "DOHOME": "https://www.dohomeonline.com",
+  "BEAUTY": "https://www.beautycommunity.co.th",
+  "JMART": "https://www.jaymart.co.th",
+  // "KLINIQ": "https://www.thekliniq.com",
+  // "MEGA": "https://www.megabangna.com",
 };
 
 function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean }) {
@@ -333,10 +333,8 @@ function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean
 
         if (isThaiStock) {
             // Thai stocks: Use domain mapping for accurate logos
-            const fullUrl = THAI_STOCK_DOMAINS[symbol];
-            if (fullUrl) {
-                // Extract domain from full URL (e.g., "https://www.pttplc.com" -> "pttplc.com")
-                const domain = fullUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+            const domain = THAI_STOCK_DOMAINS[symbol];
+            if (domain) {
                 staticUrls = [
                     // Google Favicon (reliable, free, no API key needed)
                     `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,

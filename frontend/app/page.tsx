@@ -286,10 +286,8 @@ function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean
 
     if (isThaiStock) {
       // Thai stocks: Use domain mapping for accurate logos
-      const fullUrl = THAI_STOCK_DOMAINS[symbol];
-      if (fullUrl) {
-        // Extract domain from full URL (e.g., "https://www.pttplc.com" -> "pttplc.com")
-        const domain = fullUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+      const domain = THAI_STOCK_DOMAINS[symbol];
+      if (domain) {
         staticUrls = [
           // Google Favicon (reliable, free, no API key needed)
           `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
