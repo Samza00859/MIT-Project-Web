@@ -173,13 +173,13 @@ docker-compose up -d --build
 cd backend
 
 # Create virtual environment
-python -m venv venv
+py -3.12 -m venv .venv
 
 # Activate virtual environment
 # Windows:
-venv\Scripts\activate
+.venv\Scripts\activate
 # Linux/macOS:
-source venv/bin/activate
+source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -187,9 +187,6 @@ pip install -r requirements.txt
 # Create .env file
 cp ../ENV_EXAMPLE.md .env
 # Edit .env with your configuration
-
-# Run database migrations
-alembic upgrade head
 
 # Start the backend server
 uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
