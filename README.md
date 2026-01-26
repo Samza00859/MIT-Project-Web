@@ -149,11 +149,11 @@ TradingAgents is a sophisticated financial analysis platform that leverages **Mu
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/tradingagents.git
-cd tradingagents
+git clone https://github.com/Samza00859/MIT-Project-Web
+cd MIT-Project-Web
 
 # Create backend environment file
-cp ENV_EXAMPLE.md backend/.env
+cp backend/env.example backend/.env
 # Edit backend/.env with your API keys
 
 # Start all services
@@ -169,28 +169,49 @@ docker-compose up -d --build
 
 #### Backend Setup
 
-```bash
-cd backend
+1. **Navigate to Backend Directory**
+   Move into the backend folder where the application logic resides.
+   ```bash
+   cd backend
+   ```
 
-# Create virtual environment
-py -3.12 -m venv .venv
+2. **Create Virtual Environment**
+   Create an isolated Python environment (`.venv`) to manage dependencies without affecting your system.
+   ```bash
+   py -3.12 -m venv .venv
+   ```
 
-# Activate virtual environment
-# Windows:
-.venv\Scripts\activate
-# Linux/macOS:
-source .venv/bin/activate
+3. **Activate Environment**
+   Switch to the virtual environment context. You should see `(.venv)` in your terminal.
+   ```bash
+   # Windows:
+   .venv\Scripts\activate
+   
+   # Linux/macOS:
+   source .venv/bin/activate
+   ```
 
-# Install dependencies
-pip install -r requirements.txt
+4. **Install Dependencies**
+   Download and install all necessary libraries (FastAPI, SQLAlchemy, etc.) listed in the requirements file.
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# Create .env file
-cp ../ENV_EXAMPLE.md .env
-# Edit .env with your configuration
+5. **Configure Environment Variables**
+   Set up your secure keys and database connection strings by copying the example file.
+   ```bash
+   cp env.example .env
+   # IMPORTANT: Open .env and add your API keys (Google, OpenAI, Database URL)
+   ```
 
-# Start the backend server
-uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
-```
+6. **Start the Server**
+   Launch the backend API with hot-reload enabled.
+   ```bash
+   # Optional: Check database connection first
+   # python check_database.py
+   
+   uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+   ```
 
 #### Frontend Setup
 
@@ -257,7 +278,7 @@ NEXT_PUBLIC_WS_URL=wss://your-backend-domain.com/ws
 ## 📁 Project Structure
 
 ```
-MIT_project/
+MIT-Project-Web/
 ├── backend/
 │   ├── api/
 │   │   └── main.py           # FastAPI application
