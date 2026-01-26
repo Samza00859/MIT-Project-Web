@@ -74,14 +74,6 @@ const TRANSLATIONS = {
                 ]
             },
             step2: {
-                title: "Monitor Progress",
-                desc: "Watch the analysis unfold in real-time.",
-                points: [
-                    { title: "Progress Bar", desc: "Track the completion status of Data Gathering, Research, and Trading phases." },
-                    { title: "Live Logs", desc: "View detailed internal logs to see what each agent is doing." }
-                ]
-            },
-            step3: {
                 title: "Review Results",
                 desc: "Analyze the generated report.",
                 points: [
@@ -89,7 +81,7 @@ const TRANSLATIONS = {
                     { title: "Detailed Report", desc: "Read the full thesis, including Bull vs Bear arguments and financial metrics." }
                 ]
             },
-            step4: {
+            step3: {
                 title: "View History",
                 desc: "Access past analyses.",
                 points: [
@@ -139,11 +131,11 @@ const TRANSLATIONS = {
         execution: {
             header: "การดำเนินการและบริหารความเสี่ยง",
             subheader: "หน่วยตัดสินใจ: แปลงบทวิเคราะห์ให้เป็นคำสั่งซื้อขายจริง",
-            trader: { title: "หัวหน้าเทรดเดอร์", desc: "ผู้ตัดสินใจหลัก: สังเคราะห์การอภิปรายระหว่าง Bull และ Bear เพื่อกำหนดสัญญาณสุดท้าย (ซื้อ/ขาย/รอ) พร้อมคะแนนความมั่นใจ" },
+            trader: { title: "หัวหน้าเทรดเดอร์", desc: "ผู้ตัดสินใจหลัก: สังเคราะห์การอภิปรายระหว่าง Bull และ Bear เพื่อกำหนดสัญญาณสุดท้าย\n(ซื้อ/ขาย/รอ) พร้อมคะแนนความมั่นใจ" },
             submit: "ส่งแผนการเทรด",
             risk: { title: "ผู้ควบคุมความเสี่ยง", desc: "ตรวจสอบคำสั่งซื้อขาย: คำนวณขนาดพอร์ต, จุดตัดขาดทุน และจุดทำกำไรตามค่าความผันผวน (ATR)" },
             manager: { title: "ผู้จัดการพอร์ตการลงทุน", desc: "การอนุมัติสุดท้าย: ตรวจสอบครั้งสุดท้ายและดำเนินการส่งคำสั่งเข้าระบบ" },
-            levels: { aggressive: "รุกรุก", neutral: "กลางๆ", conservative: "รักษาตัว" }
+            levels: { aggressive: "เชิงรุก", neutral: "สมดุล", conservative: "เชิงรับ" }
         },
         tutorials: {
             header: "คู่มือการใช้งาน",
@@ -157,14 +149,6 @@ const TRANSLATIONS = {
                 ]
             },
             step2: {
-                title: "ติดตามความคืบหน้า",
-                desc: "ดูการวิเคราะห์แบบเรียลไทม์",
-                points: [
-                    { title: "แถบความคืบหน้า", desc: "ติดตามสถานะความสำเร็จของแต่ละขั้นตอน: การรวบรวมข้อมูล, การวิจัย และการเทรด" },
-                    { title: "บันทึกสด", desc: "ดูบันทึกรายละเอียดภายในเพื่อดูว่าแต่ละตัวแทนกำลังทำอะไรอยู่" }
-                ]
-            },
-            step3: {
                 title: "ตรวจสอบผลลัพธ์",
                 desc: "วิเคราะห์รายงานที่ระบบสร้างขึ้น",
                 points: [
@@ -172,7 +156,7 @@ const TRANSLATIONS = {
                     { title: "รายงานฉบับเต็ม", desc: "อ่านบทวิเคราะห์ทั้งหมด รวมถึงข้อโต้แย้งของทั้งฝั่ง Bull และ Bear และตัวชี้วัดทางการเงิน" }
                 ]
             },
-            step4: {
+            step3: {
                 title: "ดูประวัติ",
                 desc: "เข้าถึงการวิเคราะห์ย้อนหลัง",
                 points: [
@@ -373,13 +357,13 @@ export default function ViewDocsPage() {
             )}
 
             {/* Floating Controls (Top Right) */}
-            <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
+            <div className="fixed top-6 right-28 z-50 flex items-center gap-3">
                 {/* Download Docs Button */}
                 <a
                     href="https://arxiv.org/pdf/2412.20138"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all hover:scale-105 ${isDarkMode
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm border border-transparent transition-all hover:scale-105 ${isDarkMode
                         ? "bg-[#2df4c6] text-[#020617] hover:bg-[#26dcb2] shadow-[0_0_20px_rgba(45,244,198,0.3)]"
                         : "bg-[#2563EB] text-white hover:bg-[#1d4ed8] shadow-lg shadow-blue-500/30"
                         }`}
@@ -399,7 +383,7 @@ export default function ViewDocsPage() {
                     <h1 className={`text-4xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent pb-2 text-glow ${isDarkMode ? 'bg-linear-to-r from-white via-[#2df4c6] to-white' : 'bg-linear-to-r from-slate-900 via-blue-600 to-slate-900'}`}>
                         {t.title}
                     </h1>
-                    <p className={`max-w-3xl text-xl md:text-2xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>
+                    <p className={`max-w-3xl text-xl md:text-2xl leading-relaxed break-words ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>
                         {t.description}
                     </p>
 
@@ -410,21 +394,21 @@ export default function ViewDocsPage() {
                                 <BrainCircuit size={24} />
                             </div>
                             <h3 className="text-xl font-bold mb-2">{t.features.collab.title}</h3>
-                            <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.features.collab.desc}</p>
+                            <p className={`text-base leading-relaxed break-words ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.features.collab.desc}</p>
                         </div>
                         <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-slate-900/50 border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
                             <div className="h-10 w-10 rounded-lg bg-[#2df4c6]/20 text-[#2df4c6] flex items-center justify-center mb-4">
                                 <Search size={24} />
                             </div>
                             <h3 className="text-xl font-bold mb-2">{t.features.diverse.title}</h3>
-                            <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.features.diverse.desc}</p>
+                            <p className={`text-base leading-relaxed break-words ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.features.diverse.desc}</p>
                         </div>
                         <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-slate-900/50 border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
                             <div className="h-10 w-10 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center mb-4">
                                 <Gavel size={24} />
                             </div>
                             <h3 className="text-xl font-bold mb-2">{t.features.debate.title}</h3>
-                            <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.features.debate.desc}</p>
+                            <p className={`text-base leading-relaxed break-words ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.features.debate.desc}</p>
                         </div>
                     </div>
                 </section>
@@ -457,7 +441,7 @@ export default function ViewDocsPage() {
                                         {idx + 1}
                                     </div>
                                     <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-                                    <p className={`text-base px-4 ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{step.desc}</p>
+                                    <p className={`text-base px-4 leading-relaxed break-words ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{step.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -476,7 +460,7 @@ export default function ViewDocsPage() {
                         <div className={`grid grid-cols-1 lg:grid-cols-[300px_1fr] border-b ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                             <div className={`p-8 flex flex-col justify-center border-r ${isDarkMode ? 'bg-blue-900/20 border-slate-700/50' : 'bg-blue-50 border-slate-100'}`}>
                                 <h3 className="text-2xl font-bold text-blue-400 mb-2">{t.teams.analyst.title}</h3>
-                                <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.teams.analyst.desc}</p>
+                                <p className={`text-base leading-relaxed break-words ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.teams.analyst.desc}</p>
                             </div>
                             <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 <TeamMemberCard isDarkMode={isDarkMode} title={t.teams.analyst.market.title} icon={<BarChart />} desc={t.teams.analyst.market.desc} color="text-cyan-400" />
@@ -490,7 +474,7 @@ export default function ViewDocsPage() {
                         <div className={`grid grid-cols-1 lg:grid-cols-[300px_1fr] ${isDarkMode ? 'bg-green-900/5' : 'bg-slate-50'}`}>
                             <div className={`p-8 flex flex-col justify-center border-r ${isDarkMode ? 'bg-green-900/20 border-slate-700/50' : 'bg-green-50 border-slate-100'}`}>
                                 <h3 className="text-2xl font-bold text-green-400 mb-2">{t.teams.research.title}</h3>
-                                <p className={`text-base ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.teams.research.desc}</p>
+                                <p className={`text-base leading-relaxed break-words ${isDarkMode ? 'opacity-70' : 'text-slate-700'}`}>{t.teams.research.desc}</p>
                             </div>
                             <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <TeamMemberCard isDarkMode={isDarkMode} title={t.teams.research.manager.title} icon={<Briefcase />} desc={t.teams.research.manager.desc} color={isDarkMode ? "text-white" : "text-slate-700"} />
@@ -505,7 +489,7 @@ export default function ViewDocsPage() {
                 <section id="trader-team" className={`rounded-3xl border p-8 md:p-12 relative overflow-hidden text-center ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
                     <div className="relative z-10 mb-12">
                         <h2 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.header}</h2>
-                        <p className={`mt-2 text-base ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.subheader}</p>
+                        <p className={`mt-2 text-base leading-relaxed break-words ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.subheader}</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
@@ -515,7 +499,7 @@ export default function ViewDocsPage() {
                                 <Zap size={40} />
                             </div>
                             <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.trader.title}</h3>
-                            <p className={`text-base ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.trader.desc}</p>
+                            <p className={`text-base leading-relaxed break-words whitespace-pre-line ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.trader.desc}</p>
                         </div>
 
                         {/* Arrows pointing to Manager */}
@@ -530,11 +514,11 @@ export default function ViewDocsPage() {
                                 <Shield size={40} />
                             </div>
                             <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.risk.title}</h3>
-                            <p className={`text-base ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.risk.desc}</p>
+                            <p className={`text-base leading-relaxed break-words whitespace-pre-line ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.risk.desc}</p>
                             <div className="flex justify-center gap-2 mt-4">
-                                <span className="px-2 py-1 bg-red-500/20 text-red-300 text-[10px] rounded">{t.execution.levels.aggressive}</span>
-                                <span className="px-2 py-1 bg-gray-500/20 text-gray-300 text-[10px] rounded">{t.execution.levels.neutral}</span>
-                                <span className="px-2 py-1 bg-green-500/20 text-green-300 text-[10px] rounded">{t.execution.levels.conservative}</span>
+                                <span className={`px-3 py-1.5 text-xs font-medium rounded-md ${isDarkMode ? 'bg-red-500/20 text-red-300' : 'bg-red-100 text-red-700 border border-red-300'}`}>{t.execution.levels.aggressive}</span>
+                                <span className={`px-3 py-1.5 text-xs font-medium rounded-md ${isDarkMode ? 'bg-gray-500/20 text-gray-300' : 'bg-slate-200 text-slate-700 border border-slate-400'}`}>{t.execution.levels.neutral}</span>
+                                <span className={`px-3 py-1.5 text-xs font-medium rounded-md ${isDarkMode ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-700 border border-green-300'}`}>{t.execution.levels.conservative}</span>
                             </div>
                         </div>
                     </div>
@@ -546,7 +530,7 @@ export default function ViewDocsPage() {
                                 <Gavel size={32} />
                             </div>
                             <h3 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.execution.manager.title}</h3>
-                            <p className={`text-base max-w-md ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.manager.desc}</p>
+                            <p className={`text-base max-w-3xl whitespace-pre-line ${isDarkMode ? 'text-slate-400' : 'text-slate-800'}`}>{t.execution.manager.desc}</p>
                         </div>
                     </div>
                 </section>
@@ -554,7 +538,7 @@ export default function ViewDocsPage() {
                 {/* TUTORIALS SECTION */}
                 <section id="tutorials-header" className="pt-16 pb-32">
                     <div className="text-center mb-16">
-                        <h2 className={`text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent ${isDarkMode ? 'bg-linear-to-r from-white via-slate-200 to-slate-400' : 'bg-linear-to-r from-slate-900 via-slate-700 to-slate-500'}`}>
+                        <h2 className={`text-3xl md:text-5xl font-bold mb-4 pt-2 leading-normal bg-clip-text text-transparent ${isDarkMode ? 'bg-linear-to-r from-white via-slate-200 to-slate-400' : 'bg-linear-to-r from-slate-900 via-slate-700 to-slate-500'}`}>
                             {t.tutorials.header}
                         </h2>
                         <p className={`text-xl max-w-2xl mx-auto ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>
@@ -579,7 +563,7 @@ export default function ViewDocsPage() {
                                             <div className="mt-1 text-green-400"><CheckCircle2 size={20} /></div>
                                             <div>
                                                 <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
-                                                <div className={`text-base ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
+                                                <div className={`text-base leading-relaxed break-words ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
                                             </div>
                                         </li>
                                     ))}
@@ -595,7 +579,7 @@ export default function ViewDocsPage() {
                             </div>
                         </div>
 
-                        {/* Step 2: Reports */}
+                        {/* Step 2: Reports (formerly Step 3) */}
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                             <div className="lg:order-2 lg:col-span-5 space-y-6">
                                 <div className="flex items-center gap-4 mb-2">
@@ -609,7 +593,7 @@ export default function ViewDocsPage() {
                                             <div className="mt-1 text-orange-400"><CheckCircle2 size={20} /></div>
                                             <div>
                                                 <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
-                                                <div className={`text-base ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
+                                                <div className={`text-base leading-relaxed break-words ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
                                             </div>
                                         </li>
                                     ))}
@@ -617,17 +601,24 @@ export default function ViewDocsPage() {
                             </div>
                             <div className="lg:order-1 lg:col-span-7 relative group">
                                 <div className="absolute -inset-1 bg-linear-to-r from-orange-600 to-red-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
-                                <img
-                                    src={isDarkMode ? "/progress.png" : "/progress_w.png"}
-                                    alt="Analysis Progress UI"
-                                    className="relative w-full h-auto rounded-2xl shadow-2xl border border-white/10"
-                                />
+                                <div className="flex flex-col gap-6">
+                                    <img
+                                        src={isDarkMode ? "/summary.png" : "/summary_w.png"}
+                                        alt="Analysis Summary UI"
+                                        className="relative w-full h-auto rounded-2xl shadow-2xl border border-white/10"
+                                    />
+                                    <img
+                                        src={isDarkMode ? "/report.png" : "/report_w.png"}
+                                        alt="Analysis Report UI"
+                                        className="relative w-full h-auto rounded-2xl shadow-2xl border border-white/10"
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        {/* Step 3: Telegram */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                            <div className="lg:col-span-5 space-y-6">
+                        {/* Step 3: History (formerly Step 4) */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            <div className="space-y-6">
                                 <div className="flex items-center gap-4 mb-2">
                                     <div className="text-blue-500 bg-blue-500/10 p-3 rounded-full font-bold">3</div>
                                     <h3 className="text-2xl font-bold">{t.tutorials.step3.title}</h3>
@@ -636,52 +627,17 @@ export default function ViewDocsPage() {
                                 <ul className="space-y-4 pt-4">
                                     {t.tutorials.step3.points.map((point, idx) => (
                                         <li key={idx} className="flex gap-4">
-                                            <div className="mt-1 text-blue-400"><Smartphone size={20} /></div>
+                                            <div className="mt-1 text-blue-400"><FileText size={20} /></div>
                                             <div>
                                                 <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
-                                                <div className={`text-base ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
+                                                <div className={`text-base leading-relaxed break-words ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
                                             </div>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
-                            <div className="lg:col-span-7 flex flex-col gap-6 relative group">
-                                <div className="absolute -inset-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-[3rem] blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
-                                <img
-                                    src={isDarkMode ? "/summary.png" : "/summary_w.png"}
-                                    alt="Analysis Summary UI"
-                                    className="relative w-full h-auto rounded-2xl shadow-2xl border border-white/10"
-                                />
-                                <img
-                                    src={isDarkMode ? "/report.png" : "/report_w.png"}
-                                    alt="Analysis Report UI"
-                                    className="relative w-full h-auto rounded-2xl shadow-2xl border border-white/10"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Step 4: Export */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                            <div className="lg:order-2 space-y-6">
-                                <div className="flex items-center gap-4 mb-2">
-                                    <div className="text-slate-400 bg-slate-500/10 p-3 rounded-full font-bold">4</div>
-                                    <h3 className="text-2xl font-bold">{t.tutorials.step4.title}</h3>
-                                </div>
-                                <p className={`text-xl leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>{t.tutorials.step4.desc}</p>
-                                <ul className="space-y-4 pt-4">
-                                    {t.tutorials.step4.points.map((point, idx) => (
-                                        <li key={idx} className="flex gap-4">
-                                            <div className="mt-1 text-slate-400"><FileText size={20} /></div>
-                                            <div>
-                                                <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{point.title}</div>
-                                                <div className={`text-base ${isDarkMode ? 'text-slate-500' : 'text-slate-700'}`}>{point.desc}</div>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <div className="lg:order-1 relative group flex justify-center">
-                                <div className="absolute -inset-1 bg-linear-to-r from-slate-600 to-slate-400 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                            <div className="relative group flex justify-center">
+                                <div className="absolute -inset-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
                                 <img
                                     src={isDarkMode ? "/history.png" : "/history_w.png"}
                                     alt="Analysis History UI"
@@ -708,7 +664,14 @@ function TeamMemberCard({ title, icon, desc, color, isDarkMode }: { title: strin
                 {React.cloneElement(icon as React.ReactElement, { size: 24 })}
                 <h4 className={`font-bold text-base tracking-wide ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{title}</h4>
             </div>
-            <p className={`text-sm leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>{desc}</p>
+            <p className={`text-sm leading-relaxed break-words ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>
+                {desc.split('\n').map((line, i) => (
+                    <React.Fragment key={i}>
+                        {line}
+                        {i < desc.split('\n').length - 1 && <br />}
+                    </React.Fragment>
+                ))}
+            </p>
         </div>
     );
 }

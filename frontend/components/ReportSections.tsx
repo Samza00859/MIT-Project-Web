@@ -4,7 +4,7 @@ import TelegramConnect from "./TelegramConnect";
 import { TEAM_KEYS } from "../lib/constants";
 
 interface ReportSectionsProps {
-    reportSections: { key: string; label: string; text: string }[];
+    reportSections: { key: string; label: string; text: any }[]; // Changed from string to any to support parsed objects
     isDarkMode: boolean;
     ticker: string;
     analysisDate: string;
@@ -47,18 +47,65 @@ interface ReportSectionsDisplayProps extends ReportSectionsProps {
     setLanguage?: (lang: "en" | "th") => void;
     isTranslating?: boolean;
     teamState?: any;
-    telegramData?: { key: string; label: string; text: string }[];
+    telegramData?: { key: string; label: string; text: any }[];
 }
 
 // Helper to render Markdown text (with bold/list support)
-function RenderMarkdown({ text }: { text: string }) {
+function RenderMarkdown({ text, skipFirstBullet = false }: { text: string; skipFirstBullet?: boolean }) {
     if (!text) return null;
+
+    // Clean up raw JSON-like characters that shouldn't be displayed
+    let cleanText = text
+        .replace(/\\n/g, '\n') // Convert literal \n to real newline
+        .replace(/\\r/g, '')   // Remove literal \r
+        .replace(/\\"/g, '"')  // Unescape double quotes
+        .replace(/\\'/g, "'"); // Unescape single quotes
+
+    // Remove surrounding quotes if the entire text is wrapped in them
+    if ((cleanText.startsWith('"') && cleanText.endsWith('"')) || (cleanText.startsWith("'") && cleanText.endsWith("'"))) {
+        cleanText = cleanText.substring(1, cleanText.length - 1);
+    }
+
+    cleanText = cleanText
+        .replace(/^\s*\{\s*$/gm, '') // Remove lines with just {
+        .replace(/^\s*\}\s*$/gm, '') // Remove lines with just }
+        .replace(/^\s*\[\s*$/gm, '') // Remove lines with just [
+        .replace(/^\s*\]\s*$/gm, '') // Remove lines with just ]
+        .replace(/^"([^"]+)":\s*"([^"]*)",?\s*$/gm, '$1: $2') // Convert "key": "value" to key: value
+        .replace(/^'([^']+)'\s*:\s*'([^']*)',?\s*$/gm, '$1: $2') // Convert 'key': 'value' to key: value
+        .replace(/^"([^"]+)":\s*$/gm, '$1:') // Convert "key": to key:
+        .replace(/^'([^']+)'\s*:\s*$/gm, '$1:') // Convert 'key': to key:
+        // Specific fix for "n\" or similar artifacts mentioned by user
+        .replace(/\\n\\/g, '\n')
+        .replace(/\\$/gm, '') // Remove trailing backslashes at end of lines
+        .trim();
+
+    let isFirstContentLine = true;
+
     return (
         <div className="space-y-2">
-            {text.split("\n").map((line, idx) => {
+            {cleanText.split("\n").map((line, idx) => {
                 const trimmed = line.trim();
                 if (!trimmed) return <br key={idx} />; // Preserve empty lines
-                if (/^[-*•]/.test(trimmed)) {
+
+                const isBulletLine = /^[-*•]/.test(trimmed);
+
+                // Skip bullet for first content line if requested
+                if (isBulletLine && isFirstContentLine && skipFirstBullet) {
+                    isFirstContentLine = false;
+                    return (
+                        <p
+                            key={idx}
+                            dangerouslySetInnerHTML={{
+                                __html: formatInlineMarkdown(trimmed.replace(/^[-*•]\s*/, "")),
+                            }}
+                        />
+                    );
+                }
+
+                if (trimmed) isFirstContentLine = false;
+
+                if (isBulletLine) {
                     return (
                         <div key={idx} className="ml-4 flex items-start gap-2">
                             <span className="mt-1.5 h-1.5 w-1.5 min-w-[6px] rounded-full bg-current opacity-60" />
@@ -521,15 +568,15 @@ export default function ReportSections({
                 </div>
             </header>
             <article
-                className={`flex-1 min-h-[150px] sm:min-h-[200px] overflow-auto rounded-2xl p-3 sm:p-4 text-xs sm:text-sm leading-relaxed text-[#8b94ad] md:p-6 md:text-base lg:p-6 ${isDarkMode ? "bg-[#090d17]" : "bg-gray-50"
+                className={`flex-1 min-h-[150px] sm:min-h-[200px] overflow-auto rounded-2xl p-3 sm:p-4 text-xs sm:text-sm leading-relaxed md:p-6 md:text-base lg:p-6 ${isDarkMode ? "bg-[#090d17] text-[#8b94ad]" : "bg-gray-50 text-gray-700"
                     }`}
             >
                 {reportSections.length === 0 ? (
                     <div className="flex h-full min-h-[200px] flex-col items-center justify-center opacity-70">
                         {isRunning ? (
                             <div className="flex flex-col items-center gap-4 animate-pulse">
-                                <div className={`h-10 w-10 animate-spin rounded-full border-4 border-t-transparent ${isDarkMode ? "border-[#2df4c6]" : "border-teal-900"}`}></div>
-                                <p className={`font-medium text-center px-4 ${isDarkMode ? "text-[#2df4c6]" : "text-teal-900"}`}>
+                                <div className={`h-10 w-10 animate-spin rounded-full border-4 border-t-transparent ${isDarkMode ? "border-[#2df4c6]" : "border-emerald-700"}`}></div>
+                                <p className={`font-medium text-center px-4 ${isDarkMode ? "text-[#2df4c6]" : "text-emerald-800"}`}>
                                     {(() => {
                                         if (teamState) {
                                             for (const teamKey of TEAM_KEYS) {
@@ -563,7 +610,7 @@ export default function ReportSections({
                                 className={`mb-6 flex items-center gap-3 text-lg font-bold tracking-tight ${isDarkMode ? "text-[#f8fbff]" : "text-gray-900"
                                     }`}
                             >
-                                <span className="flex h-6 w-6 items-center justify-center rounded bg-[#2df4c6]/20 text-xs text-[#2df4c6]">
+                                <span className={`flex h-6 w-6 items-center justify-center rounded text-xs font-semibold ${isDarkMode ? "bg-[#2df4c6]/20 text-[#2df4c6]" : "bg-emerald-100 text-emerald-800 border border-emerald-300"}`}>
                                     {idx + 1}
                                 </span>
                                 {section.label}
@@ -619,6 +666,17 @@ export default function ReportSections({
                                                         const isDecision = /decision|recommendation|verdict|summary|overview|ตัดสินใจ|แนะนำ|สรุป|ภาพรวม/i.test(title);
 
                                                         if (isDecision) {
+                                                            // Try to parse content as JSON first
+                                                            let decisionContent: any = content;
+                                                            let isJson = false;
+                                                            try {
+                                                                const trimmed = content.trim();
+                                                                if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+                                                                    decisionContent = JSON.parse(trimmed);
+                                                                    isJson = true;
+                                                                }
+                                                            } catch (e) { /* ignore */ }
+
                                                             // Render as Box (like Judge Decision)
                                                             return (
                                                                 <div
@@ -632,7 +690,11 @@ export default function ReportSections({
                                                                         {title}
                                                                     </h4>
                                                                     <div className="text-lg font-medium leading-relaxed opacity-90">
-                                                                        <RenderMarkdown text={content} />
+                                                                        {isJson ? (
+                                                                            <RenderJsonData data={decisionContent} isDarkMode={isDarkMode} />
+                                                                        ) : (
+                                                                            <RenderMarkdown text={content} />
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                             );
@@ -673,7 +735,7 @@ export default function ReportSections({
                                             ? "border-white/10 bg-white/5"
                                             : "border-gray-200 bg-white"
                                             }`}>
-                                            <RenderMarkdown text={section.text} />
+                                            <RenderMarkdown text={section.text} skipFirstBullet={true} />
                                         </div>
                                     );
                                 })()}

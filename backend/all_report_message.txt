@@ -30,3 +30,23 @@ Reddit global news have : 40 posts.
 Yfinance global news have : 50 posts.
 Finnhub global news have : 50 posts.
 
+
+🌐 Social Media News: 
+Bluesky news fetched for PTT.BK: 2 posts found.
+📰 News :
+Fetched 0 news items for PTT.BK from Finnhub.
+Yfinance global news have : 48 posts.
+Fetched 3 news items for PTT.BK from YFinance.
+Fetched 0 news items for PTT.BK from Alpha Vantage.
+Finnhub global news have : 50 posts.
+
+
+🌐 Social Media News: 
+Bluesky news fetched for ADVANC.BK: 0 posts found.
+Yfinance global news have : 48 posts.
+📰 News :
+Fetched 0 news items for ADVANC.BK from Finnhub.
+Finnhub global news have : 50 posts.
+
+Fetched 3 news items for ADVANC.BK from YFinance.
+Fetched 0 news items for ADVANC.BK from Alpha Vantage.

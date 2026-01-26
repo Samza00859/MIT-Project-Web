@@ -277,21 +277,7 @@ export default function Sidebar() {
                 {/* Language & Theme Toggles */}
                 {pathname !== "/" && (
                     <div className="mt-auto flex flex-col gap-2">
-                        {/* Language Toggle */}
-                        <div className={`flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
-                            {!isCollapsed && <span>{t.ui.language}</span>}
-                            <button
-                                onClick={toggleLanguage}
-                                className={`flex items-center gap-2 px-2 py-1 rounded-lg border text-xs font-bold transition-all ${isDarkMode
-                                    ? "border-white/10 bg-white/5 hover:bg-white/10 text-white"
-                                    : "border-gray-200 bg-white hover:bg-gray-50 text-gray-700"
-                                    }`}
-                            >
-                                <span className={language === 'en' ? "opacity-100" : "opacity-40"}>EN</span>
-                                <span className="opacity-40">/</span>
-                                <span className={language === 'th' ? "opacity-100" : "opacity-40"}>TH</span>
-                            </button>
-                        </div>
+
 
                         {/* Theme Toggle */}
                         <div className={`flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
@@ -320,21 +306,7 @@ export default function Sidebar() {
                     <>
                         {/* Language & Theme Toggles Container */}
                         <div className="mt-auto flex flex-col gap-2">
-                            {/* Language Toggle */}
-                            <div className={`flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>
-                                {!isCollapsed && <span>{t.ui.language}</span>}
-                                <button
-                                    onClick={toggleLanguage}
-                                    className={`flex items-center gap-2 px-2 py-1 rounded-lg border text-xs font-bold transition-all ${isDarkMode
-                                        ? "border-white/10 bg-white/5 hover:bg-white/10 text-white"
-                                        : "border-gray-200 bg-white hover:bg-gray-50 text-gray-700"
-                                        }`}
-                                >
-                                    <span className={language === 'en' ? "opacity-100" : "opacity-40"}>EN</span>
-                                    <span className="opacity-40">/</span>
-                                    <span className={language === 'th' ? "opacity-100" : "opacity-40"}>TH</span>
-                                </button>
-                            </div>
+
 
                             {/* Theme Toggle */}
                             <div className={`flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"} text-sm ${isDarkMode ? "text-[#8b94ad]" : "text-[#64748B]"}`}>

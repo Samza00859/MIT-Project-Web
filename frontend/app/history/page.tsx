@@ -180,6 +180,127 @@ interface HistoryItem {
 // In-memory cache for logo URLs to avoid repeated fetches
 const logoCache = new Map<string, string>();
 
+// Thai stock ticker to company domain mapping for accurate logo fetching
+const THAI_STOCK_DOMAINS: Record<string, string> = {
+    // Energy & Petrochemical
+    "PTT": "https://www.pttplc.com",
+    // "PTTEP": "https://www.pttep.com" ,
+    "PTTGC": "https://www.pttgcgroup.com",
+    "TOP": "https://www.thaioilgroup.com",
+    "IRPC": "https://www.irpc.co.th",
+    "GPSC": "https://www.gpscgroup.com",
+    "OR": "https://www.pttor.com",
+    "GULF": "https://www.gulf.co.th",
+    // "BGRIM": "https://www.bgrim.com",
+    "RATCH": "https://www.ratch.co.th",
+    "EGCO": "https://www.egco.com",
+    "BANPU": "https://www.banpu.com",
+    "BCP": "https://www.bangchak.co.th",
+
+    // Banking & Finance
+    "KBANK": "https://www.kasikornbank.com",
+    "SCB": "https://www.scb.co.th",
+    "BBL": "https://www.bangkokbank.com",
+    "KTB": "https://www.ktb.co.th",
+    "TMB": "https://www.ttbbank.com",
+    "TTB": "https://www.ttbbank.com",
+    "BAY": "https://www.krungsri.com",
+    "TISCO": "https://www.tisco.co.th",
+    "KKP": "https://www.kkpfg.com",
+    // "TCAP": "https://www.thanachartcapital.co.th",
+
+    // Telecommunication & Technology
+    "ADVANC": "https://www.ais.th",
+    "TRUE": "https://www.truecorp.co.th",
+    "DTAC": "https://www.dtac.co.th",
+    "INTUCH": "https://www.intouchcompany.com",
+    "JAS": "https://www.jasmine.com",
+    "THCOM": "https://www.thaicom.net",
+
+    // Real Estate & Construction
+    "CPN": "https://www.centralpattana.co.th",
+    "LH": "https://www.lh.co.th",
+    "AP": "https://www.apthai.com",
+    "SPALI": "https://www.spali.com",
+    "PSH": "https://www.pruksa.com",
+    "ORI": "https://www.origin.com",
+    "SC": "https://www.scasset.com",
+    "SIRI": "https://www.sansiri.com",
+    "QH": "https://www.qh.co.th",
+    "WHA": "https://www.wha-group.com",
+    "AMATA": "https://www.amata.com",
+    "HEMRAJ": "https://www.hemaraj.com",
+    "SCC": "https://www.scg.com",
+    "TPIPL": "https://www.tpipolene.co.th",
+
+    // Consumer & Retail
+    "CPALL": "https://www.cpall.co.th",
+    // "CP": "https://www.cpthailand.com",
+    "CPF": "https://www.cpfworldwide.com",
+    "MINT": "https://www.minor.com",
+    "CRC": "https://www.centralretail.com",
+    "HMPRO": "https://www.homepro.co.th",
+    "BJC": "https://www.bjc.com",
+    "MAKRO": "https://www.siammakro.co.th",
+    "GLOBAL": "https://www.globalhouse.co.th",
+    "COM7": "https://www.com7.com",
+    "OSP": "https://www.osotspa.com",
+    "CBG": "https://www.carabao.co.th",
+
+    // Healthcare
+    "BDMS": "https://www.bdms.co.th",
+    "BH": "https://www.bumrungrad.com",
+    "BCH": "https://www.bangkokchainhospital.com",
+    // "CHG": "https://www.chularat.com",
+    // "THG": "https://www.thonburihealth.com",
+    // "RJH": "https://www.rajavithi.go.th",
+
+    // Transportation & Logistics
+    "AOT": "https://www.airportthai.co.th",
+    "BEM": "https://www.bangkokmetro.com",
+    // "BTS": "https://www.btsgroup.co.th",
+    "AAV": "https://www.airasiax.com",
+    "BA": "https://www.bangkokair.com",
+    "THAI": "https://www.thaiairways.com",
+
+    // Industrial & Manufacturing
+    "IVL": "https://www.indorama.com",
+    "DELTA": "https://www.deltathailand.com",
+    "PCSGH": "https://www.pcsgh.com",
+    "HANA": "https://www.hanagroup.com",
+    "STA": "https://www.sritranggroup.com",
+    "NER": "https://www.ner.com",
+
+    // Media & Entertainment
+    // "BEC": "https://www.becworld.com",
+    "MONO": "https://www.mono29.com",
+    "GRAMMY": "https://www.grammy.co.th",
+    // "VGI": "https://www.vgigroup.com",
+    "MAJOR": "https://www.majorcineplex.com",
+    "PLANB": "https://www.planbmedia.co.th",
+
+    // Insurance
+    "BLA": "https://www.bangkoklife.com",
+    "TLI": "https://www.thailife.com",
+    "MTL": "https://www.muangthai.co.th",
+
+    // Others
+    "SAWAD": "https://www.sawad.co.th",
+    "MTC": "https://www.mtc.com",
+    "TIDLOR": "https://www.tidlor.com",
+    // "JMT": "https://www.jmt.co.th",
+    "SINGER": "https://www.singer.com",
+    "AWC": "https://www.assetworldcorp.com",
+    "ASSET": "https://www.assetwise.co.th",
+    "CENTEL": "https://www.centarahotelsresorts.com",
+    "ERW": "https://www.theerawan.com",
+    // "DOHOME": "https://www.dohomeonline.com",
+    "BEAUTY": "https://www.beautycommunity.co.th",
+    "JMART": "https://www.jaymart.co.th",
+    // "KLINIQ": "https://www.thekliniq.com",
+    // "MEGA": "https://www.megabangna.com",
+};
+
 function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean }) {
     const [currentSrc, setCurrentSrc] = useState<string>("");
     const [isError, setIsError] = useState(false);
@@ -193,7 +314,8 @@ function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean
         }
 
         const cleanTicker = ticker.trim().toUpperCase();
-        const symbol = cleanTicker.split('.')[0].split('-')[0]; // Handle PTT.BK -> PTT, BTC-USD -> BTC
+        const symbol = cleanTicker.split('.')[0].split('-')[0]; // Handle PTT.BK -> PTT
+        const isThaiStock = cleanTicker.endsWith(".BK");
 
         // Check cache first
         if (logoCache.has(cleanTicker)) {
@@ -207,15 +329,34 @@ function StockLogo({ ticker, isDarkMode }: { ticker: string; isDarkMode: boolean
             return;
         }
 
-        // Build static logo sources (fast, no API call needed)
-        const staticUrls: string[] = [
-            // Parqet (Good for US/EU stocks)
-            `https://assets.parqet.com/logos/symbol/${symbol}?format=png`,
-            // Unavatar (Generic fallback)
-            `https://unavatar.io/${symbol}`,
-            // Google Favicon as last resort
-            `https://www.google.com/s2/favicons?domain=${symbol.toLowerCase()}.com&sz=128`,
-        ];
+        let staticUrls: string[] = [];
+
+        if (isThaiStock) {
+            // Thai stocks: Use domain mapping for accurate logos
+            const domain = THAI_STOCK_DOMAINS[symbol];
+            if (domain) {
+                staticUrls = [
+                    // Google Favicon (reliable, free, no API key needed)
+                    `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+                    // Brandfetch CDN (high quality, free tier available)
+                    `https://cdn.brandfetch.io/${domain}/w/400/h/400`,
+                    // DuckDuckGo icons (another free fallback)
+                    `https://icons.duckduckgo.com/ip3/${domain}.ico`,
+                ];
+            } else {
+                // Unknown Thai stock: use text fallback immediately
+                logoCache.set(cleanTicker, "ERROR");
+                setIsError(true);
+                return;
+            }
+        } else {
+            // Non-Thai stocks: Use standard sources
+            staticUrls = [
+                `https://assets.parqet.com/logos/symbol/${symbol}?format=png`,
+                `https://unavatar.io/${symbol}`,
+                `https://www.google.com/s2/favicons?domain=${symbol.toLowerCase()}.com&sz=128`,
+            ];
+        }
 
         setCandidates(staticUrls);
         setCandidateIndex(0);
@@ -1121,21 +1262,21 @@ export default function HistoryPage() {
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
                                     className={`flex-1 px-3 py-2 rounded-xl border text-sm appearance-none outline-none ${isDarkMode
-                                        ? "bg-white/5 border-white/10 text-white"
+                                        ? "bg-white/5 border-white/10 text-white [&>option]:bg-[#0b0e14]"
                                         : "bg-gray-50 border-gray-200 text-gray-700"
                                         }`}
                                 >
                                     <option value="all">{t.sidebar.filters.allStatus}</option>
                                     <option value="success">{t.sidebar.filters.success}</option>
                                     <option value="error">{t.sidebar.filters.error}</option>
-                                    <option value="executing">{t.sidebar.filters.executing}</option>
+
                                 </select>
 
                                 <select
                                     value={timeFilter}
                                     onChange={(e) => setTimeFilter(e.target.value)}
                                     className={`flex-1 px-3 py-2 rounded-xl border text-sm appearance-none outline-none ${isDarkMode
-                                        ? "bg-white/5 border-white/10 text-white"
+                                        ? "bg-white/5 border-white/10 text-white [&>option]:bg-[#0b0e14]"
                                         : "bg-gray-50 border-gray-200 text-gray-700"
                                         }`}
                                 >
@@ -1230,7 +1371,7 @@ export default function HistoryPage() {
                                                 : (item.status === "executing" && item.reports.length === 0)
                                                     ? "bg-red-500 text-white"
                                                     : item.status === "executing"
-                                                        ? "bg-yellow-500 text-black"
+                                                        ? "bg-yellow-600 text-black"
                                                         : "bg-red-500 text-white"
                                                 }`}>
                                                 {item.status === "executing" && item.reports.length === 0
@@ -1244,7 +1385,7 @@ export default function HistoryPage() {
                                                                 : item.status.toUpperCase()}
                                             </span>
                                         </div>
-                                        <div className="font-bold text-sm truncate">{item.ticker} - {language === 'th' ? new Date(item.analysis_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : item.analysis_date}</div>
+                                        <div className="font-bold text-sm truncate">{item.ticker.replace('.BK', '')} - {language === 'th' ? new Date(item.analysis_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : item.analysis_date}</div>
                                         <div className="text-[11px] opacity-40 mt-1">
                                             {new Date(item.timestamp).toLocaleString(language === 'th' ? 'th-TH' : 'en-US', {
                                                 month: 'short',
@@ -1283,10 +1424,10 @@ export default function HistoryPage() {
                                 </svg>
                                 {t.detail.back}
                             </button>
-                            <header className={`sticky top-0 z-20 flex flex-wrap justify-between items-end gap-4 pb-4 mb-4 -mx-8 px-8 pt-4 border-b ${isDarkMode ? "bg-[#03161b] border-white/5" : "bg-[#f5f8fa] border-gray-200"}`}>
+                            <header className={`sticky top-0 z-20 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-4 mb-4 -mx-8 px-8 pt-4 border-b ${isDarkMode ? "bg-[#03161b] border-white/5" : "bg-[#f5f8fa] border-gray-200"}`}>
                                 <div>
                                     <div className="flex flex-wrap items-center gap-4 mb-2">
-                                        <h1 className="text-4xl font-bold">{selectedItem.ticker}</h1>
+                                        <h1 className="text-4xl font-bold">{selectedItem.ticker.replace('.BK', '')}</h1>
                                         {(() => {
                                             const finalReport = selectedItem.reports.find(r => r.report_type === 'conclusion');
                                             let decision = null;
@@ -1332,7 +1473,7 @@ export default function HistoryPage() {
                                         <p className="opacity-50 text-sm whitespace-nowrap">{t.detail.analysisFor} {language === 'th' ? new Date(selectedItem.analysis_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : selectedItem.analysis_date}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 flex-wrap gap-y-2 mt-10 md:mt-0 pr-20">
                                     {/* Language Toggle */}
                                     {/* Removed redundant toggle from here as it is now in sidebar */}
 
@@ -1431,7 +1572,7 @@ export default function HistoryPage() {
                                             return (
                                                 <div key={idx} className={`p-6 rounded-[20px] border ${isDarkMode ? "bg-[#111726] border-white/5 shadow-[0_4px_20_rgba(0,0,0,0.3)]" : "bg-white border-gray-200 shadow-sm"}`}>
                                                     <h3 className="text-xl font-bold mb-6 flex items-center gap-3 border-b border-white/5 pb-4">
-                                                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2df4c6]/20 text-sm text-[#2df4c6]">
+                                                        <span className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${isDarkMode ? 'bg-[#2df4c6]/20 text-[#2df4c6]' : 'bg-teal-100 text-teal-700'}`}>
                                                             {idx + 1}
                                                         </span>
                                                         {section.label}
@@ -1440,7 +1581,7 @@ export default function HistoryPage() {
                                                     <div className="space-y-8">
                                                         {viewMode === "summary" && section.sum && (
                                                             <div className={`p-5 rounded-2xl ${isDarkMode ? "bg-white/5" : "bg-gray-50"}`}>
-                                                                <h4 className="text-xs font-bold uppercase tracking-widest opacity-50 mb-3 text-[#2df4c6]">{t.detail.headers.execSum}</h4>
+                                                                <h4 className={`text-xs font-bold uppercase tracking-widest mb-3 ${isDarkMode ? 'opacity-50 text-[#2df4c6]' : 'text-teal-700'}`}>{t.detail.headers.execSum}</h4>
                                                                 <div className="opacity-90">
                                                                     {typeof section.sum === 'string' ? (
                                                                         <RenderMarkdown text={section.sum} />

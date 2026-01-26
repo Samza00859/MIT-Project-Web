@@ -10,7 +10,7 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "EXECUTIVE SUMMARY": "บทสรุปผู้บริหาร",
     "VALUATION STATUS": "สถานะการประเมินมูลค่า",
     "COMPREHENSIVE METRICS": "ตัวชี้วัดที่ครอบคลุม",
-    
+
     // Financial metrics
     "REVENUE GROWTH YEAR OVER YEAR": "การเติบโตของรายได้รายปี",
     "NET PROFIT MARGIN": "อัตรากำไรสุทธิ",
@@ -18,7 +18,7 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "DEBT TO EQUITY RATIO": "อัตราส่วนหนี้สินต่อทุน",
     "RETURN ON EQUITY": "ผลตอบแทนต่อส่วนของผู้ถือหุ้น (ROE)",
     "FREE CASH FLOW STATUS": "สถานะกระแสเงินสดอิสระ",
-    
+
     // Analysis sections
     "KEY STRENGTHS ANALYSIS": "การวิเคราะห์จุดแข็งหลัก",
     "KEY RISKS ANALYSIS": "การวิเคราะห์ความเสี่ยงหลัก",
@@ -35,14 +35,14 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "PORTFOLIO RECOMMENDATION": "คำแนะนำการจัดพอร์ต",
     "INVESTMENT PLAN": "แผนการลงทุน",
     "TRADE DECISION": "การตัดสินใจซื้อขาย",
-    
+
     // Basic info fields
     "TICKER": "รหัสหุ้น",
     "DATE": "วันที่",
     "SYMBOL": "สัญลักษณ์",
     "COMPANY": "บริษัท",
     "SECTOR": "กลุ่มอุตสาหกรรม",
-    
+
     // Market analysis fields
     "MARKET OVERVIEW": "ภาพรวมตลาด",
     "TREND DIRECTION": "ทิศทางแนวโน้ม",
@@ -50,7 +50,7 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "VOLATILITY LEVEL": "ระดับความผันผวน",
     "VOLUME CONDITION": "สภาวะปริมาณการซื้อขาย",
     "INDICATOR ANALYSIS": "การวิเคราะห์ตัวชี้วัด",
-    
+
     // Common fields
     "SIGNAL": "สัญญาณ",
     "IMPLICATION": "ความหมาย",
@@ -62,7 +62,7 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "STATUS": "สถานะ",
     "RESULT": "ผลลัพธ์",
     "RECOMMENDATION": "คำแนะนำ",
-    
+
     // Trend/Direction values
     "UPTREND": "แนวโน้มขาขึ้น",
     "DOWNTREND": "แนวโน้มขาลง",
@@ -70,14 +70,14 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "BULLISH": "บวก",
     "BEARISH": "ลบ",
     "NEUTRAL": "กลางๆ",
-    
+
     // Volume/Volatility levels
     "HIGH": "สูง",
     "MODERATE": "ปานกลาง",
     "LOW": "ต่ำ",
     "STRONG": "แข็งแกร่ง",
     "WEAK": "อ่อนแอ",
-    
+
     // Technical indicators
     "MOVING AVERAGE": "ค่าเฉลี่ยเคลื่อนที่",
     "RSI": "RSI (ดัชนีความแข็งแกร่งสัมพัทธ์)",
@@ -88,7 +88,7 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "EMA": "EMA (ค่าเฉลี่ยเคลื่อนที่แบบเอ็กซ์โปเนนเชียล)",
     "SMA": "SMA (ค่าเฉลี่ยเคลื่อนที่อย่างง่าย)",
     "VWMA": "VWMA (ค่าเฉลี่ยเคลื่อนที่ถ่วงน้ำหนักด้วยปริมาณ)",
-    
+
     // Price action & technical analysis
     "PRICE ACTION SUMMARY": "สรุปการเคลื่อนไหวของราคา",
     "RECENT HIGH LOW": "จุดสูงสุด-ต่ำสุดล่าสุด",
@@ -102,14 +102,14 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "PRICE TARGET": "เป้าหมายราคา",
     "STOP LOSS": "จุดตัดขาดทุน",
     "ENTRY POINT": "จุดเข้าซื้อ",
-    
+
     // Sentiment values (เพิ่ม Neutral เป็นพิเศษ)
     "POSITIVE": "บวก",
     "NEGATIVE": "ลบ",
     "VERY POSITIVE": "บวกมาก",
     "VERY NEGATIVE": "ลบมาก",
     "MIXED": "ผสม",
-    
+
     // Social Media & News Analysis
     "SENTIMENT VERDICT": "สรุปความรู้สึก",
     "SOCIAL VOLUME": "ปริมาณโซเชียล",
@@ -121,14 +121,14 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "REACH": "การเข้าถึง",
     "SENTIMENT SCORE": "คะแนนความรู้สึก",
     "OVERALL SENTIMENT": "ความรู้สึกโดยรวม",
-    
+
     // Psychology & Market Context
     "PSYCHOLOGY": "จิตวิทยาตลาด",
     "MARKET SENTIMENT VERDICT": "สรุปความรู้สึกของตลาด",
     "GLOBAL MACRO CONTEXT": "บริบทเศรษฐกิจมหภาค",
     "MACRO SUMMARY": "สรุปภาพรวมเศรษฐกิจ",
     "TOP NEWS DEVELOPMENTS": "ข่าวสำคัญล่าสุด",
-    
+
     // Bull/Bear Debate
     "BULL BEAR DEBATE": "การโต้วาทีฝั่งบูล-แบร์",
     "BULL/BEAR DEBATE": "การโต้วาทีฝั่งบูล-แบร์",
@@ -137,26 +137,26 @@ const KEY_TRANSLATIONS: Record<string, string> = {
     "BEAR HISTORY": "ประวัติฝั่งแบร์",
     "BULL HISTORY": "ประวัติฝั่งบูล",
     "CURRENT RESPONSE": "คำตอบปัจจุบัน",
-    
+
     // Risk Debate
     "RISK DEBATE": "การโต้วาทีเรื่องความเสี่ยง",
     "REASONING": "เหตุผล",
     "REFINED TRADER PLAN": "แผนการเทรดที่ปรับปรุงแล้ว",
-    "RISKY HISTORY": "ประวัติฝั่งเสี่ยง",
-    "SAFE HISTORY": "ประวัติฝั่งปลอดภัย",
-    "NEUTRAL HISTORY": "ประวัติฝั่งกลาง",
+    "RISKY HISTORY": "ประวัติฝั่งเชิงรุก",
+    "SAFE HISTORY": "ประวัติฝั่งเชิงรับ",
+    "NEUTRAL HISTORY": "ประวัติฝั่งสมดุล",
     "LATEST SPEAKER": "ผู้พูดล่าสุด",
-    "CURRENT RISKY RESPONSE": "คำตอบฝั่งเสี่ยงปัจจุบัน",
-    "CURRENT SAFE RESPONSE": "คำตอบฝั่งปลอดภัยปัจจุบัน",
-    "CURRENT NEUTRAL RESPONSE": "คำตอบฝั่งกลางปัจจุบัน",
-    
+    "CURRENT RISKY RESPONSE": "คำตอบฝั่งเชิงรุกปัจจุบัน",
+    "CURRENT SAFE RESPONSE": "คำตอบฝั่งเชิงรับปัจจุบัน",
+    "CURRENT NEUTRAL RESPONSE": "คำตอบฝั่งสมดุลปัจจุบัน",
+
     // Plan Validation
     "PLAN VALIDATION": "การตรวจสอบแผน",
     "AGREEMENT STATUS": "สถานะความเห็นพ้อง",
     "VALIDATION NOTES": "หมายเหตุการตรวจสอบ",
     "FINAL DECISION SIGNAL": "สัญญาณการตัดสินใจขั้นสุดท้าย",
     "TRADER COMMENTARY": "ความคิดเห็นของเทรดเดอร์",
-    
+
     // Additional common fields
     "CONTEXT": "บริบท",
     "ANALYSIS": "การวิเคราะห์",

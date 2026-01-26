@@ -197,57 +197,41 @@ export default function IntroductionPage() {
                 </div>
             )}
 
-            {/* Navigation Bar - Blurred */}
-            <nav className={`absolute top-0 left-0 right-0 z-50 flex items-center justify-end px-8 py-4 backdrop-blur-xl border-b ${isDarkMode
-                ? 'bg-black/10 border-white/5'
-                : 'bg-white/15 border-[#E2E8F0]/20'
-                }`}>
-                <div className="flex gap-6 items-center">
-                    {/* View Docs Link */}
-                    <Link
-                        href="/docs"
-                        className={`text-sm font-medium transition-colors duration-200 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded ${isDarkMode
-                            ? 'text-white/80 hover:text-[#2df4c6] focus-visible:ring-[#2df4c6]'
-                            : 'text-[#64748B] hover:text-[#2563EB] focus-visible:ring-[#2563EB]'
-                            }`}
-                    >
-                        {t.viewDocs}
-                    </Link>
+            {/* Floating Controls (Top Right) - Positioned to left of Global Language Switcher */}
+            <div className="fixed top-6 right-36 z-50 flex items-center gap-6">
+                {/* View Docs Link */}
+                <Link
+                    href="/docs"
+                    className={`text-sm font-bold transition-all duration-200 hover:scale-105 ${isDarkMode
+                        ? 'text-white/80 hover:text-[#2df4c6]'
+                        : 'text-[#64748B] hover:text-[#2563EB]'
+                        }`}
+                >
+                    {t.viewDocs}
+                </Link>
 
-                    {/* Language Toggle */}
+                {/* Theme Toggle */}
+                <div className={`flex items-center gap-2 px-1 py-1 rounded-full border shadow-sm transition-all duration-200 ${isDarkMode
+                    ? 'bg-black/20 border-white/20 backdrop-blur-md'
+                    : 'bg-white/50 border-slate-200 backdrop-blur-md'
+                    }`}>
                     <button
-                        onClick={toggleLanguage}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border ${isDarkMode
-                            ? 'border-white/20 text-white/80 hover:bg-white/10 hover:border-[#2df4c6] hover:text-[#2df4c6]'
-                            : 'border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-[#2563EB] hover:text-[#2563EB]'
-                            }`}
+                        onClick={toggleTheme}
+                        className="relative flex items-center cursor-pointer"
+                        aria-label="Toggle Theme"
                     >
-                        <Languages size={14} />
-                        {language === 'en' ? 'TH' : 'EN'}
-                    </button>
-
-
-
-
-
-                    {/* Theme Toggle */}
-                    <label className="relative inline-flex cursor-pointer items-center">
-                        <input
-                            type="checkbox"
-                            checked={!isDarkMode}
-                            onChange={toggleTheme}
-                            className="peer sr-only"
-                        />
-                        <div className={`peer h-6 w-11 rounded-full relative after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-focus:outline-none peer-focus:ring-2 flex items-center justify-between px-1 ${isDarkMode
-                            ? 'bg-gray-700 after:border-gray-300 after:bg-white peer-checked:bg-gray-300 peer-checked:after:border-white peer-focus:ring-[#2df4c6]'
-                            : 'bg-[#CBD5E1] after:border-[#F1F5F9] after:bg-white peer-checked:bg-[#2563EB] peer-checked:after:border-white peer-focus:ring-[#2563EB]'
-                            }`}>
-                            <Moon size={12} className={`text-white transition-opacity ${!isDarkMode ? 'opacity-0' : 'opacity-100'} absolute right-1.5`} />
-                            <Sun size={12} className={`text-white transition-opacity ${isDarkMode ? 'opacity-0' : 'opacity-100'} absolute left-1.5`} />
+                        <div className={`w-10 h-6 rounded-full p-1 transition-colors duration-300 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-300'}`}>
+                            <div className={`w-4 h-4 rounded-full bg-white shadow-md transform transition-transform duration-300 flex items-center justify-center ${isDarkMode ? 'translate-x-4' : 'translate-x-0'}`}>
+                                {isDarkMode ? (
+                                    <Moon size={10} className="text-gray-800" />
+                                ) : (
+                                    <Sun size={10} className="text-yellow-500" />
+                                )}
+                            </div>
                         </div>
-                    </label>
+                    </button>
                 </div>
-            </nav>
+            </div>
 
             {/* Hero Section - Centered */}
             <section className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 pt-20 pb-40 md:pt-32 md:pb-64">
