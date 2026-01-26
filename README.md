@@ -218,18 +218,28 @@ Create `backend/.env` with the following variables:
 # Database
 DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/trading_db
 
-# LLM Provider (choose one)
-GOOGLE_API_KEY=your-google-api-key
-# OPENAI_API_KEY=your-openai-api-key
-# DEEPSEEK_API_KEY=your-deepseek-api-key
-# ANTHROPIC_API_KEY=your-anthropic-api-key
+#key to get datasource
+ALPHA_VANTAGE_API_KEY=""
+TWELVEDATA_API_KEY=""
+FINNHUB_API_KEY=""
+REDDIT_ID=""
+REDDIT_SECRET=""
+REDDIT_USER_AGENT="news-fetcher:v1 (by u/yourname)"
+TV_USERNAME=""
+TV_PASSWORD=""
+BSKY_HANDLE=""
+BSKY_APP_PW=""
+MASTODON_BASE_URL="https://mastodon.social"
+MASTODON_TOKEN=""
 
-# Telegram Notifications (Optional)
-# TELEGRAM_TOKEN=your-telegram-bot-token
-# TELEGRAM_CHAT_ID=your-chat-id
+#key to use model
+GOOGLE_API_KEY=""
+OPENAI_API_KEY=""
+TYPHOON_API_KEY=""
 
-# Data Provider (Optional)
-# ALPHA_VANTAGE_KEY=your-alpha-vantage-key
+#key to sent telegram
+TELEGRAM_TOKEN=""
+TELEGRAM_CHAT_ID=
 ```
 
 ### Frontend Environment Variables (Optional)
