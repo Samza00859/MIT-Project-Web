@@ -1044,18 +1044,456 @@ export default function Home() {
     includeFull: boolean;
   }
 
-  const handleDirectPdfDownload = () => {
+  const handleDirectPdfDownload = async () => {
     const isThai = language === "th";
     const isSummary = reportLength === "summary report";
 
-    const options: PdfOptions = {
-      includeEnglish: !isThai,
-      includeThai: isThai,
-      includeSummary: isSummary,
-      includeFull: !isSummary
+    // Fetch the latest successful history item for this ticker from API (same as History page)
+    try {
+      const apiUrl = getApiUrl();
+      const res = await fetch(`${apiUrl}/api/history/`);
+      if (!res.ok) {
+        alert("ไม่สามารถดึงข้อมูลจากฐานข้อมูลได้");
+        return;
+      }
+
+      const historyData = await res.json();
+
+      // Find the latest successful record for the current ticker
+      const normalizeTicker = (t: string) => t.toUpperCase().replace('.BK', '').trim();
+      const currentTicker = normalizeTicker(ticker);
+
+      const latestItem = historyData.find((item: any) =>
+        normalizeTicker(item.ticker) === currentTicker &&
+        item.status === "success" &&
+        item.reports &&
+        item.reports.length > 0
+      );
+
+      if (!latestItem) {
+        alert("ไม่พบข้อมูลรายงานสำหรับหุ้นนี้ในฐานข้อมูล");
+        return;
+      }
+
+      // Generate PDF using database data (like History page)
+      await generatePdfFromHistoryItem(latestItem, isThai, isSummary);
+
+    } catch (error) {
+      console.error("Failed to fetch history for PDF:", error);
+      alert("เกิดข้อผิดพลาดในการดาวน์โหลด PDF");
+    }
+  };
+
+  // PDF Generation from History Item (Robust implementation from History Page)
+  const generatePdfFromHistoryItem = async (item: any, isThai: boolean, isSummary: boolean) => {
+    const { jsPDF } = await import('jspdf');
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+
+    // Constants from History Page
+    const TITLE_MAP: Record<string, string> = {
+      "market analysis": "Market Analysis (Summary)",
+      "fundamentals analyst": "Fundamentals Analyst (Summary)",
+      "social media analyst": "Social Media Analyst (Summary)",
+      "news analyst": "News Analyst (Summary)",
+      "technical analyst (bull)": "Bull Research (Summary)",
+      "technical analyst (bear)": "Bear Research (Summary)",
+      "research manager": "Research Manager (Summary)",
+      "portfolio manager": "Portfolio Manager (Summary)",
+      "risk analyst": "Risk Analyst (Summary)",
+      "trader": "Trader (Summary)",
+      "neutral analyst": "Neutral Analyst (Summary)",
+      "safe analyst": "Safe Analyst (Summary)",
     };
 
-    generatePdf(options);
+    const REPORT_ORDER = [
+      "Market Analysis (Summary)",
+      "Market Analysis Data",
+      "Fundamentals Analyst (Summary)",
+      "Fundamentals Analyst Data",
+      "Social Media Analyst (Summary)",
+      "Social Media Research",
+      "News Analyst (Summary)",
+      "News Research",
+      "Bull Research (Summary)",
+      "Bull Research Analysis",
+      "Bear Research (Summary)",
+      "Bear Research Analysis",
+      "Research Manager (Summary)",
+      "Research Manager Decision",
+      "Trader (Summary)",
+      "Trader Analysis",
+      "Risk Analyst (Summary)",
+      "Risk Analysis Data",
+      "Neutral Analyst (Summary)",
+      "Neutral Analysis",
+      "Safe Analyst (Summary)",
+      "Safe Analysis",
+      "Portfolio Manager (Summary)",
+      "Portfolio Manager Decision",
+      "Final Trade Decision"
+    ];
+
+    const THAI_LABEL_MAP: Record<string, string> = {
+      "Market Analysis (Summary)": "การวิเคราะห์ตลาด (สรุป)",
+      "Market Analysis Data": "ข้อมูลการวิเคราะห์ตลาด",
+      "Fundamentals Analyst (Summary)": "การวิเคราะห์ปัจจัยพื้นฐาน (สรุป)",
+      "Fundamentals Analyst Data": "ข้อมูลปัจจัยพื้นฐาน",
+      "Social Media Analyst (Summary)": "การวิเคราะห์โซเชียลมีเดีย (สรุป)",
+      "Social Media Research": "การวิจัยโซเชียลมีเดีย",
+      "News Analyst (Summary)": "การวิเคราะห์ข่าว (สรุป)",
+      "News Research": "การวิจัยข่าว",
+      "Bull Research (Summary)": "การวิจัยแนวโน้มขาขึ้น (สรุป)",
+      "Bull Research Analysis": "การวิเคราะห์แนวโนน้มขาขึ้น",
+      "Bear Research (Summary)": "การวิจัยแนวโน้มขาลง (สรุป)",
+      "Bear Research Analysis": "การวิเคราะห์แนวโน้มขาลง",
+      "Research Manager (Summary)": "สรุปจากผู้จัดการงานวิจัย",
+      "Research Manager Decision": "คำตัดสินผู้จัดการงานวิจัย",
+      "Trader (Summary)": "การวิเคราะห์เทรดเดอร์ (สรุป)",
+      "Trader Analysis": "การวิเคราะห์เทรดเดอร์",
+      "Risk Analyst (Summary)": "การวิเคราะห์ความเสี่ยง (สรุป)",
+      "Risk Analysis Data": "ข้อมูลการวิเคราะห์ความเสี่ยง",
+      "Neutral Analyst (Summary)": "การวิเคราะห์แนวโน้มกลาง (สรุป)",
+      "Neutral Analysis": "การวิเคราะห์แนวโน้มกลาง",
+      "Safe Analyst (Summary)": "การวิเคราะห์ความปลอดภัย (สรุป)",
+      "Safe Analysis": "การวิเคราะห์ความปลอดภัย",
+      "Portfolio Manager (Summary)": "สรุปจากผู้จัดการพอร์ต",
+      "Portfolio Manager Decision": "คำตัดสินผู้จัดการพอร์ต",
+      "Final Trade Decision": "คำตัดสินการเทรดขั้นสุดท้าย"
+    };
+
+    // --- Helper Functions ---
+
+    const parseThaiContent_History = (content: any): any => {
+      if (!content) return content;
+      const parseFromMarkdown = (str: string): any => {
+        let textValue = str.trim();
+        const codeBlockMatch = textValue.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?```$/);
+        if (codeBlockMatch) { textValue = codeBlockMatch[1].trim(); }
+        if (textValue.startsWith('{') || textValue.startsWith('[')) {
+          try {
+            return JSON.parse(textValue);
+          } catch (e) {
+            if (textValue.includes('\\n') || textValue.includes('\\"')) {
+              try {
+                const unescaped = textValue.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+                return JSON.parse(unescaped);
+              } catch { return null; }
+            }
+            return null;
+          }
+        }
+        return null;
+      };
+      const deepParse = (obj: any): any => {
+        if (typeof obj === 'string') {
+          const parsed = parseFromMarkdown(obj);
+          if (parsed !== null) return deepParse(parsed);
+          return obj;
+        }
+        if (Array.isArray(obj)) return obj.map(item => deepParse(item));
+        if (typeof obj === 'object' && obj !== null) {
+          const result: Record<string, any> = {};
+          for (const [key, value] of Object.entries(obj)) {
+            result[key] = deepParse(value);
+          }
+          return result;
+        }
+        return obj;
+      };
+      return deepParse(content);
+    };
+
+    const getGroupedSections_History = (item: any, lang: "en" | "th") => {
+      const sectionsMap: Record<string, { sum?: any, full?: any, sum_th?: any, full_th?: any, label_th?: string }> = {};
+      const titlesFound = new Set<string>();
+
+      item.reports.forEach((report: any) => {
+        let title = report.title || "Report";
+        let title_th = report.title_th || title;
+        if (TITLE_MAP[title.toLowerCase()]) { title = TITLE_MAP[title.toLowerCase()]; }
+        if (!sectionsMap[title]) sectionsMap[title] = {};
+        if (title_th) sectionsMap[title].label_th = title_th;
+
+        let content = report.content;
+        if (typeof content === 'object' && content !== null) {
+          content = content.summary || content.text || content.reasoning || content;
+        }
+
+        let content_th = report.content_th;
+        if (content_th) {
+          content_th = parseThaiContent_History(content_th);
+          if (typeof content_th === 'object' && content_th !== null) {
+            content_th = content_th.summary || content_th.text || content_th.reasoning || content_th;
+          }
+        }
+
+        if (report.report_type === "sum_report") {
+          sectionsMap[title].sum = content;
+          if (content_th) sectionsMap[title].sum_th = content_th;
+        } else if (report.report_type === "full_report") {
+          sectionsMap[title].full = report.content;
+          if (report.content_th) {
+            sectionsMap[title].full_th = parseThaiContent_History(report.content_th);
+          }
+        }
+        titlesFound.add(title);
+      });
+
+      const orderedTitles = REPORT_ORDER.filter(title => sectionsMap[title]);
+      const otherTitles = Array.from(titlesFound).filter(t => !REPORT_ORDER.includes(t));
+
+      return [...orderedTitles, ...otherTitles].map(title => {
+        const section = sectionsMap[title];
+        if (lang === "th") {
+          return {
+            label: section.label_th || THAI_LABEL_MAP[title] || title,
+            sum: section.sum_th || section.sum,
+            full: section.full_th || section.full
+          };
+        }
+        return { label: title, sum: section.sum, full: section.full };
+      });
+    };
+
+    const cleanContent = (text: string) => {
+      if (!text || typeof text !== 'string') return '';
+      let cleaned = text.replace(/`/g, "").trim();
+      cleaned = cleaned.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+      cleaned = cleaned.replace(/^\s*\{\s*/, '').replace(/\s*\}\s*$/, '');
+      cleaned = cleaned.replace(/^\s*\{\s*$/gm, '').replace(/^\s*\}\s*$/gm, '');
+      cleaned = cleaned.replace(/"([^"]+)":\s*"([^"]*)"/g, (_, key, value) => {
+        const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+        return `${formattedKey}: ${value}`;
+      });
+      cleaned = cleaned.replace(/"([^"]+)"/g, '$1');
+      cleaned = cleaned.replace(/,\s*$/gm, '');
+      cleaned = cleaned.replace(/\*\*/g, "");
+      return cleaned.trim();
+    };
+
+    // Load Fonts
+    const loadFont = async (url: string): Promise<string | null> => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) return null;
+        const blob = await response.blob();
+        if (blob.size < 1000) return null;
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64data = (reader.result as string).split(",")[1];
+            resolve(base64data);
+          };
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(blob);
+        });
+      } catch { return null; }
+    };
+
+    try {
+      const sarabunRegular = await loadFont("/fonts/Sarabun-Regular.ttf");
+      const sarabunBold = await loadFont("/fonts/Sarabun-Bold.ttf");
+      if (sarabunRegular) {
+        doc.addFileToVFS("Sarabun-Regular.ttf", sarabunRegular);
+        doc.addFont("Sarabun-Regular.ttf", "Sarabun", "normal");
+      }
+      if (sarabunBold) {
+        doc.addFileToVFS("Sarabun-Bold.ttf", sarabunBold);
+        doc.addFont("Sarabun-Bold.ttf", "Sarabun", "bold");
+      }
+    } catch (e) { console.error("Font loading error:", e); }
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 40;
+    const maxWidth = pageWidth - margin * 2;
+    const lineHeight = 14;
+    let yPosition = margin + 20;
+
+    const drawPageFooter = (pageNumber: number) => {
+      doc.setFontSize(8);
+      doc.setFont("Sarabun", "normal");
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Page ${pageNumber}`, pageWidth / 2, pageHeight - 20, { align: 'center' });
+      doc.text("Generated by TradingAgents", pageWidth - margin, pageHeight - 20, { align: 'right' });
+    };
+
+    const checkPageBreak = (neededHeight: number) => {
+      if (yPosition + neededHeight > pageHeight - margin) {
+        drawPageFooter(doc.getNumberOfPages());
+        doc.addPage();
+        yPosition = margin + 20;
+        return true;
+      }
+      return false;
+    };
+
+    const addText = (text: string, fontSize = 10, isBold = false, indent = 0, color: [number, number, number] = [50, 50, 50]) => {
+      if (!text) return;
+      doc.setFontSize(fontSize);
+      doc.setTextColor(color[0], color[1], color[2]);
+      doc.setFont("Sarabun", isBold ? "bold" : "normal");
+      const lines = doc.splitTextToSize(text, maxWidth - indent);
+      for (let i = 0; i < lines.length; i++) {
+        checkPageBreak(lineHeight);
+        doc.text(lines[i], margin + indent, yPosition);
+        yPosition += lineHeight;
+      }
+    };
+
+    const processData = (data: any, indent = 0) => {
+      if (Array.isArray(data)) {
+        data.forEach((item, index) => {
+          if (index > 0 && typeof item === 'object') {
+            yPosition += 8;
+            checkPageBreak(10);
+          }
+          if (typeof item === 'string') {
+            const cleanedText = cleanContent(item);
+            if (cleanedText) addText(`•  ${cleanedText}`, 10, false, indent + 5);
+          } else if (typeof item === 'object') {
+            processData(item, indent + 10);
+          }
+        });
+      } else if (typeof data === 'object' && data !== null) {
+        Object.entries(data).forEach(([key, value]) => {
+          if (["selected_indicators", "memory_application", "count", "conversation_history", "validation_notes", "metadata"].includes(key)) return;
+          const label = key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+          let strVal = typeof value === 'string' ? cleanContent(value) : '';
+          const isComplex = typeof value === 'object' && value !== null;
+          checkPageBreak(20);
+
+          if (isComplex) {
+            addText(label + ":", 10, true, indent, [0, 0, 0]);
+            processData(value, indent + 15);
+            yPosition += 4;
+          } else {
+             if (strVal.trim()) {
+                addText(label + ":", 10, true, indent, [50, 50, 50]);
+                addText(strVal, 10, false, indent + 15, [0, 0, 0]);
+                yPosition += 4;
+             }
+          }
+        });
+      } else {
+        const cleanedVal = cleanContent(String(data));
+        if (cleanedVal.trim()) addText(cleanedVal, 10, false, indent, [0, 0, 0]);
+      }
+    };
+
+    // --- MAIN RENDER LOGIC ---
+    
+    // Header
+    doc.setFontSize(18);
+    doc.setFont("Sarabun", "bold");
+    doc.setTextColor(0, 51, 102);
+    const reportTitle = isThai ? `รายงาน TradingAgents: ${item.ticker}` : `TradingAgents Report: ${item.ticker}`;
+    doc.text(reportTitle, margin, yPosition);
+    yPosition += 20;
+
+    doc.setFontSize(12);
+    doc.setFont("Sarabun", "normal");
+    doc.setTextColor(80, 80, 80);
+    const typeLabel = isSummary ? (isThai ? "สรุป" : "Summary") : (isThai ? "ฉบับเต็ม" : "Full Report");
+    const langLabel = isThai ? "(ภาษาไทย)" : "(English)";
+    doc.text(`${typeLabel} ${langLabel}`, margin, yPosition);
+    yPosition += 20;
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    const dateLabel = isThai ? "วันที่วิเคราะห์" : "Analysis Date";
+    doc.text(`${dateLabel}: ${item.analysis_date}`, margin, yPosition);
+    yPosition += 25;
+
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(1);
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 25;
+
+    // Recommendation
+    const portReport = item.reports.find((r: any) => 
+      (r.title?.toLowerCase().includes("portfolio") || r.title?.toLowerCase().includes("decision")) &&
+      r.report_type === "full_report"
+    );
+    if (portReport) {
+      let decision = "N/A";
+      let content = portReport.content;
+      if (typeof content === 'object' && content !== null) {
+         decision = content.judge_decision || content.decision || content.recommendation || "N/A";
+      }
+      if (decision !== "N/A") {
+        doc.setFont("Sarabun", "bold");
+        doc.setFontSize(14);
+        doc.setTextColor(0, 200, 0);
+        const recLabel = isThai ? "คำแนะนำ" : "Recommendation";
+        doc.text(`${recLabel}: ${decision}`, margin, yPosition);
+        yPosition += 25;
+      }
+    }
+
+    // Sections
+    const sections = getGroupedSections_History(item, isThai ? "th" : "en");
+    let sectionIdx = 0;
+
+    for (const section of sections) {
+      const content = isSummary ? section.sum : section.full;
+      if (!content) continue;
+
+      checkPageBreak(60);
+
+      // Section Header
+      doc.setFillColor(245, 245, 245);
+      doc.rect(margin, yPosition - 12, maxWidth, 24, 'F');
+      doc.setFontSize(13);
+      doc.setFont("Sarabun", "bold");
+      doc.setTextColor(0, 0, 0);
+      doc.text(`${++sectionIdx}. ${section.label}`, margin + 8, yPosition + 5);
+      yPosition += 30;
+
+      // Handle Content
+      let contentData: any = content;
+      if (typeof content === 'object' && content !== null) {
+          if (content.text) contentData = content.text;
+          else if (content.content) contentData = content.content; // fallback
+      }
+      
+      if (typeof contentData === 'string') {
+          // Check if string is actually JSON
+          try {
+             const cleanJson = contentData.replace(/```json/g, '').replace(/```/g, '').trim();
+             if (cleanJson.startsWith('{') || cleanJson.startsWith('[')) {
+                contentData = JSON.parse(cleanJson);
+             }
+          } catch {}
+      }
+
+      if (typeof contentData === 'string') {
+          const cleanedContent = cleanContent(contentData);
+          if (cleanedContent) {
+              const paragraphs = cleanedContent.split('\n').filter((p: string) => p.trim());
+              paragraphs.forEach((para: string) => {
+                  addText(para, 10, false, 0);
+                  yPosition += 4;
+              });
+          }
+      } else if (typeof contentData === 'object' && contentData !== null) {
+          // If object has text/content keys, render them first
+          if (contentData.text || contentData.content || contentData.summary) {
+              const textContent = contentData.text || contentData.content || contentData.summary;
+              if (typeof textContent === 'string') {
+                   const cleanedContent = cleanContent(textContent);
+                   if (cleanedContent) addText(cleanedContent, 10, false, 0);
+              }
+          }
+          processData(contentData);
+      }
+      yPosition += 20;
+    }
+
+    drawPageFooter(doc.getNumberOfPages());
+    const langSuffix = isThai ? "TH" : "EN";
+    const typeSuffix = isSummary ? "Summary" : "Full";
+    doc.save(`TradingAgents_${item.ticker}_${item.analysis_date}_${typeSuffix}_${langSuffix}.pdf`);
   };
 
   const generatePdf = async (options: PdfOptions) => {
