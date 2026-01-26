@@ -1505,7 +1505,14 @@ export default function Home() {
         }
       });
 
-      if (filteredSections.length === 0) return null;
+      // Note: We removed the aggressive fallback that dumped "Full" content into "Summary" 
+      // because it caused raw detailed JSON to appear in the Summary PDF.
+
+      // If we have no specific sections, but we have a decision, we should still generate the PDF (Header + Decision)
+      if (filteredSections.length === 0 && !contextDecision) {
+        // Only return null (abort) if we truly have NOTHING to show
+        return null;
+      }
 
       // Header
       singleDoc.setFontSize(18);
@@ -1557,15 +1564,37 @@ export default function Home() {
         singleDoc.text(section.label, margin + 8, docYPosition + 5);
         docYPosition += 30;
 
-        let contentData: any = section.text;
-        try {
-          if (typeof section.text === 'string') {
-            const cleanJsonStr = section.text.replace(/```json/g, "").replace(/```/g, "").trim();
-            if (cleanJsonStr.startsWith('{') || cleanJsonStr.startsWith('[')) {
-              contentData = JSON.parse(cleanJsonStr);
+        let contentData: any = parseThaiContent(section.text);
+
+        // Extra fallback: If it's still a string looking like JSON (e.g. malformed with newlines), try to parse manually
+        if (typeof contentData === 'string' && contentData.trim().startsWith('{')) {
+          try {
+            // Attempt to repair common issues (like unescaped newlines)
+            const fixedJson = contentData.replace(/(?:\r\n|\r|\n)/g, '\\n');
+            contentData = JSON.parse(fixedJson);
+          } catch (e) {
+            // If standard parsing still fails, use Regex to extract Key-Values manually
+            // This matches "key": "value" pattern, tolerant of typical LLM output style
+            const manualObj: Record<string, string> = {};
+            let match;
+            const regex = /"([^"]+)"\s*:\s*"((?:[^"\\]|\\.)*)"/g;
+            let hasMatch = false;
+
+            // Reset lastIndex
+            regex.lastIndex = 0;
+            while ((match = regex.exec(contentData)) !== null) {
+              hasMatch = true;
+              // Unescape key and value
+              const key = match[1];
+              const val = match[2].replace(/\\n/g, '\n').replace(/\\"/g, '"');
+              manualObj[key] = val;
+            }
+
+            if (hasMatch) {
+              contentData = manualObj;
             }
           }
-        } catch (e) { }
+        }
 
         docProcessData(contentData);
         docYPosition += 25;

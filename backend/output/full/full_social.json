@@ -1,8 +1,7 @@
 {
-    "sentiment_score": 50,
-    "sentiment_verdict": "Neutral (Data Unavailable)",
-    "social_volume_analysis": "Unable to retrieve social media data.",
-    "dominant_narrative": "No clear narrative identified.",
-    "top_discussion_topics": [],
-    "retail_psychology_assessment": "Insufficient data for psychological assessment."
+    "sentiment_verdict": "Neutral",
+    "social_volume": "No data available.",
+    "dominant_narrative": "No social media data was provided for analysis.",
+    "top_topics": [],
+    "psychology": "No data available."
 }

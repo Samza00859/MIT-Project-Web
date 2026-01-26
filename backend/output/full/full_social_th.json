@@ -1,8 +1,7 @@
 {
-    "sentiment_score": 50,
-    "sentiment_verdict": "เป็นกลาง (ข้อมูลไม่พร้อมใช้งาน)",
-    "social_volume_analysis": "ไม่สามารถดึงข้อมูลจากโซเชียลมีเดียได้",
-    "dominant_narrative": "ยังไม่พบเรื่องราวที่โดดเด่น",
-    "top_discussion_topics": [],
-    "retail_psychology_assessment": "ข้อมูลไม่เพียงพอสำหรับการประเมินทางจิตวิทยา"
+    "sentiment_verdict": "เป็นกลาง",
+    "social_volume": "ไม่มีข้อมูล",
+    "dominant_narrative": "ไม่มีข้อมูลสื่อสังคมออนไลน์สำหรับการวิเคราะห์",
+    "top_topics": [],
+    "psychology": "ไม่มีข้อมูล"
 }
