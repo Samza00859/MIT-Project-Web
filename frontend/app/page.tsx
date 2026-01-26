@@ -1403,43 +1403,220 @@ export default function Home() {
         }
       };
 
+      const cleanContent = (text: string): string => {
+        if (!text || typeof text !== 'string') return '';
+
+        let cleaned = text;
+
+        // Convert literal escape sequences to actual characters
+        cleaned = cleaned.replace(/\\n/g, '\n');  // \n to newline
+        cleaned = cleaned.replace(/\\t/g, '  ');  // \t to spaces
+        cleaned = cleaned.replace(/\\r/g, '');    // remove \r
+
+        // Remove backslashes used as emphasis markers (e.g., \word\)
+        cleaned = cleaned.replace(/\\([^\\]+)\\/g, '$1');  // \text\ -> text
+
+        // Remove all remaining standalone backslashes
+        cleaned = cleaned.replace(/\\/g, '');
+
+        // Remove code block markers
+        cleaned = cleaned.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+
+        // Convert markdown headers to bold-like text (preserve the content)
+        cleaned = cleaned.replace(/^#{1,6}\s+(.*)$/gm, '$1');
+
+        // Remove "Text:" labels at the start of lines
+        cleaned = cleaned.replace(/^Text:\s*/gim, '');
+
+        // Remove leading and trailing curly braces (for JSON objects that weren't parsed)
+        cleaned = cleaned.replace(/^\s*\{\s*/, '').replace(/\s*\}\s*$/, '');
+
+        // Remove standalone curly braces lines but keep JSON content
+        cleaned = cleaned.replace(/^\s*\{\s*$/gm, '').replace(/^\s*\}\s*$/gm, '');
+
+        // Convert JSON key-value format "key": "value" to Key: value
+        cleaned = cleaned.replace(/"([^"]+)":\s*"([^"]*)"/g, (_, key, value) => {
+          const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+          return `${formattedKey}: ${value}`;
+        });
+
+        // Remove quotes around remaining values
+        cleaned = cleaned.replace(/"([^"]+)"/g, '$1');
+
+        // Clean up trailing commas from JSON
+        cleaned = cleaned.replace(/,\s*$/gm, '').replace(/^\s*,\s*$/gm, '');
+
+        // Clean up markdown bold markers
+        cleaned = cleaned.replace(/\*\*/g, '');
+
+        // Remove excessive whitespace and empty lines
+        cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+        return cleaned.trim();
+      };
+
+      const THAI_KEY_MAP: Record<string, string> = {
+        "executive_summary": "บทสรุปผู้บริหาร",
+        "valuation_status": "สถานะมูลค่า",
+        "comprehensive_metrics": "ตัวชี้วัดที่ครอบคลุม",
+        "revenue_growth_year_over_year": "การเติบโตของรายได้ (YOY)",
+        "net_profit_margin": "อัตรากำไรสุทธิ",
+        "price_to_earnings_ratio": "อัตราส่วน P/E",
+        "debt_to_equity_ratio": "อัตราส่วนหนี้สินต่อทุน",
+        "return_on_equity": "ผลตอบแทนต่อส่วนผู้ถือหุ้น",
+        "free_cash_flow_status": "สถานะกระแสเงินสดอิสระ",
+        "key_strengths_analysis": "วิเคราะห์จุดแข็งหลัก",
+        "key_risks_analysis": "วิเคราะห์ความเสี่ยงหลัก",
+        "technical_outlook": "มุมมองทางเทคนิค",
+        "trend_analysis": "การวิเคราะห์แนวโน้ม",
+        "support_resistance_analysis": "การวิเคราะห์แนวรับแนวต้าน",
+        "key_levels": "ระดับสำคัญ",
+        "chart_patterns": "รูปแบบกราฟ",
+        "indicators_summary": "สรุปอินดิเคเตอร์",
+        "market_breadth": "ความกว้างของตลาด",
+        "sector_performance": "ผลการดำเนินงานรายกลุ่ม",
+        "sentiment_score": "คะแนนความรู้สึก",
+        "sentiment_analysis": "การวิเคราะห์ความรู้สึก",
+        "social_volume": "ปริมาณโซเชียล",
+        "key_topics": "หัวข้อสำคัญ",
+        "news_summary": "สรุปข่าว",
+        "impact_assessment": "การประเมินผลกระทบ",
+        "bull_case": "กรณีขาขึ้น",
+        "bear_case": "กรณีขาลง",
+        "risk_factors": "ปัจจัยเสี่ยง",
+        "mitigation_strategies": "กลยุทธ์การลดความเสี่ยง",
+        "investment_horizon": "ระยะเวลาการลงทุน",
+        "verdict": "คำตัดสิน",
+        "confidence_level": "ระดับความมั่นใจ",
+        "recommendation": "คำแนะนำ",
+        "decision": "การตัดสินใจ",
+        "market_overview": "ภาพรวมตลาด",
+        "trend_direction": "ทิศทางแนวโน้ม",
+        "momentum_state": "สถานะโมเมนตัม",
+        "volatility_level": "ระดับความผันผวน",
+        "volume_condition": "สภาวะปริมาณการซื้อขาย",
+        "indicator_analysis": "การวิเคราะห์อินดิเคเตอร์",
+        "indicator_full_name": "ชื่ออินดิเคเตอร์",
+        "signal": "สัญญาณ",
+        "implication": "นัยสำคัญ",
+        "ticker": "ชื่อหุ้น",
+        "date": "วันที่",
+        "key_support_levels": "ระดับแนวรับสำคัญ",
+        "key_resistance_levels": "ระดับแนวต้านสำคัญ",
+        "primary_trend": "แนวโน้มหลัก",
+        "price_action_summary": "สรุปพฤติกรรมราคา",
+        "recent_high_low": "จุดสูงสุด/ต่ำสุด ล่าสุด",
+        "support_levels": "ระดับแนวรับ",
+        "resistance_levels": "ระดับแนวต้าน",
+        "short_term_behavior": "พฤติกรรมระยะสั้น",
+        "market_sentiment": "ความรู้สึกตลาด",
+        "sentiment_label": "สถานะความรู้สึก",
+        "key_risks": "ความเสี่ยงหลัก",
+        "short_term_outlook": "แนวโน้มระยะสั้น",
+        "sentiment_verdict": "คำตัดสินความรู้สึก",
+        "dominant_narrative": "กระแสหลัก",
+        "top_topics": "หัวข้อเด่น",
+        "topic": "หัวข้อ",
+        "sentiment": "ความรู้สึก",
+        "analysis_snippet": "รายละเอียดการวิเคราะห์"
+      };
+
+      const getLabel = (key: string) => {
+        if (isThai) {
+          return THAI_KEY_MAP[key.toLowerCase()] || key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+        }
+        return key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      };
+
+      // Helper to properly parse Thai content which may be wrapped in {text: "```json...```"}
+      const parseThaiContent = (content: any): any => {
+        if (!content) return content;
+
+        // Helper to parse JSON from markdown code block string
+        const parseFromMarkdown = (str: string): any => {
+          let textValue = str.trim();
+          // Strip markdown code blocks (```json...``` or ```...```)
+          const codeBlockMatch = textValue.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?```$/);
+          if (codeBlockMatch) {
+            textValue = codeBlockMatch[1].trim();
+          }
+
+          if (textValue.startsWith('{') || textValue.startsWith('[')) {
+            try { return JSON.parse(textValue); } catch (e) {
+              // Try to handle escaped JSON strings
+              if (textValue.includes('\\n') || textValue.includes('\\"')) {
+                try {
+                  const unescaped = textValue.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+                  return JSON.parse(unescaped);
+                } catch { return null; }
+              }
+              return null;
+            }
+          }
+          return null;
+        };
+
+        const deepParse = (obj: any): any => {
+          if (typeof obj === 'string') {
+            const parsed = parseFromMarkdown(obj);
+            if (parsed !== null) return deepParse(parsed);
+            return obj;
+          }
+          if (Array.isArray(obj)) return obj.map(item => deepParse(item));
+          if (typeof obj === 'object' && obj !== null) {
+            const result: Record<string, any> = {};
+            for (const [key, value] of Object.entries(obj)) {
+              result[key] = deepParse(value);
+            }
+            return result;
+          }
+          return obj;
+        };
+
+        return deepParse(content);
+      };
+
+
       const docProcessData = (data: any, indent = 0) => {
-        const KEYS_TO_HIDE = ["selected_indicators", "memory_application", "count", "conversation_history", "indicator", "validation_notes", "metadata"];
+        const KEYS_TO_HIDE = ["selected_indicators", "memory_application", "count", "conversation_history", "full_content", "indicator", "validation_notes", "metadata", "raw", "raw_content", "markdown"];
         const KEYS_TO_SKIP = ["id", "timestamp"];
 
-        const cleanContent = (text: string) => {
-          if (!text || typeof text !== 'string') return '';
-          let cleaned = text.replace(/`/g, "").trim();
-          cleaned = cleaned.replace(/^#{1,6}\s+.*$/gm, '');
-          cleaned = cleaned.replace(/```json/g, '').replace(/```/g, '');
-          cleaned = cleaned.replace(/\*\*/g, "");
-          return cleaned.trim();
-        };
-
-        const toSentenceCase = (str: string) => {
-          const s = str.replace(/_/g, " ");
-          return s.charAt(0).toUpperCase() + s.slice(1);
-        };
+        if (!data) return;
 
         if (Array.isArray(data)) {
-          data.forEach((item, index) => {
-            if (index > 0 && typeof item === 'object') {
-              docYPosition += 8;
-              docCheckPageBreak(10);
-            }
+          data.forEach((dataItem, index) => {
+            if (typeof dataItem === 'object' && dataItem !== null) {
+              if (index > 0) {
+                docYPosition += 8;
+                docCheckPageBreak(10);
+                singleDoc.setDrawColor(220, 220, 220);
+                singleDoc.setLineWidth(0.5);
+                singleDoc.line(margin + indent, docYPosition, pageWidth - margin, docYPosition);
+                docYPosition += 12;
+              }
+              docProcessData(dataItem, indent);
+              docYPosition += 4;
+            } else {
+              let parsedItem = dataItem;
+              if (typeof dataItem === 'string' && (dataItem.trim().startsWith('{') || dataItem.trim().startsWith('['))) {
+                try { parsedItem = JSON.parse(dataItem); } catch (e) { }
+              }
 
-            if (typeof item === 'string') {
-              const cleanedText = cleanContent(item);
-              if (cleanedText) docAddText(`•  ${cleanedText}`, 10, false, indent + 5);
-            } else if (typeof item === 'object') {
-              docProcessData(item, indent + 10);
+              if (typeof parsedItem === 'object') {
+                docProcessData(parsedItem, indent + 10);
+              } else {
+                const cleanedText = cleanContent(String(parsedItem));
+                if (cleanedText) {
+                  docAddText(`•  ${cleanedText.replace(/\*\*/g, "")}`, 10, false, indent + 10);
+                }
+              }
             }
           });
         } else if (typeof data === 'object' && data !== null) {
           Object.entries(data).forEach(([key, value]) => {
             if (KEYS_TO_HIDE.includes(key)) return;
             if (KEYS_TO_SKIP.includes(key.toLowerCase())) return;
-            const label = toSentenceCase(key);
+
+            const label = getLabel(key);
             let valToProcess = value;
 
             if (typeof value === 'string' && (value.trim().startsWith('{') || value.trim().startsWith('['))) {
@@ -1447,27 +1624,61 @@ export default function Home() {
             }
 
             const isComplex = typeof valToProcess === 'object' && valToProcess !== null;
+
+            // Clean string values before display
             let strVal = '';
             if (!isComplex) {
-              strVal = cleanContent(String(valToProcess));
+              strVal = cleanContent(String(valToProcess)).replace(/\*\*/g, "");
             }
+            const isShortText = strVal.length < 80 && !strVal.includes('\n');
 
             if (!isComplex && !strVal.trim()) return;
 
             docCheckPageBreak(20);
 
+            // Special styling for analyst-type keys
+            const isAnalystKey = key.toLowerCase().includes('analyst') ||
+              key.toLowerCase().includes('history') ||
+              key.toLowerCase().includes('reasoning') ||
+              key.toLowerCase().includes('recommendation') ||
+              key.toLowerCase().includes('decision') ||
+              key.toLowerCase().includes('summary');
+
             if (isComplex) {
-              docAddText(label + ":", 10, true, indent, [0, 0, 0]);
+              if (isAnalystKey) {
+                docYPosition += 8;
+                docAddText(label + ":", 11, true, indent, [0, 100, 150]);
+                docYPosition += 4;
+              } else {
+                docAddText(label + ":", 10, true, indent, [40, 40, 40]);
+              }
               docProcessData(valToProcess, indent + 15);
-              docYPosition += 4;
+              docYPosition += 6;
             } else {
-              docAddText(label + ":", 10, true, indent, [50, 50, 50]);
-              docAddText(strVal, 10, false, indent + 15, [0, 0, 0]);
-              docYPosition += 4;
+              if (isShortText) {
+                const keyWidth = singleDoc.getTextWidth(label + ": ");
+                // Approximation for value width
+                const currentMaxWidth = pageWidth - margin * 2;
+
+                if (margin + indent + keyWidth + singleDoc.getTextWidth(strVal) < currentMaxWidth) {
+                  // Render inline
+                  docAddText(`${label}: ${strVal}`, 10, false, indent, isAnalystKey ? [0, 100, 150] : [50, 50, 50]);
+                  // Override color for value part handled in simple docAddText is hard, 
+                  // but simple bold/color switch in docAddText isn't granular.
+                  // Simplified: just render as one line
+                } else {
+                  docAddText(label + ":", 10, true, indent, isAnalystKey ? [0, 100, 150] : [50, 50, 50]);
+                  docAddText(strVal, 10, false, indent + 15, [0, 0, 0]);
+                }
+              } else {
+                docAddText(label + ":", 10, true, indent, isAnalystKey ? [0, 100, 150] : [50, 50, 50]);
+                docAddText(strVal, 10, false, indent + 15, [0, 0, 0]);
+                docYPosition += 4;
+              }
             }
           });
         } else {
-          const cleanedVal = cleanContent(String(data));
+          const cleanedVal = cleanContent(String(data)).replace(/\*\*/g, "");
           if (cleanedVal.trim()) docAddText(cleanedVal, 10, false, indent, [0, 0, 0]);
         }
       };
@@ -1566,34 +1777,11 @@ export default function Home() {
 
         let contentData: any = parseThaiContent(section.text);
 
-        // Extra fallback: If it's still a string looking like JSON (e.g. malformed with newlines), try to parse manually
-        if (typeof contentData === 'string' && contentData.trim().startsWith('{')) {
+        // Ensure contentData is valid for processing
+        if (typeof contentData === 'string' && (contentData.trim().startsWith('{') || contentData.trim().startsWith('['))) {
           try {
-            // Attempt to repair common issues (like unescaped newlines)
-            const fixedJson = contentData.replace(/(?:\r\n|\r|\n)/g, '\\n');
-            contentData = JSON.parse(fixedJson);
-          } catch (e) {
-            // If standard parsing still fails, use Regex to extract Key-Values manually
-            // This matches "key": "value" pattern, tolerant of typical LLM output style
-            const manualObj: Record<string, string> = {};
-            let match;
-            const regex = /"([^"]+)"\s*:\s*"((?:[^"\\]|\\.)*)"/g;
-            let hasMatch = false;
-
-            // Reset lastIndex
-            regex.lastIndex = 0;
-            while ((match = regex.exec(contentData)) !== null) {
-              hasMatch = true;
-              // Unescape key and value
-              const key = match[1];
-              const val = match[2].replace(/\\n/g, '\n').replace(/\\"/g, '"');
-              manualObj[key] = val;
-            }
-
-            if (hasMatch) {
-              contentData = manualObj;
-            }
-          }
+            contentData = JSON.parse(contentData);
+          } catch (e) { }
         }
 
         docProcessData(contentData);
