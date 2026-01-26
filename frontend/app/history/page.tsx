@@ -849,9 +849,13 @@ export default function HistoryPage() {
             // Remove "Text:" labels at the start of lines
             cleaned = cleaned.replace(/^Text:\s*/gim, '');
 
+            // Remove leading and trailing curly braces (for JSON objects that weren't parsed)
+            cleaned = cleaned.replace(/^\s*\{\s*/, '');
+            cleaned = cleaned.replace(/\s*\}\s*$/, '');
+
             // Remove standalone curly braces lines but keep JSON content
-            cleaned = cleaned.replace(/^\s*{\s*$/gm, '');
-            cleaned = cleaned.replace(/^\s*}\s*$/gm, '');
+            cleaned = cleaned.replace(/^\s*\{\s*$/gm, '');
+            cleaned = cleaned.replace(/^\s*\}\s*$/gm, '');
 
             // Convert JSON key-value format "key": "value" to Key: value
             cleaned = cleaned.replace(/"([^"]+)":\s*"([^"]*)"/g, (_, key, value) => {
@@ -861,6 +865,10 @@ export default function HistoryPage() {
 
             // Remove quotes around remaining values
             cleaned = cleaned.replace(/"([^"]+)"/g, '$1');
+
+            // Clean up trailing commas from JSON
+            cleaned = cleaned.replace(/,\s*$/gm, '');
+            cleaned = cleaned.replace(/^\s*,\s*$/gm, '');
 
             // Clean up markdown bold markers
             cleaned = cleaned.replace(/\*\*/g, '');
