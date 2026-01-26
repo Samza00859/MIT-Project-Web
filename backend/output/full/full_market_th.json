@@ -1,6 +1,6 @@
 ```json
 {
-    "ticker": "COM7.BK",
+    "ticker": "BCP.BK",
     "date": "2026-01-23",
     "selected_indicators": [
         "close_50_sma",
@@ -16,88 +16,89 @@
         "vwma"
     ],
     "market_overview": {
-        "trend_direction": "ขาลง",
-        "momentum_state": "อ่อนแอ",
-        "volatility_level": "ปานกลาง",
-        "volume_condition": "เป็นกลาง"
+        "trend_direction": "ขาขึ้น (Bullish)",
+        "momentum_state": "แข็งแกร่ง (Strong)",
+        "volatility_level": "ปานกลาง (Moderate)",
+        "volume_condition": "เพิ่มขึ้น (Rising)"
     },
     "indicator_analysis": [
         {
             "indicator": "close_50_sma",
-            "indicator_full_name": "ค่าเฉลี่ยเคลื่อนที่แบบธรรมดา 50 วัน",
-            "signal": "ราคาอยู่ต่ำกว่าเส้นค่าเฉลี่ยเคลื่อนที่แบบธรรมดา 50 วัน",
-            "implication": "บ่งชี้แนวโน้มขาลงในระยะสั้นถึงกลาง"
+            "indicator_full_name": "ค่าเฉลี่ยเคลื่อนที่แบบธรรมดา 50 วัน (50-Day Simple Moving Average)",
+            "signal": "ราคา (29.50) อยู่เหนือค่าเฉลี่ยเคลื่อนที่แบบธรรมดา 50 วัน (27.565).",
+            "implication": "แนวโน้มระยะสั้นถึงกลางเป็นบวก (Positive short-to-medium term trend)."
         },
         {
             "indicator": "close_10_ema",
-            "indicator_full_name": "ค่าเฉลี่ยเคลื่อนที่แบบเอ็กซ์โพเนนเชียล 10 วัน",
-            "signal": "ราคาอยู่ต่ำกว่าเส้นค่าเฉลี่ยเคลื่อนที่แบบเอ็กซ์โพเนนเชียล 10 วัน",
-            "implication": "บ่งชี้แนวโน้มขาลงในระยะสั้น"
+            "indicator_full_name": "ค่าเฉลี่ยเคลื่อนที่แบบเอ็กซ์โพเนนเชียล 10 วัน (10-Day Exponential Moving Average)",
+            "signal": "ราคา (29.50) อยู่เหนือค่าเฉลี่ยเคลื่อนที่แบบเอ็กซ์โพเนนเชียล 10 วัน (29.154).",
+            "implication": "บ่งชี้โมเมนตัมขาขึ้นและแนวโน้มระยะสั้นที่เป็นแนวดี (Indicates upward momentum and a bullish short-term trend)."
         },
         {
             "indicator": "macd",
-            "indicator_full_name": "การเบี่ยงเบนของค่าเฉลี่ยเคลื่อนที่",
-            "signal": "เส้น MACD อยู่ต่ำกว่าเส้นสัญญาณ และฮิสโตแกรม MACD เป็นค่าติดลบ",
-            "implication": "บ่งชี้โมเมนตัมขาลง"
+            "indicator_full_name": "การเบี่ยงเบนระหว่างค่าเฉลี่ยเคลื่อนที่ (Moving Average Convergence Divergence)",
+            "signal": "MACD (0.715) เป็นบวกและอยู่เหนือเส้นสัญญาณ (0.513). ฮิสโตแกรม MACD (0.202) เป็นบวก.",
+            "implication": "โมเมนตัมขาแข็งแกร่ง (Strong bullish momentum)."
         },
         {
             "indicator": "rsi",
-            "indicator_full_name": "ดัชนีความแข็งแกร่งสัมพัทธ์",
-            "signal": "RSI อยู่ที่ 52.80 บ่งชี้โมเมนตัมเป็นกลางถึงขาขึ้นเล็กน้อย",
-            "implication": "บ่งชี้ว่าไม่อยู่ในภาวะซื้อมากเกินไปหรือขายมากเกินไป แต่โมเมนตัมไม่ได้เป็นขาลงอย่างรุนแรง"
+            "indicator_full_name": "ดัชนีความแข็งแกร่งสัมพัทธ์ (Relative Strength Index)",
+            "signal": "RSI มีค่า 61.72 บ่งบอกถึงแรงซื้อที่แข็งแกร่ง แต่ยังไม่ถือว่ามากเกินไป (overbought).",
+            "implication": "ความเชื่อมั่นในเชิงบวก โดยยังมีโอกาสสำหรับการปรับตัวขึ้นเพิ่มเติม (Bullish sentiment, with room for further upward movement)."
         },
         {
             "indicator": "boll",
-            "indicator_full_name": "แถบ Bollinger",
-            "signal": "ราคาซื้อขายใกล้กับแถบล่างของ Bollinger Band (20.30 เทียบกับ LB ที่ 18.41)",
-            "implication": "บ่งชี้ว่าราคาอยู่ที่ปลายด้านล่างของช่วงการซื้อขายล่าสุด ซึ่งอาจบ่งบอกถึงภาวะขายมากเกินไปหรือแนวโน้มขาลงที่แข็งแกร่ง"
+            "indicator_full_name": "แถบ Bollinger (Bollinger Bands)",
+            "signal": "ราคา (29.50) ซื้อขายใกล้กับแถบบนของ Bollinger (30.942).",
+            "implication": "บ่งชี้แรงกดดันด้านราคาขาขึ้นที่แข็งแกร่ง อาจเข้าใกล้จุดสูงสุดระยะสั้นหรือต่อเนื่อง (Suggests strong upward price pressure, potentially nearing a short-term peak or continuation)."
         },
         {
             "indicator": "boll_ub",
-            "indicator_full_name": "แถบบนของ Bollinger Band",
-            "signal": "แถบบนของ Bollinger Band อยู่ที่ 20.74",
-            "implication": "ทำหน้าที่เป็นระดับต้านทานศักยภาพหากราคาปรับตัวสูงขึ้น"
+            "indicator_full_name": "แถบบนของ Bollinger (Upper Bollinger Band)",
+            "signal": "ราคาเข้าใกล้แถบบนของ Bollinger.",
+            "implication": "บ่งชี้ความสนใจในการซื้อที่แข็งแกร่ง (Indicates strong buying interest)."
         },
         {
             "indicator": "boll_lb",
-            "indicator_full_name": "แถบล่างของ Bollinger Band",
-            "signal": "แถบล่างของ Bollinger Band อยู่ที่ 18.41",
-            "implication": "ทำหน้าที่เป็นระดับสนับสนุนศักยภาพหากราคาปรับตัวลดลงต่อไป"
+            "indicator_full_name": "แถบล่างของ Bollinger (Lower Bollinger Band)",
+            "signal": "ราคาซื้อขายสูงกว่าแถบล่างของ Bollinger อย่างมีนัยสำคัญ (25.158).",
+            "implication": "ยืนยันแนวโน้มขาขึ้นที่แข็งแกร่งและการขาดแรงกดดันขาลง (Confirms a strong bullish trend and lack of downward pressure)."
         },
         {
             "indicator": "atr",
-            "indicator_full_name": "ค่าเฉลี่ยช่วงจริง",
-            "signal": "ATR คือ 0.627",
-            "implication": "บ่งชี้ความผันผวนปานกลาง"
+            "indicator_full_name": "ค่าเฉลี่ยช่วงจริง (Average True Range)",
+            "signal": "ATR คือ 0.845 บ่งบอกถึงความผันผวนปานกลาง.",
+            "implication": "คาดว่าการเคลื่อนไหวของราคาจะอยู่ในช่วงปานกลาง (Price movements are expected to be within a moderate range)."
         },
         {
             "indicator": "vwma",
-            "indicator_full_name": "ค่าเฉลี่ยเคลื่อนที่ถ่วงน้ำหนักตามปริมาณ",
-            "signal": "ราคาอยู่ต่ำกว่า VWMA (20.30 เทียบกับ 19.55)",
-            "implication": "เสริมสร้างแนวโน้มขาลงในระยะสั้น เนื่องจากราคาซื้อขายต่ำกว่าค่าเฉลี่ยถ่วงน้ำหนักตามปริมาณ"
+            "indicator_full_name": "ค่าเฉลี่ยเคลื่อนที่ถ่วงน้ำหนักตามปริมาณ (Volume Weighted Moving Average)",
+            "signal": "ราคา (29.50) อยู่เหนือ VWMA (28.081).",
+            "implication": "ยืนยันความเชื่อมั่นในเชิงบวก โดยปริมาณสนับสนุนระดับราคาปัจจุบัน (Confirms bullish sentiment, with volume supporting the current price level)."
         }
     ],
     "price_action_summary": {
-        "recent_high_low": "ราคาอยู่ใกล้ปลายด้านล่างของช่วงการซื้อขายล่าสุด หลังจากลดลงอย่างมีนัยสำคัญจากจุดสูงสุดก่อนหน้า",
+        "recent_high_low": "ราคาอยู่ที่ระดับสูงสุดล่าสุด ซื้อขายสูงกว่าค่าเฉลี่ยเคลื่อนที่ 50 วัน และ 10 วัน.",
         "support_levels": [
-            "20.00",
-            "19.60"
+            "28.75",
+            "28.00",
+            "26.75"
         ],
         "resistance_levels": [
-            "20.70",
-            "21.10"
+            "30.00",
+            "30.50",
+            "30.94"
         ],
-        "short_term_behavior": "ราคาแสดงแนวโน้มขาลงอย่างต่อเนื่องในช่วงหลายเดือนที่ผ่านมา โดยกิจกรรมการซื้อขายล่าสุดใกล้กับแถบล่างของ Bollinger Band"
+        "short_term_behavior": "ราคาแสดงให้เห็นถึงแนวโน้มขาขึ้นที่แข็งแกร่งในช่วงหลายวันที่ผ่านมา โดยทะลุระดับต้านทานก่อนหน้าและแสดงให้เห็นถึงโมเมนตัมที่เพิ่มขึ้น."
     },
     "market_sentiment": {
-        "sentiment_label": "ขาลง"
+        "sentiment_label": "ขาขึ้น (Bullish)"
     },
     "key_risks": [
-        "ราคาอยู่ต่ำกว่าเส้นค่าเฉลี่ยเคลื่อนที่ทั้งระยะสั้น (10-EMA) และระยะกลาง (50-SMA)",
-        "ฮิสโตแกรม MACD เป็นค่าติดลบ บ่งชี้โมเมนตัมขาลง",
-        "แรงกดดันในการขายอย่างต่อเนื่องอาจนำไปสู่การหลุดต่ำกว่าแถบล่างของ Bollinger Band",
-        "การเคลื่อนไหวของราคาเมื่อเร็วๆ นี้แสดงให้เห็นแนวโน้มขาลงที่ชัดเจน"
+        "มีความเสี่ยงที่เกิดภาวะซื้อมากเกินไป (overbought) หาก RSI ยังคงสูงขึ้นไปกว่า 70.",
+        "ความผันผวนที่เพิ่มขึ้นอย่างรวดเร็วอาจนำไปสู่การกลับตัวของราคาอย่างรวดเร็ว.",
+        "หากราคาไม่สามารถรักษาตัวให้อยู่เหนือ EMA 10 วันได้ อาจส่งสัญญาณการปรับฐานระยะสั้น."
     ],
-    "short_term_outlook": "แนวโน้มระยะสั้นสำหรับ COM7.BK เป็นขาลง โดยตัวบ่งชี้บ่งชี้ถึงแรงกดดันขาลงอย่างต่อเนื่อง การหลุดต่ำกว่าระดับสนับสนุนปัจจุบันอาจส่งสัญญาณการลดลงเพิ่มเติม"
+    "short_term_outlook": "หุ้นแสดงให้เห็นถึงโมเมนตัมขาขึ้นที่แข็งแกร่ง โดยได้รับการสนับสนุนจาก MACD ที่เป็นบวก RSI และราคาที่อยู่เหนือค่าเฉลี่ยเคลื่อนที่หลัก ระดับต้านทานใกล้กับแถบบนของ Bollinger บ่งชี้ถึงศักยภาพในการปรับตัวเล็กน้อยหรือการขึ้นต่อเนื่องหากโมเมนตัมยังคงอยู่ โดยรวมแล้ว แนวโน้มระยะสั้นยังคงเป็นขาขึ้น."
 }
 ```

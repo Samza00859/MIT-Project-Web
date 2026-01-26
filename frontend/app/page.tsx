@@ -1700,20 +1700,34 @@ export default function Home() {
       }
 
       const filteredSections = sourceList.filter(section => {
-        const lowerKey = section.key.toLowerCase();
-        const isSummarySection = lowerKey.includes("summar") ||
-          lowerKey.startsWith("summarize_") ||
-          lowerKey.includes("conclusion") ||
-          lowerKey.includes("recommendation") ||
-          lowerKey.includes("decision") ||
-          (section as any).report_type === "summary";
-
-        // Match the selected report type
+        // For standard "Summary Report" requests, we want to prioritize summary sections
         if (isSummaryReport) {
-          return isSummarySection;
-        } else {
-          return true; // Full report includes everything (Summary + Details)
+          const lowerKey = section.key.toLowerCase();
+          const isSummaryKey =
+            lowerKey.includes("summar") ||
+            lowerKey.startsWith("sum_") ||
+            lowerKey.includes("conclusion") ||
+            lowerKey.includes("recommendation") ||
+            lowerKey.includes("decision");
+
+          const isSummaryType = (section as any).report_type === "summary";
+
+          // If English, contextReportSections often already contains the correct set (just summaries),
+          // so filtering might be redundant but safe.
+          // If Thai, the translated list might have EVERYTHING, so we MUST filter.
+
+          // Optimization: If we find explicitly summary-marked content, return true.
+          // BUT, if the list ONLY contains general keys (e.g. from a backend that doesn't distinguish well),
+          // we might need to be careful not to filter everything out.
+
+          // Current logic: If it looks like a summary, keep it.
+          // Exception: If the source list doesn't have ANY summary keys, we might be forced to show what we have.
+
+          return isSummaryKey || isSummaryType;
         }
+
+        // For Full Report, show everything
+        return true;
       });
 
       // Note: We removed the aggressive fallback that dumped "Full" content into "Summary" 
@@ -1729,20 +1743,29 @@ export default function Home() {
       singleDoc.setFontSize(18);
       singleDoc.setFont("Sarabun", "bold");
       singleDoc.setTextColor(0, 51, 102);
-      const langLabel = isThai ? "(ภาษาไทย)" : "(English)";
-      const typeLabel = isSummaryReport ? (isThai ? "สรุป" : "Summary") : (isThai ? "ฉบับเต็ม" : "Full Report");
-      singleDoc.text(`TradingAgents Report: ${ticker}`, margin, docYPosition);
-      docYPosition += 20;
 
-      singleDoc.setFontSize(12);
-      singleDoc.setFont("Sarabun", "normal");
-      singleDoc.setTextColor(80, 80, 80);
-      singleDoc.text(`${typeLabel} ${langLabel}`, margin, docYPosition);
+      const reportTitle = isThai
+        ? `รายงาน TradingAgents: ${ticker}`
+        : `TradingAgents Report: ${ticker}`;
+
+      singleDoc.text(reportTitle, margin, docYPosition);
       docYPosition += 20;
 
       singleDoc.setFontSize(10);
+      singleDoc.setFont("Sarabun", "normal");
       singleDoc.setTextColor(100, 100, 100);
-      singleDoc.text(`Analysis Date: ${analysisDate}`, margin, docYPosition);
+
+      const dateLabel = isThai ? "วันที่วิเคราะห์" : "Analysis Date";
+      const generatedLabel = isThai ? "สร้างเมื่อ" : "Generated";
+
+      const timestamp = new Date().toLocaleString(isThai ? 'th-TH' : 'en-US', {
+        month: 'short', day: 'numeric', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      });
+
+      singleDoc.text(`${dateLabel}: ${analysisDate}`, margin, docYPosition);
+      docYPosition += 15;
+      singleDoc.text(`${generatedLabel}: ${timestamp}`, margin, docYPosition);
       docYPosition += 25;
 
       // Divider
@@ -1790,10 +1813,9 @@ export default function Home() {
 
       docDrawPageFooter(singleDoc.getNumberOfPages());
 
-      // Generate filename
-      const langSuffix = isThai ? "TH" : "EN";
+      // Generate filename - Match History format (No _EN/_TH suffix)
       const typeSuffix = isSummaryReport ? "Summary" : "Full";
-      const filename = `TradingAgents_${ticker}_${analysisDate}_${typeSuffix}_${langSuffix}.pdf`;
+      const filename = `TradingAgents_${ticker}_${analysisDate}_${typeSuffix}.pdf`;
 
       return { doc: singleDoc, filename };
     };

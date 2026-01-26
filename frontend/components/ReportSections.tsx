@@ -550,15 +550,18 @@ export default function ReportSections({
                         </button>
 
                         {/* Download PDF Button */}
-                        {reportSections.length > 0 && !isRunning && !reportSections.some(s => s.key === "error") && (
+                        {reportSections.length > 0 && !isRunning && !reportSections.some((s: { key: string }) => s.key === "error") && (
                             <button
                                 onClick={handleDownloadPdf}
-                                className={`cursor-pointer rounded-full border px-2.5 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium transition-all whitespace-nowrap ${isDarkMode
-                                    ? "text-[#2df4c6] border-white/20 bg-transparent hover:bg-[#2df4c6]/10"
-                                    : "text-white border-[#1D4ED8] bg-[#1D4ED8] hover:bg-[#1E40AF]"
+                                className={`flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold transition-all whitespace-nowrap ${isDarkMode
+                                    ? "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-500/30"
+                                    : "bg-blue-500 text-white hover:bg-blue-600"
                                     }`}
                             >
-                                {t.downloadPdf}
+                                <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                {t.downloadPdf} ({language === "th" ? "TH" : "EN"})
                             </button>
                         )}
 

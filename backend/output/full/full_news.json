@@ -1,42 +1,49 @@
 {
-    "executive_summary": "COM7.BK faces mixed signals. While some NVDR trading and short-selling data are available, there's a lack of recent, impactful news. Macroeconomic factors like inflation and interest rate decisions, alongside geopolitical tensions, create a complex environment. The company's performance will likely depend on its ability to navigate these broader economic uncertainties and capitalize on any consumer spending trends.",
+    "executive_summary": "Global energy prices, particularly natural gas and oil, are experiencing upward pressure due to cold weather and geopolitical factors. This, combined with a general shift from tech to other sectors and strong earnings expectations, creates a mixed but potentially bullish environment for energy-related stocks like BCP.BK, though specific company news is limited.",
     "market_sentiment_verdict": "Neutral",
     "global_macro_context": {
-        "macro_summary": "Central banks are expected to hold interest rates steady this week, with a focus on future policy. Geopolitical tensions remain a backdrop, with ongoing discussions around trade and international relations. Inflationary pressures and economic cooling signs are being monitored, creating a cautious outlook for global markets. The interplay between these factors suggests a period of watchful waiting for investors."
+        "macro_summary": "Global markets are navigating conflicting signals. Cold weather is driving up natural gas and oil prices, while geopolitical tensions and a potential shift away from tech stocks create broader market uncertainty. Central bank interest rate decisions remain a key focus, with expectations for a pause from the Fed. Geopolitical events and trade policies are also influencing investor sentiment, leading to a mixed outlook."
     },
     "top_news_developments": [
         {
-            "headline": "รายงานการซื้อขายหุ้นผ่าน NVDR ประจำวันที่ 23 ม.ค. 2569",
-            "source": "Ryt9",
-            "date": "5 ชั่วโมงที่ผ่านมา",
-            "sentiment": "Neutral",
-            "implication": "Provides data on institutional trading activity via NVDR, offering insights into foreign investor sentiment towards COM7.BK."
+            "headline": "Cold Weather Forces PJM to Preemptively Secure Gas-Fired Electricity",
+            "source": "Oilprice.com",
+            "date": "2026-01-26T07:30:00+00:00",
+            "sentiment": "Positive",
+            "implication": "Increased demand for natural gas and electricity generation services could benefit energy companies."
         },
         {
-            "headline": "รายงานหุ้นถูกชอร์ตเซล ประจำวันที่ 23 มกราคม 2569",
-            "source": "Ryt9",
-            "date": "2 วันที่ผ่านมา",
-            "sentiment": "Neutral",
-            "implication": "Indicates short-selling activity, which can signal bearish sentiment or hedging strategies by investors regarding COM7.BK."
+            "headline": "TotalEnergies Secures Extension of Libya’s Waha Oil Concessions to 2050",
+            "source": "Oilprice.com",
+            "date": "2026-01-26T07:40:02+00:00",
+            "sentiment": "Positive",
+            "implication": "Long-term stability in oil production for a major player suggests continued revenue streams and potential for related businesses."
         },
         {
-            "headline": "COM7 คว่ำแผนเข้าซื้อหุ้นเพิ่มทุน-ทำเทนเดอร์หุ้น MVP หลังเช็คละเอียด Due Diligence",
-            "source": "Ryt9",
-            "date": "2 เดือนที่ผ่านมา",
-            "sentiment": "Neutral",
-            "implication": "This past event shows a strategic decision to not proceed with an acquisition, indicating a cautious approach to expansion or a reassessment of valuation for MVP shares."
+            "headline": "Low Prices, Strong Demand, and the Cracks in the Oil Glut Story",
+            "source": "Oilprice.com",
+            "date": "2026-01-26T00:00:00+00:00",
+            "sentiment": "Positive",
+            "implication": "Suggests a tightening oil market, which is generally positive for oil producers and refiners."
         },
         {
-            "headline": "รายงานการซื้อขายหุ้นผ่าน NVDR ประจำวันที่ 21 ม.ค. 2569",
+            "headline": "Global Energy Transition Threatened by Critical Transformer Shortages",
+            "source": "Oilprice.com",
+            "date": "2026-01-25T16:00:00+00:00",
+            "sentiment": "Negative",
+            "implication": "Supply chain issues for essential energy infrastructure could slow down projects and increase costs, potentially impacting companies involved in the energy transition."
+        },
+        {
+            "headline": "คลื่นความเย็นหนุนราคาก๊าซฯ ในสหรัฐฯ และยุโรป INVX มอง เป็นบวกต่อ BANPU BCP แต่เป็นลบระยะสั้นต่อโรงไฟฟ้า SPP #WealthAlert",
             "source": "Ryt9",
-            "date": "4 วันที่ผ่านมา",
-            "sentiment": "Neutral",
-            "implication": "Another data point on NVDR trading, contributing to the overall picture of foreign investor interest and potential price pressure or support for COM7.BK."
+            "date": "4 ชั่วโมงที่ผ่านมา",
+            "sentiment": "Positive",
+            "implication": "Analyst outlook suggests that rising natural gas prices due to cold weather are positive for energy companies like BCP.BK."
         }
     ],
     "key_risks": [
-        "Lack of recent, significant company-specific news makes it difficult to assess direct impact on COM7.BK.",
-        "Broader economic uncertainty, including inflation and interest rate policies, could negatively affect consumer spending and thus COM7.BK's sales.",
-        "Geopolitical tensions and trade disputes can disrupt supply chains and impact global demand for electronics, a key market for COM7.BK."
+        "Geopolitical instability and trade policy shifts could impact global energy markets and supply chains.",
+        "Supply chain disruptions for critical energy infrastructure like transformers could hinder energy transition projects.",
+        "Volatility in commodity prices (oil, natural gas) can significantly affect revenue and profitability for energy companies."
     ]
 }
