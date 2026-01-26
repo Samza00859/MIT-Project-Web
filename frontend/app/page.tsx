@@ -1197,6 +1197,31 @@ export default function Home() {
         cleaned = cleaned.replace(/^#{1,6}\s+.*$/gm, '');
         cleaned = cleaned.replace(/```json/g, '').replace(/```/g, '');
         cleaned = cleaned.replace(/\*\*/g, "");
+
+        // Remove leading and trailing curly braces (for JSON objects that weren't parsed)
+        cleaned = cleaned.replace(/^\s*\{\s*/, '');
+        cleaned = cleaned.replace(/\s*\}\s*$/, '');
+
+        // Remove standalone curly brace lines
+        cleaned = cleaned.replace(/^\s*\{\s*$/gm, '');
+        cleaned = cleaned.replace(/^\s*\}\s*$/gm, '');
+
+        // Convert JSON key-value format "key": "value" to Key: value
+        cleaned = cleaned.replace(/"([^"]+)":\s*"([^"]*)"/g, (_, key, value) => {
+          const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+          return `${formattedKey}: ${value}`;
+        });
+
+        // Remove quotes around remaining values
+        cleaned = cleaned.replace(/"([^"]+)"/g, '$1');
+
+        // Clean up trailing commas from JSON
+        cleaned = cleaned.replace(/,\s*$/gm, '');
+        cleaned = cleaned.replace(/^\s*,\s*$/gm, '');
+
+        // Remove excessive whitespace and empty lines
+        cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+
         return cleaned.trim();
       };
 
@@ -1466,6 +1491,7 @@ export default function Home() {
       const filteredSections = sourceList.filter(section => {
         const lowerKey = section.key.toLowerCase();
         const isSummarySection = lowerKey.includes("summar") ||
+          lowerKey.startsWith("summarize_") ||
           lowerKey.includes("conclusion") ||
           lowerKey.includes("recommendation") ||
           lowerKey.includes("decision") ||
@@ -1518,7 +1544,7 @@ export default function Home() {
       }
 
       // Render Sections
-      filteredSections.forEach(async (section: any) => {
+      for (const section of filteredSections) {
         docCheckPageBreak(60);
 
         // Section Header
@@ -1543,7 +1569,7 @@ export default function Home() {
 
         docProcessData(contentData);
         docYPosition += 25;
-      });
+      }
 
       docDrawPageFooter(singleDoc.getNumberOfPages());
 
