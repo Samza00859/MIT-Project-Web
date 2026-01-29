@@ -1,13 +1,8 @@
 {
-    "sentiment_verdict": "Neutral",
-    "social_volume": "Low due to limited data for the specified period.",
-    "dominant_narrative": "The available data is from February 2025 and mentions a buyout of BSRC.BK by its parent company BCP.BK. No current narratives are discernible for the requested period.",
-    "top_topics": [
-        {
-            "topic": "BSRC.BK Buyout by BCP.BK",
-            "sentiment": "Mixed",
-            "analysis_snippet": "A past announcement indicates a buyout of BSRC.BK by BCP.BK, suggesting potential consolidation or strategic moves."
-        }
-    ],
-    "psychology": "Unable to determine due to lack of current data."
+    "sentiment_score": 50,
+    "sentiment_verdict": "Neutral (Data Unavailable)",
+    "social_volume_analysis": "Unable to retrieve social media data.",
+    "dominant_narrative": "No clear narrative identified.",
+    "top_discussion_topics": [],
+    "retail_psychology_assessment": "Insufficient data for psychological assessment."
 }

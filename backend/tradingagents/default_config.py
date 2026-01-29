@@ -31,8 +31,8 @@ DEFAULT_CONFIG = {
     # "backend_url": "https://api.opentyphoon.ai/v1",
 
     # "llm_provider": "typhoon",              # หรือ "typhoon"
-    # "deep_think_llm": "typhoon-v2.1-12b-instruct",
-    # "quick_think_llm": "typhoon-v2.1-12b-instruct",
+    # "deep_think_llm": "typhoon-v2.5-30b-a3b-instruct",
+    # "quick_think_llm": "typhoon-v2.5-30b-a3b-instruct",
     # "backend_url": "https://api.opentyphoon.ai/v1",
 
     # ollama settings

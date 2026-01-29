@@ -1,49 +1,49 @@
 {
-    "executive_summary": "Global energy prices, particularly natural gas and oil, are experiencing upward pressure due to cold weather and geopolitical factors. This, combined with a general shift from tech to other sectors and strong earnings expectations, creates a mixed but potentially bullish environment for energy-related stocks like BCP.BK, though specific company news is limited.",
+    "executive_summary": "Mixed signals in the market, with positive earnings from tech giants like IBM and SAP countered by concerns over AI spending, geopolitical tensions (Iran, Ukraine), and a potential economic slowdown impacting sectors like airlines and consumer goods. Geopolitical instability and inflation concerns persist.",
     "market_sentiment_verdict": "Neutral",
     "global_macro_context": {
-        "macro_summary": "Global markets are navigating conflicting signals. Cold weather is driving up natural gas and oil prices, while geopolitical tensions and a potential shift away from tech stocks create broader market uncertainty. Central bank interest rate decisions remain a key focus, with expectations for a pause from the Fed. Geopolitical events and trade policies are also influencing investor sentiment, leading to a mixed outlook."
+        "macro_summary": "Geopolitical tensions remain elevated, particularly concerning Iran and Ukraine, creating uncertainty. While some major tech companies report resilient earnings, the broader economic outlook is mixed, with concerns about inflation and the impact of AI investment on future profitability. Central bank actions regarding interest rates are closely watched, but recent statements suggest a cautious approach, balancing economic growth with price stability."
     },
     "top_news_developments": [
         {
-            "headline": "Cold Weather Forces PJM to Preemptively Secure Gas-Fired Electricity",
-            "source": "Oilprice.com",
-            "date": "2026-01-26T07:30:00+00:00",
+            "headline": "IBM beats fourth-quarter estimates, forecasts 5% revenue growth in 2026",
+            "source": "CNBC",
+            "date": "2026-01-28T21:11:37+00:00",
             "sentiment": "Positive",
-            "implication": "Increased demand for natural gas and electricity generation services could benefit energy companies."
+            "implication": "IBM's strong earnings and positive revenue forecast suggest resilience in the enterprise tech sector, driven by AI adoption."
         },
         {
-            "headline": "TotalEnergies Secures Extension of Libya’s Waha Oil Concessions to 2050",
-            "source": "Oilprice.com",
-            "date": "2026-01-26T07:40:02+00:00",
+            "headline": "SAP meets Q4 revenue forecasts, cloud demand resilient",
+            "source": "Reuters",
+            "date": "2026-01-29T05:15:12+00:00",
             "sentiment": "Positive",
-            "implication": "Long-term stability in oil production for a major player suggests continued revenue streams and potential for related businesses."
+            "implication": "SAP's performance indicates continued strong demand for cloud services, a positive sign for enterprise software companies navigating economic uncertainties."
         },
         {
-            "headline": "Low Prices, Strong Demand, and the Cracks in the Oil Glut Story",
-            "source": "Oilprice.com",
-            "date": "2026-01-26T00:00:00+00:00",
-            "sentiment": "Positive",
-            "implication": "Suggests a tightening oil market, which is generally positive for oil producers and refiners."
-        },
-        {
-            "headline": "Global Energy Transition Threatened by Critical Transformer Shortages",
-            "source": "Oilprice.com",
-            "date": "2026-01-25T16:00:00+00:00",
+            "headline": "10,000 flights canceled, a $200 million hit from the storm and a plunging stock: American Airlines’ bad week",
+            "source": "MarketWatch",
+            "date": "2026-01-28T21:05:00+00:00",
             "sentiment": "Negative",
-            "implication": "Supply chain issues for essential energy infrastructure could slow down projects and increase costs, potentially impacting companies involved in the energy transition."
+            "implication": "Significant operational disruptions and financial losses for American Airlines highlight the vulnerability of the travel industry to weather events and potential economic downturns."
         },
         {
-            "headline": "คลื่นความเย็นหนุนราคาก๊าซฯ ในสหรัฐฯ และยุโรป INVX มอง เป็นบวกต่อ BANPU BCP แต่เป็นลบระยะสั้นต่อโรงไฟฟ้า SPP #WealthAlert",
-            "source": "Ryt9",
-            "date": "4 ชั่วโมงที่ผ่านมา",
-            "sentiment": "Positive",
-            "implication": "Analyst outlook suggests that rising natural gas prices due to cold weather are positive for energy companies like BCP.BK."
+            "headline": "Oil hits 4-month high as Trump renews Iran threats, but crude’s momentum may be fleeting",
+            "source": "MarketWatch",
+            "date": "2026-01-28T17:19:00+00:00",
+            "sentiment": "Neutral",
+            "implication": "Geopolitical rhetoric concerning Iran is temporarily boosting oil prices, but market analysts suggest the rally may be short-lived, indicating underlying market fundamentals might not fully support sustained high prices."
+        },
+        {
+            "headline": "Amazon will cut 16,000 jobs, adding to the tech sector’s new wave of layoffs",
+            "source": "MarketWatch",
+            "date": "2026-01-28T12:05:00+00:00",
+            "sentiment": "Negative",
+            "implication": "Large-scale layoffs at Amazon signal a potential slowdown in the tech sector and increased caution regarding future growth, despite ongoing AI investments."
         }
     ],
     "key_risks": [
-        "Geopolitical instability and trade policy shifts could impact global energy markets and supply chains.",
-        "Supply chain disruptions for critical energy infrastructure like transformers could hinder energy transition projects.",
-        "Volatility in commodity prices (oil, natural gas) can significantly affect revenue and profitability for energy companies."
+        "Geopolitical instability, particularly concerning Iran and Ukraine, could disrupt energy markets and global trade.",
+        "Persistent inflation and potential interest rate hikes may dampen consumer spending and corporate investment.",
+        "The ongoing debate around AI profitability and the significant investment required could pose risks to tech sector valuations if revenue growth doesn't materialize as expected."
     ]
 }

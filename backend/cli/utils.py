@@ -145,7 +145,7 @@ def select_research_depth() -> int:
 
 #         "opentyphoon": [
 #             ("typhoon-v2.5 - Fast and efficient for quick tasks", "typhoon-v2.5-30b-a3b-instruct"),
-#             ("typhoon-v2.1 - Lightweight and efficient model", "typhoon-v2.1-12b-instruct"),
+#             ("typhoon-v2.1 - Lightweight and efficient model", "typhoon-v2.5-30b-a3b-instruct"),
 #         ],
 
 #         "anthropic": [
@@ -216,7 +216,7 @@ def select_shallow_thinking_agent(provider) -> str:
 #         ],
 #         "opentyphoon": [
 #             ("typhoon-v2.5 - Advanced reasoning and problem-solving model", "typhoon-v2.5-30b-a3b-instruct"),
-#             ("typhoon-v2.1 - Lightweight and efficient model", "typhoon-v2.1-12b-instruct")
+#             ("typhoon-v2.1 - Lightweight and efficient model", "typhoon-v2.5-30b-a3b-instruct")
 #         ],
 #         "anthropic": [
 #             ("Claude Haiku 3.5 - Fast inference and standard capabilities", "claude-3-5-haiku-latest"),

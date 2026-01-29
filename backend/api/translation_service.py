@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 # Typhoon API Configuration
 TYPHOON_API_URL = "https://api.opentyphoon.ai/v1/chat/completions"
-TYPHOON_MODEL = "typhoon-v2.1-12b-instruct"
+TYPHOON_MODEL = "typhoon-v2.5-30b-a3b-instruct"
 
 # Title translations mapping
 TITLE_EN_TO_TH: Dict[str, str] = {

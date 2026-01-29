@@ -15,9 +15,9 @@
   },
   "final_payload": {
     "overview": {
-      "marketCap": 1017179734016.0,
+      "marketCap": 1040973430784.0,
       "sharesOutstanding": 2974209736.0,
-      "peRatio": 23.733519,
+      "peRatio": 24.305555,
       "currency": "THB",
       "name": "ADVANC_ADVANCED INFO SERVICE",
       "sector": "Communication Services",
@@ -905,9 +905,9 @@
   "raw": {
     "yfinance": {
       "overview": {
-        "marketCap": 1017179734016.0,
+        "marketCap": 1040973430784.0,
         "sharesOutstanding": 2974209736.0,
-        "peRatio": 23.733519,
+        "peRatio": 24.305555,
         "currency": "THB",
         "name": "ADVANC_ADVANCED INFO SERVICE",
         "sector": "Communication Services",
@@ -1814,5 +1814,5 @@
       "incomestatement": {}
     }
   },
-  "timestamp": "2026-01-22T08:16:29.216367+00:00"
+  "timestamp": "2026-01-29T07:20:07.712453+00:00"
 }

@@ -133,7 +133,7 @@
 ## 📊 Current Configuration
 
 - **LLM Provider**: Typhoon (default)
-- **Models**: `typhoon-v2.1-12b-instruct`
+- **Models**: `typhoon-v2.5-30b-a3b-instruct`
 - **Data Sources**: Mix of local cached data and API sources
 - **Debate Rounds**: 1 (configurable)
 

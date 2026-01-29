@@ -50,3 +50,13 @@ Finnhub global news have : 50 posts.
 
 Fetched 3 news items for ADVANC.BK from YFinance.
 Fetched 0 news items for ADVANC.BK from Alpha Vantage.
+
+🌐 Social Media News: 
+Bluesky news fetched for ADVANC.BK: 0 posts found.
+📰 News :
+Fetched 0 news items for ADVANC.BK from Finnhub.
+Yfinance global news have : 50 posts.
+Fetched 3 news items for ADVANC.BK from YFinance.
+Fetched 0 news items for ADVANC.BK from Alpha Vantage.
+Finnhub global news have : 50 posts.
+

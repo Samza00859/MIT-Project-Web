@@ -43,7 +43,7 @@ def create_summarizer_risk_manager():
         
         try:
             response = await client.chat.completions.create( # await
-                model="typhoon-v2.1-12b-instruct",
+                model="typhoon-v2.5-30b-a3b-instruct",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}

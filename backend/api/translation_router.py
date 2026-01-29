@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api/translate", tags=["Translation"])
 
 # Typhoon API Configuration
 TYPHOON_API_URL = "https://api.opentyphoon.ai/v1/chat/completions"
-TYPHOON_MODEL = "typhoon-v2.1-12b-instruct"
+TYPHOON_MODEL = "typhoon-v2.5-30b-a3b-instruct"
 
 
 class TranslationRequest(BaseModel):
